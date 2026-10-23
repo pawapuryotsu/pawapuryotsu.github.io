@@ -12,6 +12,7 @@ AD_SLOT = ""                                  # 広告ユニット（ディス�
 OPERATOR = "りょーつー"                       # 運営者名（ハンドルネーム）。ハンドルネーム以外は書かない
 OPERATOR_INTRO = "パワプロアプリをプレイしながら、YouTube でデッキ解説や育成動画を投稿しています。"
 CONTACT_FORM = "https://forms.gle/QkvV8i98YKqHsFyr6"                             # Googleフォームの URL（https://forms.gle/...）
+GA_ID = ""                                    # Googleアナリティクス4の測定ID（G-XXXXXXXXXX）。空なら解析なし
 POLICY_DATE = "2026年10月"                    # プライバシーポリシーの制定日
 
 NAV = [("home", "", "トップ"), ("roman", "decks/roman/", "ロマン開花學園<small>投手</small>"),
@@ -36,6 +37,21 @@ def ad_block():
     return (f'<div class="ad-slot"><ins class="adsbygoogle" style="display:block" data-ad-client="{ADSENSE_CLIENT}" '
             f'data-ad-slot="{AD_SLOT}" data-ad-format="auto" data-full-width-responsive="true"></ins>'
             '<script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>')
+
+
+def ga_head():
+    if not GA_ID:
+        return ""
+    return (f'<script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>\n'
+            f"<script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments)}}gtag('js',new Date());gtag('config','{GA_ID}');</script>")
+
+
+def analytics_note():
+    if not GA_ID:
+        return "当サイトは現在、アクセス解析ツール（Google アナリティクスなど）を使っていません。導入する場合はこのページでお知らせします。"
+    return ("当サイトは、アクセス状況を把握するために Google アナリティクス（GA4）を使っています。Google アナリティクスは Cookie を使って、個人を特定しない形でアクセス情報（閲覧ページ、おおよその地域、使用端末など）を収集します。"
+            "収集を望まない場合は、ブラウザの設定で Cookie を無効にするか、<a href=\"https://tools.google.com/dlpage/gaoptout\" target=\"_blank\" rel=\"noopener\">Google アナリティクス オプトアウト アドオン</a>を利用してください。"
+            "詳しくは <a href=\"https://policies.google.com/technologies/partner-sites?hl=ja\" target=\"_blank\" rel=\"noopener\">Google のポリシー</a>をご覧ください。")
 
 
 def contact_block():
@@ -66,7 +82,7 @@ for page in sorted((src / "pages").glob("*.html")):
     noindex = meta.get("noindex") == "yes"
     rep = {"title": meta["title"], "description": meta["description"], "canonical": f"{SITE_URL}/{path}",
            "robots": '<meta name="robots" content="noindex">' if noindex else "", "adsense_head": adsense_head(),
-           "head_extra": '<meta name="google-site-verification" content="ZgxID967oum-2Mm1F5BCX9gvQE_vNl2ZDbXXWfyYP10" />', "nav": nav, "scripts": scripts, "operator": OPERATOR, "operator_intro": OPERATOR_INTRO,
+           "analytics_note": analytics_note(), "head_extra": ga_head() + '<meta name="google-site-verification" content="ZgxID967oum-2Mm1F5BCX9gvQE_vNl2ZDbXXWfyYP10" />', "nav": nav, "scripts": scripts, "operator": OPERATOR, "operator_intro": OPERATOR_INTRO,
            "contact_block": contact_block(), "policy_date": POLICY_DATE, "ad": ad_block()}
     html = layout.replace("{{content}}", body)
     for _ in range(2):  # 本文の中の {{root}} なども置き換える
