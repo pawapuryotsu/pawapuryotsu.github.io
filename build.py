@@ -66,7 +66,7 @@ for page in sorted((src / "pages").glob("*.html")):
     noindex = meta.get("noindex") == "yes"
     rep = {"title": meta["title"], "description": meta["description"], "canonical": f"{SITE_URL}/{path}",
            "robots": '<meta name="robots" content="noindex">' if noindex else "", "adsense_head": adsense_head(),
-           "head_extra": "", "nav": nav, "scripts": scripts, "operator": OPERATOR, "operator_intro": OPERATOR_INTRO,
+           "head_extra": '<meta name="google-site-verification" content="ZgxID967oum-2Mm1F5BCX9gvQE_vNl2ZDbXXWfyYP10" />', "nav": nav, "scripts": scripts, "operator": OPERATOR, "operator_intro": OPERATOR_INTRO,
            "contact_block": contact_block(), "policy_date": POLICY_DATE, "ad": ad_block()}
     html = layout.replace("{{content}}", body)
     for _ in range(2):  # 本文の中の {{root}} なども置き換える
