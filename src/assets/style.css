@@ -197,3 +197,5 @@ footer .flinks a{color:var(--field-ink);font-size:13px}
 /* ===== 広告枠：AdSenseの設定を入れるまでは何も表示しない ===== */
 .ad-slot{margin:8px 0;text-align:center;min-height:100px}
 .ad-slot::before{content:"スポンサーリンク";display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
+
+.guideimg{display:block;width:auto;max-width:100%;height:auto;border-radius:8px}
