@@ -11,7 +11,7 @@ ADSENSE_CLIENT = ""                           # AdSense のサイト追加で出
 AD_SLOT = ""                                  # 広告ユニット（ディスプレイ広告）を作ったらその番号。空なら広告枠は出さない
 OPERATOR = "りょーつー"                       # 運営者名（ハンドルネーム）。ハンドルネーム以外は書かない
 OPERATOR_INTRO = "パワプロアプリをプレイしながら、YouTube でデッキ解説や育成動画を投稿しています。"
-CONTACT_FORM = ""                             # Googleフォームの URL（https://forms.gle/...）
+CONTACT_FORM = "https://forms.gle/QkvV8i98YKqHsFyr6"                             # Googleフォームの URL（https://forms.gle/...）
 POLICY_DATE = "2026年10月"                    # プライバシーポリシーの制定日
 
 NAV = [("home", "", "トップ"), ("roman", "decks/roman/", "ロマン開花學園<small>投手</small>"),
