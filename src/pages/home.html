@@ -1,0 +1,46 @@
+<!--
+title: パワプロアプリ攻略ベース｜サクセスのデッキまとめ・攻略情報
+description: パワプロアプリのサクセスで実際に使った育成デッキを、育成結果（選手ランク・総経験点）つきでまとめています。ロマン開花學園・アンドロメダ学園のデッキ、コスト計算ツールなど。
+path:
+nav: home
+scripts: decks
+-->
+<section class="hero">
+  <svg class="diamond" viewBox="0 0 300 300" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M150 40 260 150 150 260 40 150z" stroke-opacity=".55"/>
+    <path d="M150 260 20 130M150 260 280 130" stroke-opacity=".3"/>
+    <circle cx="150" cy="150" r="14" stroke-opacity=".5"/>
+    <g fill="currentColor" fill-opacity=".85" stroke="none"><rect x="143" y="33" width="14" height="14" transform="rotate(45 150 40)"/><rect x="253" y="143" width="14" height="14" transform="rotate(45 260 150)"/><rect x="33" y="143" width="14" height="14" transform="rotate(45 40 150)"/><path d="M142 252h16v8l-8 8-8-8z"/></g>
+  </svg>
+  <h1><span>パワプロアプリ</span><span>ガチ勢による</span><br><span>最先端攻略サイト</span></h1>
+  <p>実践デッキや攻略情報をまとめています。</p>
+  <div class="cta">
+    <a class="btn" href="https://www.youtube.com/@pawapuryotsu" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-yt"/></svg>YouTubeで解説を見る</a>
+    <a class="btn ghost" href="https://x.com/pawapuryotsu" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-x"/></svg>Xで更新をチェック</a>
+  </div>
+</section>
+
+<h2 class="sec"><span class="mk"><i>サクセス デッキまとめ</i></span></h2>
+<div class="grid2">
+  <a class="scard" href="{{root}}decks/roman/"><h3>ロマン開花學園</h3><div class="score"><b data-count="roman">0</b><span>デッキ掲載</span></div><span class="go" aria-hidden="true">→</span></a>
+  <a class="scard" href="{{root}}decks/andromeda/"><h3>アンドロメダ学園</h3><div class="score"><b data-count="andromeda">0</b><span>デッキ掲載</span></div><span class="go" aria-hidden="true">→</span></a>
+</div>
+
+<h2 class="sec"><span class="mk sky"><i>ツール</i></span></h2>
+<div class="grid2">
+  <a class="scard" href="https://pawapuryotsu.github.io/roman_costchecker/" target="_blank" rel="noopener"><span class="tag p">ロマン開花學園</span><h3>コスト計算ツール</h3><p>花と種の必要コストをその場で計算します。</p><span class="go" aria-hidden="true">↗</span></a>
+</div>
+
+{{ad}}
+
+<h2 class="sec"><span class="mk pink"><i>更新履歴</i></span></h2>
+<ul class="news">
+  <li><time>2026.10.--</time><span>サイトを公開しました</span></li>
+</ul>
+
+<h2 class="sec"><span class="mk lime"><i>フォローする</i></span></h2>
+<div class="follow">
+  <a href="https://www.youtube.com/@pawapuryotsu" target="_blank" rel="noopener"><span class="ic yt"><svg aria-hidden="true"><use href="#i-yt"/></svg></span><span><b>YouTube</b><small>デッキの解説・育成動画</small></span></a>
+  <a href="https://x.com/pawapuryotsu" target="_blank" rel="noopener"><span class="ic"><svg aria-hidden="true"><use href="#i-x"/></svg></span><span><b>X　@pawapuryotsu</b><small>更新のお知らせ</small></span></a>
+</div>
+<script>addEventListener("DOMContentLoaded",()=>document.querySelectorAll("[data-count]").forEach(b=>b.textContent=DECKS[b.dataset.count].list.length))</script>
