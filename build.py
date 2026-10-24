@@ -7,7 +7,7 @@ from datetime import date
 # ===== 設定（ここだけ書き換えればOK） =====
 SITE_URL = "https://pawapuryotsu.com"   # 独自ドメインにしたら "https://example.com" のように変える
 CUSTOM_DOMAIN = "pawapuryotsu.com"                          # 独自ドメインを使うときだけ "example.com" と書く（CNAME ファイルになる）
-ADSENSE_CLIENT = ""                           # AdSense のサイト追加で出る "ca-pub-1234567890123456"
+ADSENSE_CLIENT = "ca-pub-8546020269968696"                           # AdSense のサイト追加で出る "ca-pub-1234567890123456"
 AD_SLOT = ""                                  # 広告ユニット（ディスプレイ広告）を作ったらその番号。空なら広告枠は出さない
 OPERATOR = "りょーつー"                       # 運営者名（ハンドルネーム）。ハンドルネーム以外は書かない
 OPERATOR_INTRO = "パワプロアプリをプレイしながら、YouTube でデッキ解説や育成動画を投稿しています。"
