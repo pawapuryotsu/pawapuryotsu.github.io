@@ -202,3 +202,4 @@ footer .flinks a{color:var(--field-ink);font-size:13px}
 .vnote{margin:8px 0 0;font-size:13px;color:var(--muted)}
 .baseimg.half{width:calc((100% - 24px)/2);max-width:260px}
 .smark{color:var(--clay);margin-right:2px}
+.ddate{margin:0;font-size:13px;color:var(--muted)}
