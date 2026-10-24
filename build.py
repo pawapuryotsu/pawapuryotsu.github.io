@@ -12,7 +12,7 @@ AD_SLOT = ""                                  # 広告ユニット（ディス�
 OPERATOR = "りょーつー"                       # 運営者名（ハンドルネーム）。ハンドルネーム以外は書かない
 OPERATOR_INTRO = "パワプロアプリをプレイしながら、YouTube でデッキ解説や育成動画を投稿しています。"
 CONTACT_FORM = "https://forms.gle/QkvV8i98YKqHsFyr6"                             # Googleフォームの URL（https://forms.gle/...）
-GA_ID = ""                                    # Googleアナリティクス4の測定ID（G-XXXXXXXXXX）。空なら解析なし
+GA_ID = "G-F98XGNW3LS"                                    # Googleアナリティクス4の測定ID（G-XXXXXXXXXX）。空なら解析なし
 POLICY_DATE = "2026年10月"                    # プライバシーポリシーの制定日
 
 NAV = [("home", "", "トップ"), ("roman", "decks/roman/", "ロマン開花學園<small>投手</small>"),
