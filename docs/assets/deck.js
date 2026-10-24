@@ -26,7 +26,8 @@ function hasReform(rows,prefix){
 function maxCap(rows){ return Math.max(0,...rows.map(([n,rar,lv])=>lvValue(CHAR[n]?.bonus?.["サポ：獲得経験点上限"]?.表示,rar,lv)||0)); }
 function itemList(rows){ const items=[...new Set(rows.flatMap(([n])=>(CHAR[n]?.アイテム||[]).map(x=>x.名前)))];
   return items.length?`<ul class="items">${items.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<p class="muted">なし</p>`; }
-function videoBlock(id){ if(!/^[\w-]{11}$/.test(id||"")) return `<p class="muted">準備中</p>`;
+function videoBlock(id){ if(id==="なし") return `<p>なし</p>`;
+  if(!/^[\w-]{11}$/.test(id||"")) return `<p class="muted">準備中</p>`;
   const url=`https://youtu.be/${id}`;
   return `<button type="button" class="yt" data-id="${id}" aria-label="動画を再生"><img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="動画のサムネイル" loading="lazy" onerror="this.parentNode.style.display='none'"><span class="play">▶</span></button>
     <a class="video" href="${url}" target="_blank" rel="noopener">YouTubeで見る</a>`; }
