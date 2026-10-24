@@ -199,3 +199,4 @@ footer .flinks a{color:var(--field-ink);font-size:13px}
 .ad-slot::before{content:"スポンサーリンク";display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
 
 .guideimg{display:block;width:auto;max-width:100%;height:auto;border-radius:8px}
+.vnote{margin:8px 0 0;font-size:13px;color:var(--muted)}
