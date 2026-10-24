@@ -34,6 +34,9 @@ function reformLine(d){
   const rows=[...d.main,...d.sub];
   return `<p class="reform">${REFORM[state.school].map(([label,prefix])=>{const ok=hasReform(rows,prefix);return `<span class="${ok?"ok":"ng"}">${label} ${ok?"〇":"×"}</span>`}).join("")}</p>`;
 }
+/* ●＝そのシナリオの高校キャラ。ロマンはメイン・サポート両方、アンドロメダはメインだけ */
+const SCHOOL_MARK={roman:{main:true,sub:true},andromeda:{main:true,sub:false}};
+const schoolMark=(c,where)=>SCHOOL_MARK[state.school]?.[where]&&c?.所属高校===SCHOOL_NAME[state.school]?`<span class="smark" title="${SCHOOL_NAME[state.school]}のキャラ">●</span>`:"";
 const shortName=n=>{const c=CHAR[n]; return c&&c.二つ名?`[${c.二つ名}]${c.苗字}`:n;};
 const BASE_CAPS=[["球速上限アップ","球速"],["コントロール上限アップ","コン"],["スタミナ上限アップ","スタ"]];
 const SUPPORT_EXTRA={roman:[{label:"基礎上限",get:(c,rar,lv)=>{
@@ -78,7 +81,7 @@ function slotTable(rows,deckPos){
       if(typeof v==="number") return `<td class="num">${v}${col.unit||""}</td>`;
       return `<td>${esc(col.src==="得意練習"?abbrPractice(v):v)}</td>`;}).join("");
     const g=posGold(c,deckPos); const star=g.length?`<span class="star" title="${esc(g.join("・"))}">☆</span>`:"";
-    return `<tr><td class="name ${hit?"found":""}">${star}${esc(shortName(name))}${c?"":"（データなし）"}</td><td class="num rl">${rar}${lv}</td>${cells}</tr>`;
+    return `<tr><td class="name ${hit?"found":""}">${schoolMark(c,"main")}${star}${esc(shortName(name))}${c?"":"（データなし）"}</td><td class="num rl">${rar}${lv}</td>${cells}</tr>`;
   }).join("");
   return `<div class="tablewrap"><table class="slots"><thead><tr><th>キャラ</th><th class="num">Lv</th>${cols.map(col=>`<th class="${col.unit?"num":""}">${col.label}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div>`;
 }
@@ -93,7 +96,7 @@ function supportTable(rows,deckPos){
     const c=CHAR[name]||(opt&&{ポジション:opt.pos}); const hit=ts.some(t=>matchesTerm(name,t));
     const [jt,jc]=c?judge(c,deckPos):["―",""];
     const posText=c?(c.分類==="彼女"||c.分類==="相棒"?c.分類:(c.ポジション||"―")):"―";
-    return `<tr><td class="name ${hit?"found":""}">${esc(shortName(name))}${c?"":"（データなし）"}</td><td class="num rl">${rar}${lv}</td><td>${esc(posText)}</td><td><span class="judge ${jc}">${jt}</span></td>${extra.map(e=>`<td>${c?e.get(c,rar,lv):"―"}</td>`).join("")}</tr>`;
+    return `<tr><td class="name ${hit?"found":""}">${schoolMark(CHAR[name],"sub")}${esc(shortName(name))}${c?"":"（データなし）"}</td><td class="num rl">${rar}${lv}</td><td>${esc(posText)}</td><td><span class="judge ${jc}">${jt}</span></td>${extra.map(e=>`<td>${c?e.get(c,rar,lv):"―"}</td>`).join("")}</tr>`;
   }).join("");
   return `<div class="tablewrap"><table class="slots"><thead><tr><th>キャラ</th><th class="num">Lv</th><th>守備</th><th>判定</th>${extra.map(e=>`<th>${e.label}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div>`;
 }
@@ -115,9 +118,9 @@ function renderList(){
       ${d.u?`<img class="baseimg${state.school==="roman"?" half":""}" src="${IMG[d.u]}" alt="基礎上限">`:`<div class="subimg">基礎上限のスクショ</div>`}
       <div class="reformwrap">${reformLine(d)}<p class="cap">獲得経験点上限<b>${maxCap(d.sub)||"なし"}</b></p></div>
       <div class="detail">
-        <div><h3>メインデッキ <small>☆＝このポジションの至高・球界の頭脳が取れる</small></h3>${slotTable(d.main,d.pos)}</div>
+        <div><h3>メインデッキ <small>●＝${SCHOOL_NAME[state.school]}のキャラ　☆＝このポジションの至高・球界の頭脳が取れる</small></h3>${slotTable(d.main,d.pos)}</div>
         <div><h3>追加アイテム</h3>${itemList(d.main)}</div>
-        <div><h3>サポートデッキ</h3>${supportTable(d.sub,d.pos)}</div>
+        <div><h3>サポートデッキ${SCHOOL_MARK[state.school].sub?` <small>●＝${SCHOOL_NAME[state.school]}のキャラ</small>`:""}</h3>${supportTable(d.sub,d.pos)}</div>
         <div><h3>育成のポイント</h3>${Array.isArray(d.tips)?`<ul class="tips">${d.tips.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<p>${d.tips}</p>`}</div>
         <div><h3>解説動画</h3>${videoBlock(d.video)}${d.videoNote?`<p class="vnote">※${esc(d.videoNote)}</p>`:""}</div>
       </div></details>`}).join(""):s.list.length===0?`<div class="empty">このシナリオのデッキは準備中です。<br>掲載しだい <a href="${SNS.x}" target="_blank" rel="noopener">X</a> でお知らせします。</div>`:`<div class="empty">条件に合うデッキがありません。<br>ポジションのチェックやキャラ名を見直してください。</div>`;
