@@ -49,7 +49,7 @@ const state={school:document.body.dataset.school,sort:"exp",pos:{},q:""};
 const norm=s=>s.normalize("NFKC").toLowerCase().replace(/[\s　]/g,"").replace(/[ぁ-ゖ]/g,c=>String.fromCharCode(c.charCodeAt(0)+96));
 const terms=()=>state.q.split(/[\s　]+/).map(norm).filter(Boolean);
 /* キャラ名か読み仮名（ひらがな）のどちらかに含まれていれば一致 */
-const matchesTerm=(name,t)=>norm(name).includes(t)||norm(CHAR[name]?.読み||"").includes(t);
+const matchesTerm=(name,t)=>norm(name).includes(t)||norm(CHAR[name]?.読み||"").includes(t)||norm([].concat(CHAR[name]?.二つ名読み||"").join(" ")).includes(t);
 
 function deckMatches(d){
   if(state.pos[d.pos]===false) return false;
@@ -112,7 +112,7 @@ function renderList(){
         <img class="deckimg" src="${IMG[d.d]}" alt="メインデッキ">
       </summary>
       ${d.s?`<img class="subdeck" src="${IMG[d.s]}" alt="サポートデッキ">`:`<div class="subimg">サポートデッキのスクショ</div>`}
-      ${d.u?`<img class="baseimg" src="${IMG[d.u]}" alt="基礎上限">`:`<div class="subimg">基礎上限のスクショ</div>`}
+      ${d.u?`<img class="baseimg${state.school==="roman"?" half":""}" src="${IMG[d.u]}" alt="基礎上限">`:`<div class="subimg">基礎上限のスクショ</div>`}
       <div class="reformwrap">${reformLine(d)}<p class="cap">獲得経験点上限<b>${maxCap(d.sub)||"なし"}</b></p></div>
       <div class="detail">
         <div><h3>メインデッキ <small>☆＝このポジションの至高・球界の頭脳が取れる</small></h3>${slotTable(d.main,d.pos)}</div>
@@ -136,7 +136,7 @@ function renderDecks(){
       <div><div class="flabel"><span>キャラ名で探す</span></div>
         <div class="search"><input id="q" type="search" list="names" placeholder="例：山本 / やまもと" autocomplete="off" aria-label="キャラ名"><button id="clear" type="button">クリア</button></div>
         <datalist id="names">${names.map(n=>`<option value="${esc(n)}">`).join("")}</datalist>
-        <div class="shelp">ひらがな（読み方）でも探せます。メイン・サポートのどちらかに入っているデッキを表示します。スペースで区切ると「両方入っている」デッキに絞れます。</div></div>
+        <div class="shelp">ひらがな（読み方・二つ名の読み方）でも探せます。メイン・サポートのどちらかに入っているデッキを表示します。スペースで区切ると「両方入っている」デッキに絞れます。</div></div>
     </section>
     <div class="bar"><span id="count"></span>
       <label>並び順 <select id="sort"><option value="exp">総経験点が高い順</option><option value="rank">選手ランクが高い順</option></select></label></div>

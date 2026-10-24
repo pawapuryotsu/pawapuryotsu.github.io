@@ -200,3 +200,4 @@ footer .flinks a{color:var(--field-ink);font-size:13px}
 
 .guideimg{display:block;width:auto;max-width:100%;height:auto;border-radius:8px}
 .vnote{margin:8px 0 0;font-size:13px;color:var(--muted)}
+.baseimg.half{width:calc((100% - 24px)/2);max-width:260px}
