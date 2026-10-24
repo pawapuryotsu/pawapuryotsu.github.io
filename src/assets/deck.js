@@ -38,10 +38,13 @@ function reformLine(d){
 const SCHOOL_MARK={roman:{main:true,sub:true},andromeda:{main:true,sub:false}};
 const schoolMark=(c,where)=>SCHOOL_MARK[state.school]?.[where]&&c?.所属高校===SCHOOL_NAME[state.school]?`<span class="smark" title="${SCHOOL_NAME[state.school]}のキャラ">●</span>`:"";
 const shortName=n=>{const c=CHAR[n]; return c&&c.二つ名?`[${c.二つ名}]${c.苗字}`:n;};
-const BASE_CAPS=[["球速上限アップ","球速"],["コントロール上限アップ","コン"],["スタミナ上限アップ","スタ"]];
-const SUPPORT_EXTRA={roman:[{label:"基礎上限",get:(c,rar,lv)=>{
-  const t=BASE_CAPS.map(([k,l])=>{const v=lvValue(c.bonus?.[k]?.表示,rar,lv);return v>0?`${l}+${v}`:null}).filter(Boolean);
-  return t.length?t.map(esc).join("<br>"):"―";}}],andromeda:[]};
+/* サポート表の基礎上限欄。投手は球速・コン・スタ、野手はミート・パワー・走力・肩力・守備力・捕球だけ表示 */
+const BASE_CAPS={roman:[["球速上限アップ","球速"],["コントロール上限アップ","コン"],["スタミナ上限アップ","スタ"]],
+  andromeda:[["ミート上限アップ","ミート"],["パワー上限アップ","パワー"],["走力上限アップ","走力"],["肩力上限アップ","肩力"],["守備力上限アップ","守備力"],["捕球上限アップ","捕球"]]};
+const baseCapCol=school=>({label:"基礎上限",get:(c,rar,lv)=>{
+  const t=BASE_CAPS[school].map(([k,l])=>{const v=lvValue(c.bonus?.[k]?.表示,rar,lv);return v>0?`${l}+${v}`:null}).filter(Boolean);
+  return t.length?t.map(esc).join("<br>"):"―";}});
+const SUPPORT_EXTRA={roman:[baseCapCol("roman")],andromeda:[baseCapCol("andromeda")]};
 const PRACTICE_ABBR=[[/コントロール/g,"コン"],[/スタミナ/g,"スタ"],[/変化球/g,"変"],[/球速/g,"球"],[/守備/g,"守"],[/メンタル(\([^)]*\)|（[^）]*）)?/g,"メン"]];
 const abbrPractice=v=>state.school==="roman"&&typeof v==="string"?PRACTICE_ABBR.reduce((t,[re,to])=>t.replace(re,to),v):v;
 
@@ -102,7 +105,7 @@ function supportTable(rows,deckPos){
 }
 function renderList(){
   const s=DECKS[state.school];
-  const decks=s.list.filter(deckMatches).sort((a,b)=>b[state.sort]-a[state.sort]);
+  const decks=s.list.filter(deckMatches).sort((a,b)=>state.sort==="date"?String(b.date||"").localeCompare(String(a.date||"")):b[state.sort]-a[state.sort]);
   const open=new Set([...document.querySelectorAll("details.deck[open]")].map(e=>e.dataset.id));
   document.getElementById("count").textContent=`${decks.length}件 / 全${s.list.length}件`;
   const ts=terms();
@@ -123,6 +126,7 @@ function renderList(){
         <div><h3>サポートデッキ${SCHOOL_MARK[state.school].sub?` <small>●＝${SCHOOL_NAME[state.school]}のキャラ</small>`:""}</h3>${supportTable(d.sub,d.pos)}</div>
         <div><h3>育成のポイント</h3>${Array.isArray(d.tips)?`<ul class="tips">${d.tips.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<p>${d.tips}</p>`}</div>
         <div><h3>解説動画</h3>${videoBlock(d.video)}${d.videoNote?`<p class="vnote">※${esc(d.videoNote)}</p>`:""}</div>
+        ${d.date?`<p class="ddate">育成日（更新日）：<time datetime="${esc(d.date)}">${esc(d.date.replace(/-/g,"/"))}</time></p>`:""}
       </div></details>`}).join(""):s.list.length===0?`<div class="empty">このシナリオのデッキは準備中です。<br>掲載しだい <a href="${SNS.x}" target="_blank" rel="noopener">X</a> でお知らせします。</div>`:`<div class="empty">条件に合うデッキがありません。<br>ポジションのチェックやキャラ名を見直してください。</div>`;
 }
 document.addEventListener("click",e=>{const b=e.target.closest(".yt"); if(!b) return;
@@ -142,7 +146,7 @@ function renderDecks(){
         <div class="shelp">ひらがな（読み方・二つ名の読み方）でも探せます。メイン・サポートのどちらかに入っているデッキを表示します。スペースで区切ると「両方入っている」デッキに絞れます。</div></div>
     </section>
     <div class="bar"><span id="count"></span>
-      <label>並び順 <select id="sort"><option value="exp">総経験点が高い順</option><option value="rank">選手ランクが高い順</option></select></label></div>
+      <label>並び順 <select id="sort"><option value="exp">総経験点が高い順</option><option value="rank">選手ランクが高い順</option><option value="date">育成日が新しい順</option></select></label></div>
     <div class="list" id="list"></div>`;
   const sel=document.getElementById("sort"); sel.value=state.sort;
   sel.onchange=()=>{state.sort=sel.value;renderList()};
