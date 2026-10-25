@@ -213,3 +213,7 @@ table.slots td.name{word-break:keep-all;overflow-wrap:normal;min-width:0}
 table.slots td.memo{white-space:normal;word-break:keep-all}
 table.slots td.rl{font-size:11px}
 table.slots th,table.slots td{padding:6px 2px}
+table.slots td.rl,table.slots th.rl{text-align:left}
+table.slots td.name{width:7.5em}
+table.slots td.name{width:6.5em}
+table.slots th{word-break:keep-all}
