@@ -55,7 +55,7 @@ const abbrPractice=v=>state.school==="roman"&&typeof v==="string"?PRACTICE_ABBR.
 
 const fmt=n=>n.toLocaleString("ja-JP");
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const state={school:document.body.dataset.school,sort:"exp",pos:{},q:"",f2p:false};
+const state={school:document.body.dataset.school,sort:"rank",pos:{},q:"",f2p:false};
 const norm=s=>s.normalize("NFKC").toLowerCase().replace(/[\s　]/g,"").replace(/[ぁ-ゖ]/g,c=>String.fromCharCode(c.charCodeAt(0)+96));
 const terms=()=>state.q.split(/[\s　]+/).map(norm).filter(Boolean);
 /* キャラ名か読み仮名（ひらがな）のどちらかに含まれていれば一致 */
@@ -116,7 +116,7 @@ function supportTable(rows,deckPos){
 }
 function renderList(){
   const s=DECKS[state.school];
-  const decks=s.list.filter(deckMatches).sort((a,b)=>state.sort==="date"?String(b.date||"").localeCompare(String(a.date||"")):b[state.sort]-a[state.sort]);
+  const decks=s.list.filter(deckMatches).sort((a,b)=>state.sort==="date"?String(b.date||"").localeCompare(String(a.date||"")):(b[state.sort]-a[state.sort])||(b.exp-a.exp));
   const open=new Set([...document.querySelectorAll("details.deck[open]")].map(e=>e.dataset.id));
   document.getElementById("count").textContent=`${decks.length}件 / 全${s.list.length}件`;
   const ts=terms();
@@ -161,7 +161,7 @@ function renderDecks(){
         <div class="shelp">ひらがな（読み方・二つ名の読み方）でも探せます。メイン・サポートのどちらかに入っているデッキを表示します。スペースで区切ると「両方入っている」デッキに絞れます。</div></div>
     </section>
     <div class="bar"><span id="count"></span>
-      <label>並び順 <select id="sort"><option value="exp">総経験点が高い順</option><option value="rank">選手ランクが高い順</option><option value="date">育成日が新しい順</option></select></label></div>
+      <label>並び順 <select id="sort"><option value="rank">選手ランクが高い順</option><option value="exp">総経験点が高い順</option><option value="date">育成日が新しい順</option></select></label></div>
     <div class="list" id="list"></div>`;
   const sel=document.getElementById("sort"); sel.value=state.sort;
   sel.onchange=()=>{state.sort=sel.value;renderList()};
