@@ -53,7 +53,7 @@ const baseCapCol=school=>({label:"基礎\u200b上限",get:(c,rar,lv)=>{
   const t=BASE_CAPS[school].map(([k,l])=>{const v=lvValue(c.bonus?.[k]?.表示,rar,lv);return v>0?`${l}+${v}`:null}).filter(Boolean);
   return t.length?t.map(esc).join("<br>"):"―";}});
 const SUPPORT_EXTRA={roman:[baseCapCol("roman")],andromeda:[baseCapCol("andromeda")]};
-const PRACTICE_ABBR=[[/コントロール/g,"コン"],[/スタミナ/g,"スタ"],[/変化球/g,"変"],[/球速/g,"球"],[/守備/g,"守"],[/メンタル(\([^)]*\)|（[^）]*）)?/g,"メン"]];
+const PRACTICE_ABBR=[[/コントロール/g,"コン"],[/スタミナ/g,"スタ"],[/変化球/g,"変化"],[/メンタル(\([^)]*\)|（[^）]*）)?/g,"メン"]];
 const abbrPractice=v=>state.school==="roman"&&typeof v==="string"?PRACTICE_ABBR.reduce((t,[re,to])=>t.replace(re,to),v):v;
 
 
