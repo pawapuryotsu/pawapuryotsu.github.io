@@ -96,7 +96,7 @@ function slotTable(rows,deckPos){
       if(typeof v==="number") return `<td class="num">${v}${col.unit||""}</td>`;
       return `<td>${esc(col.src==="得意練習"?abbrPractice(v):v)}</td>`;}).join("");
     const g=posGold(c,deckPos); const star=g.length?`<span class="star" title="${esc(g.join("・"))}">☆</span>`:"";
-    return `<tr><td class="name ${hit?"found":""}">${schoolMark(c,"main")}${star}${nameHtml(name)}${c?"":"（データなし）"}</td><td class="num rl">${rar}${lv}</td>${cells}${noteCell("main",[name,rar,lv],rows)}</tr>`;
+    return `<tr><td class="name ${hit?"found":""}">${nameHtml(name)}${schoolMark(c,"main")}${star}${c?"":"（データなし）"}</td><td class="num rl">${rar}${lv}</td>${cells}${noteCell("main",[name,rar,lv],rows)}</tr>`;
   }).join("");
   return `<div class="tablewrap"><table class="slots"><thead><tr><th>キャラ</th><th class="rl">Lv</th>${cols.map(col=>`<th class="${col.unit?"num":""}">${col.label}</th>`).join("")}<th>備考</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
@@ -110,7 +110,7 @@ function supportTable(rows,deckPos){
   const body=rows.map(([name,rar,lv,opt])=>{
     const c=CHAR[name]||(opt&&{ポジション:opt.pos}); const hit=ts.some(t=>matchesTerm(name,t));
     const [jt,jc]=c?judge(c,deckPos):["―",""];
-    return `<tr><td class="name ${hit?"found":""}">${schoolMark(CHAR[name],"sub")}${nameHtml(name)}${c?"":"（データなし）"}</td><td class="num rl">${rar}${lv}</td><td><span class="judge ${jc}">${jt}</span></td>${extra.map(e=>`<td>${c?e.get(c,rar,lv):"―"}</td>`).join("")}${noteCell("sub",[name,rar,lv],rows)}</tr>`;
+    return `<tr><td class="name ${hit?"found":""}">${nameHtml(name)}${schoolMark(CHAR[name],"sub")}${c?"":"（データなし）"}</td><td class="num rl">${rar}${lv}</td><td><span class="judge ${jc}">${jt}</span></td>${extra.map(e=>`<td>${c?e.get(c,rar,lv):"―"}</td>`).join("")}${noteCell("sub",[name,rar,lv],rows)}</tr>`;
   }).join("");
   return `<div class="tablewrap"><table class="slots"><thead><tr><th>キャラ</th><th class="rl">Lv</th><th>判定</th>${extra.map(e=>`<th>${e.label}</th>`).join("")}<th>備考</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
