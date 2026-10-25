@@ -230,3 +230,8 @@ table.slots td.name .nick{display:block;white-space:nowrap;font-size:11px;font-w
 /* スマホ表示でも、キャラ・備考以外の欄は中身の幅だけ取る（ウィンドウが中くらいの幅のとき余りが備考へ行く） */
 table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(.memo){width:1%}
 @media (min-width:480px) and (max-width:719px){table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(.memo){padding-right:10px}}
+/* 攻略まとめページ：目次と準備中表示 */
+.toc{border:1px solid var(--line);border-radius:4px;padding:10px 14px;background:var(--bg)}
+.toc ol{margin:6px 0 0;padding-left:1.4em}
+.prose h2[id]{scroll-margin-top:12px}
+.wip{color:var(--muted);border:1px dashed var(--line);border-radius:4px;padding:10px 12px}
