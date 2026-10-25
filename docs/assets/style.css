@@ -126,7 +126,7 @@ summary::-webkit-details-marker{display:none}
 .top{display:flex;gap:10px;align-items:center;justify-content:space-between}
 .top .lft{display:flex;align-items:center;gap:10px;min-width:0}
 .posbadge{flex:none;width:36px;height:36px;display:grid;place-items:center;font-weight:900;font-size:16px;color:var(--field-ink);background:var(--field);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
-.top img{width:min(242px,calc(100vw - 110px));height:auto;aspect-ratio:484/104;object-fit:fill;border-radius:6px;display:block}
+.top img{width:min(242px,calc(100vw - 165px));height:auto;aspect-ratio:484/104;object-fit:fill;border-radius:6px;display:block}
 .chev{flex:none;width:30px;height:30px;border-radius:50%;background:var(--bg);display:grid;place-items:center;color:var(--muted);transition:transform .2s}
 details[open] .chev{transform:rotate(180deg)}
 .deckimg{width:100%;border-radius:8px;display:block}
@@ -204,4 +204,3 @@ footer .flinks a{color:var(--field-ink);font-size:13px}
 .smark{color:var(--clay);margin-right:2px}
 .ddate{margin:0;font-size:13px;color:var(--muted)}
 .f2ptag{flex:none;font-size:11px;font-weight:700;line-height:1;padding:4px 6px;border-radius:4px;background:var(--clay-soft);color:var(--clay);white-space:nowrap}
-.top .lft:has(.f2ptag) img{width:min(242px,calc(100vw - 165px))}
