@@ -5,7 +5,7 @@ img{max-width:100%}
   --bg:#eef1ec; --surface:#ffffff; --ink:#14233a; --muted:#5b6676; --line:#d8ded5;
   --field:#1d5e43; --field-ink:#f4f7f2; --chalk:rgba(255,255,255,.55);
   --accent:#1d5e43; --accent-soft:#e1efe6; --clay:#a8572c; --clay-soft:#f6e6da;
-  --gold:#9a6400; --gold-soft:#fff1d2; --mark:#fff0a8; --stitch:#c6303b; --marker:#ffd64a; --mk-sky:#8fd3ff; --mk-pink:#ffb3c8; --mk-lime:#b9ec7a;
+  --gold:#9a6400; --gold-soft:#fff1d2; --mark:#fff0a8; --stitch:#c6303b; --marker:#ffd64a; --mk-sky:#8fd3ff; --mk-pink:#ffb3c8; --mk-orange:#ffc27a; --mk-lime:#b9ec7a;
   --display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
   --body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
   --head:"M PLUS 1p","Hiragino Sans","Yu Gothic",sans-serif;
@@ -15,12 +15,12 @@ img{max-width:100%}
   --bg:#0d1520; --surface:#152131; --ink:#e7ecf2; --muted:#98a5b6; --line:#273548;
   --field:#123d2c; --field-ink:#e9f2ec; --chalk:rgba(255,255,255,.35);
   --accent:#6cc79a; --accent-soft:#183a2b; --clay:#e39a6c; --clay-soft:#3b2619;
-  --gold:#f2c14e; --gold-soft:#3a2f12; --mark:#5a4a10; --stitch:#ff6b74; --marker:#7a5d0c; --mk-sky:#1d5a7d; --mk-pink:#7a2c45; --mk-lime:#3f6420; color-scheme:dark}}
+  --gold:#f2c14e; --gold-soft:#3a2f12; --mark:#5a4a10; --stitch:#ff6b74; --marker:#7a5d0c; --mk-sky:#1d5a7d; --mk-pink:#7a2c45; --mk-orange:#7a4a14; --mk-lime:#3f6420; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0d1520; --surface:#152131; --ink:#e7ecf2; --muted:#98a5b6; --line:#273548;
   --field:#123d2c; --field-ink:#e9f2ec; --chalk:rgba(255,255,255,.35);
   --accent:#6cc79a; --accent-soft:#183a2b; --clay:#e39a6c; --clay-soft:#3b2619;
-  --gold:#f2c14e; --gold-soft:#3a2f12; --mark:#5a4a10; --stitch:#ff6b74; --marker:#7a5d0c; --mk-sky:#1d5a7d; --mk-pink:#7a2c45; --mk-lime:#3f6420; color-scheme:dark}
+  --gold:#f2c14e; --gold-soft:#3a2f12; --mark:#5a4a10; --stitch:#ff6b74; --marker:#7a5d0c; --mk-sky:#1d5a7d; --mk-pink:#7a2c45; --mk-orange:#7a4a14; --mk-lime:#3f6420; color-scheme:dark}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.75;font-weight:500}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--field)}
 a{color:var(--accent)}
@@ -48,6 +48,7 @@ nav.gnav a small{font-weight:500;opacity:.8;margin-left:2px}
 main .wrap{padding-block:24px 56px;display:flex;flex-direction:column;gap:20px}
 h2.sec{font-family:var(--head);font-weight:900;font-size:22px;line-height:1.3;margin:8px 0 0;text-wrap:balance}
 .mk{display:inline;font-style:normal;padding:0 .3em;background:linear-gradient(transparent 55%,var(--marker) 55%,var(--marker) 92%,transparent 92%);-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.mk.orange{--marker:var(--mk-orange)}
 .mk.sky{--marker:var(--mk-sky)}.mk.pink{--marker:var(--mk-pink)}.mk.lime{--marker:var(--mk-lime)}
 .mk>i{display:inline-block;font-style:normal;transform:skewX(-8deg)}
 .eyebrow{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--clay);margin:0}
