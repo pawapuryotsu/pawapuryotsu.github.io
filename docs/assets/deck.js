@@ -38,7 +38,10 @@ function reformLine(d){
 /* ●＝そのシナリオの高校キャラ。ロマンはメイン・サポート両方、アンドロメダはメインだけ */
 const SCHOOL_MARK={roman:{main:true,sub:true},andromeda:{main:true,sub:false}};
 const schoolMark=(c,where)=>SCHOOL_MARK[state.school]?.[where]&&c?.所属高校===SCHOOL_NAME[state.school]?`<span class="smark" title="${SCHOOL_NAME[state.school]}のキャラ">●</span>`:"";
-const shortName=n=>{const c=CHAR[n]; return c&&c.二つ名?`[${c.二つ名}]${c.苗字}`:n;};
+/* 表のキャラ名はフルネーム。折り返しは「[二つ名]」の後・姓と名の間・「・」の後だけ（CSS の keep-all と <wbr>） */
+const nameHtml=n=>{const c=CHAR[n];
+  const body=c&&c.苗字?[c.苗字,c.名前].filter(Boolean).map(x=>esc(x).replace(/・/g,"・<wbr>")).join("<wbr>"):esc(c?n.replace(/^\[[^\]]*\]/,""):n).replace(/・/g,"・<wbr>");
+  return c&&c.二つ名?`[${esc(c.二つ名)}]<wbr>${body}`:body;};
 /* サポート表の基礎上限欄。投手は球速・コン・スタ、野手はミート・パワー・走力・肩力・守備力・捕球だけ表示 */
 const BASE_CAPS={roman:[["球速上限アップ","球速"],["コントロール上限アップ","コン"],["スタミナ上限アップ","スタ"]],
   andromeda:[["ミート上限アップ","ミート"],["パワー上限アップ","パワー"],["走力上限アップ","走力"],["肩力上限アップ","肩力"],["守備力上限アップ","守備力"],["捕球上限アップ","捕球"]]};
@@ -76,6 +79,13 @@ function colValue(c,col,rar,lv){
   if(col.src==="シナリオ") return lvValue(sc?.[col.key]?.表示,rar,lv);
   return null;
 }
+/* 備考欄。ルールは NOTE_RULES に足していく。各ルールは (行, その表の全行) を受け取り、表示する文字列の配列を返す */
+const reformNotes=([n,rar,lv])=>{const c=CHAR[n]; if(!c) return [];
+  return REFORM[state.school].filter(([,prefix])=>Object.keys(c.bonus||{}).some(k=>k.startsWith(prefix)&&(lvValue(c.bonus[k].表示,rar,lv)||0)>0)).map(([label])=>label);};
+const capOf=([n,rar,lv])=>lvValue(CHAR[n]?.bonus?.["サポ：獲得経験点上限"]?.表示,rar,lv)||0;
+const capNote=(row,rows)=>{const v=capOf(row),top=Math.max(0,...rows.map(capOf)); return v>0&&v===top?[`経験点上限<br>${v}`]:[];};
+const NOTE_RULES={main:[reformNotes],sub:[capNote,reformNotes]};
+const noteCell=(where,row,rows)=>`<td class="note">${NOTE_RULES[where].flatMap(f=>f(row,rows)).join("<br>")}</td>`;
 function slotTable(rows,deckPos){
   const ts=terms(), cols=COLS[state.school];
   const body=rows.map(([name,rar,lv])=>{
@@ -86,9 +96,9 @@ function slotTable(rows,deckPos){
       if(typeof v==="number") return `<td class="num">${v}${col.unit||""}</td>`;
       return `<td>${esc(col.src==="得意練習"?abbrPractice(v):v)}</td>`;}).join("");
     const g=posGold(c,deckPos); const star=g.length?`<span class="star" title="${esc(g.join("・"))}">☆</span>`:"";
-    return `<tr><td class="name ${hit?"found":""}">${schoolMark(c,"main")}${star}${esc(shortName(name))}${c?"":"（データなし）"}</td><td class="num rl">${rar}${lv}</td>${cells}</tr>`;
+    return `<tr><td class="name ${hit?"found":""}">${schoolMark(c,"main")}${star}${nameHtml(name)}${c?"":"（データなし）"}</td><td class="num rl">${rar}${lv}</td>${cells}${noteCell("main",[name,rar,lv],rows)}</tr>`;
   }).join("");
-  return `<div class="tablewrap"><table class="slots"><thead><tr><th>キャラ</th><th class="num">Lv</th>${cols.map(col=>`<th class="${col.unit?"num":""}">${col.label}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div>`;
+  return `<div class="tablewrap"><table class="slots"><thead><tr><th>キャラ</th><th class="num">Lv</th>${cols.map(col=>`<th class="${col.unit?"num":""}">${col.label}</th>`).join("")}<th>備考</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 function judge(c,deckPos){
   if(c.分類==="彼女"||c.分類==="相棒") return ["回復","heal"];
@@ -100,10 +110,9 @@ function supportTable(rows,deckPos){
   const body=rows.map(([name,rar,lv,opt])=>{
     const c=CHAR[name]||(opt&&{ポジション:opt.pos}); const hit=ts.some(t=>matchesTerm(name,t));
     const [jt,jc]=c?judge(c,deckPos):["―",""];
-    const posText=c?(c.分類==="彼女"||c.分類==="相棒"?c.分類:(c.ポジション||"―")):"―";
-    return `<tr><td class="name ${hit?"found":""}">${schoolMark(CHAR[name],"sub")}${esc(shortName(name))}${c?"":"（データなし）"}</td><td class="num rl">${rar}${lv}</td><td>${esc(posText)}</td><td><span class="judge ${jc}">${jt}</span></td>${extra.map(e=>`<td>${c?e.get(c,rar,lv):"―"}</td>`).join("")}</tr>`;
+    return `<tr><td class="name ${hit?"found":""}">${schoolMark(CHAR[name],"sub")}${nameHtml(name)}${c?"":"（データなし）"}</td><td class="num rl">${rar}${lv}</td><td><span class="judge ${jc}">${jt}</span></td>${extra.map(e=>`<td>${c?e.get(c,rar,lv):"―"}</td>`).join("")}${noteCell("sub",[name,rar,lv],rows)}</tr>`;
   }).join("");
-  return `<div class="tablewrap"><table class="slots"><thead><tr><th>キャラ</th><th class="num">Lv</th><th>守備</th><th>判定</th>${extra.map(e=>`<th>${e.label}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div>`;
+  return `<div class="tablewrap"><table class="slots"><thead><tr><th>キャラ</th><th class="num">Lv</th><th>判定</th>${extra.map(e=>`<th>${e.label}</th>`).join("")}<th>備考</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 function renderList(){
   const s=DECKS[state.school];
