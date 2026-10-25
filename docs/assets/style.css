@@ -244,3 +244,4 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .em-hot{color:#c2410c;font-weight:700}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .em-hot{color:#ffa46b}}
 :root[data-theme="dark"] .em-hot{color:#ffa46b}
+.joke{font-size:11px;color:var(--muted);opacity:.7;text-decoration:line-through double}
