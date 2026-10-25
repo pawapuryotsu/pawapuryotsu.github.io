@@ -24,8 +24,9 @@ function hasReform(rows,prefix){
     return Object.keys(c.bonus||{}).some(k=>k.startsWith(prefix)&&(lvValue(c.bonus[k].表示,rar,lv)||0)>0);});
 }
 function maxCap(rows){ return Math.max(0,...rows.map(([n,rar,lv])=>lvValue(CHAR[n]?.bonus?.["サポ：獲得経験点上限"]?.表示,rar,lv)||0)); }
-function itemList(rows){ const items=[...new Set(rows.flatMap(([n])=>(CHAR[n]?.アイテム||[]).map(x=>x.名前)))];
-  return items.length?`<ul class="items">${items.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<p class="muted">なし</p>`; }
+function itemList(rows){ const m=new Map();
+  rows.forEach(([n])=>(CHAR[n]?.アイテム||[]).forEach(x=>{ if(!m.has(x.名前)) m.set(x.名前,[]); const w=shortName(n); if(!m.get(x.名前).includes(w)) m.get(x.名前).push(w); }));
+  return m.size?`<ul class="items">${[...m].map(([k,v])=>`<li>${esc(k)}(${esc(v.join("、"))})</li>`).join("")}</ul>`:`<p class="muted">なし</p>`; }
 function videoBlock(id){ if(id==="なし") return `<p>なし</p>`;
   if(!/^[\w-]{11}$/.test(id||"")) return `<p class="muted">準備中</p>`;
   const url=`https://youtu.be/${id}`;
@@ -41,6 +42,7 @@ const schoolMark=(c,where)=>SCHOOL_MARK[state.school]?.[where]&&c?.所属高校=
 /* 表のキャラ名はフルネーム。スマホでの折り返しは姓と名の間・「・」の後だけ（CSS の keep-all とゼロ幅スペース \u200b。PC は CSS で1行） */
 /* 横文字の名前（名前欄なし・カタカナ）は最初の「・」「=」の手前だけ表示（りょーつー指定）。例：エイル・オーウェン→エイル */
 const shortForeign=x=>{const m=/^([ァ-ヶー]+)[・=＝]/.exec(x);return m?m[1]:x;};
+const shortName=n=>{const c=CHAR[n]; return c&&c.苗字?(c.名前?c.苗字+c.名前:shortForeign(c.苗字)):n.replace(/^\[[^\]]*\]/,"");};
 const nameHtml=n=>{const c=CHAR[n];
   const body=c&&c.苗字&&!c.名前?esc(shortForeign(c.苗字)).replace(/・/g,"・\u200b"):c&&c.苗字?[c.苗字,c.名前].filter(Boolean).map(x=>esc(x).replace(/・/g,"・\u200b")).join("\u200b"):esc(c?n.replace(/^\[[^\]]*\]/,""):n).replace(/・/g,"・\u200b");
   return c&&c.二つ名?`<span class="nick">[${esc(c.二つ名)}]</span>${body}`:body;};
@@ -86,7 +88,8 @@ const reformNotes=([n,rar,lv])=>{const c=CHAR[n]; if(!c) return [];
   return REFORM[state.school].filter(([,prefix])=>Object.keys(c.bonus||{}).some(k=>k.startsWith(prefix)&&(lvValue(c.bonus[k].表示,rar,lv)||0)>0)).map(([label])=>label);};
 const capOf=([n,rar,lv])=>lvValue(CHAR[n]?.bonus?.["サポ：獲得経験点上限"]?.表示,rar,lv)||0;
 const capNote=(row,rows)=>{const v=capOf(row),top=Math.max(0,...rows.map(capOf)); return v>0&&v===top?[`経験点上限<br>${v}`]:[];};
-const NOTE_RULES={main:[reformNotes],sub:[capNote,reformNotes]};
+const itemNote=([n])=>(CHAR[n]?.アイテム||[]).length?["<span style=\"display:inline-block\">※アイテム</span><span style=\"display:inline-block\">追加</span>"]:[];
+const NOTE_RULES={main:[reformNotes,itemNote],sub:[capNote,reformNotes]};
 const noteCell=(where,row,rows)=>`<td class="memo">${NOTE_RULES[where].flatMap(f=>f(row,rows)).join("<br>")}</td>`;
 function slotTable(rows,deckPos){
   const ts=terms(), cols=COLS[state.school];
