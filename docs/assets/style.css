@@ -227,3 +227,6 @@ table.slots td.name .nick{display:block;white-space:nowrap;font-size:11px;font-w
   table.slots td.name .nick{display:inline;font-size:12px;margin-right:2px}
   table.slots td.memo{white-space:nowrap}
 }
+/* スマホ表示でも、キャラ・備考以外の欄は中身の幅だけ取る（ウィンドウが中くらいの幅のとき余りが備考へ行く） */
+table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(.memo){width:1%}
+@media (min-width:480px) and (max-width:719px){table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(.memo){padding-right:10px}}
