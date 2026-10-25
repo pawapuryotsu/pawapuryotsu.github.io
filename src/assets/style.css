@@ -240,3 +240,6 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 :root[data-theme="dark"] .em-blue{color:#8fbcff}
 .key3{background:var(--bg);border-left:4px solid var(--mk-pink);padding:10px 14px 10px 30px}
 .prose h3{font-size:15px;font-weight:900;margin:8px 0 0}
+.em-hot{color:#c2410c;font-weight:700}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .em-hot{color:#ffa46b}}
+:root[data-theme="dark"] .em-hot{color:#ffa46b}
