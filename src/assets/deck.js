@@ -9,7 +9,7 @@ const PITCH=["先","中","抑"];
 const SCHOOL_NAME={roman:"ロマン開花學園",andromeda:"アンドロメダ学園"};
 
 const COLS={
-  roman:[{label:"得意練習",src:"得意練習"},{label:"練習<wbr>効果",src:"bonus",key:"練習効果アップ",unit:"%"},
+  roman:[{label:"得意練習",src:"得意練習"},{label:"練習\u200b効果",src:"bonus",key:"練習効果アップ",unit:"%"},
          {label:"タッグ",src:"bonus",key:"スペシャルタッグボーナス",unit:"%"}],
   andromeda:[{label:"コツボナ",src:"bonus",key:"コツイベントボーナス",unit:"%"},
          {label:"試合",src:"bonus",key:"試合経験点ボーナス",unit:"%"}]
@@ -38,16 +38,16 @@ function reformLine(d){
 /* ●＝そのシナリオの高校キャラ。ロマンはメイン・サポート両方、アンドロメダはメインだけ */
 const SCHOOL_MARK={roman:{main:true,sub:true},andromeda:{main:true,sub:false}};
 const schoolMark=(c,where)=>SCHOOL_MARK[state.school]?.[where]&&c?.所属高校===SCHOOL_NAME[state.school]?`<span class="smark" title="${SCHOOL_NAME[state.school]}のキャラ">●</span>`:"";
-/* 表のキャラ名はフルネーム。折り返しは「[二つ名]」の後・姓と名の間・「・」の後だけ（CSS の keep-all と <wbr>） */
+/* 表のキャラ名はフルネーム。スマホでの折り返しは姓と名の間・「・」の後だけ（CSS の keep-all とゼロ幅スペース \u200b。PC は CSS で1行） */
 /* 横文字の名前（名前欄なし・カタカナ）は最初の「・」「=」の手前だけ表示（りょーつー指定）。例：エイル・オーウェン→エイル */
 const shortForeign=x=>{const m=/^([ァ-ヶー]+)[・=＝]/.exec(x);return m?m[1]:x;};
 const nameHtml=n=>{const c=CHAR[n];
-  const body=c&&c.苗字&&!c.名前?esc(shortForeign(c.苗字)).replace(/・/g,"・<wbr>"):c&&c.苗字?[c.苗字,c.名前].filter(Boolean).map(x=>esc(x).replace(/・/g,"・<wbr>")).join("<wbr>"):esc(c?n.replace(/^\[[^\]]*\]/,""):n).replace(/・/g,"・<wbr>");
+  const body=c&&c.苗字&&!c.名前?esc(shortForeign(c.苗字)).replace(/・/g,"・\u200b"):c&&c.苗字?[c.苗字,c.名前].filter(Boolean).map(x=>esc(x).replace(/・/g,"・\u200b")).join("\u200b"):esc(c?n.replace(/^\[[^\]]*\]/,""):n).replace(/・/g,"・\u200b");
   return c&&c.二つ名?`<span class="nick">[${esc(c.二つ名)}]</span>${body}`:body;};
 /* サポート表の基礎上限欄。投手は球速・コン・スタ、野手はミート・パワー・走力・肩力・守備力・捕球だけ表示 */
 const BASE_CAPS={roman:[["球速上限アップ","球速"],["コントロール上限アップ","コン"],["スタミナ上限アップ","スタ"]],
   andromeda:[["ミート上限アップ","ミート"],["パワー上限アップ","パワー"],["走力上限アップ","走力"],["肩力上限アップ","肩力"],["守備力上限アップ","守備力"],["捕球上限アップ","捕球"]]};
-const baseCapCol=school=>({label:"基礎<wbr>上限",get:(c,rar,lv)=>{
+const baseCapCol=school=>({label:"基礎\u200b上限",get:(c,rar,lv)=>{
   const t=BASE_CAPS[school].map(([k,l])=>{const v=lvValue(c.bonus?.[k]?.表示,rar,lv);return v>0?`${l}+${v}`:null}).filter(Boolean);
   return t.length?t.map(esc).join("<br>"):"―";}});
 const SUPPORT_EXTRA={roman:[baseCapCol("roman")],andromeda:[baseCapCol("andromeda")]};
