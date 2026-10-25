@@ -205,11 +205,11 @@ footer .flinks a{color:var(--field-ink);font-size:13px}
 .ddate{margin:0;font-size:13px;color:var(--muted)}
 .f2ptag{flex:none;font-size:11px;font-weight:700;line-height:1;padding:4px 6px;border-radius:4px;background:var(--clay-soft);color:var(--clay);white-space:nowrap}
 .abilityimg{display:block;width:100%;max-width:520px;border-radius:8px}
-table.slots td.note{font-size:11px;line-height:1.35;white-space:nowrap;color:var(--muted)}
+table.slots td.memo{font-size:11px;line-height:1.35;white-space:nowrap;color:var(--muted)}
 table.slots th{white-space:normal;font-size:12px;line-height:1.3}
 table.slots th,table.slots td{padding:6px 3px}
 table.slots td.name{min-width:6em}
 table.slots td.name{word-break:keep-all;overflow-wrap:normal;min-width:0}
-table.slots td.note{white-space:normal;word-break:keep-all}
+table.slots td.memo{white-space:normal;word-break:keep-all}
 table.slots td.rl{font-size:11px}
 table.slots th,table.slots td{padding:6px 2px}
