@@ -85,7 +85,7 @@ const reformNotes=([n,rar,lv])=>{const c=CHAR[n]; if(!c) return [];
 const capOf=([n,rar,lv])=>lvValue(CHAR[n]?.bonus?.["サポ：獲得経験点上限"]?.表示,rar,lv)||0;
 const capNote=(row,rows)=>{const v=capOf(row),top=Math.max(0,...rows.map(capOf)); return v>0&&v===top?[`経験点上限<br>${v}`]:[];};
 const NOTE_RULES={main:[reformNotes],sub:[capNote,reformNotes]};
-const noteCell=(where,row,rows)=>`<td class="note">${NOTE_RULES[where].flatMap(f=>f(row,rows)).join("<br>")}</td>`;
+const noteCell=(where,row,rows)=>`<td class="memo">${NOTE_RULES[where].flatMap(f=>f(row,rows)).join("<br>")}</td>`;
 function slotTable(rows,deckPos){
   const ts=terms(), cols=COLS[state.school];
   const body=rows.map(([name,rar,lv])=>{
