@@ -39,10 +39,10 @@ function reformLine(d){
 const SCHOOL_MARK={roman:{main:true,sub:true},andromeda:{main:true,sub:false}};
 const schoolMark=(c,where)=>SCHOOL_MARK[state.school]?.[where]&&c?.所属高校===SCHOOL_NAME[state.school]?`<span class="smark" title="${SCHOOL_NAME[state.school]}のキャラ">●</span>`:"";
 /* 表のキャラ名はフルネーム。折り返しは「[二つ名]」の後・姓と名の間・「・」の後だけ（CSS の keep-all と <wbr>） */
-/* 表で名前を短く出すキャラ（りょーつー指定）。キー＝chars.json の苗字 */
-const SHORT_NAME={"エイル・オーウェン":"エイル"};
+/* 横文字の名前（名前欄なし・カタカナ）は最初の「・」「=」の手前だけ表示（りょーつー指定）。例：エイル・オーウェン→エイル */
+const shortForeign=x=>{const m=/^([ァ-ヶー]+)[・=＝]/.exec(x);return m?m[1]:x;};
 const nameHtml=n=>{const c=CHAR[n];
-  const body=c&&SHORT_NAME[c.苗字]?esc(SHORT_NAME[c.苗字]):c&&c.苗字?[c.苗字,c.名前].filter(Boolean).map(x=>esc(x).replace(/・/g,"・<wbr>")).join("<wbr>"):esc(c?n.replace(/^\[[^\]]*\]/,""):n).replace(/・/g,"・<wbr>");
+  const body=c&&c.苗字&&!c.名前?esc(shortForeign(c.苗字)).replace(/・/g,"・<wbr>"):c&&c.苗字?[c.苗字,c.名前].filter(Boolean).map(x=>esc(x).replace(/・/g,"・<wbr>")).join("<wbr>"):esc(c?n.replace(/^\[[^\]]*\]/,""):n).replace(/・/g,"・<wbr>");
   return c&&c.二つ名?`<span class="nick">[${esc(c.二つ名)}]</span>${body}`:body;};
 /* サポート表の基礎上限欄。投手は球速・コン・スタ、野手はミート・パワー・走力・肩力・守備力・捕球だけ表示 */
 const BASE_CAPS={roman:[["球速上限アップ","球速"],["コントロール上限アップ","コン"],["スタミナ上限アップ","スタ"]],
