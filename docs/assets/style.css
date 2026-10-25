@@ -217,3 +217,5 @@ table.slots td.rl,table.slots th.rl{text-align:left}
 table.slots td.name{width:7.5em}
 table.slots td.name{width:6.5em}
 table.slots th{word-break:keep-all}
+/* 二つ名は小さめの文字で1行目、名前は2行目（「[」だけが1行になるのを防ぐ） */
+table.slots td.name .nick{display:block;white-space:nowrap;font-size:11px;font-weight:500;color:var(--muted);line-height:1.3}

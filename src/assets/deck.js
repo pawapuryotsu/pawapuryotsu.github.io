@@ -41,7 +41,7 @@ const schoolMark=(c,where)=>SCHOOL_MARK[state.school]?.[where]&&c?.所属高校=
 /* 表のキャラ名はフルネーム。折り返しは「[二つ名]」の後・姓と名の間・「・」の後だけ（CSS の keep-all と <wbr>） */
 const nameHtml=n=>{const c=CHAR[n];
   const body=c&&c.苗字?[c.苗字,c.名前].filter(Boolean).map(x=>esc(x).replace(/・/g,"・<wbr>")).join("<wbr>"):esc(c?n.replace(/^\[[^\]]*\]/,""):n).replace(/・/g,"・<wbr>");
-  return c&&c.二つ名?`[${esc(c.二つ名)}]<wbr>${body}`:body;};
+  return c&&c.二つ名?`<span class="nick">[${esc(c.二つ名)}]</span>${body}`:body;};
 /* サポート表の基礎上限欄。投手は球速・コン・スタ、野手はミート・パワー・走力・肩力・守備力・捕球だけ表示 */
 const BASE_CAPS={roman:[["球速上限アップ","球速"],["コントロール上限アップ","コン"],["スタミナ上限アップ","スタ"]],
   andromeda:[["ミート上限アップ","ミート"],["パワー上限アップ","パワー"],["走力上限アップ","走力"],["肩力上限アップ","肩力"],["守備力上限アップ","守備力"],["捕球上限アップ","捕球"]]};
