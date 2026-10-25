@@ -9,7 +9,7 @@ const PITCH=["先","中","抑"];
 const SCHOOL_NAME={roman:"ロマン開花學園",andromeda:"アンドロメダ学園"};
 
 const COLS={
-  roman:[{label:"得意練習",src:"得意練習"},{label:"練習効果",src:"bonus",key:"練習効果アップ",unit:"%"},
+  roman:[{label:"得意練習",src:"得意練習"},{label:"練習<wbr>効果",src:"bonus",key:"練習効果アップ",unit:"%"},
          {label:"タッグ",src:"bonus",key:"スペシャルタッグボーナス",unit:"%"}],
   andromeda:[{label:"コツボナ",src:"bonus",key:"コツイベントボーナス",unit:"%"},
          {label:"試合",src:"bonus",key:"試合経験点ボーナス",unit:"%"}]
@@ -45,7 +45,7 @@ const nameHtml=n=>{const c=CHAR[n];
 /* サポート表の基礎上限欄。投手は球速・コン・スタ、野手はミート・パワー・走力・肩力・守備力・捕球だけ表示 */
 const BASE_CAPS={roman:[["球速上限アップ","球速"],["コントロール上限アップ","コン"],["スタミナ上限アップ","スタ"]],
   andromeda:[["ミート上限アップ","ミート"],["パワー上限アップ","パワー"],["走力上限アップ","走力"],["肩力上限アップ","肩力"],["守備力上限アップ","守備力"],["捕球上限アップ","捕球"]]};
-const baseCapCol=school=>({label:"基礎上限",get:(c,rar,lv)=>{
+const baseCapCol=school=>({label:"基礎<wbr>上限",get:(c,rar,lv)=>{
   const t=BASE_CAPS[school].map(([k,l])=>{const v=lvValue(c.bonus?.[k]?.表示,rar,lv);return v>0?`${l}+${v}`:null}).filter(Boolean);
   return t.length?t.map(esc).join("<br>"):"―";}});
 const SUPPORT_EXTRA={roman:[baseCapCol("roman")],andromeda:[baseCapCol("andromeda")]};
@@ -98,7 +98,7 @@ function slotTable(rows,deckPos){
     const g=posGold(c,deckPos); const star=g.length?`<span class="star" title="${esc(g.join("・"))}">☆</span>`:"";
     return `<tr><td class="name ${hit?"found":""}">${schoolMark(c,"main")}${star}${nameHtml(name)}${c?"":"（データなし）"}</td><td class="num rl">${rar}${lv}</td>${cells}${noteCell("main",[name,rar,lv],rows)}</tr>`;
   }).join("");
-  return `<div class="tablewrap"><table class="slots"><thead><tr><th>キャラ</th><th class="num">Lv</th>${cols.map(col=>`<th class="${col.unit?"num":""}">${col.label}</th>`).join("")}<th>備考</th></tr></thead><tbody>${body}</tbody></table></div>`;
+  return `<div class="tablewrap"><table class="slots"><thead><tr><th>キャラ</th><th class="rl">Lv</th>${cols.map(col=>`<th class="${col.unit?"num":""}">${col.label}</th>`).join("")}<th>備考</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 function judge(c,deckPos){
   if(c.分類==="彼女"||c.分類==="相棒") return ["回復","heal"];
@@ -112,7 +112,7 @@ function supportTable(rows,deckPos){
     const [jt,jc]=c?judge(c,deckPos):["―",""];
     return `<tr><td class="name ${hit?"found":""}">${schoolMark(CHAR[name],"sub")}${nameHtml(name)}${c?"":"（データなし）"}</td><td class="num rl">${rar}${lv}</td><td><span class="judge ${jc}">${jt}</span></td>${extra.map(e=>`<td>${c?e.get(c,rar,lv):"―"}</td>`).join("")}${noteCell("sub",[name,rar,lv],rows)}</tr>`;
   }).join("");
-  return `<div class="tablewrap"><table class="slots"><thead><tr><th>キャラ</th><th class="num">Lv</th><th>判定</th>${extra.map(e=>`<th>${e.label}</th>`).join("")}<th>備考</th></tr></thead><tbody>${body}</tbody></table></div>`;
+  return `<div class="tablewrap"><table class="slots"><thead><tr><th>キャラ</th><th class="rl">Lv</th><th>判定</th>${extra.map(e=>`<th>${e.label}</th>`).join("")}<th>備考</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 function renderList(){
   const s=DECKS[state.school];
