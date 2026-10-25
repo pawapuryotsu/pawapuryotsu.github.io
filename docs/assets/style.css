@@ -235,3 +235,8 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .toc ol{margin:6px 0 0;padding-left:1.4em}
 .prose h2[id]{scroll-margin-top:12px}
 .wip{color:var(--muted);border:1px dashed var(--line);border-radius:4px;padding:10px 12px}
+.em-blue{color:#1a5fd0;font-weight:700}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .em-blue{color:#8fbcff}}
+:root[data-theme="dark"] .em-blue{color:#8fbcff}
+.key3{background:var(--bg);border-left:4px solid var(--mk-pink);padding:10px 14px 10px 30px}
+.prose h3{font-size:15px;font-weight:900;margin:8px 0 0}
