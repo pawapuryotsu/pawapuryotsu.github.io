@@ -36,6 +36,10 @@ window.DECKS={
       {pos:"捕",rank:24,f2p:true,date:"2026-10-09",exp:4253527,r:"result_andromeda_3",a:"ability_andromeda_3",d:"main_andromeda_3",s:"sub_andromeda_3",u:"base_andromeda_3",
        main:[["パワ子","SR",35,{cell:"敏捷"}],["[エアギター]志藤玲美","SR",39,{cell:"精神"}],["フォイボス","PSR",50,{cell:"技術"}],["[キャプテン]御幸一也","SR",35,{cell:"筋力"}],["神崎こりす","PSR",40,{cell:"タッグ"}],["曙緋緒","PSR",50,{cell:"強化マス"}]],
        sub:[["初白百合","PSR",40],["久留米美加","SR",37],["尾上亜月","SR",37,{pos:"捕"}]],
-       tips:["肩力を伸ばすためにバランス良く経験点を稼ぐ。","経験点不足と感じたら肩力を無理して120まで伸ばさず、金特・虹特を優先して獲得する。"],video:"aYxfG-O3m6w"}
+       tips:["肩力を伸ばすためにバランス良く経験点を稼ぐ。","経験点不足と感じたら肩力を無理して120まで伸ばさず、金特・虹特を優先して獲得する。"],video:"aYxfG-O3m6w"},
+      {pos:"遊",rank:17,f2p:true,date:"2026-08-25",exp:3675354,r:"result_andromeda_4",a:"ability_andromeda_4",d:"main_andromeda_4",s:"sub_andromeda_4",u:"base_andromeda_4",
+       main:[["神崎こりす","PSR",40,{cell:"タッグ"}],["[超銀河☆ブルーム]上下沙優","SR",35,{cell:"精神"}],["ピンク","PSR",40,{cell:"技術"}],["曙緋緒","SR",35,{cell:"強化マス"}],["フォイボス","PSR",50,{cell:"技術"}],["枢木スザク","SR",45,{cell:"敏捷"}]],
+       sub:[["初白百合","PSR",40],["[応援団]エイル・オーウェン","SR",35],["曹槍","SR",35]],
+       tips:["オリジンランク5で育成。","肩力と守備力は限界まで伸ばす意識。金特も全て取得。","その他の基礎能力もパワー以外は上限突破を目指す。"],video:"BRBl2Z-O3xg"}
     ]}
 };
