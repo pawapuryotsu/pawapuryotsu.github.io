@@ -52,7 +52,7 @@ const abbrPractice=v=>state.school==="roman"&&typeof v==="string"?PRACTICE_ABBR.
 
 const fmt=n=>n.toLocaleString("ja-JP");
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const state={school:document.body.dataset.school,sort:"exp",pos:{},q:""};
+const state={school:document.body.dataset.school,sort:"exp",pos:{},q:"",f2p:false};
 const norm=s=>s.normalize("NFKC").toLowerCase().replace(/[\s　]/g,"").replace(/[ぁ-ゖ]/g,c=>String.fromCharCode(c.charCodeAt(0)+96));
 const terms=()=>state.q.split(/[\s　]+/).map(norm).filter(Boolean);
 /* キャラ名か読み仮名（ひらがな）のどちらかに含まれていれば一致 */
@@ -60,6 +60,7 @@ const matchesTerm=(name,t)=>norm(name).includes(t)||norm(CHAR[name]?.読み||"")
 
 function deckMatches(d){
   if(state.pos[d.pos]===false) return false;
+  if(state.f2p&&!d.f2p) return false;
   const all=[...d.main,...d.sub].map(x=>x[0]);
   return terms().every(t=>all.some(n=>matchesTerm(n,t)));
 }
@@ -114,7 +115,7 @@ function renderList(){
     const id=d.d; const hits=[...new Set([...d.main,...d.sub].map(x=>x[0]).filter(n=>ts.some(t=>matchesTerm(n,t))))];
     return `<details class="deck" data-id="${id}" ${open.has(id)?"open":""}>
       <summary>
-        <div class="top"><div class="lft"><img src="${IMG[d.r]}" alt="ポジション${d.pos}・選手ランク${d.rank}・総経験点${fmt(d.exp)}"></div><span class="chev" aria-hidden="true">▾</span></div>
+        <div class="top"><div class="lft"><img src="${IMG[d.r]}" alt="ポジション${d.pos}・選手ランク${d.rank}・総経験点${fmt(d.exp)}">${d.f2p?`<span class="f2ptag">無課金</span>`:""}</div><span class="chev" aria-hidden="true">▾</span></div>
         ${hits.length?`<div class="hit">検索に一致：${hits.map(h=>`<mark>${esc(h)}</mark>`).join(" ")}</div>`:""}
         <img class="deckimg" src="${IMG[d.d]}" alt="メインデッキ">
       </summary>
@@ -136,11 +137,14 @@ document.addEventListener("click",e=>{const b=e.target.closest(".yt"); if(!b) re
 function renderDecks(){
   const s=DECKS[state.school];
   const counts={}; s.list.forEach(d=>counts[d.pos]=(counts[d.pos]||0)+1);
+  const f2pCount=s.list.filter(d=>d.f2p).length;
   const names=[...new Set(s.list.flatMap(d=>[...d.main,...d.sub].map(x=>x[0])))].sort();
   document.getElementById("deckapp").innerHTML=`
     <section class="filters">
       <div><div class="flabel"><span>メインポジション</span><button id="allpos" type="button">すべて選択</button></div>
         <div class="posbox">${POSITIONS[state.school].map(p=>`<label class="${counts[p]?"":"zero"}"><input type="checkbox" value="${p}" ${state.pos[p]===false?"":"checked"}>${p}<small>${counts[p]||0}</small></label>`).join("")}</div></div>
+      <div><div class="flabel"><span>絞り込み</span></div>
+        <div class="posbox f2pbox"><label class="${f2pCount?"":"zero"}"><input type="checkbox" id="f2p" ${state.f2p?"checked":""}>無課金のみ<small>${f2pCount}</small></label></div></div>
       <div><div class="flabel"><span>キャラ名で探す</span></div>
         <div class="search"><input id="q" type="search" list="names" placeholder="例：山本 / やまもと" autocomplete="off" aria-label="キャラ名"><button id="clear" type="button">クリア</button></div>
         <datalist id="names">${names.map(n=>`<option value="${esc(n)}">`).join("")}</datalist>
@@ -151,8 +155,9 @@ function renderDecks(){
     <div class="list" id="list"></div>`;
   const sel=document.getElementById("sort"); sel.value=state.sort;
   sel.onchange=()=>{state.sort=sel.value;renderList()};
-  document.querySelectorAll(".posbox input").forEach(cb=>cb.onchange=()=>{state.pos[cb.value]=cb.checked;renderList()});
-  document.getElementById("allpos").onclick=()=>{state.pos={};document.querySelectorAll(".posbox input").forEach(cb=>cb.checked=true);renderList()};
+  document.querySelectorAll(".posbox:not(.f2pbox) input").forEach(cb=>cb.onchange=()=>{state.pos[cb.value]=cb.checked;renderList()});
+  document.getElementById("allpos").onclick=()=>{state.pos={};document.querySelectorAll(".posbox:not(.f2pbox) input").forEach(cb=>cb.checked=true);renderList()};
+  const f2p=document.getElementById("f2p"); f2p.onchange=()=>{state.f2p=f2p.checked;renderList()};
   const q=document.getElementById("q"); q.oninput=()=>{state.q=q.value;renderList()};
   document.getElementById("clear").onclick=()=>{q.value="";state.q="";renderList()};
   renderList();

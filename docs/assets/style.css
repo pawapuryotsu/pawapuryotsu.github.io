@@ -203,3 +203,5 @@ footer .flinks a{color:var(--field-ink);font-size:13px}
 .baseimg.half{width:calc((100% - 24px)/2);max-width:260px}
 .smark{color:var(--clay);margin-right:2px}
 .ddate{margin:0;font-size:13px;color:var(--muted)}
+.f2ptag{flex:none;font-size:11px;font-weight:700;line-height:1;padding:4px 6px;border-radius:4px;background:var(--clay-soft);color:var(--clay);white-space:nowrap}
+.top .lft:has(.f2ptag) img{width:min(242px,calc(100vw - 165px))}
