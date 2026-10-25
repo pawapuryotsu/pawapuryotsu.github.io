@@ -11,7 +11,7 @@ const SCHOOL_NAME={roman:"ロマン開花學園",andromeda:"アンドロメダ�
 const COLS={
   roman:[{label:"得意練習",src:"得意練習"},{label:"練習\u200b効果",src:"bonus",key:"練習効果アップ",unit:"%"},
          {label:"タッグ",src:"bonus",key:"スペシャルタッグボーナス",unit:"%"}],
-  andromeda:[{label:"コツボナ",src:"bonus",key:"コツイベントボーナス",unit:"%"},
+  andromeda:[{label:"セル",src:"deck",key:"cell"},{label:"コツボナ",src:"bonus",key:"コツイベントボーナス",unit:"%"},
          {label:"試合",src:"bonus",key:"試合経験点ボーナス",unit:"%"}]
 };
 const POS_GOLD={捕:["球界の頭脳"],一:["至高の一塁手"],二:["至高の二塁手"],三:["至高の三塁手"],遊:["至高の遊撃手"],外:["至高の外野手"],
@@ -90,10 +90,10 @@ const NOTE_RULES={main:[reformNotes],sub:[capNote,reformNotes]};
 const noteCell=(where,row,rows)=>`<td class="memo">${NOTE_RULES[where].flatMap(f=>f(row,rows)).join("<br>")}</td>`;
 function slotTable(rows,deckPos){
   const ts=terms(), cols=COLS[state.school];
-  const body=rows.map(([name,rar,lv])=>{
+  const body=rows.map(([name,rar,lv,opt])=>{
     const c=CHAR[name]; const hit=ts.some(t=>matchesTerm(name,t));
     const cells=cols.map(col=>{
-      const v=c?colValue(c,col,rar,lv):null;
+      const v=col.src==="deck"?(opt?.[col.key]??null):c?colValue(c,col,rar,lv):null;
       if(v==null) return `<td class="${col.unit?"num":""}">―</td>`;
       if(typeof v==="number") return `<td class="num">${v}${col.unit||""}</td>`;
       return `<td>${esc(col.src==="得意練習"?abbrPractice(v):v)}</td>`;}).join("");
