@@ -67,6 +67,9 @@ shutil.copytree(src / "img", out / "img")
 (out / "data").mkdir()
 shutil.copy(chars, out / "data" / "chars.json")
 shutil.copy(src / "decks.js", out / "assets" / "decks.js")
+# 古いCSS/JSがスマホに残らないよう、ファイルの中身から作った番号を ?v= で付ける
+import hashlib
+ver = {f: hashlib.md5((out / "assets" / f).read_bytes()).hexdigest()[:8] for f in ("style.css", "deck.js", "decks.js")}
 
 layout = (src / "layout.html").read_text(encoding="utf-8")
 urls = []
@@ -89,6 +92,8 @@ for page in sorted((src / "pages").glob("*.html")):
         for k, v in rep.items():
             html = html.replace("{{" + k + "}}", v)
         html = html.replace("{{root}}", root)
+    for f, v in ver.items():
+        html = html.replace(f'assets/{f}"', f'assets/{f}?v={v}"')
     if meta.get("school"):
         html = html.replace('<body data-root=', f'<body data-school="{meta["school"]}" data-root=', 1)
     if path == "":
