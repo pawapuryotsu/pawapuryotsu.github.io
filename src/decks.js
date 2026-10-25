@@ -25,7 +25,7 @@ window.DECKS={
        tips:["先発育成なので技術と精神経験点を終始稼ぎ続ける。","イベキャラのLvが低めなので、無理して基礎能力を上げ過ぎて金特取り逃す事がないように気を付ける。"],video:"n9OSlJ2GJ1w"}]},
   andromeda:{title:"アンドロメダ学園",kind:"野手向け",sub:"野手向けデッキ。カードをタップすると編成の詳細が開きます。",tool:false,
     list:[
-      {pos:"外",rank:39,date:"2026-10-19",exp:5178644,r:"result_edo",d:"main_edo",s:"sub_edo",u:"base_edo",
+      {pos:"外",rank:39,date:"2026-10-19",exp:5178644,r:"result_edo",a:"ability_edo",d:"main_edo",s:"sub_edo",u:"base_edo",
        main:[["[応援団]エイル・オーウェン","PSR",50],["[エアギター]志藤玲美","PSR",50],["曙緋緒","PSR",50],["[わんこだよ！]パーちゃん","PSR",50],["神崎こりす","SR",45],["パワ子","PSR",50]],
        sub:[["初白百合","SR",45],["オーランド・ディクソン","PSR",50],["[CUTIE]DJB-K","PSR",50]],
        tips:["走力を伸ばす為に敏捷経験点をとにかく意識して稼ぐ。","筋力が一番余りやすいので、トンボは終盤に使って筋力を分散させられるとGood。"],video:"DdB-AN2-qj0"},
