@@ -103,7 +103,7 @@ main{max-width:1100px;margin:0 auto;padding:16px}
     <div class="notice">※一部キャラクターは実装されていません</div>
     <div class="sf" id="sf">
       <span>ボーナス検索（以上）：</span>
-      <label>見る値<select id="bl"><option value="max">最大値（全Lv）</option></select></label>
+      <label>見る値<select id="bl"></select></label>
       <label>スペシャルタッグ<input type="number" data-b="スペシャルタッグボーナス" min="0"></label>
       <label>練習効果アップ<input type="number" data-b="練習効果アップ" min="0"></label>
       <label>コツイベント<input type="number" data-b="コツイベントボーナス" min="0"></label>
@@ -123,6 +123,10 @@ main{max-width:1100px;margin:0 auto;padding:16px}
     ・タイトル・サブタイトル・Tier名・アイコン下の文字に不適切な言葉が含まれていると、画像(PNG)で保存できません。
   </p></div>
   <div id="log" class="log hidden">
+    <h3>2026-10-26（4回目）</h3>
+    <ul>
+      <li>ボーナス検索の「見る値」を、Lvが高い順（PSR50 → SR35）にしました。「最大値（全Lv）」は PSR50 と同じなので削除しました（初期値は PSR50）</li>
+    </ul>
     <h3>2026-10-26（3回目）</h3>
     <ul>
       <li>未配置のキャラに <b>↑</b> ボタンを追加（押すとTierを選べて、ドラッグしなくても配置できます）</li>
@@ -232,13 +236,19 @@ function tierOp(i, a){
   }
   persist(); render();
 }
+function bonusAt(m, key){   // 選んだLv以下で一番高いLvの値（そのLvの値が無ければ手前のLvの値を引き継ぐ。ボーナスが無ければ0）
+  const rare = key.startsWith("PSR") ? "PSR" : "SR", lv = +key.slice(rare.length);
+  let best = -1, val = 0;
+  for (const [k, x] of Object.entries(m)) { if (!k.startsWith(rare + "") || (rare === "SR" && k.startsWith("SR") === false)) continue; const n = +k.slice(rare.length); if (n <= lv && n > best) { best = n; val = x; } }
+  return val;
+}
 function applyFilter(){
   const q = fold($("q").value.trim()), kind = $("kind").value, bl = $("bl").value;
   const conds = [...document.querySelectorAll("#sf input[data-b]")].filter(i => i.value !== "").map(i => [i.dataset.b, +i.value]);
   let n = 0;
   document.querySelectorAll("#pool .card").forEach(el => {
     const c = byId[S.cards[el.dataset.uid].char];
-    const ok = conds.every(([b, v]) => { const m = c.bonus[b] || {}; const x = (bl === "max" ? Math.max(0, ...Object.values(m)) : m[bl]) ?? 0; return x >= v; });
+    const ok = conds.every(([b, v]) => { const m = c.bonus[b] || {}; return bonusAt(m, bl) >= v; });
     const hide = !!((q && !el.dataset.search.includes(q)) || (kind && el.dataset.kind !== kind) || !ok);
     el.classList.toggle("hidden", hide); if (!hide) n++;
   });
@@ -415,7 +425,7 @@ $("xshare").onclick = async () => {
 };
 
 /* ---------- 起動 ---------- */
-["PSR40","PSR42","PSR45","PSR50","SR35","SR37","SR40","SR45"].forEach(k => { const o = document.createElement("option"); o.value = k; o.textContent = k.replace(/^(PSR|SR)/, "$1 Lv"); $("bl").appendChild(o); });
+["PSR50","PSR45","PSR42","PSR40","SR45","SR40","SR37","SR35"].forEach(k => { const o = document.createElement("option"); o.value = k; o.textContent = k.replace(/^(PSR|SR)/, "$1 Lv"); $("bl").appendChild(o); });
 [...new Set(CHARS.map(c => c.kind))].forEach(k => { const o = document.createElement("option"); o.value = o.textContent = k; $("kind").appendChild(o); });
 S = load(); render();
 </script>
