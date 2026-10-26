@@ -86,8 +86,8 @@ main{max-width:1100px;margin:0 auto;padding:16px}
   <button id="png" class="primary">画像で保存(PNG)</button>
   <button id="xshare">𝕏で共有</button>
   <label style="font-size:12px"><input type="checkbox" id="pngname" checked>画像に名前も入れる</label>
-  <button id="save">データ保存(JSON)</button>
-  <button id="load">データ読込</button>
+  <button id="save" class="admin hidden">データ保存(JSON)</button>
+  <button id="load" class="admin hidden">データ読込</button>
   <button id="reset">最初からやり直す</button>
   <input type="file" id="file" accept=".json" class="hidden">
 </header>
@@ -123,7 +123,7 @@ main{max-width:1100px;margin:0 auto;padding:16px}
     ・アイコンの下の欄には、好きな文字を入力できます（例：Lv50 ／ Lv40～45 ／ 好き）。入力した文字がそのまま画像に出ます。<br>
     ・未配置のキャラの <b>↑</b> を押すと、入れたいTierを選んで配置できます（スマホの縦長画面で、上までドラッグしなくて済みます）。<br>
     ・同じキャラを別のLv区分でも使いたいときは、アイコンの上にマウスを乗せて出る <b>＋</b> を押すと、同じキャラのアイコンがもう1枚増えます。増やした分は <b>×</b> で消せます。Tierに置いたキャラの <b>×</b> は、削除せずに未配置へ戻します（スマホは常に表示されます）。<br>
-    ・入力内容は、このブラウザに自動で保存されます。別の端末で続ける時は「データ保存(JSON)」を使ってください。<br>
+    ・入力内容は、このブラウザに自動で保存されます。<br>
     ・「𝕏で共有」を押すと、Tier画像をコピーします。出てきた「𝕏の投稿画面を開く」を押して、本文欄に貼り付けてください。<br>
     ・タイトル・サブタイトル・Tier名・アイコン下の文字に不適切な言葉が含まれていると、画像(PNG)で保存できません。
   </p></div>
