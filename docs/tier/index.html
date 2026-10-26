@@ -136,6 +136,10 @@ body.selecting{padding-bottom:70px}
     ・タイトル・サブタイトル・Tier名・アイコン下の文字に不適切な言葉が含まれていると、画像(PNG)で保存できません。
   </p></div>
   <div id="log" class="log hidden">
+    <h3>2026-10-26（9回目）</h3>
+    <ul>
+      <li>画像で保存・共有するとき、Lvなどの文字が1つも入っていないTierは、アイコン下の空白を詰めて出力するようにしました</li>
+    </ul>
     <h3>2026-10-26（8回目）</h3>
     <ul>
       <li>未配置キャラの ↑ ボタンをやめ、アイコンをタップで選択 → 画面下のTierボタンでまとめて配置、に変更しました（「表示中を全選択」も追加）</li>
@@ -412,11 +416,13 @@ const imgCache = {};
 function loadImg(src){ return imgCache[src] || (imgCache[src] = new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = src; })); }
 async function makePng(){
   if (checkTexts()) { alert("不適切な言葉が含まれているため、画像で保存・共有できません。タイトル・Tier名・アイコン下の文字を見直してください。"); return null; }
-  const W = 1500, LW = 150, CW = 122, IC = 112, PAD = 8, TOP = 120, nm = $("pngname").checked, EX = nm ? 46 : 28;
+  const W = 1500, LW = 150, CW = 122, IC = 112, PAD = 8, TOP = 120, nm = $("pngname").checked;
   const per = Math.floor((W - 40 - LW - PAD) / CW);
   const rows = S.tiers.map(t => Math.max(1, Math.ceil(t.cards.length / per)));
-  const RH = r => r * (IC + EX + 6) + PAD;
-  const H = TOP + rows.reduce((a, r) => a + RH(r), 0) + 30;
+  const hasLv = S.tiers.map(t => t.cards.some(u => (S.cards[u].lv || "").trim() !== ""));   // Lvなどの文字が1つも無いTierは、その分の空白を詰める
+  const EXs = hasLv.map(h => (h ? 28 : 0) + (nm ? 18 : 0));
+  const RH = (r, i) => r * (IC + EXs[i] + 6) + PAD;
+  const H = TOP + rows.reduce((a, r, i) => a + RH(r, i), 0) + 30;
   const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
   const g = cv.getContext("2d");
   g.fillStyle = "#161616"; g.fillRect(0, 0, W, H);
@@ -425,7 +431,7 @@ async function makePng(){
   g.fillStyle = "#9a9a9a"; g.font = "24px sans-serif"; g.fillText(S.subtitle, W / 2, 98);
   let y = TOP;
   for (let i = 0; i < S.tiers.length; i++) {
-    const t = S.tiers[i], h = RH(rows[i]);
+    const t = S.tiers[i], h = RH(rows[i], i), EX = EXs[i];
     g.fillStyle = "#1c1c1e"; g.fillRect(20, y, W - 40, h);
     g.fillStyle = t.color; g.fillRect(20, y, LW, h);
     g.fillStyle = "#111"; g.textAlign = "center"; g.font = "900 80px sans-serif";
@@ -434,11 +440,11 @@ async function makePng(){
       const u = t.cards[k], card = S.cards[u], c = byId[card.char];
       const x = 20 + LW + PAD + (k % per) * CW, yy = y + PAD / 2 + Math.floor(k / per) * (IC + EX + 6);
       g.drawImage(await loadImg(c.icon), x, yy, IC, IC);
-      if (card.lv) {
+      if ((card.lv || "").trim()) {
         g.font = "800 22px sans-serif"; g.fillStyle = "#fff"; g.textAlign = "center";
         g.fillText(card.lv, x + IC / 2, yy + IC + 23, CW - 4);
       }
-      if (nm) { g.font = "700 15px sans-serif"; g.fillStyle = "#ddd"; g.textAlign = "center"; g.fillText(c.name, x + IC / 2, yy + IC + 42, CW - 4); }
+      if (nm) { g.font = "700 15px sans-serif"; g.fillStyle = "#ddd"; g.textAlign = "center"; g.fillText(c.name, x + IC / 2, yy + IC + (hasLv[i] ? 42 : 18), CW - 4); }
     }
     y += h;
   }
