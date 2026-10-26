@@ -132,10 +132,14 @@ body.selecting{padding-bottom:70px}
     ・未配置のキャラのアイコンを <b>タップ</b> すると選択（✓）されます。何人か選んでから、画面下に出る <b>S・A・B…</b> のボタンを押すと、選んだキャラがまとめてそのTierに入ります（スマホの縦長画面で、上までドラッグしなくて済みます）。「表示中を全選択」で、絞り込んだキャラ全員を選ぶこともできます。<br>
     ・同じキャラを別のLv区分でも使いたいときは、アイコンの上にマウスを乗せて出る <b>＋</b> を押すと、同じキャラのアイコンがもう1枚増えます。増やした分は <b>×</b> で消せます。Tierに置いたキャラの <b>×</b> は、削除せずに未配置へ戻します（スマホは常に表示されます）。<br>
     ・入力内容は、このブラウザに自動で保存されます。<br>
-    ・「𝕏で共有」を押すと、Tier画像をコピーします。出てきた「𝕏の投稿画面を開く」を押して、本文欄に貼り付けてください。<br>
+    ・「𝕏で共有」を押すと、Tier画像をコピーします。出てきた「𝕏アプリを開く」（PCは「𝕏（ブラウザ版）を開く」）を押して、本文欄に貼り付けてください。<br>
     ・タイトル・サブタイトル・Tier名・アイコン下の文字に不適切な言葉が含まれていると、画像(PNG)で保存できません。
   </p></div>
   <div id="log" class="log hidden">
+    <h3>2026-10-26（10回目）</h3>
+    <ul>
+      <li>スマホでは、𝕏の共有で「𝕏アプリを開く」ボタンから、ブラウザを経由せず𝕏アプリの投稿画面を直接開けるようにしました（アプリが無い場合はブラウザ版に切り替わります）</li>
+    </ul>
     <h3>2026-10-26（9回目）</h3>
     <ul>
       <li>画像で保存・共有するとき、画像全体でLvなどの文字が1つも入っていなければ、アイコンと名前の間の空白を詰めて出力するようにしました</li>
@@ -466,10 +470,16 @@ $("xshare").onclick = async () => {
   }
   try { await cvP; } catch(e) { return; }
   const box = document.createElement("div"); box.id = "picker";
-  box.innerHTML = '<div><p></p><button class="t go" style="background:#111;color:#fff;border:1px solid #888">𝕏の投稿画面を開く</button><button class="sv">画像を保存</button> <button class="cl">閉じる</button></div>';
+  box.innerHTML = '<div><p></p><button class="t app" style="background:#111;color:#fff;border:1px solid #888">𝕏アプリを開く</button><button class="t go" style="background:#111;color:#fff;border:1px solid #888">𝕏（ブラウザ版）を開く</button><button class="sv">画像を保存</button> <button class="cl">閉じる</button></div>';
   box.querySelector("p").innerHTML = copied
     ? "画像をコピーしました。<br>𝕏の投稿画面で、本文欄を長押し（PCは Ctrl+V）して<br><b>貼り付け</b>ると、画像がつきます。"
     : "この端末では画像のコピーができませんでした。<br>先に <b>画像を保存</b> してから、𝕏の投稿画面で画像を添付してください。";
+  const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (!mobile) box.querySelector(".app").remove();
+  box.querySelector(".app") && (box.querySelector(".app").onclick = () => {     // スマホ：Xアプリを直接開く（入っていない・開けないときは、少し待ってブラウザ版へ）
+    location.href = "twitter://post?message=" + encodeURIComponent(text + "\n" + SHARE_URL);
+    setTimeout(() => { if (!document.hidden) window.open(xurl, "_blank", "noopener"); }, 1800);
+  });
   box.querySelector(".go").onclick = () => { window.open(xurl, "_blank", "noopener"); };
   box.querySelector(".sv").onclick = () => saveCanvas(cv);
   box.querySelector(".cl").onclick = () => box.remove();
