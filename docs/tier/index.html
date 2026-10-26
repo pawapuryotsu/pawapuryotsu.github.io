@@ -24,8 +24,8 @@ main{max-width:1100px;margin:0 auto;padding:16px}
 #subtitle{display:block;width:100%;text-align:center;font-size:15px;background:transparent;border:0;color:var(--sub);margin-bottom:12px}
 .tier{display:flex;border:1px solid var(--line);background:var(--panel);min-height:130px}
 .tier+.tier{border-top:0}
-.tier-label{width:110px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:4px;color:#111;font-weight:700}
-.tier-label input.name{width:100%;text-align:center;background:transparent;border:0;font-size:56px;font-weight:900;color:#111;font-family:inherit;padding:0}
+.tier-label{width:clamp(52px,16vw,110px);flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:4px;color:#111;font-weight:700}
+.tier-label input.name{width:100%;text-align:center;background:transparent;border:0;font-size:clamp(20px,8vw,56px);font-weight:900;color:#111;font-family:inherit;padding:0}
 .tier-tools{display:flex;gap:2px;opacity:.55}
 .tier-tools:hover{opacity:1}
 .tier-tools button{padding:0 5px;font-size:11px;background:rgba(255,255,255,.55);color:#111;border:0}
@@ -47,6 +47,14 @@ main{max-width:1100px;margin:0 auto;padding:16px}
 .hint{color:var(--sub);font-size:12px;line-height:1.6;margin:10px 2px}
 .sf{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:8px;font-size:13px}.sf label{display:flex;align-items:center;gap:4px}.sf input[type=number]{width:70px;background:#232326;color:var(--text);border:1px solid #444;border-radius:6px;padding:5px}
 .hidden{display:none!important}
+.notice{background:#2b2417;border:1px solid #6b5a2a;color:#f0d98a;border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:12px}
+.tabs{display:flex;gap:4px;margin-top:18px}
+.tabs button{border-radius:6px 6px 0 0}
+.tabs button.on{background:var(--accent);border-color:var(--accent)}
+.tabbody{background:var(--panel);border:1px solid var(--line);border-radius:0 8px 8px 8px;padding:10px 14px}
+.tabbody .hint{margin:4px 2px}
+.log h3{font-size:13px;margin:10px 0 4px}.log ul{margin:0 0 6px;padding-left:20px;font-size:12px;line-height:1.7;color:#ccc}
+@media (hover:none){.card .ops{display:flex}}
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F98XGNW3LS"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-F98XGNW3LS');</script>
@@ -66,6 +74,7 @@ main{max-width:1100px;margin:0 auto;padding:16px}
   <input type="file" id="file" accept=".json" class="hidden">
 </header>
 <main>
+  <div class="notice">※一部キャラクターは実装されていません</div>
   <div id="board">
     <input id="title" type="text" value="イベキャラTier表">
     <input id="subtitle" type="text" value="独断と偏見">
@@ -89,12 +98,30 @@ main{max-width:1100px;margin:0 auto;padding:16px}
     </div>
     <div id="pool" class="drop" data-tier="pool"></div>
   </div>
-  <p class="hint">
+  <div class="tabs"><button id="tabHelp" class="on">使い方</button><button id="tabLog">更新履歴</button></div>
+  <div class="tabbody">
+  <div id="help"><p class="hint">
     ・アイコンをドラッグして、好きなTierに入れます（スマホは長押ししなくても指でそのままドラッグできます）。<br>
-    ・アイコンの下の欄に Lv を入力します（例：50 ／ 40～45 ／ 35,37）。<br>
-    ・同じキャラを別のLv区分でも使いたいときは、アイコンの上にマウスを乗せて出る <b>＋</b> を押すと、同じキャラのアイコンがもう1枚増えます。増やした分は <b>×</b> で消せます。<br>
-    ・入力内容は、このブラウザに自動で保存されます。別の端末で続ける時は「データ保存(JSON)」を使ってください。
-  </p>
+    ・アイコンの下の欄には、好きな文字を入力できます（例：Lv50 ／ Lv40～45 ／ 好き）。入力した文字がそのまま画像に出ます。<br>
+    ・同じキャラを別のLv区分でも使いたいときは、アイコンの上にマウスを乗せて出る <b>＋</b> を押すと、同じキャラのアイコンがもう1枚増えます。増やした分は <b>×</b> で消せます。Tierに置いたキャラの <b>×</b> は、削除せずに未配置へ戻します（スマホは常に表示されます）。<br>
+    ・入力内容は、このブラウザに自動で保存されます。別の端末で続ける時は「データ保存(JSON)」を使ってください。<br>
+    ・タイトル・サブタイトル・Tier名・アイコン下の文字に不適切な言葉が含まれていると、画像(PNG)で保存できません。
+  </p></div>
+  <div id="log" class="log hidden">
+    <h3>2026-10-26</h3>
+    <ul>
+      <li>スマホで見たとき、S・Aなどのランク文字が大きすぎないよう、画面の幅に合わせて小さくしました</li>
+      <li>Tierに置いたキャラに <b>×</b> ボタンを追加（複製していなくても、1回押すだけで未配置へ戻せます）</li>
+      <li>アイコン下の欄に、Lv以外の文字も自由に入力できるようにしました（画像にも入力したとおりに出ます）</li>
+      <li>ボーナス検索で 0 を入力したとき、そのボーナスが無いキャラまで消えてしまう不具合を直しました</li>
+      <li>更新履歴の表示を追加しました</li>
+      <li>「一部キャラクターは実装されていません」の注意書きを追加しました</li>
+      <li>不適切な言葉が含まれていると、画像(PNG)で保存できないようにしました</li>
+    </ul>
+    <h3>2026-10-26 以前</h3>
+    <ul><li>公開（Lv入力、Lv区分ごとのアイコン複製、ボーナス検索、PNG・JSON保存）</li></ul>
+  </div>
+  </div>
 </main>
 
 <script>
@@ -129,15 +156,15 @@ function persist(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(
 
 /* ---------- 描画 ---------- */
 const $ = id => document.getElementById(id);
-function cardEl(uid){
+function cardEl(uid, inPool){
   const k = S.cards[uid], c = byId[k.char];
   const el = document.createElement("div");
   el.className = "card"; el.dataset.uid = uid;
   el.dataset.search = (c.name + c.reading + c.school + c.kind).toLowerCase();
   el.dataset.kind = c.kind;
   const dup = Object.values(S.cards).filter(x => x.char === k.char).length > 1;
-  el.innerHTML = `<img alt="" src="${c.icon}"><input class="lv" type="text" placeholder="Lv" maxlength="12"><div class="nm"></div>
-    <div class="ops"><button class="dupb" title="別のLv区分を追加">＋</button>${dup ? '<button class="delb" title="このアイコンを削除">×</button>' : ""}</div>`;
+  el.innerHTML = `<img alt="" src="${c.icon}"><input class="lv" type="text" placeholder="Lv50など" maxlength="16"><div class="nm"></div>
+    <div class="ops"><button class="dupb" title="別のLv区分を追加">＋</button>${dup || !inPool ? '<button class="delb" title="' + (dup ? "このアイコンを削除" : "未配置に戻す") + '">×</button>' : ""}</div>`;
   el.querySelector(".lv").value = k.lv;
   el.querySelector(".nm").textContent = c.name;
   el.title = c.name;
@@ -153,14 +180,14 @@ function render(){
       <div class="drop" data-tier="${i}"></div>`;
     row.querySelector(".name").value = t.name;
     const drop = row.querySelector(".drop");
-    t.cards.forEach(u => drop.appendChild(cardEl(u)));
+    t.cards.forEach(u => drop.appendChild(cardEl(u, false)));
     row.querySelector(".name").oninput = e => { t.name = e.target.value; persist(); };
     row.querySelector("input[type=color]").oninput = e => { t.color = e.target.value; row.querySelector(".tier-label").style.background = t.color; persist(); };
     row.querySelectorAll(".tier-tools button").forEach(b => b.onclick = () => tierOp(i, b.dataset.a));
     box.appendChild(row);
   });
   const pool = $("pool"); pool.innerHTML = "";
-  S.pool.forEach(u => pool.appendChild(cardEl(u)));
+  S.pool.forEach(u => pool.appendChild(cardEl(u, true)));
   applyFilter();
 }
 function tierOp(i, a){
@@ -180,7 +207,7 @@ function applyFilter(){
   let n = 0;
   document.querySelectorAll("#pool .card").forEach(el => {
     const c = byId[S.cards[el.dataset.uid].char];
-    const ok = conds.every(([b, v]) => { const m = c.bonus[b] || {}; const x = bl === "max" ? Math.max(-1, ...Object.values(m)) : m[bl]; return x !== undefined && x >= v; });
+    const ok = conds.every(([b, v]) => { const m = c.bonus[b] || {}; const x = (bl === "max" ? Math.max(0, ...Object.values(m)) : m[bl]) ?? 0; return x >= v; });
     const hide = !!((q && !el.dataset.search.includes(q)) || (kind && el.dataset.kind !== kind) || !ok);
     el.classList.toggle("hidden", hide); if (!hide) n++;
   });
@@ -206,8 +233,10 @@ document.addEventListener("click", e => {
     const where = card.parentElement.dataset.tier === "pool" ? S.pool : S.tiers[+card.parentElement.dataset.tier].cards;
     where.splice(where.indexOf(uid) + 1, 0, nu); persist(); render();
   } else if (e.target.classList.contains("delb")) {
+    const dup = Object.values(S.cards).filter(x => x.char === S.cards[uid].char).length > 1;
     [S.pool, ...S.tiers.map(t => t.cards)].forEach(a => { const i = a.indexOf(uid); if (i >= 0) a.splice(i, 1); });
-    delete S.cards[uid]; persist(); render();
+    if (dup) delete S.cards[uid]; else S.pool.push(uid);   // 複製でないキャラは消さずに未配置へ戻す
+    persist(); render();
   }
 });
 $("title").oninput = e => { S.title = e.target.value; persist(); };
@@ -263,10 +292,35 @@ function endDrag(){
 document.addEventListener("pointerup", endDrag); document.addEventListener("pointercancel", endDrag);
 document.addEventListener("dragstart", e => e.preventDefault());
 
+/* ---------- タブ ---------- */
+function tab(log){ $("help").classList.toggle("hidden", log); $("log").classList.toggle("hidden", !log); $("tabHelp").classList.toggle("on", !log); $("tabLog").classList.toggle("on", log); }
+$("tabHelp").onclick = () => tab(false); $("tabLog").onclick = () => tab(true);
+
+/* ---------- 不適切な言葉のチェック ---------- */
+// 空白・記号を除き、ひらがなをカタカナにそろえてから比べる（「ご み」「ごみ」「ゴミ」を同じに扱う）
+const NG_WORDS = ["ゴミ","カス","クズ","クソ","糞","バカ","馬鹿","アホ","阿呆","ボケ","マヌケ","間抜け","ノロマ","無能","低能","雑魚","ザコ","弱小","役立たず","役たたず","使えない","つかえない","死ね","死ネ","氏ね","タヒ","しね","殺す","ころす","殺せ","死んで","消えろ","きえろ","失せろ","うせろ","くたばれ","ウザ","うざ","キモ","きも","キショ","ブス","デブ","ハゲ","チビ","ババア","ジジイ","カッペ","池沼","ガイジ","キチガイ","きちがい","基地外","気違い","メンヘラ","クソゲ","チョン","支那","シナ人","在日","ホモ","オカマ","レイプ","犯す","セックス","エッチ","ちんこ","チンコ","ちんぽ","チンポ","まんこ","マンコ","うんこ","ウンコ","うんち","ウンチ","ちんちん","オナニー","fuck","shit","bitch","asshole","bastard","cunt","nigger","nigga","faggot","retard","whore","slut","rape","kys"];
+const NG_OK = ["ばかり","バカリ","バカンス","カスタム","カスミ","カスケード","ゴミ箱","クズ餅","くず餅","シナリオ","ホモサピ","エッチング","カスガ","春日","キモチ","キモノ","シネマ","ウザン"];
+function norm(t){
+  t = t.normalize("NFKC").toLowerCase().replace(/[\u3041-\u3096]/g, ch => String.fromCharCode(ch.charCodeAt(0) + 0x60));
+  return t.replace(/[^0-9a-z\u30a1-\u30fa\u30fc\u4e00-\u9fff]/g, "");
+}
+const NG_N = NG_WORDS.map(norm), OK_N = NG_OK.map(norm);
+function findNg(text){
+  let t = norm(text); OK_N.forEach(w => { t = t.split(w).join(""); });
+  const i = NG_N.findIndex(w => t.includes(w));
+  return i < 0 ? null : NG_WORDS[i];
+}
+function checkTexts(){
+  const list = [S.title, S.subtitle, ...S.tiers.map(t => t.name), ...Object.values(S.cards).map(c => c.lv)];
+  for (const t of list) { const w = findNg(t || ""); if (w) return w; }
+  return null;
+}
+
 /* ---------- PNG出力（canvasで自前描画） ---------- */
 const imgCache = {};
 function loadImg(src){ return imgCache[src] || (imgCache[src] = new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = src; })); }
 $("png").onclick = async () => {
+  if (checkTexts()) { alert("不適切な言葉が含まれているため、画像で保存できません。タイトル・Tier名・アイコン下の文字を見直してください。"); return; }
   const W = 1500, LW = 150, CW = 122, IC = 112, PAD = 8, TOP = 120, nm = $("pngname").checked, EX = nm ? 46 : 28;
   const per = Math.floor((W - 40 - LW - PAD) / CW);
   const rows = S.tiers.map(t => Math.max(1, Math.ceil(t.cards.length / per)));
@@ -291,7 +345,7 @@ $("png").onclick = async () => {
       g.drawImage(await loadImg(c.icon), x, yy, IC, IC);
       if (card.lv) {
         g.font = "800 22px sans-serif"; g.fillStyle = "#fff"; g.textAlign = "center";
-        g.fillText("Lv" + card.lv.replace(/^[Ll][Vv]\s*/, ""), x + IC / 2, yy + IC + 23, CW - 4);
+        g.fillText(card.lv, x + IC / 2, yy + IC + 23, CW - 4);
       }
       if (nm) { g.font = "700 15px sans-serif"; g.fillStyle = "#ddd"; g.textAlign = "center"; g.fillText(c.name, x + IC / 2, yy + IC + 42, CW - 4); }
     }
