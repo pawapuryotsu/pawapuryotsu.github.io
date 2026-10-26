@@ -53,8 +53,14 @@ main{max-width:1100px;margin:0 auto;padding:16px}
 .tabs button.on{background:var(--accent);border-color:var(--accent)}
 .tabbody{background:var(--panel);border:1px solid var(--line);border-radius:0 8px 8px 8px;padding:10px 14px}
 .tabbody .hint{margin:4px 2px}
+.card .upb{background:rgba(76,141,255,.9);color:#fff}
+#picker{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center}
+#picker>div{background:var(--panel);border:1px solid #555;border-radius:10px;padding:14px;max-width:90vw;max-height:80vh;overflow:auto;text-align:center}
+#picker p{margin:0 0 10px;font-size:13px}
+#picker button.t{display:block;width:100%;margin:6px 0;padding:10px 16px;font-size:18px;font-weight:800;color:#111;border:0}
 .log h3{font-size:13px;margin:10px 0 4px}.log ul{margin:0 0 6px;padding-left:20px;font-size:12px;line-height:1.7;color:#ccc}
 @media (max-width:600px){
+  input,select{font-size:16px!important}   /* 16px未満だとiPhoneで入力時に画面が拡大される */
   main{padding:10px 8px}
   #board{padding:10px 6px}
   .drop{gap:3px;padding:3px}
@@ -74,6 +80,7 @@ main{max-width:1100px;margin:0 auto;padding:16px}
   <h1>イベキャラ Tier表メーカー</h1>
   <button id="addTier">＋Tier追加</button>
   <button id="png" class="primary">画像で保存(PNG)</button>
+  <button id="xshare">𝕏で共有</button>
   <label style="font-size:12px"><input type="checkbox" id="pngname" checked>画像に名前も入れる</label>
   <button id="save">データ保存(JSON)</button>
   <button id="load">データ読込</button>
@@ -81,7 +88,6 @@ main{max-width:1100px;margin:0 auto;padding:16px}
   <input type="file" id="file" accept=".json" class="hidden">
 </header>
 <main>
-  <div class="notice">※一部キャラクターは実装されていません</div>
   <div id="board">
     <input id="title" type="text" value="イベキャラTier表">
     <input id="subtitle" type="text" value="独断と偏見">
@@ -94,13 +100,14 @@ main{max-width:1100px;margin:0 auto;padding:16px}
       <input id="q" type="search" placeholder="名前・読み・二つ名・高校で絞り込み">
       <select id="kind"><option value="">全分類</option></select>
     </div>
+    <div class="notice">※一部キャラクターは実装されていません</div>
     <div class="sf" id="sf">
       <span>ボーナス検索（以上）：</span>
+      <label>見る値<select id="bl"><option value="max">最大値（全Lv）</option></select></label>
       <label>スペシャルタッグ<input type="number" data-b="スペシャルタッグボーナス" min="0"></label>
       <label>練習効果アップ<input type="number" data-b="練習効果アップ" min="0"></label>
       <label>コツイベント<input type="number" data-b="コツイベントボーナス" min="0"></label>
       <label>試合経験点<input type="number" data-b="試合経験点ボーナス" min="0"></label>
-      <label>見る値<select id="bl"><option value="max">最大値（全Lv）</option></select></label>
       <button id="sclear">条件クリア</button><span id="scount" style="color:var(--sub)"></span>
     </div>
     <div id="pool" class="drop" data-tier="pool"></div>
@@ -110,11 +117,20 @@ main{max-width:1100px;margin:0 auto;padding:16px}
   <div id="help"><p class="hint">
     ・アイコンをドラッグして、好きなTierに入れます（スマホは長押ししなくても指でそのままドラッグできます）。<br>
     ・アイコンの下の欄には、好きな文字を入力できます（例：Lv50 ／ Lv40～45 ／ 好き）。入力した文字がそのまま画像に出ます。<br>
+    ・未配置のキャラの <b>↑</b> を押すと、入れたいTierを選んで配置できます（スマホの縦長画面で、上までドラッグしなくて済みます）。<br>
     ・同じキャラを別のLv区分でも使いたいときは、アイコンの上にマウスを乗せて出る <b>＋</b> を押すと、同じキャラのアイコンがもう1枚増えます。増やした分は <b>×</b> で消せます。Tierに置いたキャラの <b>×</b> は、削除せずに未配置へ戻します（スマホは常に表示されます）。<br>
     ・入力内容は、このブラウザに自動で保存されます。別の端末で続ける時は「データ保存(JSON)」を使ってください。<br>
     ・タイトル・サブタイトル・Tier名・アイコン下の文字に不適切な言葉が含まれていると、画像(PNG)で保存できません。
   </p></div>
   <div id="log" class="log hidden">
+    <h3>2026-10-26（3回目）</h3>
+    <ul>
+      <li>未配置のキャラに <b>↑</b> ボタンを追加（押すとTierを選べて、ドラッグしなくても配置できます）</li>
+      <li>スマホでボーナス検索の数値欄を押したとき、画面が自動で拡大されないようにしました</li>
+      <li>「見る値」を「ボーナス検索（以上）」のすぐ横に移動しました</li>
+      <li>「一部キャラクターは実装されていません」の表示を、キャラ一覧（未配置）の上に移動しました</li>
+      <li>作ったTier表を、𝕏で共有できるようにしました（スマホは共有メニューから画像つきで投稿、PCは画像を保存して投稿画面を開きます）</li>
+    </ul>
     <h3>2026-10-26（2回目）</h3>
     <ul>
       <li>スマホの縦画面など横幅が狭いときは、アイコンも小さくなり、横にたくさん並ぶようにしました</li>
@@ -179,7 +195,7 @@ function cardEl(uid, inPool){
   el.dataset.kind = c.kind;
   const dup = Object.values(S.cards).filter(x => x.char === k.char).length > 1;
   el.innerHTML = `<img alt="" src="${c.icon}"><input class="lv" type="text" placeholder="Lv" maxlength="16"><div class="nm"></div>
-    <div class="ops"><button class="dupb" title="別のLv区分を追加">＋</button>${dup || !inPool ? '<button class="delb" title="' + (dup ? "このアイコンを削除" : "未配置に戻す") + '">×</button>' : ""}</div>`;
+    <div class="ops">${inPool ? '<button class="upb" title="Tierに配置">↑</button>' : ""}<button class="dupb" title="別のLv区分を追加">＋</button>${dup || !inPool ? '<button class="delb" title="' + (dup ? "このアイコンを削除" : "未配置に戻す") + '">×</button>' : ""}</div>`;
   el.querySelector(".lv").value = k.lv;
   el.querySelector(".nm").textContent = c.name;
   el.title = c.name;
@@ -247,6 +263,8 @@ document.addEventListener("click", e => {
     const nu = "c" + (S.seq++); S.cards[nu] = {char: S.cards[uid].char, lv: ""};
     const where = card.parentElement.dataset.tier === "pool" ? S.pool : S.tiers[+card.parentElement.dataset.tier].cards;
     where.splice(where.indexOf(uid) + 1, 0, nu); persist(); render();
+  } else if (e.target.classList.contains("upb")) {
+    pickTier(uid);
   } else if (e.target.classList.contains("delb")) {
     const dup = Object.values(S.cards).filter(x => x.char === S.cards[uid].char).length > 1;
     [S.pool, ...S.tiers.map(t => t.cards)].forEach(a => { const i = a.indexOf(uid); if (i >= 0) a.splice(i, 1); });
@@ -254,6 +272,15 @@ document.addEventListener("click", e => {
     persist(); render();
   }
 });
+function pickTier(uid){      // 上のランクへ配置：Tierを選ぶ小窓を出す
+  const c = byId[S.cards[uid].char], box = document.createElement("div"); box.id = "picker";
+  box.innerHTML = '<div><p></p></div>'; box.querySelector("p").textContent = c.name + " をどのTierに入れますか？";
+  S.tiers.forEach((t, i) => { const b = document.createElement("button"); b.className = "t"; b.style.background = t.color; b.textContent = t.name || "(名前なし)";
+    b.onclick = () => { S.pool = S.pool.filter(u => u !== uid); t.cards.push(uid); box.remove(); persist(); render(); }; box.firstChild.appendChild(b); });
+  const x = document.createElement("button"); x.textContent = "やめる"; x.onclick = () => box.remove(); box.firstChild.appendChild(x);
+  box.onclick = e => { if (e.target === box) box.remove(); };
+  document.body.appendChild(box);
+}
 $("title").oninput = e => { S.title = e.target.value; persist(); };
 $("subtitle").oninput = e => { S.subtitle = e.target.value; persist(); };
 $("q").oninput = applyFilter;
@@ -334,8 +361,8 @@ function checkTexts(){
 /* ---------- PNG出力（canvasで自前描画） ---------- */
 const imgCache = {};
 function loadImg(src){ return imgCache[src] || (imgCache[src] = new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = src; })); }
-$("png").onclick = async () => {
-  if (checkTexts()) { alert("不適切な言葉が含まれているため、画像で保存できません。タイトル・Tier名・アイコン下の文字を見直してください。"); return; }
+async function makePng(){
+  if (checkTexts()) { alert("不適切な言葉が含まれているため、画像で保存・共有できません。タイトル・Tier名・アイコン下の文字を見直してください。"); return null; }
   const W = 1500, LW = 150, CW = 122, IC = 112, PAD = 8, TOP = 120, nm = $("pngname").checked, EX = nm ? 46 : 28;
   const per = Math.floor((W - 40 - LW - PAD) / CW);
   const rows = S.tiers.map(t => Math.max(1, Math.ceil(t.cards.length / per)));
@@ -366,7 +393,25 @@ $("png").onclick = async () => {
     }
     y += h;
   }
-  const a = document.createElement("a"); a.href = cv.toDataURL("image/png"); a.download = "tier.png"; a.click();
+  return cv;
+}
+function saveCanvas(cv){ const a = document.createElement("a"); a.href = cv.toDataURL("image/png"); a.download = "tier.png"; a.click(); }
+$("png").onclick = async () => { const cv = await makePng(); if (cv) saveCanvas(cv); };
+
+/* ---------- Xで共有 ---------- */
+const SHARE_URL = "https://pawapuryotsu.com/tier/";
+$("xshare").onclick = async () => {
+  const cv = await makePng(); if (!cv) return;
+  const text = S.title + "\n#パワプロアプリ #イベキャラTier表";
+  const blob = await new Promise(r => cv.toBlob(r, "image/png"));
+  const file = new File([blob], "tier.png", {type: "image/png"});
+  if (navigator.canShare && navigator.canShare({files: [file]})) {     // スマホ：共有メニューからXを選ぶと画像つきで投稿画面が開く
+    try { await navigator.share({files: [file], text: text + "\n" + SHARE_URL}); } catch(e) {}
+    return;
+  }
+  saveCanvas(cv);                                                      // PCなど：画像を保存してXの投稿画面を開く（画像は自分で添付）
+  window.open("https://x.com/intent/post?text=" + encodeURIComponent(text) + "&url=" + encodeURIComponent(SHARE_URL), "_blank", "noopener");
+  alert("画像(tier.png)を保存しました。開いたXの投稿画面で、その画像を添付してください。");
 };
 
 /* ---------- 起動 ---------- */
