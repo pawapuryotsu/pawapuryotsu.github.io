@@ -67,6 +67,9 @@ shutil.copytree(src / "img", out / "img")
 (out / "data").mkdir()
 shutil.copy(chars, out / "data" / "chars.json")
 shutil.copy(src / "decks.js", out / "assets" / "decks.js")
+# Tier表メーカー（pawa-data の tools/build_tier_maker.py --site で src/tier/ に作る。ページ本体とアイコン画像）
+if (src / "tier").exists():
+    shutil.copytree(src / "tier", out / "tier")
 # 古いCSS/JSがスマホに残らないよう、ファイルの中身から作った番号を ?v= で付ける
 import hashlib
 ver = {f: hashlib.md5((out / "assets" / f).read_bytes()).hexdigest()[:8] for f in ("style.css", "deck.js", "decks.js")}
@@ -105,6 +108,8 @@ for page in sorted((src / "pages").glob("*.html")):
     if not noindex:
         urls.append(f"{SITE_URL}/{path}")
 
+if (out / "tier").exists():
+    urls.append(f"{SITE_URL}/tier/")
 today = date.today().isoformat()
 (out / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                  + "".join(f"  <url><loc>{u}</loc><lastmod>{today}</lastmod></url>\n" for u in urls) + "</urlset>\n", encoding="utf-8")
