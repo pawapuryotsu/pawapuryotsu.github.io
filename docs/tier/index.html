@@ -99,12 +99,12 @@ main{max-width:1100px;margin:0 auto;padding:16px}
   </div>
 
   <div id="poolwrap">
+    <div class="notice">※一部キャラクターは実装されていません</div>
     <div id="poolbar">
       <strong>キャラ一覧（未配置）</strong>
       <input id="q" type="search" placeholder="名前・読み・二つ名・高校で絞り込み">
       <select id="kind"><option value="">全分類</option><option>選手</option><option>選手彼女</option><option value="野手練習">野手練習</option><option value="投手練習">投手練習</option><option>彼女</option><option>相棒</option></select>
     </div>
-    <div class="notice">※一部キャラクターは実装されていません</div>
     <div class="sf" id="sf">
       <span>ボーナス検索（以上）：</span>
       <label>見る値<select id="bl"></select></label>
@@ -124,9 +124,15 @@ main{max-width:1100px;margin:0 auto;padding:16px}
     ・未配置のキャラの <b>↑</b> を押すと、入れたいTierを選んで配置できます（スマホの縦長画面で、上までドラッグしなくて済みます）。<br>
     ・同じキャラを別のLv区分でも使いたいときは、アイコンの上にマウスを乗せて出る <b>＋</b> を押すと、同じキャラのアイコンがもう1枚増えます。増やした分は <b>×</b> で消せます。Tierに置いたキャラの <b>×</b> は、削除せずに未配置へ戻します（スマホは常に表示されます）。<br>
     ・入力内容は、このブラウザに自動で保存されます。別の端末で続ける時は「データ保存(JSON)」を使ってください。<br>
+    ・「𝕏で共有」を押すと、Tier画像をコピーします。出てきた「𝕏の投稿画面を開く」を押して、本文欄に貼り付けてください。<br>
     ・タイトル・サブタイトル・Tier名・アイコン下の文字に不適切な言葉が含まれていると、画像(PNG)で保存できません。
   </p></div>
   <div id="log" class="log hidden">
+    <h3>2026-10-26（6回目）</h3>
+    <ul>
+      <li>「一部キャラクターは実装されていません」を、「キャラ一覧（未配置）」の見出しより上に移動しました</li>
+      <li>𝕏で共有：他のアプリの共有メニューは出さず、Tier画像をコピーして𝕏の投稿画面を開く形にしました（投稿画面で貼り付けると画像がつきます）</li>
+    </ul>
     <h3>2026-10-26（5回目）</h3>
     <ul>
       <li>分類の絞り込みを「全分類・選手・選手彼女・野手練習・投手練習・彼女・相棒」に変更しました。野手練習・投手練習は、選手と選手彼女の中から、その得意練習を1つでも持つキャラを表示します</li>
@@ -424,17 +430,24 @@ $("png").onclick = async () => { const cv = await makePng(); if (cv) saveCanvas(
 /* ---------- Xで共有 ---------- */
 const SHARE_URL = "https://pawapuryotsu.com/tier/";
 $("xshare").onclick = async () => {
-  const cv = await makePng(); if (!cv) return;
   const text = S.title + "\n#パワプロアプリ #イベキャラTier表";
-  const blob = await new Promise(r => cv.toBlob(r, "image/png"));
-  const file = new File([blob], "tier.png", {type: "image/png"});
-  if (navigator.canShare && navigator.canShare({files: [file]})) {     // スマホ：共有メニューからXを選ぶと画像つきで投稿画面が開く
-    try { await navigator.share({files: [file], text: text + "\n" + SHARE_URL}); } catch(e) {}
-    return;
+  const xurl = "https://x.com/intent/post?text=" + encodeURIComponent(text) + "&url=" + encodeURIComponent(SHARE_URL);
+  let cv = null, copied = false;
+  const cvP = makePng().then(c => { cv = c; if (!c) throw new Error("ng"); return c; });
+  if (navigator.clipboard && window.ClipboardItem) {       // 画像をコピー（クリックと同時に始める。X以外の共有メニューは使わない）
+    try { await navigator.clipboard.write([new ClipboardItem({"image/png": cvP.then(c => new Promise(r => c.toBlob(r, "image/png")))})]); copied = true; } catch(e) {}
   }
-  saveCanvas(cv);                                                      // PCなど：画像を保存してXの投稿画面を開く（画像は自分で添付）
-  window.open("https://x.com/intent/post?text=" + encodeURIComponent(text) + "&url=" + encodeURIComponent(SHARE_URL), "_blank", "noopener");
-  alert("画像(tier.png)を保存しました。開いたXの投稿画面で、その画像を添付してください。");
+  try { await cvP; } catch(e) { return; }
+  const box = document.createElement("div"); box.id = "picker";
+  box.innerHTML = '<div><p></p><button class="t go" style="background:#111;color:#fff;border:1px solid #888">𝕏の投稿画面を開く</button><button class="sv">画像を保存</button> <button class="cl">閉じる</button></div>';
+  box.querySelector("p").innerHTML = copied
+    ? "画像をコピーしました。<br>𝕏の投稿画面で、本文欄を長押し（PCは Ctrl+V）して<br><b>貼り付け</b>ると、画像がつきます。"
+    : "この端末では画像のコピーができませんでした。<br>先に <b>画像を保存</b> してから、𝕏の投稿画面で画像を添付してください。";
+  box.querySelector(".go").onclick = () => { window.open(xurl, "_blank", "noopener"); };
+  box.querySelector(".sv").onclick = () => saveCanvas(cv);
+  box.querySelector(".cl").onclick = () => box.remove();
+  box.onclick = e => { if (e.target === box) box.remove(); };
+  document.body.appendChild(box);
 };
 
 /* ---------- 起動 ---------- */
