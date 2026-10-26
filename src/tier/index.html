@@ -134,7 +134,7 @@ body.selecting{padding-bottom:70px}
   <div id="log" class="log hidden">
     <h3>2026-10-26（9回目）</h3>
     <ul>
-      <li>画像で保存・共有するとき、Lvなどの文字が1つも入っていないTierは、アイコン下の空白を詰めて出力するようにしました</li>
+      <li>画像で保存・共有するとき、画像全体でLvなどの文字が1つも入っていなければ、アイコンと名前の間の空白を詰めて出力するようにしました</li>
     </ul>
     <h3>2026-10-26（8回目）</h3>
     <ul>
@@ -415,7 +415,8 @@ async function makePng(){
   const W = 1500, LW = 150, CW = 122, IC = 112, PAD = 8, TOP = 120, nm = $("pngname").checked;
   const per = Math.floor((W - 40 - LW - PAD) / CW);
   const rows = S.tiers.map(t => Math.max(1, Math.ceil(t.cards.length / per)));
-  const hasLv = S.tiers.map(t => t.cards.some(u => (S.cards[u].lv || "").trim() !== ""));   // Lvなどの文字が1つも無いTierは、その分の空白を詰める
+  const anyLv = S.tiers.some(t => t.cards.some(u => (S.cards[u].lv || "").trim() !== ""));   // 画像全体でLvなどの文字が1つも無いときは、その分の空白を詰める
+  const hasLv = S.tiers.map(() => anyLv);
   const EXs = hasLv.map(h => (h ? 28 : 0) + (nm ? 18 : 0));
   const RH = (r, i) => r * (IC + EXs[i] + 6) + PAD;
   const H = TOP + rows.reduce((a, r, i) => a + RH(r, i), 0) + 30;
