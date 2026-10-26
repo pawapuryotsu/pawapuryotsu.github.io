@@ -11,7 +11,7 @@ ADSENSE_CLIENT = "ca-pub-8546020269968696"                           # AdSense �
 AD_SLOT = ""                                  # 広告ユニット（ディスプレイ広告）を作ったらその番号。空なら広告枠は出さない
 OPERATOR = "りょーつー"                       # 運営者名（ハンドルネーム）。ハンドルネーム以外は書かない
 OPERATOR_INTRO = "パワプロアプリをプレイしながら、YouTube でデッキ解説や育成動画を投稿しています。"
-CONTACT_FORM = "https://forms.gle/QkvV8i98YKqHsFyr6"                             # Googleフォームの URL（https://forms.gle/...）
+CONTACT_FORM = "https://forms.gle/mXyapp3TYUPzyLAz6"                             # Googleフォームの URL（https://forms.gle/...）
 GA_ID = "G-F98XGNW3LS"                                    # Googleアナリティクス4の測定ID（G-XXXXXXXXXX）。空なら解析なし
 POLICY_DATE = "2026年10月"                    # プライバシーポリシーの制定日
 
