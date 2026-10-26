@@ -126,22 +126,22 @@ function renderList(){
   document.getElementById("count").textContent=`${decks.length}件 / 全${s.list.length}件`;
   const ts=terms();
   document.getElementById("list").innerHTML=decks.length?decks.map(d=>{
-    const id=d.d; const hits=[...new Set([...d.main,...d.sub].map(x=>x[0]).filter(n=>ts.some(t=>matchesTerm(n,t))))];
+    const id=d.d; const lbl=`${SCHOOL_NAME[state.school]} ${d.pos}デッキ（選手ランク${d.rank}）`; const hits=[...new Set([...d.main,...d.sub].map(x=>x[0]).filter(n=>ts.some(t=>matchesTerm(n,t))))];
     return `<details class="deck" data-id="${id}" ${open.has(id)?"open":""}>
       <summary>
         <div class="top"><div class="lft"><img src="${IMG[d.r]}" alt="ポジション${d.pos}・選手ランク${d.rank}・総経験点${fmt(d.exp)}">${d.f2p?`<span class="f2ptag">無課金</span>`:""}</div><span class="chev" aria-hidden="true">▾</span></div>
         ${hits.length?`<div class="hit">検索に一致：${hits.map(h=>`<mark>${esc(h)}</mark>`).join(" ")}</div>`:""}
-        <img class="deckimg" src="${IMG[d.d]}" alt="メインデッキ">
+        <img class="deckimg" src="${IMG[d.d]}" alt="${esc(lbl)}のメインデッキ">
       </summary>
-      ${d.s?`<img class="subdeck" src="${IMG[d.s]}" alt="サポートデッキ">`:`<div class="subimg">サポートデッキのスクショ</div>`}
-      ${d.u?`<img class="baseimg${state.school==="roman"?" half":""}" src="${IMG[d.u]}" alt="基礎上限">`:`<div class="subimg">基礎上限のスクショ</div>`}
+      ${d.s?`<img class="subdeck" src="${IMG[d.s]}" alt="${esc(lbl)}のサポートデッキ" loading="lazy">`:`<div class="subimg">サポートデッキのスクショ</div>`}
+      ${d.u?`<img class="baseimg${state.school==="roman"?" half":""}" src="${IMG[d.u]}" alt="${esc(lbl)}の基礎上限" loading="lazy">`:`<div class="subimg">基礎上限のスクショ</div>`}
       <div class="reformwrap">${reformLine(d)}<p class="cap">獲得経験点上限<b>${maxCap(d.sub)||"なし"}</b></p></div>
       <div class="detail">
         <div><h3>メインデッキ <small>●＝${SCHOOL_NAME[state.school]}のキャラ　☆＝このポジションの至高・球界の頭脳が取れる</small></h3>${slotTable(d.main,d.pos)}</div>
         <div><h3>追加アイテム</h3>${itemList(d.main)}</div>
         <div><h3>サポートデッキ${SCHOOL_MARK[state.school].sub?` <small>●＝${SCHOOL_NAME[state.school]}のキャラ</small>`:""}</h3>${supportTable(d.sub,d.pos)}</div>
         <div><h3>育成のポイント</h3>${Array.isArray(d.tips)?`<ul class="tips">${d.tips.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<p>${d.tips}</p>`}</div>
-        ${d.a?`<div><h3>育成した選手の能力</h3><img class="abilityimg" src="${IMG[d.a]}" alt="育成した選手の基礎能力" loading="lazy"></div>`:""}
+        ${d.a?`<div><h3>育成した選手の能力</h3><img class="abilityimg" src="${IMG[d.a]}" alt="${esc(lbl)}で育成した選手の基礎能力" loading="lazy"></div>`:""}
         <div><h3>解説動画</h3>${videoBlock(d.video)}${d.videoNote?`<p class="vnote">※${esc(d.videoNote)}</p>`:""}</div>
         ${d.date?`<p class="ddate">育成日（更新日）：<time datetime="${esc(d.date)}">${esc(d.date.replace(/-/g,"/"))}</time></p>`:""}
       </div></details>`}).join(""):s.list.length===0?`<div class="empty">このシナリオのデッキは準備中です。<br>掲載しだい <a href="${SNS.x}" target="_blank" rel="noopener">X</a> でお知らせします。</div>`:`<div class="empty">条件に合うデッキがありません。<br>ポジションのチェックやキャラ名を見直してください。</div>`;

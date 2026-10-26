@@ -79,6 +79,15 @@ if (src / "tier").exists():
 import hashlib
 ver = {f: hashlib.md5((out / "assets" / f).read_bytes()).hexdigest()[:8] for f in ("style.css", "deck.js", "decks.js")}
 
+# サイトマップの lastmod は「本当に更新した日」だけ書く（毎回今日の日付だとGoogleに無視される）。
+# デッキページ＝そのシナリオのデッキの一番新しい育成日。それ以外のページは書かない。
+decks_js = (src / "decks.js").read_text(encoding="utf-8")
+deck_dates = {}
+for school, block in re.findall(r"^  (\w+):\{title:(.*?)(?=^  \w+:\{title:|\Z)", decks_js, re.S | re.M):
+    d = re.findall(r'date:"(\d{4}-\d{2}-\d{2})"', block)
+    if d:
+        deck_dates[school] = max(d)
+
 layout = (src / "layout.html").read_text(encoding="utf-8")
 urls = []
 for page in sorted((src / "pages").glob("*.html")):
@@ -111,13 +120,13 @@ for page in sorted((src / "pages").glob("*.html")):
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(html, encoding="utf-8")
     if not noindex:
-        urls.append(f"{SITE_URL}/{path}")
+        urls.append((f"{SITE_URL}/{path}", deck_dates.get(meta.get("school"))))
 
 if (out / "tier").exists():
-    urls.append(f"{SITE_URL}/tier/")
-today = date.today().isoformat()
+    urls.append((f"{SITE_URL}/tier/", None))
+urls.append((f"{SITE_URL}/roman_costchecker/", None))  # コスト計算ツール（別リポジトリ roman_costchecker。同じドメインの下で公開）
 (out / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-                                 + "".join(f"  <url><loc>{u}</loc><lastmod>{today}</lastmod></url>\n" for u in urls) + "</urlset>\n", encoding="utf-8")
+                                 + "".join(f"  <url><loc>{u}</loc>" + (f"<lastmod>{m}</lastmod>" if m else "") + "</url>\n" for u, m in urls) + "</urlset>\n", encoding="utf-8")
 (out / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}/sitemap.xml\n", encoding="utf-8")
 if ADSENSE_CLIENT:
     (out / "ads.txt").write_text(f"google.com, {pub}, DIRECT, f08c47fec0942fa0\n", encoding="utf-8")
