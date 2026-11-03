@@ -16,7 +16,7 @@ GA_ID = "G-F98XGNW3LS"                                    # Googleアナリテ�
 POLICY_DATE = "2026年10月"                    # プライバシーポリシーの制定日
 
 NAV = [("home", "", "トップ"), ("roman", "decks/roman/", "ロマン開花學園<small>投手</small>"),
-       ("andromeda", "decks/andromeda/", "アンドロメダ学園<small>野手</small>"), ("about", "about/", "このサイトについて")]
+       ("andromeda", "decks/andromeda/", "アンドロメダ学園<small>野手</small>"), ("pawaque", "pawaque/contract_simulator/", "パワクエ"), ("about", "about/", "このサイトについて")]
 
 here = pathlib.Path(__file__).parent
 src, out = here / "src", here / "docs"
