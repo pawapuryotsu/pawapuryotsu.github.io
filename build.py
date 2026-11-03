@@ -95,6 +95,31 @@ for school, block in re.findall(r"^  (\w+):\{title:(.*?)(?=^  \w+:\{title:|\Z)",
     if d:
         deck_dates[school] = max(d)
 
+# デッキページの文章（デッキ名簿・育成のポイント）を、JavaScript なしでも読めるHTMLとして先に埋め込む。
+# 検索エンジンや広告審査のロボットは JS を実行しないことがあり、「読み込み中…」だけに見えてしまうため。
+# ブラウザでは deck.js が #deckapp を同じ内容の見やすい表示に置き換える。
+import html as _html, json as _json, subprocess
+_dump = subprocess.run(["node", "-e", "global.window={};require(process.argv[1]);console.log(JSON.stringify(window.DECKS))", str(src / "decks.js")],
+                       capture_output=True, text=True, check=True).stdout
+DECKS = _json.loads(_dump)
+_e = _html.escape
+
+
+def static_decks(school):
+    d = DECKS[school]
+    parts = [f'<div class="static-decks"><p>{_e(d["title"])}（{_e(d["kind"])}）で実際に育成したデッキの一覧です。</p>']
+    for i, k in enumerate(d["list"], 1):
+        mains = "、".join(f'{_e(n)}（{_e(r)} Lv{lv}）' for n, r, lv, *_ in k["main"])
+        subs = "、".join(f'{_e(n)}（{_e(r)} Lv{lv}）' for n, r, lv, *_ in k["sub"])
+        f2p = "・無課金" if k.get("f2p") else ""
+        parts.append(f'<h2>デッキ{i}：{_e(k["pos"])}・選手ランク{k["rank"]}{f2p}・総経験点 {k["exp"]:,}</h2>'
+                     f'<p>育成日：{_e(k["date"])}</p><p>メインデッキ：{mains}</p><p>サポートデッキ：{subs}</p>')
+        if k.get("tips"):
+            parts.append("<h3>育成のポイント</h3><ul>" + "".join(f"<li>{_e(t)}</li>" for t in k["tips"]) + "</ul>")
+    parts.append("</div>")
+    return "\n".join(parts)
+
+
 layout = (src / "layout.html").read_text(encoding="utf-8")
 urls = []
 for page in sorted((src / "pages").glob("*.html")):
@@ -111,6 +136,8 @@ for page in sorted((src / "pages").glob("*.html")):
            "robots": '<meta name="robots" content="noindex">' if noindex else "", "adsense_head": adsense_head(),
            "analytics_note": analytics_note(), "head_extra": ga_head() + '<meta name="google-site-verification" content="ZgxID967oum-2Mm1F5BCX9gvQE_vNl2ZDbXXWfyYP10" />', "nav": nav, "scripts": scripts, "operator": OPERATOR, "operator_intro": OPERATOR_INTRO,
            "contact_block": contact_block(), "policy_date": POLICY_DATE, "ad": ad_block()}
+    if meta.get("school") in DECKS:
+        body = body.replace('<p class="muted">読み込み中…</p>', static_decks(meta["school"]))
     html = layout.replace("{{content}}", body)
     for _ in range(2):  # 本文の中の {{root}} なども置き換える
         for k, v in rep.items():
