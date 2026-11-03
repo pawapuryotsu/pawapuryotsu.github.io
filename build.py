@@ -164,6 +164,8 @@ if (out / "tier").exists():
     urls.append((f"{SITE_URL}/tier/", None))
 if (out / "pawaque").exists():
     for page in sorted((out / "pawaque").rglob("index.html")):
+        if page.parent == out / "pawaque":  # /pawaque/ 本体は src/pages から作り、上のループで noindex 判定済み
+            continue
         urls.append((f"{SITE_URL}/{page.parent.relative_to(out).as_posix()}/", None))
 urls.append((f"{SITE_URL}/roman_costchecker/", None))  # コスト計算ツール（別リポジトリ roman_costchecker。同じドメインの下で公開）
 (out / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
