@@ -27,6 +27,18 @@ def player_rank_text(n):
     return f"{r}（{n}）" if r else str(n)
 
 
+# 能力値（ミート・パワー・走力・肩力・守備力・捕球・コントロール・スタミナ）→ランク。管理人指定の表（2026-11-03）。選手ランクとは区切りが1ずれる
+ABILITY_TABLE = [(0, "G"), (20, "F"), (40, "E"), (50, "D"), (60, "C"), (70, "B"), (80, "A"), (90, "S"), (101, "S1"), (111, "S2"),
+                 (121, "S3"), (131, "S4"), (141, "S5"), (151, "S6"), (161, "S7"), (171, "S8")]
+RANKED_ABILITIES = ("ミート", "パワー", "走力", "肩力", "守備力", "捕球", "コントロール", "スタミナ")
+
+
+def ability_text(name, v):
+    if name in RANKED_ABILITIES and isinstance(v, (int, float)) and 0 <= v <= 180:
+        return f"{[r for lo, r in ABILITY_TABLE if v >= lo][-1]}（{v}）"
+    return str(v)
+
+
 def fmt(n):
     return str(int(n)) if float(n) == int(n) else str(n)
 
@@ -151,10 +163,10 @@ def build_page(c, text, config, decks, root="../../"):
     sub = "、".join(f"{k}{v}" for k, v in (p.get("サブポジ") or {}).items()) or "なし"
     ab = p.get("野手能力") or {}
     ab_t = ('<table class="cp-abil"><thead><tr>' + "".join(f"<th>{e(k)}</th>" for k in ab) + "</tr></thead><tbody><tr>"
-            + "".join(f"<td>{e(str(v))}</td>" for v in ab.values()) + "</tr></tbody></table>") if ab else ""
+            + "".join(f"<td>{e(ability_text(k, v))}</td>" for k, v in ab.items()) + "</tr></tbody></table>") if ab else ""
     pab = p.get("投手能力") or {}
     pab_t = ('<h3>投手能力</h3><table class="cp-abil"><thead><tr>' + "".join(f"<th>{e(k)}</th>" for k in pab) + "</tr></thead><tbody><tr>"
-             + "".join(f"<td>{e(str(v))}</td>" for v in pab.values()) + "</tr></tbody></table>") if pab else ""
+             + "".join(f"<td>{e(ability_text(k, v))}</td>" for k, v in pab.items()) + "</tr></tbody></table>") if pab else ""
     sp = p.get("特殊能力") or {}
     def sp_block(title, lst):
         return f"<h3>{e(title)}</h3><p>{'、'.join(e(x) for x in lst)}</p>" if lst else ""
