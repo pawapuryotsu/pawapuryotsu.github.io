@@ -254,7 +254,7 @@ def pitch_chart(p):
         tip = '<path d="M113 -7L127 0L113 7Z" fill="#46a8ff" stroke="#0b3f9e" stroke-width="1.5"/>'
         out.append(f'<g transform="translate({CX} {CY}) rotate({a})">{"".join(segs)}{tip}</g>')
         if x:
-            name = x.get("種類")  # オリジナル球種は、ゲーム画面どおり「オリジナル」と表記
+            name = x.get("オリジナル名") or x.get("種類")  # オリジナル球種は、データに入力した名前を表記
             ex, ey = CX + 127 * __import__("math").cos(__import__("math").radians(a)), CY + 127 * __import__("math").sin(__import__("math").radians(a))
             if abs(a % 360 - 0) < 1:
                 tx, ty, anc = ex - 4, CY - 18, "end"
@@ -285,7 +285,12 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     p = c.get("プロフィール", {})
     bonus = c["bonus"]
     important = [(n, bonus[n]) for n in config["重要ボーナス"] if n in bonus and bonus_lines(bonus[n])]
-    others = [(n, b) for n, b in bonus.items() if n not in config["重要ボーナス"] and bonus_lines(b)]
+    tap = config["タップ欄のボーナス"]
+    unknown = [n for n in bonus if n not in config["重要ボーナス"] and n not in tap]
+    if unknown:
+        print(f"【警告】{c['name']}：config.json にないボーナス {unknown}（タップ欄の一番下に出します）")
+    others = sorted(((n, b) for n, b in bonus.items() if n not in config["重要ボーナス"] and bonus_lines(b)),
+                    key=lambda nb: tap.index(nb[0]) if nb[0] in tap else len(tap))
     caps = [(n, bonus[n]) for n in config["基礎上限の項目"] if n in bonus and bonus_lines(bonus[n])]
     cap_txt = "<br>".join(f'{e(n.replace("アップ", ""))}：{e(bonus_lines(b)[0])}' for n, b in caps) or "なし"
     ev = {"後": "後", "前": "前"}.get(p.get("前後イベ"), p.get("前後イベ") or "不明")
