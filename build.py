@@ -70,18 +70,19 @@ shutil.copy(src / "decks.js", out / "assets" / "decks.js")
 # Tier表メーカー（pawa-data の tools/build_tier_maker.py --site で src/tier/ に作る。ページ本体とアイコン画像）
 if (src / "tier").exists():
     shutil.copytree(src / "tier", out / "tier")
-    # layout.html を通らない単体ページにも、解析（GA4）と AdSense のコードを入れる
+    # layout.html を通らない単体ページにも、解析（GA4）のコードを入れる。
+    # ツール単体ページには AdSense のコードを入れない（審査で「文章のないページに広告」と見られないため。2026-11-03 りょーつー指示）
     for page in (out / "tier").glob("*.html"):
         html = page.read_text(encoding="utf-8")
-        if "googletagmanager" not in html and "adsbygoogle" not in html:
-            page.write_text(html.replace("</head>", ga_head() + "\n" + adsense_head() + "\n</head>", 1), encoding="utf-8")
+        if "googletagmanager" not in html:
+            page.write_text(html.replace("</head>", ga_head() + "\n</head>", 1), encoding="utf-8")
 # パワクエ契約書シミュレータ（pawa-data の powaque/simulator/build_site.py で src/simulator/ に作る。1枚のHTML）
 if (src / "simulator").exists():
     shutil.copytree(src / "simulator", out / "simulator")
     for page in (out / "simulator").glob("*.html"):
         html = page.read_text(encoding="utf-8")
-        if "googletagmanager" not in html and "adsbygoogle" not in html:
-            page.write_text(html.replace("</head>", ga_head() + "\n" + adsense_head() + "\n</head>", 1), encoding="utf-8")
+        if "googletagmanager" not in html:
+            page.write_text(html.replace("</head>", ga_head() + "\n</head>", 1), encoding="utf-8")
 # 古いCSS/JSがスマホに残らないよう、ファイルの中身から作った番号を ?v= で付ける
 import hashlib
 ver = {f: hashlib.md5((out / "assets" / f).read_bytes()).hexdigest()[:8] for f in ("style.css", "deck.js", "decks.js")}
