@@ -70,3 +70,10 @@
 - ページ先頭の `noindex: yes` で検索・サイトマップから外している（中身が薄いページをAdSense審査に見せないため）。**本文が入ったら `noindex: yes` の行を消す**とサイトマップにも入る。
 - トップのカードは準備中の間は `scard soon`（薄い表示）。本文が入ったら `soon` を外し、説明文の「（準備中）」を消す。
 - ギミック・立ち回り・イベント選択肢の「攻略まとめ」ページは作らないことにした（別の項目にする予定）。
+
+## キャラページ（/chars/）
+`charpages.py` が `chars.json` から作る（`build.py` が呼ぶ）。
+- `src/chars/config.json` … 「重要ボーナス」の項目と並び順、公開するキャラ
+- `src/chars/texts/*.json` … 管理人が書く評価・イベント・自己紹介
+- `src/chars/skill_kinds.json` … 特殊能力の種類（青・金・赤・緑・虹）。pawa-data の `event-chars/特殊能力/skills.json` から作った写し。skills.json を更新したら作り直す（手動）
+- デッキを `decks.js` に足してサイトをビルドし直すと、使用デッキ例も自動で更新される

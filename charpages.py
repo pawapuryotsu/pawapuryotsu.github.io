@@ -26,7 +26,7 @@ def player_rank_html(n):
     if n is None:
         return "不明"
     r = player_rank(n)
-    return (badge(r) + " " if r else "") + f'<b class="nm">{e(str(n))}</b>'
+    return '<div class="rkline">' + (badge(r) if r else "") + f'<b class="nm">{e(str(n))}</b></div>'
 
 
 def player_rank_text(n):
@@ -73,7 +73,7 @@ def traj_arrow(n):
 
 
 def ability_tiles(d):
-    out = ['<div class="cp-tiles">']
+    out = [f'<div class="cp-tiles" style="--n:{len(d)}">']
     for k, v in d.items():
         r = rank_of(k, v)
         if k == "弾道" and isinstance(v, int):
@@ -144,7 +144,7 @@ def bonus_table(rows):
             continue
         head, steps = r
         cell = f'<b>{e(head)}</b>{e(unique_mark(entry))}' + "".join(
-            f'<span class="step">→{e(v)}<small>({e(l)})</small></span>' for v, l in steps)
+            f'<span class="step">⇒{e(v)}<small>({e(l)})</small></span>' for v, l in steps)
         out.append(f"<tr><th>{e(name)}</th><td>{cell}</td></tr>")
     out.append("</tbody></table>")
     return "".join(out)
@@ -178,19 +178,93 @@ def section(title, inner, empty="準備中です。"):
     return f'<section class="cp-sec"><h2>{e(title)}</h2>{inner or f"<p class=muted>{e(empty)}</p>"}</section>'
 
 
+# 緑と赤が半々のボックスで出す特殊能力（管理人指定。データ上は青特で入っている）
+HALF_SP = ("悪球打ち", "気分屋", "荒れ球", "全開", "ポーカーフェイス")
+KIND_CLASS = {"青特": "blue", "金特": "gold", "赤特": "red", "緑特": "green", "虹特": "rainbow"}
+
+
+def sp_box(name, group, kinds):
+    if name in HALF_SP:
+        cls = "half"
+    else:
+        kind = None
+        for g in ([group] if group in kinds else list(kinds)):
+            kind = kind or kinds[g].get(name)
+        cls = KIND_CLASS.get(kind, "none")
+    return f'<span class="sp sp-{cls}">{e(name)}</span>'
+
+
 def deck_examples(name, decks, root):
-    out = []
+    found = []
     for school, d in decks.items():
         for k in d["list"]:
             names = [m[0] for m in k["main"] + k["sub"]]
             if name in names:
-                imgs = "".join(f'<img src="{root}img/decks/{k[x]}.jpg" alt="{e(d["title"])}のデッキ画像" loading="lazy">' for x in ("r", "d") if k.get(x))
-                role = "メイン" if name in [m[0] for m in k["main"]] else "サポート"
-                out.append(f'<div class="cp-deck"><p><a href="{root}decks/{school}/">{e(d["title"])}</a>（{e(k["pos"])}・{role}）</p>{imgs}</div>')
-    return "".join(out)
+                found.append((k["rank"], k["exp"], school, d, k))
+    found.sort(key=lambda x: (-x[0], -x[1]))  # 選手ランクが高い順（同じなら総経験点が高い順）
+
+    def one(school, d, k):
+        imgs = "".join(f'<img class="{x}" src="{root}img/decks/{k[x]}.jpg" alt="{e(d["title"])}のデッキ画像" loading="lazy">' for x in ("r", "d") if k.get(x))
+        role = "メイン" if name in [m[0] for m in k["main"]] else "サポート"
+        return f'<div class="cp-deck"><p><a href="{root}decks/{school}/">{e(d["title"])}</a>（{e(k["pos"])}・{role}）</p>{imgs}</div>'
+    cards = [one(sc, d, k) for _, _, sc, d, k in found]
+    out = "".join(cards[:2])
+    if len(cards) > 2:
+        out += f'<details class="cp-more"><summary>その他のデッキはこちらをタップ</summary>{"".join(cards[2:])}</details>'
+    return out
 
 
-def build_page(c, text, config, decks, root="../../"):
+# 投手の変化球の図（ゲームの投手能力画面ふう）。変化量の数だけ、中心から色つき（赤→橙→黄）、残りは青
+# 向き：右投＝スライダー右・カーブ左・シュート右下・シンカー左下・フォーク下。左投は左右反転
+SEG_COLORS = ["#ff6a1a", "#ff2f1a", "#ff3d1a", "#ff8a1a", "#ffc61a", "#ffe21a", "#ffec7a"]
+DIR_ANGLE = {"スライダー方向": 0, "シュート方向": 45, "フォーク方向": 90, "シンカー方向": 135, "カーブ方向": 180}
+CX, CY = 180, 82
+
+
+def pitch_chart(p):
+    pitches = {x["方向"]: x for x in p.get("球種", [])}
+    if not any(k in pitches for k in DIR_ANGLE):
+        return ""
+    lefty = str(p.get("利き腕", "")).startswith("左")
+    out = ['<svg class="pchart" viewBox="0 0 360 240" role="img" aria-label="変化球の方向と変化量">']
+    for direction, ang in DIR_ANGLE.items():
+        x = pitches.get(direction)
+        n = int(x["変化量"]) if x and x.get("変化量") else 0
+        a = (180 - ang) if lefty else ang
+        segs = []
+        for i in range(7):
+            col = SEG_COLORS[i] if i < n else "#46a8ff"
+            segs.append(f'<rect x="{22 + i * 13}" y="-7" width="12" height="14" fill="{col}" stroke="#0b3f9e" stroke-width="1.5"/>')
+        tip = '<path d="M113 -7L127 0L113 7Z" fill="#46a8ff" stroke="#0b3f9e" stroke-width="1.5"/>'
+        out.append(f'<g transform="translate({CX} {CY}) rotate({a})">{"".join(segs)}{tip}</g>')
+        if x:
+            name = x.get("オリジナル名") or x.get("種類")
+            ex, ey = CX + 127 * __import__("math").cos(__import__("math").radians(a)), CY + 127 * __import__("math").sin(__import__("math").radians(a))
+            if abs(a % 360 - 0) < 1:
+                tx, ty, anc = ex - 4, CY - 18, "end"
+            elif abs(a % 360 - 180) < 1:
+                tx, ty, anc = ex + 4, CY - 18, "start"
+            elif abs(a % 360 - 90) < 1:
+                tx, ty, anc = ex, ey + 22, "middle"
+            else:  # 斜め：先端の少し下に中央ぞろえ
+                tx, ty, anc = ex, ey + 22, "middle"
+            out.append(f'<text class="pc-lb" x="{tx:.0f}" y="{ty:.0f}" text-anchor="{anc}">{e(name)}</text>')
+    out.append(f'<circle cx="{CX}" cy="{CY}" r="15" fill="#fff" stroke="#b83030" stroke-width="2"/>')
+    st = pitches.get("ストレート")
+    if st and st.get("種類") == "オリジナル":
+        out.append(f'<path d="M171 50L180 40L189 50Z" fill="#ff9a1a" stroke="#0b3f9e" stroke-width="1.5"/>'
+                   f'<text class="pc-lb" x="{CX}" y="28" text-anchor="middle">{e(st.get("オリジナル名") or "オリジナル")}</text>')
+    out.append("</svg>")
+    notes = []
+    for key in ("ストレート", "第二ストレート"):
+        x = pitches.get(key)
+        if x:
+            nm = x.get("種類") + (f"（{x['オリジナル名']}）" if x.get("オリジナル名") else "")
+            notes.append(f"{key}：{nm}")
+    return "".join(out) + (f'<p class="cp-note">{e(" / ".join(notes))}</p>' if notes else "")
+
+
+def build_page(c, text, config, decks, kinds, root="../../"):
     p = c.get("プロフィール", {})
     bonus = c["bonus"]
     important = [(n, bonus[n]) for n in config["重要ボーナス"] if n in bonus and bonus_lines(bonus[n])]
@@ -199,30 +273,32 @@ def build_page(c, text, config, decks, root="../../"):
     cap_txt = "<br>".join(f'{e(n.replace("アップ", ""))}：{e(bonus_lines(b)[0])}' for n, b in caps) or "なし"
     ev = {"後": "後", "前": "前"}.get(p.get("前後イベ"), p.get("前後イベ") or "不明")
     basic = (f'<table class="cp-basic"><tbody>'
-             f'<tr><th>得意練習</th><td>{e("、".join(c["得意練習"]) or "なし")}</td></tr>'
+             f'<tr><th>得意練習</th><td>{e(" / ".join(c["得意練習"]) or "なし")}</td></tr>'
              f'<tr><th>イベント前後</th><td>{e(ev)}</td></tr>'
-             f'<tr><th>基礎上限<sup>※3</sup></th><td>{cap_txt}</td></tr>'
-             f'<tr><th>野手金特<sup>※1</sup></th><td>{gold_text(c, "野手")}</td></tr>'
-             f'<tr><th>投手金特<sup>※1</sup></th><td>{gold_text(c, "投手")}</td></tr>'
-             f'<tr><th>友情特殊能力<sup>※2</sup></th><td>{friend_text(c)}</td></tr>'
+             f'<tr><th>基礎上限<sup>※</sup></th><td>{cap_txt}</td></tr>'
+             f'<tr><th>野手金特</th><td>{gold_text(c, "野手")}</td></tr>'
+             f'<tr><th>投手金特</th><td>{gold_text(c, "投手")}</td></tr>'
+             f'<tr><th>友情特殊能力</th><td>{friend_text(c)}</td></tr>'
              f'</tbody></table>'
-             '<p class="cp-note">※1 金特は全パターンを表記（2個獲得できる場合は「＋」でつなぐ）／※2 野手・投手のどちらで獲得できるかを表記／※3 覚醒で付く分も含む</p>')
+             '<p class="cp-note">※ 覚醒で付く分も表記</p>')
     imp = bonus_table(important) + (
         f'<details class="cp-more"><summary>その他ボーナスはこちらをタップ</summary>{bonus_table(others)}</details>' if others else "")
     sub = "、".join(f"{k}{v}" for k, v in (p.get("サブポジ") or {}).items()) or "なし"
     ab = p.get("野手能力") or {}
     pab = p.get("投手能力") or {}
     ab_t = ability_tiles(ab) if ab else ""
-    pab_t = ("<h3>投手能力</h3>" + ability_tiles(pab)) if pab else ""
+    pab_t = ("<h3>投手能力</h3>" + ability_tiles(pab) + pitch_chart(p)) if pab else ""
     sp = p.get("特殊能力") or {}
-    def sp_block(title, lst):
-        return f"<h3>{e(title)}</h3><p>{'、'.join(e(x) for x in lst)}</p>" if lst else ""
+    def sp_block(title, lst, group):
+        if not lst:
+            return ""
+        return f"<h3>{e(title)}</h3>" + '<div class="cp-sp">' + "".join(sp_box(x, group, kinds) for x in lst) + "</div>"
     ability = (f'<table class="cp-basic"><tbody><tr><th>選手ランク</th><td>{player_rank_html(p.get("選手能力"))}</td></tr>'
                f'<tr><th>メインポジション</th><td>{e(c["ポジション"] or "不明")}</td></tr>'
                f'<tr><th>サブポジション</th><td>{e(sub)}</td></tr>'
                f'<tr><th>利き腕</th><td>{e(p.get("利き腕", "不明"))}</td></tr></tbody></table>'
-               f'<h3>野手能力</h3>{ab_t}{pab_t}' + sp_block("野手特殊能力", sp.get("野手")) + sp_block("投手特殊能力", sp.get("投手"))
-               + sp_block("その他特殊能力", sp.get("その他")))
+               f'<h3>野手能力</h3>{ab_t}{pab_t}' + sp_block("野手特殊能力", sp.get("野手"), "野手") + sp_block("投手特殊能力", sp.get("投手"), "投手")
+               + sp_block("その他特殊能力", sp.get("その他"), "その他"))
     name = c["name"]
     friend_ev = text.get("友情イベント") if (c["金特"].get("友情", {}).get("野手") or c["金特"].get("友情", {}).get("投手")) else None
     parts = [
@@ -234,7 +310,7 @@ def build_page(c, text, config, decks, root="../../"):
     if c["金特"].get("友情", {}).get("野手") or c["金特"].get("友情", {}).get("投手"):
         parts.append(section("友情イベント", paras(text.get("友情イベント", []))))
     parts += [
-        section("自己紹介", paras(text.get("自己紹介", []))),
+        section(f"{name}の自己紹介", paras(text.get("自己紹介", []))),
         section(f"{name}の評価", paras(text.get("評価", []))),
         section(f"{name}の使用デッキ例", deck_examples(c["name"], decks, root), "このキャラを使ったデッキは準備中です。"),
         section(f"{name}の選手能力", ability),
@@ -245,6 +321,7 @@ def build_page(c, text, config, decks, root="../../"):
 
 def generate(chars_path, src, decks, noindex=True):
     config = json.loads((src / "chars" / "config.json").read_text(encoding="utf-8"))
+    kinds = json.loads((src / "chars" / "skill_kinds.json").read_text(encoding="utf-8"))  # 特殊能力の種類（青・金・赤・緑・虹）。pawa-data の skills.json から作る
     chars = {c["name"]: c for c in json.loads(Path(chars_path).read_text(encoding="utf-8"))}
     pages = []
     for name in config["公開するキャラ"]:
@@ -259,6 +336,6 @@ def generate(chars_path, src, decks, noindex=True):
                 f"description: パワプロアプリ（サクセス・パワクエ共通）のイベキャラ {full} のボーナス、金特、イベント選択肢、選手能力をまとめています。\n"
                 f"path: {path}\nnav: none\n" + ("noindex: yes\n" if noindex else ""))
         body = (f'<section class="phead"><p class="eyebrow">イベキャラ データ</p><h1>{e(full)}のデータ・イベントまとめ</h1></section>\n'
-                + build_page(c, text, config, decks))
+                + build_page(c, text, config, decks, kinds))
         pages.append(f"<!--\n{meta}-->\n{body}")
     return pages
