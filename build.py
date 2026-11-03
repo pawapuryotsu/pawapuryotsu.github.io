@@ -75,6 +75,13 @@ if (src / "tier").exists():
         html = page.read_text(encoding="utf-8")
         if "googletagmanager" not in html and "adsbygoogle" not in html:
             page.write_text(html.replace("</head>", ga_head() + "\n" + adsense_head() + "\n</head>", 1), encoding="utf-8")
+# パワクエ契約書シミュレータ（pawa-data の powaque/simulator/build_site.py で src/simulator/ に作る。1枚のHTML）
+if (src / "simulator").exists():
+    shutil.copytree(src / "simulator", out / "simulator")
+    for page in (out / "simulator").glob("*.html"):
+        html = page.read_text(encoding="utf-8")
+        if "googletagmanager" not in html and "adsbygoogle" not in html:
+            page.write_text(html.replace("</head>", ga_head() + "\n" + adsense_head() + "\n</head>", 1), encoding="utf-8")
 # 古いCSS/JSがスマホに残らないよう、ファイルの中身から作った番号を ?v= で付ける
 import hashlib
 ver = {f: hashlib.md5((out / "assets" / f).read_bytes()).hexdigest()[:8] for f in ("style.css", "deck.js", "decks.js")}
@@ -124,6 +131,8 @@ for page in sorted((src / "pages").glob("*.html")):
 
 if (out / "tier").exists():
     urls.append((f"{SITE_URL}/tier/", None))
+if (out / "simulator").exists():
+    urls.append((f"{SITE_URL}/simulator/", None))
 urls.append((f"{SITE_URL}/roman_costchecker/", None))  # コスト計算ツール（別リポジトリ roman_costchecker。同じドメインの下で公開）
 (out / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                  + "".join(f"  <url><loc>{u}</loc>" + (f"<lastmod>{m}</lastmod>" if m else "") + "</url>\n" for u, m in urls) + "</urlset>\n", encoding="utf-8")
