@@ -1347,7 +1347,7 @@ let highs = null;
 onmessage = async (e) => {
   const m = e.data;
   try {
-    if (m.type === "init") { highs = await Module({ instantiateWasm: (info, cb) => { WebAssembly.instantiate(m.wasm, info).then((r) => cb(r.instance)); return {}; } }); postMessage({ type: "ready" }); }
+    if (m.type === "init") { highs = await Module({ instantiateWasm: (info, cb) => { WebAssembly.instantiate(m.wasm, info).then((r) => cb(r.instance)).catch((e) => postMessage({ type: "error", id: m.id, message: "WebAssemblyを使えません：" + String(e && e.message || e) })); return {}; } }); postMessage({ type: "ready" }); }
     else if (m.type === "solve") {
       const r = highs.solve(m.lp, { time_limit: m.timeLimit, mip_rel_gap: 0, mip_abs_gap: 0.4, presolve: "on" });
       const values = {};
@@ -1365,6 +1365,8 @@ onmessage = async (e) => {
       const url = URL.createObjectURL(new Blob([HIGHS_SRC + "\n" + WORKER_TAIL], { type: "text/javascript" }));
       worker = new Worker(url);
       await new Promise((res, rej) => {
+        const to = setTimeout(() => rej(new Error("厳密計算の準備が終わりませんでした（このブラウザでは使えないようです）")), 30000);
+        const res0 = res, rej0 = rej; res = (v) => { clearTimeout(to); res0(v); }; rej = (e) => { clearTimeout(to); rej0(e); };
         worker.onmessage = (e) => { const m = e.data; if (m.type === "ready") res(); else if (m.type === "error") rej(new Error(m.message)); else if (m.type === "done" || m.type === "error") { const w = waits[m.id]; if (w) { delete waits[m.id]; m.type === "done" ? w.res(m) : w.rej(new Error(m.message)); } } };
         worker.onerror = (e) => rej(new Error("ワーカーを起動できませんでした"));
         worker.postMessage({ type: "init", wasm }, [wasm.buffer]);
