@@ -261,7 +261,8 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cp-more summary{cursor:pointer;font-weight:700;color:var(--accent);padding:6px 0}
 .cp-abil{text-align:center;font-family:var(--num)}
 .cp-abil th,.cp-abil td{padding:4px 2px;border:1px solid var(--line)}
-.cp-deck img{max-width:100%;display:block;margin:6px 0}
+.cp-deck img{max-width:100%;display:block;margin:0}
+.cp-deck img.r{margin-bottom:2px}
 .rk{display:inline-block;position:relative;font-family:var(--display);font-weight:900;font-size:30px;line-height:1;letter-spacing:0;-webkit-text-stroke:5px #fff;paint-order:stroke fill;filter:drop-shadow(0 1px 0 rgba(0,0,0,.35));vertical-align:middle}
 .rk i{position:absolute;right:-.62em;bottom:-.02em;font-style:normal;font-size:.5em;-webkit-text-stroke:3px #fff}
 .rk-S{color:#f2b100}.rk-A{color:#ff4fd8}.rk-B{color:#ff3b3b}.rk-C{color:#ff9a1a}.rk-D{color:#ffe07a}.rk-E{color:#3ecf4a}.rk-F{color:#3d7bff}.rk-G{color:#aeb4bd}
@@ -291,3 +292,6 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .sp-none{border-color:#9aa4b2;background:linear-gradient(#f1f3f6,#d5dae1)}
 .pchart{display:block;width:100%;max-width:380px;margin:8px auto;background:#eef2fb;border:1px solid var(--line);border-radius:10px}
 .pc-lb{font-family:var(--head);font-weight:900;font-size:15px;fill:#14233a;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+.sp-halfblue{border-color:#8a5aa0;background:linear-gradient(90deg,#9bd4ff 50%,#ff9d9d 50%)}
+.rkline .rk{transform:translateY(-2.2px)}
+.rk i{bottom:.06em}

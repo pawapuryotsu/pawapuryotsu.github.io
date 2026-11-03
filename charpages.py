@@ -101,6 +101,12 @@ def bonus_lines(entry):
             pts.setdefault(int(lv), {})[rar] = v
     if not pts:
         return None
+    # SRの基準とPSRの基準だけで、値が違う項目（初期評価など）は「60(SR) 70(PSR)」の形
+    sr_pts, psr_pts = shown.get("SR") or {}, shown.get("PSR") or {}
+    if len(sr_pts) == 1 and len(psr_pts) == 1:
+        sv, pv = next(iter(sr_pts.values())), next(iter(psr_pts.values()))
+        if sv != pv:
+            return f"{fmt(sv)}{unit}(SR) {fmt(pv)}{unit}(PSR)", []
     first_lv = min(pts)
     base = pts[first_lv]
     # 基準：SR35とPSR40が違う値なら『70(SR) 80(PSR)』
@@ -179,13 +185,16 @@ def section(title, inner, empty="準備中です。"):
 
 
 # 緑と赤が半々のボックスで出す特殊能力（管理人指定。データ上は青特で入っている）
-HALF_SP = ("悪球打ち", "気分屋", "荒れ球", "全開", "ポーカーフェイス")
+HALF_SP = ("気分屋", "荒れ球", "全開", "ポーカーフェイス")
+HALF_BLUE_SP = ("悪球打ち",)  # 青と赤が半々（2026-11-03 管理人訂正）
 KIND_CLASS = {"青特": "blue", "金特": "gold", "赤特": "red", "緑特": "green", "虹特": "rainbow"}
 
 
 def sp_box(name, group, kinds):
     if name in HALF_SP:
         cls = "half"
+    elif name in HALF_BLUE_SP:
+        cls = "halfblue"
     else:
         kind = None
         for g in ([group] if group in kinds else list(kinds)):
