@@ -65,7 +65,9 @@ if out.exists():
 shutil.copytree(src / "assets", out / "assets")
 shutil.copytree(src / "img", out / "img")
 (out / "data").mkdir()
-shutil.copy(chars, out / "data" / "chars.json")
+# 公開する chars.json（デッキページ用）にはキャラページ専用の「プロフィール」を入れない（ファイルを軽く保つため）
+_pub = [{k: v for k, v in c.items() if k != "プロフィール"} for c in json.loads(chars.read_text(encoding="utf-8"))]
+(out / "data" / "chars.json").write_text(json.dumps(_pub, ensure_ascii=False, indent=1), encoding="utf-8")
 shutil.copy(src / "decks.js", out / "assets" / "decks.js")
 # Tier表メーカー（pawa-data の tools/build_tier_maker.py --site で src/tier/ に作る。ページ本体とアイコン画像）
 if (src / "tier").exists():
@@ -123,8 +125,9 @@ def static_decks(school):
 
 layout = (src / "layout.html").read_text(encoding="utf-8")
 urls = []
-for page in sorted((src / "pages").glob("*.html")):
-    text = page.read_text(encoding="utf-8")
+import charpages
+_char_pages = charpages.generate(chars, src, DECKS)  # キャラページ（評価を書くまでは noindex）
+for text in [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob("*.html"))] + _char_pages:
     meta_txt, body = re.match(r"<!--(.*?)-->\n(.*)", text, re.S).groups()
     meta = dict(re.findall(r"^(\w+):[ \t]*(.*)$", meta_txt, re.M))
     path = meta["path"]
