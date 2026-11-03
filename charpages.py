@@ -22,6 +22,13 @@ def player_rank(n):
     return [r for lo, r in RANK_TABLE if n >= lo][-1]
 
 
+def player_rank_html(n):
+    if n is None:
+        return "不明"
+    r = player_rank(n)
+    return (badge(r) + " " if r else "") + f'<b class="nm">{e(str(n))}</b>'
+
+
 def player_rank_text(n):
     r = player_rank(n)
     return f"{r}（{n}）" if r else str(n)
@@ -37,6 +44,48 @@ def ability_text(name, v):
     if name in RANKED_ABILITIES and isinstance(v, (int, float)) and 0 <= v <= 180:
         return f"{[r for lo, r in ABILITY_TABLE if v >= lo][-1]}（{v}）"
     return str(v)
+
+
+def rank_of(name, v):
+    """能力値→ランク文字（S1など）。対象外・範囲外は None"""
+    if name in RANKED_ABILITIES and isinstance(v, (int, float)) and 0 <= v <= 180:
+        return [r for lo, r in ABILITY_TABLE if v >= lo][-1]
+    return None
+
+
+def badge(rank):
+    """ゲーム画面ふうのランク文字。S1のような数字つきは、右下に小さく数字を出す"""
+    base, num = rank[0], rank[1:]
+    sub = f"<i>{e(num)}</i>" if num else ""
+    return f'<span class="rk rk-{base}" aria-label="ランク{e(rank)}">{e(base)}{sub}</span>'
+
+
+# 弾道：1=黄・横、2=Cの色・やや上向き、3=Bの色・45°、4=Aの色・60°（管理人指定）
+TRAJ = {1: ("#ffd23c", 0), 2: ("#ff9a1a", 25), 3: ("#ff4040", 45), 4: ("#ff4fd8", 60)}
+
+
+def traj_arrow(n):
+    if n not in TRAJ:
+        return ""
+    color, deg = TRAJ[n]
+    return (f'<svg class="traj" viewBox="-20 -20 40 40" role="img" aria-label="弾道{n}"><g transform="rotate({-deg})">'
+            f'<path d="M-15 -5H2V-13L16 0L2 13V5H-15Z" fill="{color}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></g></svg>')
+
+
+def ability_tiles(d):
+    out = ['<div class="cp-tiles">']
+    for k, v in d.items():
+        r = rank_of(k, v)
+        if k == "弾道" and isinstance(v, int):
+            mid = traj_arrow(v)
+        elif r:
+            mid = badge(r)
+        else:
+            mid = ""
+        unit = "<small>km/h</small>" if k == "球速" else ""
+        out.append(f'<div class="at"><span class="lb">{e(k)}</span>{mid}<b class="nm">{e(str(v))}{unit}</b></div>')
+    out.append("</div>")
+    return "".join(out)
 
 
 def fmt(n):
@@ -162,15 +211,13 @@ def build_page(c, text, config, decks, root="../../"):
         f'<details class="cp-more"><summary>その他ボーナスはこちらをタップ</summary>{bonus_table(others)}</details>' if others else "")
     sub = "、".join(f"{k}{v}" for k, v in (p.get("サブポジ") or {}).items()) or "なし"
     ab = p.get("野手能力") or {}
-    ab_t = ('<table class="cp-abil"><thead><tr>' + "".join(f"<th>{e(k)}</th>" for k in ab) + "</tr></thead><tbody><tr>"
-            + "".join(f"<td>{e(ability_text(k, v))}</td>" for k, v in ab.items()) + "</tr></tbody></table>") if ab else ""
     pab = p.get("投手能力") or {}
-    pab_t = ('<h3>投手能力</h3><table class="cp-abil"><thead><tr>' + "".join(f"<th>{e(k)}</th>" for k in pab) + "</tr></thead><tbody><tr>"
-             + "".join(f"<td>{e(ability_text(k, v))}</td>" for k, v in pab.items()) + "</tr></tbody></table>") if pab else ""
+    ab_t = ability_tiles(ab) if ab else ""
+    pab_t = ("<h3>投手能力</h3>" + ability_tiles(pab)) if pab else ""
     sp = p.get("特殊能力") or {}
     def sp_block(title, lst):
         return f"<h3>{e(title)}</h3><p>{'、'.join(e(x) for x in lst)}</p>" if lst else ""
-    ability = (f'<table class="cp-basic"><tbody><tr><th>選手ランク</th><td>{e(player_rank_text(p["選手能力"]) if "選手能力" in p else "不明")}</td></tr>'
+    ability = (f'<table class="cp-basic"><tbody><tr><th>選手ランク</th><td>{player_rank_html(p.get("選手能力"))}</td></tr>'
                f'<tr><th>メインポジション</th><td>{e(c["ポジション"] or "不明")}</td></tr>'
                f'<tr><th>サブポジション</th><td>{e(sub)}</td></tr>'
                f'<tr><th>利き腕</th><td>{e(p.get("利き腕", "不明"))}</td></tr></tbody></table>'
