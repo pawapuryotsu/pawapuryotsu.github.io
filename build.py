@@ -78,10 +78,10 @@ if (src / "tier").exists():
         html = page.read_text(encoding="utf-8")
         if "googletagmanager" not in html:
             page.write_text(html.replace("</head>", ga_head() + "\n</head>", 1), encoding="utf-8")
-# パワクエ契約書シミュレータ（pawa-data の powaque/simulator/build_site.py で src/simulator/ に作る。1枚のHTML）
-if (src / "simulator").exists():
-    shutil.copytree(src / "simulator", out / "simulator")
-    for page in (out / "simulator").glob("*.html"):
+# パワクエのページ（src/pawaque/ の下。契約書シミュレータは pawa-data の powaque/simulator/build_site.py で src/pawaque/contract_simulator/ に作る。1枚のHTML）
+if (src / "pawaque").exists():
+    shutil.copytree(src / "pawaque", out / "pawaque")
+    for page in (out / "pawaque").rglob("*.html"):
         html = page.read_text(encoding="utf-8")
         if "googletagmanager" not in html:
             page.write_text(html.replace("</head>", ga_head() + "\n</head>", 1), encoding="utf-8")
@@ -162,8 +162,9 @@ for text in [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob(
 
 if (out / "tier").exists():
     urls.append((f"{SITE_URL}/tier/", None))
-if (out / "simulator").exists():
-    urls.append((f"{SITE_URL}/simulator/", None))
+if (out / "pawaque").exists():
+    for page in sorted((out / "pawaque").rglob("index.html")):
+        urls.append((f"{SITE_URL}/{page.parent.relative_to(out).as_posix()}/", None))
 urls.append((f"{SITE_URL}/roman_costchecker/", None))  # コスト計算ツール（別リポジトリ roman_costchecker。同じドメインの下で公開）
 (out / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                  + "".join(f"  <url><loc>{u}</loc>" + (f"<lastmod>{m}</lastmod>" if m else "") + "</url>\n" for u, m in urls) + "</urlset>\n", encoding="utf-8")
