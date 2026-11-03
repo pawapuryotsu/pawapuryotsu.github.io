@@ -11,6 +11,22 @@ def slug_of(c):
     return f'{c["苗字"]}{c["名前"] or ""}' + (f'-{c["二つ名"]}' if c.get("二つ名") else "")
 
 
+# 選手ランク（総合値）→ランク。管理人指定の表（2026-11-03）。表に無い値（180以上など）はランクを付けず数値のみ
+RANK_TABLE = [(0, "G"), (20, "F"), (40, "E"), (50, "D"), (60, "C"), (70, "B"), (80, "A"), (90, "S"), (100, "S1"), (110, "S2"),
+              (120, "S3"), (130, "S4"), (140, "S5"), (150, "S6"), (160, "S7"), (170, "S8")]
+
+
+def player_rank(n):
+    if not isinstance(n, (int, float)) or n < 0 or n >= 180:
+        return None
+    return [r for lo, r in RANK_TABLE if n >= lo][-1]
+
+
+def player_rank_text(n):
+    r = player_rank(n)
+    return f"{r}（{n}）" if r else str(n)
+
+
 def fmt(n):
     return str(int(n)) if float(n) == int(n) else str(n)
 
@@ -142,7 +158,7 @@ def build_page(c, text, config, decks, root="../../"):
     sp = p.get("特殊能力") or {}
     def sp_block(title, lst):
         return f"<h3>{e(title)}</h3><p>{'、'.join(e(x) for x in lst)}</p>" if lst else ""
-    ability = (f'<table class="cp-basic"><tbody><tr><th>選手ランク</th><td>{e(str(p.get("選手能力", "不明")))}</td></tr>'
+    ability = (f'<table class="cp-basic"><tbody><tr><th>選手ランク</th><td>{e(player_rank_text(p["選手能力"]) if "選手能力" in p else "不明")}</td></tr>'
                f'<tr><th>メインポジション</th><td>{e(c["ポジション"] or "不明")}</td></tr>'
                f'<tr><th>サブポジション</th><td>{e(sub)}</td></tr>'
                f'<tr><th>利き腕</th><td>{e(p.get("利き腕", "不明"))}</td></tr></tbody></table>'
