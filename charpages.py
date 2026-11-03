@@ -224,10 +224,17 @@ def deck_examples(name, decks, root):
 
 
 # 投手の変化球の図（ゲームの投手能力画面ふう）。変化量の数だけ、中心から色つき（赤→橙→黄）、残りは青
-# 向き：右投＝スライダー右・カーブ左・シュート右下・シンカー左下・フォーク下。左投は左右反転
+# 向き（管理人指定）：右投＝右スライダー・右下カーブ・下フォーク・左下シンカー・左シュート。左投は左右反転
 SEG_COLORS = ["#ff6a1a", "#ff2f1a", "#ff3d1a", "#ff8a1a", "#ffc61a", "#ffe21a", "#ffec7a"]
-DIR_ANGLE = {"スライダー方向": 0, "シュート方向": 45, "フォーク方向": 90, "シンカー方向": 135, "カーブ方向": 180}
+DIR_ANGLE = {"スライダー方向": 0, "カーブ方向": 45, "フォーク方向": 90, "シンカー方向": 135, "シュート方向": 180}
 CX, CY = 180, 82
+
+
+def seg_color(i, n):
+    """色つきの区画：中心＝赤、先端＝黄になるグラデーション（n個のとき）。1個だけのときは橙"""
+    t = i / (n - 1) if n > 1 else 0.5
+    g = int(0x2a + (0xe2 - 0x2a) * t)
+    return f"#ff{g:02x}1a"
 
 
 def pitch_chart(p):
@@ -242,12 +249,12 @@ def pitch_chart(p):
         a = (180 - ang) if lefty else ang
         segs = []
         for i in range(7):
-            col = SEG_COLORS[i] if i < n else "#46a8ff"
+            col = seg_color(i, n) if i < n else "#46a8ff"
             segs.append(f'<rect x="{22 + i * 13}" y="-7" width="12" height="14" fill="{col}" stroke="#0b3f9e" stroke-width="1.5"/>')
         tip = '<path d="M113 -7L127 0L113 7Z" fill="#46a8ff" stroke="#0b3f9e" stroke-width="1.5"/>'
         out.append(f'<g transform="translate({CX} {CY}) rotate({a})">{"".join(segs)}{tip}</g>')
         if x:
-            name = x.get("オリジナル名") or x.get("種類")
+            name = x.get("種類")  # オリジナル球種は、ゲーム画面どおり「オリジナル」と表記
             ex, ey = CX + 127 * __import__("math").cos(__import__("math").radians(a)), CY + 127 * __import__("math").sin(__import__("math").radians(a))
             if abs(a % 360 - 0) < 1:
                 tx, ty, anc = ex - 4, CY - 18, "end"
@@ -259,18 +266,19 @@ def pitch_chart(p):
                 tx, ty, anc = ex, ey + 22, "middle"
             out.append(f'<text class="pc-lb" x="{tx:.0f}" y="{ty:.0f}" text-anchor="{anc}">{e(name)}</text>')
     out.append(f'<circle cx="{CX}" cy="{CY}" r="15" fill="#fff" stroke="#b83030" stroke-width="2"/>')
-    st = pitches.get("ストレート")
-    if st and st.get("種類") == "オリジナル":
-        out.append(f'<path d="M171 50L180 40L189 50Z" fill="#ff9a1a" stroke="#0b3f9e" stroke-width="1.5"/>'
-                   f'<text class="pc-lb" x="{CX}" y="28" text-anchor="middle">{e(st.get("オリジナル名") or "オリジナル")}</text>')
+    st, st2 = pitches.get("ストレート"), pitches.get("第二ストレート")
+
+    def sname(x):
+        return (x.get("オリジナル名") or x.get("種類") or "ストレート") if x else ""
+    arrow = lambda cx: f'<path d="M{cx - 8} 52L{cx} 42L{cx + 8} 52Z" fill="#ff9a1a" stroke="#0b3f9e" stroke-width="1.5"/>'
+    if st2:
+        out.append(arrow(CX - 12) + arrow(CX + 12))
+        out.append(f'<text class="pc-lb" x="{CX - 6}" y="30" text-anchor="end">{e(sname(st) or "ストレート")}</text>'
+                   f'<text class="pc-lb" x="{CX + 6}" y="30" text-anchor="start">{e(sname(st2))}</text>')
+    else:
+        out.append(arrow(CX) + f'<text class="pc-lb" x="{CX}" y="30" text-anchor="middle">{e(sname(st) or "ストレート")}</text>')
     out.append("</svg>")
-    notes = []
-    for key in ("ストレート", "第二ストレート"):
-        x = pitches.get(key)
-        if x:
-            nm = x.get("種類") + (f"（{x['オリジナル名']}）" if x.get("オリジナル名") else "")
-            notes.append(f"{key}：{nm}")
-    return "".join(out) + (f'<p class="cp-note">{e(" / ".join(notes))}</p>' if notes else "")
+    return "".join(out)
 
 
 def build_page(c, text, config, decks, kinds, root="../../"):
