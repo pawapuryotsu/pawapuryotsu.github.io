@@ -185,15 +185,13 @@ def section(title, inner, empty="準備中です。"):
 
 
 # 緑と赤が半々のボックスで出す特殊能力（管理人指定。データ上は青特で入っている）
-HALF_SP = ("気分屋", "荒れ球", "全開", "ポーカーフェイス")
-HALF_BLUE_SP = ("悪球打ち",)  # 青と赤が半々（2026-11-03 管理人訂正）
+# 青と赤が半々（波線）のボックスで出す特殊能力（管理人指定 2026-11-03。データ上は青特で入っている）
+HALF_SP = ("悪球打ち", "気分屋", "荒れ球", "全開", "ポーカーフェイス")
 KIND_CLASS = {"青特": "blue", "金特": "gold", "赤特": "red", "緑特": "green", "虹特": "rainbow"}
 
 
 def sp_box(name, group, kinds):
     if name in HALF_SP:
-        cls = "half"
-    elif name in HALF_BLUE_SP:
         cls = "halfblue"
     else:
         kind = None
