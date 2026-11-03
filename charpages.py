@@ -1,4 +1,4 @@
-# キャラページ（/chars/<名前>/）を chars.json から作る。build.py から呼ばれる。
+# キャラページ（/chars/<ページ番号4桁>/）と一覧（/chars/）を chars.json から作る。build.py から呼ばれる。
 # データ（ボーナス・金特・能力）は chars.json から自動。評価・イベントは src/chars/texts/*.json（管理人が書く）。
 # ボーナスの『上に出す／タブに隠す』と並び順は src/chars/config.json で一括管理。
 import html as _h, json, re
@@ -329,6 +329,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     pab_t = ("<h3>投手能力</h3>" + ability_tiles(pab) + pitch_chart(p)) if pab else ""
     sp = p.get("特殊能力") or {}
     def sp_block(title, lst, group):
+        lst = [x for x in (lst or []) if not str(x).startswith("オリジナル")]  # オリジナルストレート・変化球は特殊能力ではない（球種欄に名前が出る）
         if not lst:
             return ""
         return f"<h3>{e(title)}</h3>" + '<div class="cp-sp">' + "".join(sp_box(x, group, kinds) for x in lst) + "</div>"
@@ -362,19 +363,61 @@ def generate(chars_path, src, decks, noindex=True):
     config = json.loads((src / "chars" / "config.json").read_text(encoding="utf-8"))
     kinds = json.loads((src / "chars" / "skill_kinds.json").read_text(encoding="utf-8"))  # 特殊能力の種類（青・金・赤・緑・虹）。pawa-data の skills.json から作る
     chars = {c["name"]: c for c in json.loads(Path(chars_path).read_text(encoding="utf-8"))}
-    pages = []
-    for name in config["公開するキャラ"]:
+    pages, items = [], []
+    for pid, name in config["公開するキャラ"].items():
+        if not re.fullmatch(r"\d{4}", pid):
+            raise SystemExit(f"ページ番号は4桁の数字にしてください: {pid}")
         c = chars.get(name)
         if not c:
+            print(f"警告: 公開するキャラ {name} が chars.json にありません")
             continue
         tf = next((f for f in (src / "chars" / "texts").glob("*.json") if json.loads(f.read_text(encoding="utf-8")).get("name") == name), None)
         text = json.loads(tf.read_text(encoding="utf-8")) if tf else {}
-        path = f"chars/{slug_of(c)}/"
+        path = f"chars/{pid}/"
         full = f'{c["二つ名"] and "[" + c["二つ名"] + "]" or ""}{c["苗字"]}{c["名前"] or ""}'
+        items.append((pid, c, full))
         meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
                 f"description: パワプロアプリ（サクセス・パワクエ共通）のイベキャラ {full} のボーナス、金特、イベント選択肢、選手能力をまとめています。\n"
                 f"path: {path}\nnav: none\n" + ("noindex: yes\n" if noindex else ""))
         body = (f'<section class="phead"><p class="eyebrow">イベキャラ データ</p><h1>{e(full)}のデータ・イベントまとめ</h1></section>\n'
                 + build_page(c, text, config, decks, kinds))
         pages.append(f"<!--\n{meta}-->\n{body}")
+    pages.append(index_page(items, config, noindex))
     return pages
+
+
+def index_page(items, config, noindex):
+    """イベキャラ一覧（/chars/）。検索つき。本文は静的HTML（検索は表示を絞るだけ）"""
+    lis = []
+    for pid, c, full in items:
+        kind = char_type(c, config["種別の判定"])
+        yomi = c.get("二つ名読み") or ""
+        yomi = " ".join(yomi) if isinstance(yomi, list) else yomi
+        key = " ".join(x for x in (full, c.get("読み"), yomi, c.get("苗字"), c.get("名前")) if x)
+        lis.append(f'<li class="cl-item" data-k="{e(key)}" data-t="{e(kind)}"><a href="{pid}/">'
+                   f'<span class="cl-nick">{e(c["二つ名"] or "")}</span><b>{e(c["苗字"])}{e(c["名前"] or "")}</b>'
+                   f'<span class="cl-tag">{e(kind)}</span></a></li>')
+    kinds_ = sorted({char_type(c, config["種別の判定"]) for _, c, _ in items}) if items else []
+    chips = "".join(f'<button type="button" class="cl-chip" data-t="{e(k)}">{e(k)}</button>' for k in kinds_)
+    meta = ("title: イベキャラ一覧｜パワプロアプリ攻略ベース\n"
+            "description: パワプロアプリのイベキャラのボーナス・金特・イベントをまとめたページの一覧です。名前や読みで検索できます。\n"
+            "path: chars/\nnav: none\n" + ("noindex: yes\n" if noindex else ""))
+    body = (f'''<section class="phead"><p class="eyebrow">イベキャラ</p><h1>イベキャラ一覧</h1></section>
+<div class="cl">
+<input type="search" id="cl-q" class="cl-q" placeholder="名前・読み・二つ名で検索" aria-label="イベキャラを検索">
+<div class="cl-chips">{chips}</div>
+<p class="muted" id="cl-n">{len(items)}人</p>
+<ul class="cl-list">{"".join(lis)}</ul>
+</div>
+<script>
+(function(){{
+var q=document.getElementById("cl-q"),items=[].slice.call(document.querySelectorAll(".cl-item")),n=document.getElementById("cl-n"),t="";
+function hira(s){{return s.replace(/[ァ-ヶ]/g,function(c){{return String.fromCharCode(c.charCodeAt(0)-96)}}).toLowerCase()}}
+function run(){{var w=hira(q.value).split(/\\s+/).filter(Boolean),c=0;
+items.forEach(function(li){{var k=hira(li.dataset.k),ok=(!t||li.dataset.t===t)&&w.every(function(x){{return k.indexOf(x)>=0}});li.hidden=!ok;if(ok)c++}});
+n.textContent=c+"人"}}
+q.addEventListener("input",run);
+[].forEach.call(document.querySelectorAll(".cl-chip"),function(b){{b.addEventListener("click",function(){{var on=b.classList.contains("on");[].forEach.call(document.querySelectorAll(".cl-chip"),function(x){{x.classList.remove("on")}});t=on?"":b.dataset.t;if(!on)b.classList.add("on");run()}})}});
+}})();
+</script>''')
+    return f"<!--\n{meta}-->\n{body}"
