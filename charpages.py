@@ -279,15 +279,34 @@ def pitch_chart(p):
     return "".join(out)
 
 
+def max_value(entry):
+    """判定用：PSRの最大Lvの値（PSRが無ければSRの最大Lv）"""
+    shown = entry.get("表示") or {}
+    for rar in ("PSR", "SR"):
+        t = shown.get(rar)
+        if t:
+            return t[max(t, key=int)]
+    return None
+
+
+def char_type(c, rules):
+    """野手用／投手用／兼用。どちらも満たさない（環境外）は兼用と同じ扱い"""
+    def ok(conds):
+        return all((max_value(c["bonus"].get(k, {})) or 0) >= v for k, v in conds.items())
+    p, f = ok(rules["投手条件"]), ok(rules["野手条件"])
+    return "兼用" if p == f else ("投手用" if p else "野手用")
+
+
 def build_page(c, text, config, decks, kinds, root="../../"):
     p = c.get("プロフィール", {})
     bonus = c["bonus"]
-    important = [(n, bonus[n]) for n in config["重要ボーナス"] if n in bonus and bonus_lines(bonus[n])]
-    tap = config["タップ欄のボーナス"]
-    unknown = [n for n in bonus if n not in config["重要ボーナス"] and n not in tap]
+    ctype = char_type(c, config["種別の判定"])
+    top_names, tap = config["重要ボーナス"][ctype], config["タップ欄のボーナス"][ctype]
+    important = [(n, bonus[n]) for n in top_names if n in bonus and bonus_lines(bonus[n])]
+    unknown = [n for n in bonus if n not in top_names and n not in tap]
     if unknown:
         print(f"【警告】{c['name']}：config.json にないボーナス {unknown}（タップ欄の一番下に出します）")
-    others = sorted(((n, b) for n, b in bonus.items() if n not in config["重要ボーナス"] and bonus_lines(b)),
+    others = sorted(((n, b) for n, b in bonus.items() if n not in top_names and bonus_lines(b)),
                     key=lambda nb: tap.index(nb[0]) if nb[0] in tap else len(tap))
     caps = [(n, bonus[n]) for n in config["基礎上限の項目"] if n in bonus and bonus_lines(bonus[n])]
     cap_txt = "<br>".join(f'{e(n.replace("アップ", ""))}：{e(bonus_lines(b)[0])}' for n, b in caps) or "なし"
