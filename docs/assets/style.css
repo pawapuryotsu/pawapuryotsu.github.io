@@ -2,6 +2,7 @@
 html,body{margin:0}
 img{max-width:100%}
 :root{
+  color-scheme:light;
   --bg:#eef1ec; --surface:#ffffff; --ink:#14233a; --muted:#5b6676; --line:#d8ded5;
   --field:#1d5e43; --field-ink:#f4f7f2; --chalk:rgba(255,255,255,.55);
   --accent:#1d5e43; --accent-soft:#e1efe6; --clay:#a8572c; --clay-soft:#f6e6da;
@@ -11,11 +12,7 @@ img{max-width:100%}
   --head:"M PLUS 1p","Hiragino Sans","Yu Gothic",sans-serif;
   --num:"Saira Condensed","Zen Kaku Gothic New",sans-serif;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0d1520; --surface:#152131; --ink:#e7ecf2; --muted:#98a5b6; --line:#273548;
-  --field:#123d2c; --field-ink:#e9f2ec; --chalk:rgba(255,255,255,.35);
-  --accent:#6cc79a; --accent-soft:#183a2b; --clay:#e39a6c; --clay-soft:#3b2619;
-  --gold:#f2c14e; --gold-soft:#3a2f12; --mark:#5a4a10; --stitch:#ff6b74; --marker:#7a5d0c; --mk-sky:#1d5a7d; --mk-pink:#7a2c45; --mk-orange:#7a4a14; --mk-lime:#3f6420; --mk-red:#8a2c2c; --mk-yg:#55731a; --mk-purple:#5a3d82; color-scheme:dark}}
+
 :root[data-theme="dark"]{
   --bg:#0d1520; --surface:#152131; --ink:#e7ecf2; --muted:#98a5b6; --line:#273548;
   --field:#123d2c; --field-ink:#e9f2ec; --chalk:rgba(255,255,255,.35);
@@ -237,12 +234,12 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .prose h2[id]{scroll-margin-top:12px}
 .wip{color:var(--muted);border:1px dashed var(--line);border-radius:4px;padding:10px 12px}
 .em-blue{color:#1a5fd0;font-weight:700}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .em-blue{color:#8fbcff}}
+
 :root[data-theme="dark"] .em-blue{color:#8fbcff}
 .key3{background:var(--bg);border-left:4px solid var(--mk-pink);padding:10px 14px 10px 30px}
 .prose h3{font-size:15px;font-weight:900;margin:8px 0 0}
 .em-hot{color:#c2410c;font-weight:700}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .em-hot{color:#ffa46b}}
+
 :root[data-theme="dark"] .em-hot{color:#ffa46b}
 .joke{font-size:11px;color:var(--muted);opacity:.7;text-decoration:line-through double}
 
@@ -332,7 +329,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .news{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
 .news a{color:#d6303a;font-weight:900;font-size:16px;text-decoration:underline;text-underline-offset:3px}
 .news a:hover{opacity:.75}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .news a{color:#ff7b82}}
+
 :root[data-theme="dark"] .news a{color:#ff7b82}
 .cp-h1{display:inline-block}
 .news a{display:inline-flex;align-items:center;gap:10px}
@@ -346,3 +343,6 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cp-tbl th,.cp-tbl td{overflow-wrap:break-word}
 @media (max-width:480px){.cp-tbl{font-size:12px}.cp-tbl th,.cp-tbl td{padding:4px 5px}}
 .cp-tbl td>div.cp-kotsu{white-space:normal;word-break:keep-all;overflow-wrap:normal}
+
+/* 幅320px以下（iPhone SE第1世代など）だけに効く調整。375px以上の見た目は変えない */
+@media (max-width:340px){.cp-tbl{font-size:11px}.cp-tbl th,.cp-tbl td{padding:3px 3px}}
