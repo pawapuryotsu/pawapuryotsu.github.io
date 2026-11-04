@@ -621,6 +621,7 @@ def index_page(items, config, noindex):
             "description: パワプロアプリのイベキャラのボーナス・金特・イベントをまとめたページの一覧です。名前や読みで検索できます。\n"
             "path: chars/\nnav: none\n" + ("noindex: yes\n" if noindex else ""))
     body = (f'''<section class="phead"><p class="eyebrow">イベキャラ</p><h1>イベキャラ一覧</h1></section>
+<p class="cl-notice"><span>※過去に登場したキャラクターの大半は</span><span>まだ情報入っていませんので</span><span>ご了承ください。</span><br><span>随時更新していきますので</span><span>よろしくお願いします。</span></p>
 <div class="cl">
 <input type="search" id="cl-q" class="cl-q" placeholder="名前・読み・二つ名で検索" aria-label="イベキャラを検索">
 <div class="cl-chips">{chips}</div>
