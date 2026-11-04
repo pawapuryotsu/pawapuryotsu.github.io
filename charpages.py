@@ -189,9 +189,7 @@ def event_kinds(c, config, text, has_friend):
     kinds = list(config["イベント構成"].get(c.get("分類") or "選手", config["イベント構成"]["選手"]))
     if has_friend and "友情イベント" not in kinds and (c.get("分類") or "選手") == "選手":
         kinds.insert(kinds.index("共通イベント") + 1 if "共通イベント" in kinds else len(kinds), "友情イベント")
-    # エピローグ：彼女・選手彼女・相棒は必ずある。選手は、texts に「エピローグあり: true」と書いたキャラだけ（シートから読めないので手動）
-    if (c.get("分類") or "選手") == "選手" and text.get("エピローグあり") and "エピローグ" not in kinds:
-        kinds.append("エピローグ")
+    # エピローグ：彼女・選手彼女・相棒は構成に含まれる。選手は、共通イベントの小イベントの1つとして texts に書く
     return kinds
 
 
@@ -207,21 +205,86 @@ def events_of(text, kinds):
     return ev
 
 
+_KINDS = None
+
+
+def _is_gold_kotsu(item):
+    """「○○コツLv3」の○○が金特の能力、または威圧感なら True（青太字で出す）"""
+    global _KINDS
+    if _KINDS is None:
+        _KINDS = json.loads((Path(__file__).resolve().parent / "src" / "chars" / "skill_kinds.json").read_text(encoding="utf-8"))
+    m = re.match(r"(.+?)コツ", item)
+    if not m:
+        return False
+    n = m.group(1)
+    return n == "威圧感" or any(g.get(n) == "金特" for g in _KINDS.values())
+
+
+def _item(i):
+    return f'<div class="cp-kotsu-gold">{e(i)}</div>' if _is_gold_kotsu(i) else f"<div>{e(i)}</div>"
+
+
+def _choice_name(t):
+    """選択肢の名前。（イベント継続）は青、（イベント終了）は赤で、改行して出す"""
+    m = re.match(r"^(.*?)[（(](イベント継続|イベント終了)[）)]$", t)
+    if not m:
+        return e(t)
+    cls = "cp-cont" if m.group(2) == "イベント継続" else "cp-end"
+    return f'{e(m.group(1))}<br><span class="{cls}">（{m.group(2)}）</span>'
+
+
+def _cell(x):
+    """1行ぶんの「その他」欄。投手／野手ごとの項目と、共通のその他を縦に並べる"""
+    out = ""
+    for lab in ("投手", "野手"):
+        if x.get(lab):
+            out += f'<div class="cp-t-lab">【{lab}】</div>' + "".join(_item(i) for i in x[lab])
+    out += "".join(_item(i) for i in x.get("その他", []))
+    return out
+
+
+def sub_table(rows):
+    """イベントの表。選択肢ごとに1行。左＝選択肢名、中＝効果（＋）、右＝投手／野手などその他。選択肢が無いイベントは左の列を出さない"""
+    has_name = any(r.get("選択肢") for r in rows)
+    has_other = any(r.get("投手") or r.get("野手") or r.get("その他") for r in rows)  # コツなどが無いイベントは「その他」列を出さない
+    head = ("<th></th>" if has_name else "") + "<th>＋</th>" + ("<th>その他</th>" if has_other else "")
+    body = ""
+    for r in rows:
+        name = f'<th class="{"ok" if r.get("正解") else ""}">{"◎ " if r.get("正解") else ""}{_choice_name(r.get("選択肢", ""))}</th>' if has_name else ""
+        eff = "".join(f"<div>{e(i)}</div>" for i in r.get("効果", []))
+        body += f"<tr>{name}<td>{eff}</td>" + (f"<td>{_cell(r)}</td>" if has_other else "") + "</tr>"
+    return f'<div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>'
+
+
 def event_detail(ev):
-    """イベント詳細。金特イベント・共通イベント・自己紹介など全部をここに並べる。選択肢は、正解に ◎ を付ける"""
+    """イベント詳細。金特イベント・共通イベント・自己紹介など全部をここに並べる。
+    「小イベント」（名前＋表の行）があれば表で、無ければ従来の書き方（体力・やる気・コツ・選択肢・詳細）で出す。
+    小イベントに「折りたたむ: true」を付けると『詳細を表示』ボタンの中に入る"""
     parts = []
     for k, x in ev.items():
-        inner = ""
+        inner = paras(x.get("詳細", [])) if x.get("小イベント") else ""
+        for sub in x.get("小イベント", []):
+            t = sub_table(sub["行"]) if sub.get("行") else ""
+            if sub.get("名前"):
+                head = f'<h4 class="cp-sub">・{e(sub["名前"])}</h4>'
+            else:
+                head = ""
+            if sub.get("詳細"):
+                t = paras(sub["詳細"]) + t if sub.get("行") else paras(sub["詳細"])
+            elif not sub.get("行"):
+                t = '<p class="muted">準備中です。</p>'
+            inner += head + t
         eff = " / ".join(f"{lab}：{x[key]}" for key, lab in (("体力", "体力"), ("やる気", "やる気")) if x.get(key))
         if x.get("コツ"):
             eff += (" / " if eff else "") + "もらえるコツ：" + "、".join(x["コツ"])
         if eff:
             inner += f'<p class="cp-eff">{e(eff)}</p>'
+        if not x.get("小イベント"):
+            inner += paras(x.get("詳細", []))
         if x.get("選択肢"):
             inner += "<ul class=cp-choices>" + "".join(
                 f'<li{" class=ok" if c.get("正解") else ""}>{"◎ " if c.get("正解") else ""}{e(c["文"])}'
                 + (f'<br><span class="muted">{e(c["結果"])}</span>' if c.get("結果") else "") + "</li>" for c in x["選択肢"]) + "</ul>"
-        inner += paras(x.get("詳細", []))
         parts.append(f"<h3>{e(k)}</h3>" + (inner or '<p class="muted">準備中です。</p>'))
     return "".join(parts)
 
