@@ -327,3 +327,4 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cp-tiles-p .at-chart .pchart{width:100%;height:auto;background:#eef2fb;border-radius:6px}
 .cp-tiles-p .lb{font-size:clamp(7px,1.9vw,12px);letter-spacing:-.04em}
 .cp-sec h3 .cp-h3-side{font-size:13px;font-weight:700;color:var(--text,#14233a);margin-left:8px}
+.cp-yomi{margin:4px 0 0;font-size:13px;color:var(--muted)}
