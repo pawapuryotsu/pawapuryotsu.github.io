@@ -318,3 +318,6 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cp-tbl tbody th{background:var(--surface);font-weight:700}
 .cp-tbl tbody th.ok{color:var(--accent)}
 .cp-t-lab{font-weight:700;margin-top:2px}
+.cp-cont{color:#1565c0;font-weight:700}
+.cp-end{color:#c62828;font-weight:700}
+.cp-kotsu-gold{color:#1565c0;font-weight:900}

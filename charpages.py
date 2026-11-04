@@ -205,13 +205,41 @@ def events_of(text, kinds):
     return ev
 
 
+_KINDS = None
+
+
+def _is_gold_kotsu(item):
+    """「○○コツLv3」の○○が金特の能力、または威圧感なら True（青太字で出す）"""
+    global _KINDS
+    if _KINDS is None:
+        _KINDS = json.loads((Path(__file__).resolve().parent / "src" / "chars" / "skill_kinds.json").read_text(encoding="utf-8"))
+    m = re.match(r"(.+?)コツ", item)
+    if not m:
+        return False
+    n = m.group(1)
+    return n == "威圧感" or any(g.get(n) == "金特" for g in _KINDS.values())
+
+
+def _item(i):
+    return f'<div class="cp-kotsu-gold">{e(i)}</div>' if _is_gold_kotsu(i) else f"<div>{e(i)}</div>"
+
+
+def _choice_name(t):
+    """選択肢の名前。（イベント継続）は青、（イベント終了）は赤で、改行して出す"""
+    m = re.match(r"^(.*?)[（(](イベント継続|イベント終了)[）)]$", t)
+    if not m:
+        return e(t)
+    cls = "cp-cont" if m.group(2) == "イベント継続" else "cp-end"
+    return f'{e(m.group(1))}<br><span class="{cls}">（{m.group(2)}）</span>'
+
+
 def _cell(x):
     """1行ぶんの「その他」欄。投手／野手ごとの項目と、共通のその他を縦に並べる"""
     out = ""
     for lab in ("投手", "野手"):
         if x.get(lab):
-            out += f'<div class="cp-t-lab">【{lab}】</div>' + "".join(f"<div>{e(i)}</div>" for i in x[lab])
-    out += "".join(f"<div>{e(i)}</div>" for i in x.get("その他", []))
+            out += f'<div class="cp-t-lab">【{lab}】</div>' + "".join(_item(i) for i in x[lab])
+    out += "".join(_item(i) for i in x.get("その他", []))
     return out
 
 
@@ -222,7 +250,7 @@ def sub_table(rows):
     head = ("<th></th>" if has_name else "") + "<th>＋</th>" + ("<th>その他</th>" if has_other else "")
     body = ""
     for r in rows:
-        name = f'<th class="{"ok" if r.get("正解") else ""}">{"◎ " if r.get("正解") else ""}{e(r.get("選択肢", ""))}</th>' if has_name else ""
+        name = f'<th class="{"ok" if r.get("正解") else ""}">{"◎ " if r.get("正解") else ""}{_choice_name(r.get("選択肢", ""))}</th>' if has_name else ""
         eff = "".join(f"<div>{e(i)}</div>" for i in r.get("効果", []))
         body += f"<tr>{name}<td>{eff}</td>" + (f"<td>{_cell(r)}</td>" if has_other else "") + "</tr>"
     return f'<div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>'
