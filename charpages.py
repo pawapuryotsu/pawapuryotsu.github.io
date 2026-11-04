@@ -245,7 +245,10 @@ def _is_gold_kotsu(item):
 
 
 def _item(i):
-    return f'<div class="cp-kotsu-gold">{e(i)}</div>' if _is_gold_kotsu(i) else f"<div>{e(i)}</div>"
+    """「○○コツLv3」は、狭い幅では能力名とコツLvの間でだけ折り返す（<wbr>）"""
+    t = e(i).replace("コツLv", "<wbr>コツLv")
+    cls = "cp-kotsu cp-kotsu-gold" if _is_gold_kotsu(i) else ("cp-kotsu" if "コツLv" in i else "")
+    return f'<div class="{cls}">{t}</div>' if cls else f"<div>{t}</div>"
 
 
 def _choice_name(t):
