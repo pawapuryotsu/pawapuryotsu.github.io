@@ -217,11 +217,11 @@ def event_detail(ev):
             eff += (" / " if eff else "") + "もらえるコツ：" + "、".join(x["コツ"])
         if eff:
             inner += f'<p class="cp-eff">{e(eff)}</p>'
+        inner += paras(x.get("詳細", []))
         if x.get("選択肢"):
             inner += "<ul class=cp-choices>" + "".join(
                 f'<li{" class=ok" if c.get("正解") else ""}>{"◎ " if c.get("正解") else ""}{e(c["文"])}'
                 + (f'<br><span class="muted">{e(c["結果"])}</span>' if c.get("結果") else "") + "</li>" for c in x["選択肢"]) + "</ul>"
-        inner += paras(x.get("詳細", []))
         parts.append(f"<h3>{e(k)}</h3>" + (inner or '<p class="muted">準備中です。</p>'))
     return "".join(parts)
 
