@@ -363,6 +363,22 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     return "\n".join(parts)
 
 
+ICON_COPIES = []   # (元のファイル, 出力先 img/chars/番号.png)。build.py がコピーする
+
+
+def find_icon(chars_path, c, pid):
+    """pawa-data の event-chars/icons から、キャラのPSRアイコン（無ければSR）を探す。無ければ None"""
+    here = Path(__file__).resolve().parent
+    for d in (Path(chars_path).resolve().parent / "icons", here.parent / "pawa-data" / "event-chars" / "icons"):
+        base = f'{c["苗字"]}{c.get("名前") or ""}' + (f'_{c["二つ名"]}' if c.get("二つ名") else "")
+        for rare in ("PSR", "SR"):
+            f = d / f"{base}_{rare}.png"
+            if f.exists():
+                ICON_COPIES.append((f, f"img/chars/{pid}.png"))
+                return True
+    return False
+
+
 def generate(chars_path, src, decks, noindex=True):
     config = json.loads((src / "chars" / "config.json").read_text(encoding="utf-8"))
     kinds = json.loads((src / "chars" / "skill_kinds.json").read_text(encoding="utf-8"))  # 特殊能力の種類（青・金・赤・緑・虹）。pawa-data の skills.json から作る
@@ -380,6 +396,7 @@ def generate(chars_path, src, decks, noindex=True):
         text = json.loads(tf.read_text(encoding="utf-8")) if tf else {}
         path = f"chars/{pid}/"
         full = f'{c["二つ名"] and "[" + c["二つ名"] + "]" or ""}{c["苗字"]}{c["名前"] or ""}'
+        c = dict(c, _icon=find_icon(chars_path, c, pid))
         items.append((pid, c, full))
         meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
                 f"description: パワプロアプリ（サクセス・パワクエ共通）のイベキャラ {full} のボーナス、金特、イベント選択肢、選手能力をまとめています。\n"
@@ -393,6 +410,7 @@ def generate(chars_path, src, decks, noindex=True):
             raise SystemExit(f"準備中のキャラの番号が不正か重複しています: {pid}")
         full = f'{st.get("二つ名") and "[" + st["二つ名"] + "]" or ""}{st["苗字"]}{st.get("名前") or ""}'
         c = {"二つ名": st.get("二つ名") or "", "苗字": st["苗字"], "名前": st.get("名前") or "", "読み": st.get("読み"), "二つ名読み": st.get("二つ名読み") or "", "_準備中": True}
+        c["_icon"] = find_icon(chars_path, c, pid)
         items.append((pid, c, full))
         meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
                 f"description: パワプロアプリのイベキャラ {full} のページです。データは準備中です。\n"
@@ -437,7 +455,8 @@ def index_page(items, config, noindex):
         yomi = " ".join(yomi) if isinstance(yomi, list) else yomi
         key = " ".join(x for x in (full, c.get("読み"), yomi, c.get("苗字"), c.get("名前")) if x)
         lis.append(f'<li class="cl-item" data-k="{e(key)}" data-t="{e(kind)}"><a href="{pid}/">'
-                   f'<span class="cl-nick">{e(c["二つ名"] or "")}</span><b>{e(c["苗字"])}{e(c["名前"] or "")}</b>'
+                   + (f'<img class="cl-icon" src="../img/chars/{pid}.png" alt="" width="52" height="52" loading="lazy">' if c.get("_icon") else '<span class="cl-icon"></span>')
+                   + f'<span class="cl-name"><span class="cl-nick">{e(c["二つ名"] or "")}</span><b>{e(c["苗字"])}{e(c["名前"] or "")}</b></span>'
                    f'<span class="cl-tag">{e(kind)}</span></a></li>')
     kinds_ = sorted({char_type(c, config["種別の判定"]) for _, c, _ in items if not c.get("_準備中")}) if items else []
     chips = "".join(f'<button type="button" class="cl-chip" data-t="{e(k)}">{e(k)}</button>' for k in kinds_)
