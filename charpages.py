@@ -142,7 +142,15 @@ def bonus_lines(entry):
 
 
 def unique_mark(entry):
-    return "(固有)" if entry.get("固有") is not None and not entry.get("SR") and not entry.get("PSR") else ""
+    """固有ボーナスの表記。固有だけの項目は「(固有)」、SR/PSRの値に固有が足されている項目は「(固有6含む)」（表示の値は固有を含んだ値）"""
+    g = entry.get("固有")
+    if g is None:
+        return ""
+    if not entry.get("SR") and not entry.get("PSR"):
+        return "(固有)"
+    if isinstance(g, (int, float)):
+        return f"(固有{fmt(g)}{entry.get('単位') or ''}含む)"
+    return ""
 
 
 def item_text(c):
@@ -524,7 +532,7 @@ def yomi_paren(c):
 
 def head_html(full, c):
     y = yomi_of(c)
-    return (f'<section class="phead"><p class="eyebrow">イベキャラ データ</p><h1>{e(full)}のデータ・イベントまとめ</h1>'
+    return (f'<section class="phead"><p class="eyebrow">イベキャラ データ</p><h1><span class="cp-h1">{e(full)}</span> <span class="cp-h1">データ・イベントまとめ</span></h1>'
             + (f'<p class="cp-yomi">読み：{e(y)}</p>' if y else "") + "</section>\n")
 
 
