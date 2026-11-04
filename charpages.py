@@ -252,11 +252,11 @@ def _item(i):
 
 
 def _choice_name(t):
-    """選択肢の名前。（イベント継続）は青、（イベント終了）は赤で、改行して出す"""
-    m = re.match(r"^(.*?)[（(](イベント継続|イベント終了)[）)]$", t)
+    """選択肢の名前。（イベント継続）（成功）は青、（イベント終了）（失敗）は赤で、改行して出す"""
+    m = re.match(r"^(.*?)[（(](イベント継続|イベント終了|成功|失敗)[）)]$", t)
     if not m:
         return e(t).replace("\n", "<br>")  # 選択肢名の中の改行（例：海釣り↵（成功））
-    cls = "cp-cont" if m.group(2) == "イベント継続" else "cp-end"
+    cls = "cp-cont" if m.group(2) in ("イベント継続", "成功") else "cp-end"
     return f'{e(m.group(1))}<br><span class="{cls}">（{m.group(2)}）</span>'
 
 
