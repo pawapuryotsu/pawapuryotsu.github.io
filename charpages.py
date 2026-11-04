@@ -249,10 +249,15 @@ def _choice_name(t):
     return f'{e(m.group(1))}<br><span class="{cls}">（{m.group(2)}）</span>'
 
 
+_CELL_ORDER = ("三塁手", "その他野手", "投手", "野手")
+_CELL_SKIP = ("選択肢", "効果", "正解", "その他")
+
+
 def _cell(x):
-    """1行ぶんの「その他」欄。投手／野手ごとの項目と、共通のその他を縦に並べる"""
+    """1行ぶんの「その他」欄。【投手】【野手】【三塁手】など見出しごとの項目と、見出し無しのその他を縦に並べる"""
     out = ""
-    for lab in ("投手", "野手"):
+    labs = [k for k in _CELL_ORDER if k in x] + [k for k in x if k not in _CELL_ORDER and k not in _CELL_SKIP]
+    for lab in labs:
         if x.get(lab):
             out += f'<div class="cp-t-lab">【{lab}】</div>' + "".join(_item(i) for i in x[lab])
     out += "".join(_item(i) for i in x.get("その他", []))
@@ -262,7 +267,7 @@ def _cell(x):
 def sub_table(rows):
     """イベントの表。選択肢ごとに1行。左＝選択肢名、中＝効果（＋）、右＝投手／野手などその他。選択肢が無いイベントは左の列を出さない"""
     has_name = any(r.get("選択肢") for r in rows)
-    has_other = any(r.get("投手") or r.get("野手") or r.get("その他") for r in rows)  # コツなどが無いイベントは「その他」列を出さない
+    has_other = any(_cell(r) for r in rows)  # コツなどが無いイベントは「その他」列を出さない
     head = ("<th></th>" if has_name else "") + "<th>＋</th>" + ("<th>その他</th>" if has_other else "")
     body = ""
     for r in rows:
