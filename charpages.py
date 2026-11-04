@@ -218,12 +218,13 @@ def _cell(x):
 def sub_table(rows):
     """イベントの表。選択肢ごとに1行。左＝選択肢名、中＝効果（＋）、右＝投手／野手などその他。選択肢が無いイベントは左の列を出さない"""
     has_name = any(r.get("選択肢") for r in rows)
-    head = ("<th></th>" if has_name else "") + "<th>＋</th><th>その他</th>"
+    has_other = any(r.get("投手") or r.get("野手") or r.get("その他") for r in rows)  # コツなどが無いイベントは「その他」列を出さない
+    head = ("<th></th>" if has_name else "") + "<th>＋</th>" + ("<th>その他</th>" if has_other else "")
     body = ""
     for r in rows:
         name = f'<th class="{"ok" if r.get("正解") else ""}">{"◎ " if r.get("正解") else ""}{e(r.get("選択肢", ""))}</th>' if has_name else ""
         eff = "".join(f"<div>{e(i)}</div>" for i in r.get("効果", []))
-        body += f"<tr>{name}<td>{eff}</td><td>{_cell(r)}</td></tr>"
+        body += f"<tr>{name}<td>{eff}</td>" + (f"<td>{_cell(r)}</td>" if has_other else "") + "</tr>"
     return f'<div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>'
 
 
@@ -244,8 +245,6 @@ def event_detail(ev):
                 t = paras(sub["詳細"]) + t if sub.get("行") else paras(sub["詳細"])
             elif not sub.get("行"):
                 t = '<p class="muted">準備中です。</p>'
-            if sub.get("折りたたむ"):
-                t = f'<details class="cp-fold"><summary>詳細を表示</summary>{t}</details>'
             inner += head + t
         eff = " / ".join(f"{lab}：{x[key]}" for key, lab in (("体力", "体力"), ("やる気", "やる気")) if x.get(key))
         if x.get("コツ"):
