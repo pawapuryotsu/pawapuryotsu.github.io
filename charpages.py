@@ -72,8 +72,9 @@ def traj_arrow(n):
             f'<path d="M-15 -5H2V-13L16 0L2 13V5H-15Z" fill="{color}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></g></svg>')
 
 
-def ability_tiles(d):
-    out = [f'<div class="cp-tiles" style="--n:{len(d)}">']
+def ability_tiles(d, chart=""):
+    """能力のマス。chart（変化球の図）があれば、同じ列の一番右に「変化球」のマスとして入れる"""
+    out = [f'<div class="cp-tiles{" cp-tiles-p" if chart else ""}" style="--n:{len(d)}">']
     for k, v in d.items():
         r = rank_of(k, v)
         if k == "弾道" and isinstance(v, int):
@@ -84,6 +85,8 @@ def ability_tiles(d):
             mid = ""
         unit = "<small>km/h</small>" if k == "球速" else ""
         out.append(f'<div class="at"><span class="lb">{e(k)}</span>{mid}<b class="nm">{e(str(v))}{unit}</b></div>')
+    if chart:
+        out.append(f'<div class="at at-chart"><span class="lb">変化球</span>{chart}</div>')
     out.append("</div>")
     return "".join(out)
 
@@ -142,12 +145,16 @@ def unique_mark(entry):
     return "(固有)" if entry.get("固有") is not None and not entry.get("SR") and not entry.get("PSR") else ""
 
 
-def item_rows(c):
-    """追加枠「○○」・キャラ持参アイテム「○○」（chars.json の「アイテム」）。同じ種類は1行にまとめる"""
-    by = {}
-    for it in c.get("アイテム") or []:
-        by.setdefault(it["種類"], []).append(it["名前"])
-    return "".join(f'<tr><th>{e(k)}</th><td><b>{e("、".join(v))}</b></td></tr>' for k, v in by.items())
+def item_text(c):
+    """アイテム追加枠：追加枠「○○」・キャラ持参アイテム「○○」の○○（chars.json の「アイテム」）。無ければ なし"""
+    names = [it["名前"] for it in c.get("アイテム") or []]
+    return "<br>".join(e(n) for n in names) or "なし"
+
+
+def reform_text(c):
+    """練習改革：ボーナスに「○○練習改革(△△)」があれば、その名前を出す。無ければ なし"""
+    names = [n for n, b in c["bonus"].items() if "練習改革" in n and (bonus_lines(b) or b.get("固有文字") or b.get("固有") is not None)]
+    return "<br>".join(e(n) for n in names) or "なし"
 
 
 def bonus_table(rows, extra=""):
@@ -294,7 +301,7 @@ def event_detail(ev):
             inner += "<ul class=cp-choices>" + "".join(
                 f'<li{" class=ok" if c.get("正解") else ""}>{"◎ " if c.get("正解") else ""}{e(c["文"])}'
                 + (f'<br><span class="muted">{e(c["結果"])}</span>' if c.get("結果") else "") + "</li>" for c in x["選択肢"]) + "</ul>"
-        parts.append(f"<h3>{e(k)}</h3>" + (inner or '<p class="muted">準備中です。</p>'))
+        parts.append(f'<h3>{e(k)}' + (f' <span class="cp-h3-side">{e(x["見出し横"])}</span>' if x.get("見出し横") else "") + "</h3>" + (inner or '<p class="muted">準備中です。</p>'))
     return "".join(parts)
 
 
@@ -428,23 +435,26 @@ def build_page(c, text, config, decks, kinds, root="../../"):
                     key=lambda nb: tap.index(nb[0]) if nb[0] in tap else len(tap))
     caps = [(n, bonus[n]) for n in config["基礎上限の項目"] if n in bonus and bonus_lines(bonus[n])]
     cap_txt = "<br>".join(f'{e(n.replace("アップ", ""))}：{e(bonus_lines(b)[0])}' for n, b in caps) or "なし"
+    awake_cap = any(b.get("覚醒") or b.get("覚醒PSR") for _, b in caps)  # 基礎上限に覚醒で付く分があるキャラだけ ※ を出す
     ev = {"後": "後", "前": "前"}.get(p.get("前後イベ"), p.get("前後イベ") or "不明")
     basic = (f'<table class="cp-basic"><tbody>'
              f'<tr><th>得意練習</th><td>{e(" / ".join(c["得意練習"]) or "なし")}</td></tr>'
              f'<tr><th>イベント前後</th><td>{e(ev)}</td></tr>'
-             f'<tr><th>基礎上限<sup>※</sup></th><td>{cap_txt}</td></tr>'
+             f'<tr><th>基礎上限{"<sup>※</sup>" if awake_cap else ""}</th><td>{cap_txt}</td></tr>'
              f'<tr><th>野手金特</th><td>{gold_text(c, "野手")}</td></tr>'
              f'<tr><th>投手金特</th><td>{gold_text(c, "投手")}</td></tr>'
              f'<tr><th>友情特殊能力</th><td>{friend_text(c)}</td></tr>'
+             f'<tr><th>練習改革</th><td>{reform_text(c)}</td></tr>'
+             f'<tr><th>アイテム追加枠</th><td>{item_text(c)}</td></tr>'
              f'</tbody></table>'
-             '<p class="cp-note">※ 覚醒で付く分も表記</p>')
-    imp = bonus_table(important, item_rows(c)) + (
+             + ('<p class="cp-note">※ 覚醒で付く分も表記</p>' if awake_cap else ""))
+    imp = bonus_table(important) + (
         f'<details class="cp-more"><summary>その他ボーナスはこちらをタップ</summary>{bonus_table(others)}</details>' if others else "")
     sub = "、".join(f"{k}{v}" for k, v in (p.get("サブポジ") or {}).items()) or "なし"
     ab = p.get("野手能力") or {}
     pab = p.get("投手能力") or {}
     ab_t = ability_tiles(ab) if ab else ""
-    pab_t = ("<h3>投手能力</h3>" + ability_tiles(pab) + pitch_chart(p)) if pab else ""
+    pab_t = ("<h3>投手能力</h3>" + ability_tiles(pab, pitch_chart(p))) if pab else ""
     sp = p.get("特殊能力") or {}
     def sp_block(title, lst, group):
         lst = [x for x in (lst or []) if not str(x).startswith("オリジナル")]  # オリジナルストレート・変化球は特殊能力ではない（球種欄に名前が出る）
