@@ -305,3 +305,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cl-name{display:flex;flex-direction:column;gap:2px;min-width:0}
 .cl-nick{font-size:12px;color:var(--muted,#777)}
 .cl-tag{position:absolute;right:10px;top:10px;font-size:12px;color:var(--muted,#777)}
+
+.cp-eff{margin:2px 0 4px;font-size:14px;font-weight:700}
+.cp-choices{margin:4px 0 8px;padding-left:18px}
+.cp-choices li.ok{font-weight:700}

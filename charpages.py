@@ -184,6 +184,48 @@ def paras(lst):
     return "".join(f"<p>{e(t)}</p>" for t in lst)
 
 
+def event_kinds(c, config, text, has_friend):
+    """そのキャラのページに並べるイベントの種類（分類ごと。config.json「イベント構成」）"""
+    kinds = list(config["イベント構成"].get(c.get("分類") or "選手", config["イベント構成"]["選手"]))
+    if has_friend and "友情イベント" not in kinds and (c.get("分類") or "選手") == "選手":
+        kinds.insert(kinds.index("共通イベント") + 1 if "共通イベント" in kinds else len(kinds), "友情イベント")
+    # エピローグ：彼女・選手彼女・相棒は必ずある。選手は、texts に「エピローグあり: true」と書いたキャラだけ（シートから読めないので手動）
+    if (c.get("分類") or "選手") == "選手" and text.get("エピローグあり") and "エピローグ" not in kinds:
+        kinds.append("エピローグ")
+    return kinds
+
+
+def events_of(text, kinds):
+    """texts の「イベント」（リスト）を種類ごとの辞書に。古い書き方（金特イベント等の段落リスト）も詳細として読む"""
+    ev = {k: {} for k in kinds}
+    for x in text.get("イベント", []):
+        if x.get("種類") in ev:
+            ev[x["種類"]] = x
+    for old in ("金特イベント", "共通イベント", "友情イベント", "自己紹介"):
+        if old in ev and not ev[old] and text.get(old):
+            ev[old] = {"種類": old, "詳細": text[old]}
+    return ev
+
+
+def event_detail(ev):
+    """イベント詳細。金特イベント・共通イベント・自己紹介など全部をここに並べる。選択肢は、正解に ◎ を付ける"""
+    parts = []
+    for k, x in ev.items():
+        inner = ""
+        eff = " / ".join(f"{lab}：{x[key]}" for key, lab in (("体力", "体力"), ("やる気", "やる気")) if x.get(key))
+        if x.get("コツ"):
+            eff += (" / " if eff else "") + "もらえるコツ：" + "、".join(x["コツ"])
+        if eff:
+            inner += f'<p class="cp-eff">{e(eff)}</p>'
+        if x.get("選択肢"):
+            inner += "<ul class=cp-choices>" + "".join(
+                f'<li{" class=ok" if c.get("正解") else ""}>{"◎ " if c.get("正解") else ""}{e(c["文"])}'
+                + (f'<br><span class="muted">{e(c["結果"])}</span>' if c.get("結果") else "") + "</li>" for c in x["選択肢"]) + "</ul>"
+        inner += paras(x.get("詳細", []))
+        parts.append(f"<h3>{e(k)}</h3>" + (inner or '<p class="muted">準備中です。</p>'))
+    return "".join(parts)
+
+
 def section(title, inner, empty="準備中です。"):
     return f'<section class="cp-sec"><h2>{e(title)}</h2>{inner or f"<p class=muted>{e(empty)}</p>"}</section>'
 
@@ -345,16 +387,14 @@ def build_page(c, text, config, decks, kinds, root="../../"):
                + sp_block("その他特殊能力", sp.get("その他"), "その他"))
     name = c["name"]
     friend_ev = text.get("友情イベント") if (c["金特"].get("友情", {}).get("野手") or c["金特"].get("友情", {}).get("投手")) else None
+    has_friend = bool(c["金特"].get("友情", {}).get("野手") or c["金特"].get("友情", {}).get("投手"))
+    ev = events_of(text, event_kinds(c, config, text, has_friend))
     parts = [
         section(f"{name}の基本情報", basic),
         section(f"{name}の重要ボーナス", imp),
-        section(f"{name}の金特イベント選択肢", paras(text.get("金特イベント", []))),
-        section(f"{name}の共通イベント", paras(text.get("共通イベント", []))),
+        section(f"{name}のイベント詳細", event_detail(ev)),
     ]
-    if c["金特"].get("友情", {}).get("野手") or c["金特"].get("友情", {}).get("投手"):
-        parts.append(section("友情イベント", paras(text.get("友情イベント", []))))
     parts += [
-        section(f"{name}の自己紹介", paras(text.get("自己紹介", []))),
         section(f"{name}の評価", paras(text.get("評価", []))),
         section(f"{name}の使用デッキ例", deck_examples(c["name"], decks, root), "このキャラを使ったデッキは準備中です。"),
         section(f"{name}の選手能力", ability),
