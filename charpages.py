@@ -442,7 +442,13 @@ def char_type(c, rules):
     def ok(conds):
         return all((max_value(c["bonus"].get(k, {})) or 0) >= v for k, v in conds.items())
     p, f = ok(rules["投手条件"]), ok(rules["野手条件"])
-    return "兼用" if p == f else ("投手用" if p else "野手用")
+    if p != f:
+        return "投手用" if p else "野手用"
+    # ボーナスで決まらない時は金特で分類（投手系だけ→投手用、野手系だけ→野手用、両方→兼用）
+    g = c.get("金特", {})
+    gp = any(x in (g.get("投手") or []) for x in rules.get("投手系の金特", []))
+    gf = any(x in (g.get("野手") or []) for x in rules.get("野手系の金特", []))
+    return "投手用" if gp and not gf else ("野手用" if gf and not gp else "兼用")
 
 
 def build_page(c, text, config, decks, kinds, root="../../"):
