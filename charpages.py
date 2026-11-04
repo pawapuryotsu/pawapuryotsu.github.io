@@ -142,12 +142,16 @@ def unique_mark(entry):
     return "(固有)" if entry.get("固有") is not None and not entry.get("SR") and not entry.get("PSR") else ""
 
 
-def item_rows(c):
-    """追加枠「○○」・キャラ持参アイテム「○○」（chars.json の「アイテム」）。同じ種類は1行にまとめる"""
-    by = {}
-    for it in c.get("アイテム") or []:
-        by.setdefault(it["種類"], []).append(it["名前"])
-    return "".join(f'<tr><th>{e(k)}</th><td><b>{e("、".join(v))}</b></td></tr>' for k, v in by.items())
+def item_text(c):
+    """アイテム追加枠：追加枠「○○」・キャラ持参アイテム「○○」の○○（chars.json の「アイテム」）。無ければ なし"""
+    names = [it["名前"] for it in c.get("アイテム") or []]
+    return "<br>".join(e(n) for n in names) or "なし"
+
+
+def reform_text(c):
+    """練習改革：ボーナスに「○○練習改革(△△)」があれば、その名前を出す。無ければ なし"""
+    names = [n for n, b in c["bonus"].items() if "練習改革" in n and (bonus_lines(b) or b.get("固有文字") or b.get("固有") is not None)]
+    return "<br>".join(e(n) for n in names) or "なし"
 
 
 def bonus_table(rows, extra=""):
@@ -436,9 +440,11 @@ def build_page(c, text, config, decks, kinds, root="../../"):
              f'<tr><th>野手金特</th><td>{gold_text(c, "野手")}</td></tr>'
              f'<tr><th>投手金特</th><td>{gold_text(c, "投手")}</td></tr>'
              f'<tr><th>友情特殊能力</th><td>{friend_text(c)}</td></tr>'
+             f'<tr><th>練習改革</th><td>{reform_text(c)}</td></tr>'
+             f'<tr><th>アイテム追加枠</th><td>{item_text(c)}</td></tr>'
              f'</tbody></table>'
              '<p class="cp-note">※ 覚醒で付く分も表記</p>')
-    imp = bonus_table(important, item_rows(c)) + (
+    imp = bonus_table(important) + (
         f'<details class="cp-more"><summary>その他ボーナスはこちらをタップ</summary>{bonus_table(others)}</details>' if others else "")
     sub = "、".join(f"{k}{v}" for k, v in (p.get("サブポジ") or {}).items()) or "なし"
     ab = p.get("野手能力") or {}
