@@ -24,6 +24,7 @@ table.bt{width:auto;min-width:min(100%,300px)}table.bt td,table.bt th{padding:4p
 #trout td .note{white-space:nowrap}#trout tr.detail .note,#trout tr.detail p{white-space:normal}
 .fld{margin:10px 0}.fld>label{display:block;margin-bottom:4px}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0}
+.row select{max-width:100%}
 label{font-size:13px;color:var(--sub)}
 input,select,button{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg)}
 button{cursor:pointer}button.primary{background:var(--acc);color:#fff;border-color:var(--acc)}
@@ -1471,7 +1472,7 @@ function showTheory() {
   const showPos = !isP, ncol = 6 + (showPos ? 1 : 0);
   if ($("trSort").value === "turns") rows.sort((a, b) => a.turns - b.turns || b.total - a.total);
   $("trout").innerHTML = `<div class="card"><h2>${label}【理論値】</h2><div class="note">キャラ名をタップすると、基礎能力と特殊能力の内訳が見られます。</div><table><tr><th>順位</th><th>キャラ</th><th class="tot">査定合計</th>${showPos ? "<th>守備</th>" : ""}<th>Lv</th><th>コスト<br><span class="note">白袋</span></th><th>特能<br>全取得</th></tr>` +
-    rows.map((x, i) => `<tr><td>${i + 1}</td><td class="tapname" data-i="${i}" style="cursor:pointer;text-decoration:underline dotted">${nameHtml(x.name)}${x.noPSR ? '<span class="note tag-nopsr">PSRなし</span>' : ""}${x.限定 ? '<span class="note tag-lim">※限定</span>' : ""}${x.sub ? `<span class="note tag-sub">※サブポジ${x.mark || "◎"}（メイン：${POSN[x.sub]}）</span>` : ""}${x.optimal ? "" : '<span class="note">（最大未確認）</span>'}</td><td class="tot">${fmt(x.total)}</td>${showPos ? `<td>${POSN[x.pos].charAt(0)}</td>` : ""}<td>${x.lv}</td><td>${x.cost ?? "-"}</td><td style="white-space:nowrap">${x.turns}ターン<span class="note tn"> 金${x.nG}・青${x.nB}</span></td></tr><tr class="detail" id="td${i}" hidden><td colspan="${ncol}"></td></tr>`).join("") + "</table></div>";
+    rows.map((x, i) => `<tr><td>${i + 1}</td><td class="tapname" data-i="${i}" style="cursor:pointer;text-decoration:underline dotted">${nameHtml(x.name)}${x.noPSR ? '<span class="note tag-nopsr">PSRなし</span>' : ""}${x.限定 ? '<span class="note tag-lim">※限定</span>' : ""}${x.sub ? `<span class="note tag-sub">※サブポジ${x.mark || "◎"}</span>` : ""}${x.optimal ? "" : '<span class="note">（最大未確認）</span>'}</td><td class="tot">${fmt(x.total)}</td>${showPos ? `<td>${POSN[x.pos].charAt(0)}</td>` : ""}<td>${x.lv}</td><td>${x.cost ?? "-"}</td><td style="white-space:nowrap">${x.turns}ターン<span class="note tn"> 金${x.nG}・青${x.nB}</span></td></tr><tr class="detail" id="td${i}" hidden><td colspan="${ncol}"></td></tr>`).join("") + "</table></div>";
   $("trout").querySelectorAll(".tapname").forEach((el) => (el.onclick = () => {
     const i = +el.dataset.i, tr = $("td" + i);
     if (tr.hidden) { if (!tr.firstChild.innerHTML) tr.firstChild.innerHTML = theoryDetail(rows[i]); tr.hidden = false; } else tr.hidden = true;
