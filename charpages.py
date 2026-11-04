@@ -142,7 +142,15 @@ def unique_mark(entry):
     return "(固有)" if entry.get("固有") is not None and not entry.get("SR") and not entry.get("PSR") else ""
 
 
-def bonus_table(rows):
+def item_rows(c):
+    """追加枠「○○」・キャラ持参アイテム「○○」（chars.json の「アイテム」）。同じ種類は1行にまとめる"""
+    by = {}
+    for it in c.get("アイテム") or []:
+        by.setdefault(it["種類"], []).append(it["名前"])
+    return "".join(f'<tr><th>{e(k)}</th><td><b>{e("、".join(v))}</b></td></tr>' for k, v in by.items())
+
+
+def bonus_table(rows, extra=""):
     out = ['<table class="cp-bonus"><tbody>']
     for name, entry in rows:
         r = bonus_lines(entry)
@@ -156,6 +164,7 @@ def bonus_table(rows):
         cell = f'<b>{e(head)}</b>{e(unique_mark(entry))}' + "".join(
             f'<span class="step">⇒{e(v)}<small>({e(l)})</small></span>' for v, l in steps)
         out.append(f"<tr><th>{e(name)}</th><td>{cell}</td></tr>")
+    out.append(extra)
     out.append("</tbody></table>")
     return "".join(out)
 
@@ -429,7 +438,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
              f'<tr><th>友情特殊能力</th><td>{friend_text(c)}</td></tr>'
              f'</tbody></table>'
              '<p class="cp-note">※ 覚醒で付く分も表記</p>')
-    imp = bonus_table(important) + (
+    imp = bonus_table(important, item_rows(c)) + (
         f'<details class="cp-more"><summary>その他ボーナスはこちらをタップ</summary>{bonus_table(others)}</details>' if others else "")
     sub = "、".join(f"{k}{v}" for k, v in (p.get("サブポジ") or {}).items()) or "なし"
     ab = p.get("野手能力") or {}
