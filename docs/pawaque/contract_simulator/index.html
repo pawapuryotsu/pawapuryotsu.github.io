@@ -3,14 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
 <title>パワクエ 契約書シミュレータ｜パワプロアプリ攻略ベース</title>
 <meta name="description" content="パワクエの契約書キャラを、コーチ育成で査定がいちばん高くなる状態で計算するシミュレータです。理論値ランキング、契約書どうしの比較、査定表、サブポジの査定にも対応。">
 <link rel="canonical" href="https://pawapuryotsu.com/pawaque/contract_simulator/">
 <meta property="og:title" content="パワクエ 契約書シミュレータ｜パワプロアプリ攻略ベース">
 <meta property="og:url" content="https://pawapuryotsu.com/pawaque/contract_simulator/">
 <style>
-:root{--bg:#f6f7f9;--fg:#1d2330;--sub:#5b6577;--card:#fff;--line:#dfe3ea;--acc:#1f6feb;--warn:#b54708;--ok:#067647}
-@media (prefers-color-scheme:dark){:root{--bg:#12151c;--fg:#e8ecf3;--sub:#9aa5b8;--card:#1b2029;--line:#2c3442;--acc:#6ea8ff;--warn:#f5a25d;--ok:#4ade80}}
+:root{color-scheme:light;--bg:#f6f7f9;--fg:#1d2330;--sub:#5b6577;--card:#fff;--line:#dfe3ea;--acc:#1f6feb;--warn:#b54708;--ok:#067647}
+
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,"Hiragino Sans","Noto Sans JP",sans-serif}
 main{max-width:980px;margin:0 auto;padding:16px}
 h1{font-size:20px;margin:8px 0 4px}h2{font-size:16px;margin:0 0 8px}
@@ -25,6 +26,9 @@ table.bt{width:auto;min-width:min(100%,300px)}table.bt td,table.bt th{padding:4p
 .fld{margin:10px 0}.fld>label{display:block;margin-bottom:4px}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0}
 .row select{max-width:100%}
+.trwrap{overflow-x:auto}
+@media (max-width:480px){.trwrap{margin:0 -10px}}
+@media (max-width:340px){.trtbl th,.trtbl td,.trtbl .nm,.trtbl .nk,#trout .trtbl td .note{font-size:11.5px}}
 label{font-size:13px;color:var(--sub)}
 input,select,button{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg)}
 button{cursor:pointer}button.primary{background:var(--acc);color:#fff;border-color:var(--acc)}
@@ -1471,8 +1475,8 @@ function showTheory() {
   rows.forEach((x) => (x.mode = mode));
   const showPos = !isP, ncol = 6 + (showPos ? 1 : 0);
   if ($("trSort").value === "turns") rows.sort((a, b) => a.turns - b.turns || b.total - a.total);
-  $("trout").innerHTML = `<div class="card"><h2>${label}【理論値】</h2><div class="note">キャラ名をタップすると、基礎能力と特殊能力の内訳が見られます。</div><table><tr><th>順位</th><th>キャラ</th><th class="tot">査定合計</th>${showPos ? "<th>守備</th>" : ""}<th>Lv</th><th>コスト<br><span class="note">白袋</span></th><th>特能<br>全取得</th></tr>` +
-    rows.map((x, i) => `<tr><td>${i + 1}</td><td class="tapname" data-i="${i}" style="cursor:pointer;text-decoration:underline dotted">${nameHtml(x.name)}${x.noPSR ? '<span class="note tag-nopsr">PSRなし</span>' : ""}${x.限定 ? '<span class="note tag-lim">※限定</span>' : ""}${x.sub ? `<span class="note tag-sub">※サブポジ${x.mark || "◎"}</span>` : ""}${x.optimal ? "" : '<span class="note">（最大未確認）</span>'}</td><td class="tot">${fmt(x.total)}</td>${showPos ? `<td>${POSN[x.pos].charAt(0)}</td>` : ""}<td>${x.lv}</td><td>${x.cost ?? "-"}</td><td style="white-space:nowrap">${x.turns}ターン<span class="note tn"> 金${x.nG}・青${x.nB}</span></td></tr><tr class="detail" id="td${i}" hidden><td colspan="${ncol}"></td></tr>`).join("") + "</table></div>";
+  $("trout").innerHTML = `<div class="card"><h2>${label}【理論値】</h2><div class="note">キャラ名をタップすると、基礎能力と特殊能力の内訳が見られます。</div><div class="trwrap"><table class="trtbl"><tr><th>順位</th><th>キャラ</th><th class="tot">査定合計</th>${showPos ? "<th>守備</th>" : ""}<th>Lv</th><th>コスト<br><span class="note">白袋</span></th><th>特能<br>全取得</th></tr>` +
+    rows.map((x, i) => `<tr><td>${i + 1}</td><td class="tapname" data-i="${i}" style="cursor:pointer;text-decoration:underline dotted">${nameHtml(x.name)}${x.noPSR ? '<span class="note tag-nopsr">PSRなし</span>' : ""}${x.限定 ? '<span class="note tag-lim">※限定</span>' : ""}${x.sub ? `<span class="note tag-sub">※サブポジ${x.mark || "◎"}</span>` : ""}${x.optimal ? "" : '<span class="note">（最大未確認）</span>'}</td><td class="tot">${fmt(x.total)}</td>${showPos ? `<td>${POSN[x.pos].charAt(0)}</td>` : ""}<td>${x.lv}</td><td>${x.cost ?? "-"}</td><td style="white-space:nowrap">${x.turns}ターン<span class="note tn"> 金${x.nG}・青${x.nB}</span></td></tr><tr class="detail" id="td${i}" hidden><td colspan="${ncol}"></td></tr>`).join("") + "</table></div></div>";
   $("trout").querySelectorAll(".tapname").forEach((el) => (el.onclick = () => {
     const i = +el.dataset.i, tr = $("td" + i);
     if (tr.hidden) { if (!tr.firstChild.innerHTML) tr.firstChild.innerHTML = theoryDetail(rows[i]); tr.hidden = false; } else tr.hidden = true;

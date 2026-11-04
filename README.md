@@ -70,6 +70,12 @@
 - 直し方の目安：スマホでは文字サイズを幅に合わせて小さくする（`clamp(12px, 3.6vw, 16px)` など）、折り返す場所は意味の切れ目（キャラ名の後など）にする（`display:inline-block` の `span` で区切る）、表は列の幅に上限を付ける（`max-width`）、横に長いものは `overflow-x:auto` の枠に入れる。
 - 確認のしかた：ブラウザ（Playwright）で幅320px・375px・1100pxのスクリーンショットを撮って見る。320pxだけを直すときは、幅320px以下のときだけ効く指定（`@media (max-width:340px)`）か、表の枠の中の横スクロールで直し、375pxの見た目を変えない（直す前後の375px・1100pxを撮って比べる）。
 
+## 全ページ共通：ダークモードでも白背景のまま（管理人の指示 2026-11-04）
+- スマホをダークモードにしても、サイトの背景は白（ライト）のままにする。背景が暗いと青文字が見づらいため。
+- 実装：`src/layout.html` に `<meta name="color-scheme" content="light">`、`src/assets/style.css` の `:root` に `color-scheme:light`。`@media (prefers-color-scheme: dark)` の指定は入れない（入れたら消す）。
+- 例外：Tier表メーカー（`/tier/`）は最初から黒背景のツールなのでそのまま。
+- 単独ページ（契約書シミュレータなど、pawa-data 側のテンプレートから作るページ）にも同じ指定を入れる。
+
 ## サクセス デッキ組み方（`src/pages/deckbuild-roman.html` / `deckbuild-andromeda.html`）
 - トップの「サクセス デッキ組み方」（デッキまとめの下、見出しのマーカーはオレンジ `mk orange`）から、学園ごとのページへ。
 - 内容がまだ無い部分は `<p class="wip"><b>準備中です。</b>…</p>` の表示。本文を書いたらこの行を置き換える。
