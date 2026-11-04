@@ -328,3 +328,9 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cp-tiles-p .lb{font-size:clamp(7px,1.9vw,12px);letter-spacing:-.04em}
 .cp-sec h3 .cp-h3-side{font-size:13px;font-weight:700;color:var(--text,#14233a);margin-left:8px}
 .cp-yomi{margin:4px 0 0;font-size:13px;color:var(--muted)}
+/* トップの最新情報欄（赤文字リンク。新キャラを足したら home.html の <ul class="news"> に1行足す） */
+.news{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.news a{color:#d6303a;font-weight:900;font-size:16px;text-decoration:underline;text-underline-offset:3px}
+.news a:hover{opacity:.75}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .news a{color:#ff7b82}}
+:root[data-theme="dark"] .news a{color:#ff7b82}
