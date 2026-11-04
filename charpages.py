@@ -532,7 +532,7 @@ def yomi_paren(c):
 
 def head_html(full, c):
     y = yomi_of(c)
-    return (f'<section class="phead"><p class="eyebrow">イベキャラ データ</p><h1>{e(full)}のデータ・イベントまとめ</h1>'
+    return (f'<section class="phead"><p class="eyebrow">イベキャラ データ</p><h1><span class="cp-h1">{e(full)}</span> <span class="cp-h1">データ・イベントまとめ</span></h1>'
             + (f'<p class="cp-yomi">読み：{e(y)}</p>' if y else "") + "</section>\n")
 
 

@@ -334,3 +334,4 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .news a:hover{opacity:.75}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .news a{color:#ff7b82}}
 :root[data-theme="dark"] .news a{color:#ff7b82}
+.cp-h1{display:inline-block}
