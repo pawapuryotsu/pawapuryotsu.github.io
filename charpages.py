@@ -449,7 +449,13 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     p = c.get("プロフィール", {})
     bonus = c["bonus"]
     ctype = char_type(c, config["種別の判定"])
-    _CTYPE[0] = ctype
+    # 並び順用の種別。兼用は config「兼用の並び順」に管理人の指示があればそれ（無ければ聞く）
+    order_type = ctype
+    if ctype == "兼用":
+        order_type = {"投手": "投手用", "野手": "野手用"}.get(config.get("兼用の並び順", {}).get(c["苗字"] + (c["名前"] or ""), ""), "兼用")
+        if order_type == "兼用":
+            print(f"警告: {c['苗字']}{c['名前'] or ''} は兼用判定です。【野手】【投手】の並びを管理人に確認して config.json の「兼用の並び順」に書いてください")
+    _CTYPE[0] = order_type
     top_names, tap = config["重要ボーナス"][ctype], config["タップ欄のボーナス"][ctype]
     important = [(n, bonus[n]) for n in top_names if n in bonus and (bonus_lines(bonus[n]) or bonus[n].get("固有文字"))]
     unknown = [n for n in bonus if n not in top_names and n not in tap]
@@ -465,8 +471,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
              f'<tr><th>得意練習</th><td>{e(" / ".join(c["得意練習"]) or "なし")}</td></tr>'
              f'<tr><th>イベント前後</th><td>{e(ev)}</td></tr>'
              f'<tr><th>基礎上限{"<sup>※</sup>" if awake_cap else ""}</th><td>{cap_txt}</td></tr>'
-             f'<tr><th>野手金特</th><td>{gold_text(c, "野手")}</td></tr>'
-             f'<tr><th>投手金特</th><td>{gold_text(c, "投手")}</td></tr>'
+             + "".join(f'<tr><th>{k}金特</th><td>{gold_text(c, k)}</td></tr>' for k in (("投手", "野手") if order_type == "投手用" else ("野手", "投手"))) +
              f'<tr><th>友情特殊能力</th><td>{friend_text(c)}</td></tr>'
              f'<tr><th>練習改革</th><td>{reform_text(c)}</td></tr>'
              f'<tr><th>アイテム追加枠</th><td>{item_text(c)}</td></tr>'
