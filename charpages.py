@@ -72,8 +72,9 @@ def traj_arrow(n):
             f'<path d="M-15 -5H2V-13L16 0L2 13V5H-15Z" fill="{color}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></g></svg>')
 
 
-def ability_tiles(d):
-    out = [f'<div class="cp-tiles" style="--n:{len(d)}">']
+def ability_tiles(d, chart=""):
+    """能力のマス。chart（変化球の図）があれば、同じ列の一番右に「変化球」のマスとして入れる"""
+    out = [f'<div class="cp-tiles{" cp-tiles-p" if chart else ""}" style="--n:{len(d)}">']
     for k, v in d.items():
         r = rank_of(k, v)
         if k == "弾道" and isinstance(v, int):
@@ -84,6 +85,8 @@ def ability_tiles(d):
             mid = ""
         unit = "<small>km/h</small>" if k == "球速" else ""
         out.append(f'<div class="at"><span class="lb">{e(k)}</span>{mid}<b class="nm">{e(str(v))}{unit}</b></div>')
+    if chart:
+        out.append(f'<div class="at at-chart"><span class="lb">変化球</span>{chart}</div>')
     out.append("</div>")
     return "".join(out)
 
@@ -451,7 +454,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     ab = p.get("野手能力") or {}
     pab = p.get("投手能力") or {}
     ab_t = ability_tiles(ab) if ab else ""
-    pab_t = ("<h3>投手能力</h3>" + ability_tiles(pab) + pitch_chart(p)) if pab else ""
+    pab_t = ("<h3>投手能力</h3>" + ability_tiles(pab, pitch_chart(p))) if pab else ""
     sp = p.get("特殊能力") or {}
     def sp_block(title, lst, group):
         lst = [x for x in (lst or []) if not str(x).startswith("オリジナル")]  # オリジナルストレート・変化球は特殊能力ではない（球種欄に名前が出る）

@@ -321,3 +321,8 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cp-cont{color:#1565c0;font-weight:700}
 .cp-end{color:#c62828;font-weight:700}
 .cp-kotsu-gold{color:#1565c0;font-weight:900}
+.cp-tiles-p{grid-auto-flow:row;grid-template-columns:repeat(3,minmax(0,1fr)) minmax(0,3.2fr)}
+.cp-tiles-p .at{justify-content:center}
+.cp-tiles-p .at-chart{padding:clamp(2px,1vw,5px) 2px}
+.cp-tiles-p .at-chart .pchart{width:100%;height:auto;background:#eef2fb;border-radius:6px}
+.cp-tiles-p .lb{font-size:clamp(7px,1.9vw,12px);letter-spacing:-.04em}
