@@ -386,22 +386,59 @@ def generate(chars_path, src, decks, noindex=True):
         body = (f'<section class="phead"><p class="eyebrow">イベキャラ データ</p><h1>{e(full)}のデータ・イベントまとめ</h1></section>\n'
                 + build_page(c, text, config, decks, kinds))
         pages.append(f"<!--\n{meta}-->\n{body}")
+    # データ未入力のキャラ（名前と読みだけ決まっている）。ページは「準備中」で、検索には出さない
+    for pid, st in config.get("準備中のキャラ", {}).items():
+        if not re.fullmatch(r"\d{4}", pid) or pid in config["公開するキャラ"]:
+            raise SystemExit(f"準備中のキャラの番号が不正か重複しています: {pid}")
+        full = f'{st.get("二つ名") and "[" + st["二つ名"] + "]" or ""}{st["苗字"]}{st.get("名前") or ""}'
+        c = {"二つ名": st.get("二つ名") or "", "苗字": st["苗字"], "名前": st.get("名前") or "", "読み": st.get("読み"), "二つ名読み": st.get("二つ名読み") or "", "_準備中": True}
+        items.append((pid, c, full))
+        meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
+                f"description: パワプロアプリのイベキャラ {full} のページです。データは準備中です。\n"
+                f"path: chars/{pid}/\nnav: none\nnoindex: yes\n")
+        body = (f'<section class="phead"><p class="eyebrow">イベキャラ データ</p><h1>{e(full)}のデータ・イベントまとめ</h1></section>\n'
+                + stub_body(full, st))
+        pages.append(f"<!--\n{meta}-->\n{body}")
+    items.sort(key=lambda t: t[0])
     pages.append(index_page(items, config, noindex))
     return pages
+
+
+def stub_body(full, st):
+    """データ未入力キャラのページ本文。分かっている項目だけ出し、不明な所は「準備中」"""
+    def pats(lst):
+        return "<br>".join(f"パターン{i + 1}：{e(x)}" for i, x in enumerate(lst)) if lst else "準備中"
+    rows = [("得意練習", e(" / ".join(st["得意練習"])) if st.get("得意練習") else "準備中"),
+            ("イベント前後", e(st.get("前後イベ") or "準備中")),
+            ("野手金特", pats(st.get("金特野手"))),
+            ("投手金特", pats(st.get("金特投手")))]
+    basic = '<table class="cp-basic"><tbody>' + "".join(f"<tr><th>{k}</th><td>{v}</td></tr>" for k, v in rows) + "</tbody></table>"
+    if st.get("金特野手") or st.get("金特投手"):
+        basic += '<p class="cp-note">※ 金特のパターンは判明分のみ。他にもある可能性があります。</p>'
+    bl = st.get("ボーナス一部") or []
+    bon = ('<table class="cp-basic"><tbody>' + "".join(f"<tr><th>{e(k)}</th><td>{e(v)}</td></tr>" for k, v in bl) + "</tbody></table>"
+           '<p class="cp-note">※ 判明している一部のみ。その他は準備中です。</p>') if bl else ""
+    return (section(f"{full}の基本情報", basic)
+            + section(f"{full}の重要ボーナス", bon)
+            + section(f"{full}の金特イベント選択肢", "")
+            + section(f"{full}の共通イベント", "")
+            + section(f"{full}の自己紹介", "")
+            + section(f"{full}の評価", "")
+            + section(f"{full}の選手能力", ""))
 
 
 def index_page(items, config, noindex):
     """イベキャラ一覧（/chars/）。検索つき。本文は静的HTML（検索は表示を絞るだけ）"""
     lis = []
     for pid, c, full in items:
-        kind = char_type(c, config["種別の判定"])
+        kind = "準備中" if c.get("_準備中") else char_type(c, config["種別の判定"])
         yomi = c.get("二つ名読み") or ""
         yomi = " ".join(yomi) if isinstance(yomi, list) else yomi
         key = " ".join(x for x in (full, c.get("読み"), yomi, c.get("苗字"), c.get("名前")) if x)
         lis.append(f'<li class="cl-item" data-k="{e(key)}" data-t="{e(kind)}"><a href="{pid}/">'
                    f'<span class="cl-nick">{e(c["二つ名"] or "")}</span><b>{e(c["苗字"])}{e(c["名前"] or "")}</b>'
                    f'<span class="cl-tag">{e(kind)}</span></a></li>')
-    kinds_ = sorted({char_type(c, config["種別の判定"]) for _, c, _ in items}) if items else []
+    kinds_ = sorted({char_type(c, config["種別の判定"]) for _, c, _ in items if not c.get("_準備中")}) if items else []
     chips = "".join(f'<button type="button" class="cl-chip" data-t="{e(k)}">{e(k)}</button>' for k in kinds_)
     meta = ("title: イベキャラ一覧｜パワプロアプリ攻略ベース\n"
             "description: パワプロアプリのイベキャラのボーナス・金特・イベントをまとめたページの一覧です。名前や読みで検索できます。\n"
