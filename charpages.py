@@ -432,18 +432,19 @@ def build_page(c, text, config, decks, kinds, root="../../"):
                     key=lambda nb: tap.index(nb[0]) if nb[0] in tap else len(tap))
     caps = [(n, bonus[n]) for n in config["基礎上限の項目"] if n in bonus and bonus_lines(bonus[n])]
     cap_txt = "<br>".join(f'{e(n.replace("アップ", ""))}：{e(bonus_lines(b)[0])}' for n, b in caps) or "なし"
+    awake_cap = any(b.get("覚醒") or b.get("覚醒PSR") for _, b in caps)  # 基礎上限に覚醒で付く分があるキャラだけ ※ を出す
     ev = {"後": "後", "前": "前"}.get(p.get("前後イベ"), p.get("前後イベ") or "不明")
     basic = (f'<table class="cp-basic"><tbody>'
              f'<tr><th>得意練習</th><td>{e(" / ".join(c["得意練習"]) or "なし")}</td></tr>'
              f'<tr><th>イベント前後</th><td>{e(ev)}</td></tr>'
-             f'<tr><th>基礎上限<sup>※</sup></th><td>{cap_txt}</td></tr>'
+             f'<tr><th>基礎上限{"<sup>※</sup>" if awake_cap else ""}</th><td>{cap_txt}</td></tr>'
              f'<tr><th>野手金特</th><td>{gold_text(c, "野手")}</td></tr>'
              f'<tr><th>投手金特</th><td>{gold_text(c, "投手")}</td></tr>'
              f'<tr><th>友情特殊能力</th><td>{friend_text(c)}</td></tr>'
              f'<tr><th>練習改革</th><td>{reform_text(c)}</td></tr>'
              f'<tr><th>アイテム追加枠</th><td>{item_text(c)}</td></tr>'
              f'</tbody></table>'
-             '<p class="cp-note">※ 覚醒で付く分も表記</p>')
+             + ('<p class="cp-note">※ 覚醒で付く分も表記</p>' if awake_cap else ""))
     imp = bonus_table(important) + (
         f'<details class="cp-more"><summary>その他ボーナスはこちらをタップ</summary>{bonus_table(others)}</details>' if others else "")
     sub = "、".join(f"{k}{v}" for k, v in (p.get("サブポジ") or {}).items()) or "なし"
