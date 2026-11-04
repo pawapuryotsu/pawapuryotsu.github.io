@@ -397,11 +397,34 @@ def generate(chars_path, src, decks, noindex=True):
                 f"description: パワプロアプリのイベキャラ {full} のページです。データは準備中です。\n"
                 f"path: chars/{pid}/\nnav: none\nnoindex: yes\n")
         body = (f'<section class="phead"><p class="eyebrow">イベキャラ データ</p><h1>{e(full)}のデータ・イベントまとめ</h1></section>\n'
-                '<section class="sec"><p>データは準備中です。ゲームに実装され次第、ボーナス・金特・イベントを掲載します。</p></section>')
+                + stub_body(full, st))
         pages.append(f"<!--\n{meta}-->\n{body}")
     items.sort(key=lambda t: t[0])
     pages.append(index_page(items, config, noindex))
     return pages
+
+
+def stub_body(full, st):
+    """データ未入力キャラのページ本文。分かっている項目だけ出し、不明な所は「準備中」"""
+    def pats(lst):
+        return "<br>".join(f"パターン{i + 1}：{e(x)}" for i, x in enumerate(lst)) if lst else "準備中"
+    rows = [("得意練習", e(" / ".join(st["得意練習"])) if st.get("得意練習") else "準備中"),
+            ("イベント前後", e(st.get("前後イベ") or "準備中")),
+            ("野手金特", pats(st.get("金特野手"))),
+            ("投手金特", pats(st.get("金特投手")))]
+    basic = '<table class="cp-basic"><tbody>' + "".join(f"<tr><th>{k}</th><td>{v}</td></tr>" for k, v in rows) + "</tbody></table>"
+    if st.get("金特野手") or st.get("金特投手"):
+        basic += '<p class="cp-note">※ 金特のパターンは判明分のみ。他にもある可能性があります。</p>'
+    bl = st.get("ボーナス一部") or []
+    bon = ('<table class="cp-basic"><tbody>' + "".join(f"<tr><th>{e(k)}</th><td>{e(v)}</td></tr>" for k, v in bl) + "</tbody></table>"
+           '<p class="cp-note">※ 判明している一部のみ。その他は準備中です。</p>') if bl else ""
+    return (section(f"{full}の基本情報", basic)
+            + section(f"{full}の重要ボーナス", bon)
+            + section(f"{full}の金特イベント選択肢", "")
+            + section(f"{full}の共通イベント", "")
+            + section(f"{full}の自己紹介", "")
+            + section(f"{full}の評価", "")
+            + section(f"{full}の選手能力", ""))
 
 
 def index_page(items, config, noindex):
