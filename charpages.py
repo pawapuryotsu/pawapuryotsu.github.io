@@ -146,6 +146,10 @@ def bonus_table(rows):
     out = ['<table class="cp-bonus"><tbody>']
     for name, entry in rows:
         r = bonus_lines(entry)
+        if not r and entry.get("固有文字"):  # 固有の値がゲーム内で分からない項目（得意練習率アップα）は文字のまま出す
+            r = (f'{entry["固有文字"]}', [])
+            out.append(f'<tr><th>{e(name)}</th><td><b>{e(r[0])}</b>(固有)</td></tr>')
+            continue
         if not r:
             continue
         head, steps = r
@@ -302,11 +306,11 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     bonus = c["bonus"]
     ctype = char_type(c, config["種別の判定"])
     top_names, tap = config["重要ボーナス"][ctype], config["タップ欄のボーナス"][ctype]
-    important = [(n, bonus[n]) for n in top_names if n in bonus and bonus_lines(bonus[n])]
+    important = [(n, bonus[n]) for n in top_names if n in bonus and (bonus_lines(bonus[n]) or bonus[n].get("固有文字"))]
     unknown = [n for n in bonus if n not in top_names and n not in tap]
     if unknown:
         print(f"【警告】{c['name']}：config.json にないボーナス {unknown}（タップ欄の一番下に出します）")
-    others = sorted(((n, b) for n, b in bonus.items() if n not in top_names and bonus_lines(b)),
+    others = sorted(((n, b) for n, b in bonus.items() if n not in top_names and (bonus_lines(b) or b.get("固有文字"))),
                     key=lambda nb: tap.index(nb[0]) if nb[0] in tap else len(tap))
     caps = [(n, bonus[n]) for n in config["基礎上限の項目"] if n in bonus and bonus_lines(bonus[n])]
     cap_txt = "<br>".join(f'{e(n.replace("アップ", ""))}：{e(bonus_lines(b)[0])}' for n, b in caps) or "なし"
