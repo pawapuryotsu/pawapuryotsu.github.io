@@ -368,6 +368,7 @@ def generate(chars_path, src, decks, noindex=True):
     kinds = json.loads((src / "chars" / "skill_kinds.json").read_text(encoding="utf-8"))  # 特殊能力の種類（青・金・赤・緑・虹）。pawa-data の skills.json から作る
     chars = {c["name"]: c for c in json.loads(Path(chars_path).read_text(encoding="utf-8"))}
     pages, items = [], []
+    pub = set(config.get("検索に出すページ", []))   # ここに書いた番号のページだけ検索に出す（サイトマップにも入る）
     for pid, name in config["公開するキャラ"].items():
         if not re.fullmatch(r"\d{4}", pid):
             raise SystemExit(f"ページ番号は4桁の数字にしてください: {pid}")
@@ -382,7 +383,7 @@ def generate(chars_path, src, decks, noindex=True):
         items.append((pid, c, full))
         meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
                 f"description: パワプロアプリ（サクセス・パワクエ共通）のイベキャラ {full} のボーナス、金特、イベント選択肢、選手能力をまとめています。\n"
-                f"path: {path}\nnav: none\n" + ("noindex: yes\n" if noindex else ""))
+                f"path: {path}\nnav: none\n" + ("noindex: yes\n" if noindex and pid not in pub else ""))
         body = (f'<section class="phead"><p class="eyebrow">イベキャラ データ</p><h1>{e(full)}のデータ・イベントまとめ</h1></section>\n'
                 + build_page(c, text, config, decks, kinds))
         pages.append(f"<!--\n{meta}-->\n{body}")
@@ -395,12 +396,12 @@ def generate(chars_path, src, decks, noindex=True):
         items.append((pid, c, full))
         meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
                 f"description: パワプロアプリのイベキャラ {full} のページです。データは準備中です。\n"
-                f"path: chars/{pid}/\nnav: none\nnoindex: yes\n")
+                f"path: chars/{pid}/\nnav: none\n" + ("" if pid in pub else "noindex: yes\n"))
         body = (f'<section class="phead"><p class="eyebrow">イベキャラ データ</p><h1>{e(full)}のデータ・イベントまとめ</h1></section>\n'
                 + stub_body(full, st))
         pages.append(f"<!--\n{meta}-->\n{body}")
     items.sort(key=lambda t: t[0])
-    pages.append(index_page(items, config, noindex))
+    pages.append(index_page(items, config, noindex and not pub))
     return pages
 
 
