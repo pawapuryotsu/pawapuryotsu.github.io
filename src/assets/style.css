@@ -306,9 +306,6 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cl-nick{font-size:12px;color:var(--muted,#777)}
 .cl-tag{position:absolute;right:10px;top:10px;font-size:12px;color:var(--muted,#777)}
 
-.cp-scroll{overflow-x:auto}
-.cp-evsum{width:100%;border-collapse:collapse;font-size:14px}
-.cp-evsum th,.cp-evsum td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
-.cp-evsum thead th{background:var(--surface-2,#f3f3f3);white-space:nowrap}
+.cp-eff{margin:2px 0 4px;font-size:14px;font-weight:700}
 .cp-choices{margin:4px 0 8px;padding-left:18px}
 .cp-choices li.ok{font-weight:700}

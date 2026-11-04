@@ -207,36 +207,23 @@ def events_of(text, kinds):
     return ev
 
 
-def event_summary(ev):
-    """イベント簡易まとめ。体力・やる気・コツ・正解の選択肢を、入力された分だけ表にする"""
-    rows = []
-    for k, x in ev.items():
-        if k == "自己紹介":
-            continue
-        rec = " / ".join(f"{lab}：{x[key]}" for key, lab in (("体力", "体力"), ("やる気", "やる気")) if x.get(key))
-        tips = "、".join(x.get("コツ") or [])
-        ans = "<br>".join(e(c["文"]) for c in x.get("選択肢", []) if c.get("正解")) if x.get("選択肢") else ""
-        if not (rec or tips or ans):
-            continue
-        rows.append(f'<tr><th>{e(k)}</th><td>{e(rec) or "―"}</td><td>{e(tips) or "―"}</td><td>{ans or "―"}</td></tr>')
-    if not rows:
-        return ""
-    return ('<div class="cp-scroll"><table class="cp-evsum"><thead><tr><th>イベント</th><th>回復</th><th>もらえるコツ</th><th>正解の選択肢</th></tr></thead><tbody>'
-            + "".join(rows) + "</tbody></table></div>")
-
-
 def event_detail(ev):
-    """イベント詳細（タップで開く）。選択肢は、正解に ◎ を付けて並べる"""
+    """イベント詳細。金特イベント・共通イベント・自己紹介など全部をここに並べる。選択肢は、正解に ◎ を付ける"""
     parts = []
     for k, x in ev.items():
         inner = ""
+        eff = " / ".join(f"{lab}：{x[key]}" for key, lab in (("体力", "体力"), ("やる気", "やる気")) if x.get(key))
+        if x.get("コツ"):
+            eff += (" / " if eff else "") + "もらえるコツ：" + "、".join(x["コツ"])
+        if eff:
+            inner += f'<p class="cp-eff">{e(eff)}</p>'
         if x.get("選択肢"):
             inner += "<ul class=cp-choices>" + "".join(
                 f'<li{" class=ok" if c.get("正解") else ""}>{"◎ " if c.get("正解") else ""}{e(c["文"])}'
                 + (f'<br><span class="muted">{e(c["結果"])}</span>' if c.get("結果") else "") + "</li>" for c in x["選択肢"]) + "</ul>"
         inner += paras(x.get("詳細", []))
         parts.append(f"<h3>{e(k)}</h3>" + (inner or '<p class="muted">準備中です。</p>'))
-    return '<details class="cp-more"><summary>詳細はこちらをタップ</summary>' + "".join(parts) + "</details>"
+    return "".join(parts)
 
 
 def section(title, inner, empty="準備中です。"):
@@ -405,7 +392,6 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     parts = [
         section(f"{name}の基本情報", basic),
         section(f"{name}の重要ボーナス", imp),
-        section(f"{name}のイベント簡易まとめ", event_summary(ev)),
         section(f"{name}のイベント詳細", event_detail(ev)),
     ]
     parts += [
