@@ -501,6 +501,28 @@ def find_icon(chars_path, c, pid):
     return False
 
 
+def yomi_of(c):
+    """読み（ひらがな）。二つ名があれば [にじゅうめい]よみ の形。無ければ空文字"""
+    y = c.get("読み") or ""
+    if not y:
+        return ""
+    nick = c.get("二つ名読み") or ""
+    if isinstance(nick, list):
+        nick = "".join(nick)
+    return (f"[{nick}]" if nick else "") + y
+
+
+def yomi_paren(c):
+    y = yomi_of(c)
+    return f"（{y}）" if y else ""
+
+
+def head_html(full, c):
+    y = yomi_of(c)
+    return (f'<section class="phead"><p class="eyebrow">イベキャラ データ</p><h1>{e(full)}のデータ・イベントまとめ</h1>'
+            + (f'<p class="cp-yomi">読み：{e(y)}</p>' if y else "") + "</section>\n")
+
+
 def generate(chars_path, src, decks, noindex=True):
     config = json.loads((src / "chars" / "config.json").read_text(encoding="utf-8"))
     kinds = json.loads((src / "chars" / "skill_kinds.json").read_text(encoding="utf-8"))  # 特殊能力の種類（青・金・赤・緑・虹）。pawa-data の skills.json から作る
@@ -521,9 +543,9 @@ def generate(chars_path, src, decks, noindex=True):
         c = dict(c, _icon=find_icon(chars_path, c, pid))
         items.append((pid, c, full))
         meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
-                f"description: パワプロアプリ（サクセス・パワクエ共通）のイベキャラ {full} のボーナス、金特、イベント選択肢、選手能力をまとめています。\n"
+                f"description: パワプロアプリ（サクセス・パワクエ共通）のイベキャラ {full}{yomi_paren(c)} のボーナス、金特、イベント選択肢、選手能力をまとめています。\n"
                 f"path: {path}\nnav: none\n" + ("noindex: yes\n" if noindex and pid not in pub else ""))
-        body = (f'<section class="phead"><p class="eyebrow">イベキャラ データ</p><h1>{e(full)}のデータ・イベントまとめ</h1></section>\n'
+        body = (head_html(full, c)
                 + build_page(c, text, config, decks, kinds))
         pages.append(f"<!--\n{meta}-->\n{body}")
     # データ未入力のキャラ（名前と読みだけ決まっている）。ページは「準備中」で、検索には出さない
@@ -535,9 +557,9 @@ def generate(chars_path, src, decks, noindex=True):
         c["_icon"] = find_icon(chars_path, c, pid)
         items.append((pid, c, full))
         meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
-                f"description: パワプロアプリのイベキャラ {full} のページです。データは準備中です。\n"
+                f"description: パワプロアプリのイベキャラ {full}{yomi_paren(c)} のページです。データは準備中です。\n"
                 f"path: chars/{pid}/\nnav: none\n" + ("" if pid in pub else "noindex: yes\n"))
-        body = (f'<section class="phead"><p class="eyebrow">イベキャラ データ</p><h1>{e(full)}のデータ・イベントまとめ</h1></section>\n'
+        body = (head_html(full, c)
                 + stub_body(full, st))
         pages.append(f"<!--\n{meta}-->\n{body}")
     items.sort(key=lambda t: t[0])
