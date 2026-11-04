@@ -341,3 +341,8 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .news li{padding-left:12px;padding-right:12px}
 .cl-notice{margin:12px 0 0;padding:10px 12px;font-size:13px;line-height:1.7;background:var(--surface);border:1px solid var(--line);border-left:4px solid #d6303a;border-radius:4px;text-wrap:pretty}
 .cl-notice span{display:inline-block}
+.cp-tbl td>div{white-space:nowrap}
+.cp-tbl .cp-cont,.cp-tbl .cp-end{white-space:nowrap}
+.cp-tbl th,.cp-tbl td{overflow-wrap:break-word}
+@media (max-width:480px){.cp-tbl{font-size:12px}.cp-tbl th,.cp-tbl td{padding:4px 5px}}
+.cp-tbl td>div.cp-kotsu{white-space:normal;word-break:keep-all;overflow-wrap:normal}

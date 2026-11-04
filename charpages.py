@@ -245,7 +245,10 @@ def _is_gold_kotsu(item):
 
 
 def _item(i):
-    return f'<div class="cp-kotsu-gold">{e(i)}</div>' if _is_gold_kotsu(i) else f"<div>{e(i)}</div>"
+    """「○○コツLv3」は、狭い幅では能力名とコツLvの間でだけ折り返す（<wbr>）"""
+    t = e(i).replace("コツLv", "<wbr>コツLv")
+    cls = "cp-kotsu cp-kotsu-gold" if _is_gold_kotsu(i) else ("cp-kotsu" if "コツLv" in i else "")
+    return f'<div class="{cls}">{t}</div>' if cls else f"<div>{t}</div>"
 
 
 def _choice_name(t):
@@ -258,13 +261,20 @@ def _choice_name(t):
 
 
 _CELL_ORDER = ("三塁手", "その他野手", "投手", "野手")
+# 【野手】【投手】の並び順はキャラの種別で固定（野手用＝野手が上、投手用＝投手が上。兼用は管理人に確認）
+_CELL_ORDER_BY_TYPE = {
+    "野手用": ("三塁手", "その他野手", "野手", "投手"),
+    "投手用": ("投手", "三塁手", "その他野手", "野手"),
+}
+_CTYPE = [None]
 _CELL_SKIP = ("選択肢", "効果", "正解", "その他")
 
 
 def _cell(x):
     """1行ぶんの「その他」欄。【投手】【野手】【三塁手】など見出しごとの項目と、見出し無しのその他を縦に並べる"""
     out = ""
-    labs = [k for k in _CELL_ORDER if k in x] + [k for k in x if k not in _CELL_ORDER and k not in _CELL_SKIP]
+    order = _CELL_ORDER_BY_TYPE.get(_CTYPE[0], _CELL_ORDER)
+    labs = [k for k in order if k in x] + [k for k in x if k not in order and k not in _CELL_SKIP]
     for lab in labs:
         if x.get(lab):
             out += f'<div class="cp-t-lab">【{lab}】</div>' + "".join(_item(i) for i in x[lab])
@@ -432,13 +442,26 @@ def char_type(c, rules):
     def ok(conds):
         return all((max_value(c["bonus"].get(k, {})) or 0) >= v for k, v in conds.items())
     p, f = ok(rules["投手条件"]), ok(rules["野手条件"])
-    return "兼用" if p == f else ("投手用" if p else "野手用")
+    if p != f:
+        return "投手用" if p else "野手用"
+    # ボーナスで決まらない時は金特で分類（投手系だけ→投手用、野手系だけ→野手用、両方→兼用）
+    g = c.get("金特", {})
+    gp = any(x in (g.get("投手") or []) for x in rules.get("投手系の金特", []))
+    gf = any(x in (g.get("野手") or []) for x in rules.get("野手系の金特", []))
+    return "投手用" if gp and not gf else ("野手用" if gf and not gp else "兼用")
 
 
 def build_page(c, text, config, decks, kinds, root="../../"):
     p = c.get("プロフィール", {})
     bonus = c["bonus"]
     ctype = char_type(c, config["種別の判定"])
+    # 並び順用の種別。兼用は config「兼用の並び順」に管理人の指示があればそれ（無ければ聞く）
+    order_type = ctype
+    if ctype == "兼用":
+        order_type = {"投手": "投手用", "野手": "野手用"}.get(config.get("兼用の並び順", {}).get(c["苗字"] + (c["名前"] or ""), ""), "兼用")
+        if order_type == "兼用":
+            print(f"警告: {c['苗字']}{c['名前'] or ''} は兼用判定です。【野手】【投手】の並びを管理人に確認して config.json の「兼用の並び順」に書いてください")
+    _CTYPE[0] = order_type
     top_names, tap = config["重要ボーナス"][ctype], config["タップ欄のボーナス"][ctype]
     important = [(n, bonus[n]) for n in top_names if n in bonus and (bonus_lines(bonus[n]) or bonus[n].get("固有文字"))]
     unknown = [n for n in bonus if n not in top_names and n not in tap]
@@ -454,8 +477,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
              f'<tr><th>得意練習</th><td>{e(" / ".join(c["得意練習"]) or "なし")}</td></tr>'
              f'<tr><th>イベント前後</th><td>{e(ev)}</td></tr>'
              f'<tr><th>基礎上限{"<sup>※</sup>" if awake_cap else ""}</th><td>{cap_txt}</td></tr>'
-             f'<tr><th>野手金特</th><td>{gold_text(c, "野手")}</td></tr>'
-             f'<tr><th>投手金特</th><td>{gold_text(c, "投手")}</td></tr>'
+             + "".join(f'<tr><th>{k}金特</th><td>{gold_text(c, k)}</td></tr>' for k in (("投手", "野手") if order_type == "投手用" else ("野手", "投手"))) +
              f'<tr><th>友情特殊能力</th><td>{friend_text(c)}</td></tr>'
              f'<tr><th>練習改革</th><td>{reform_text(c)}</td></tr>'
              f'<tr><th>アイテム追加枠</th><td>{item_text(c)}</td></tr>'
