@@ -628,6 +628,9 @@ def stub_body(full, st):
 def index_page(items, config, noindex):
     """イベキャラ一覧（/chars/）。検索つき。本文は静的HTML（検索は表示を絞るだけ）"""
     lis = []
+    # 実装日（入力シート「キャラ管理」D列）が新しい順＝左上が最新。実装日が空のキャラは最後（同じ日は番号が新しい方が先）
+    items = sorted(items, key=lambda t: (t[1].get("実装日") or "", t[0]), reverse=True)
+    items = [t for t in items if t[1].get("実装日")] + [t for t in items if not t[1].get("実装日")]
     for pid, c, full in items:
         kind = "準備中" if c.get("_準備中") else char_type(c, config["種別の判定"])
         yomi = c.get("二つ名読み") or ""
