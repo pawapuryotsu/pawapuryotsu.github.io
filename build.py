@@ -127,6 +127,9 @@ layout = (src / "layout.html").read_text(encoding="utf-8")
 urls = []
 import charpages
 _char_pages = charpages.generate(chars, src, DECKS)  # キャラページ（評価を書くまでは noindex）
+(out / "img" / "chars").mkdir(exist_ok=True)
+for _f, _dst in charpages.ICON_COPIES:                # 一覧に出すキャラのアイコン（130x130）
+    shutil.copy(_f, out / _dst)
 for text in [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob("*.html"))] + _char_pages:
     meta_txt, body = re.match(r"<!--(.*?)-->\n(.*)", text, re.S).groups()
     meta = dict(re.findall(r"^(\w+):[ \t]*(.*)$", meta_txt, re.M))
