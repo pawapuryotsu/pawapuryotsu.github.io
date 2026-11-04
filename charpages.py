@@ -189,9 +189,7 @@ def event_kinds(c, config, text, has_friend):
     kinds = list(config["イベント構成"].get(c.get("分類") or "選手", config["イベント構成"]["選手"]))
     if has_friend and "友情イベント" not in kinds and (c.get("分類") or "選手") == "選手":
         kinds.insert(kinds.index("共通イベント") + 1 if "共通イベント" in kinds else len(kinds), "友情イベント")
-    # エピローグ：彼女・選手彼女・相棒は必ずある。選手は、texts に「エピローグあり: true」と書いたキャラだけ（シートから読めないので手動）
-    if (c.get("分類") or "選手") == "選手" and text.get("エピローグあり") and "エピローグ" not in kinds:
-        kinds.append("エピローグ")
+    # エピローグ：彼女・選手彼女・相棒は構成に含まれる。選手は、共通イベントの小イベントの1つとして texts に書く
     return kinds
 
 
@@ -237,11 +235,15 @@ def event_detail(ev):
     for k, x in ev.items():
         inner = paras(x.get("詳細", [])) if x.get("小イベント") else ""
         for sub in x.get("小イベント", []):
-            t = sub_table(sub.get("行", []))
+            t = sub_table(sub["行"]) if sub.get("行") else ""
             if sub.get("名前"):
                 head = f'<h4 class="cp-sub">・{e(sub["名前"])}</h4>'
             else:
                 head = ""
+            if sub.get("詳細"):
+                t = paras(sub["詳細"]) + t if sub.get("行") else paras(sub["詳細"])
+            elif not sub.get("行"):
+                t = '<p class="muted">準備中です。</p>'
             if sub.get("折りたたむ"):
                 t = f'<details class="cp-fold"><summary>詳細を表示</summary>{t}</details>'
             inner += head + t
