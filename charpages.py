@@ -261,13 +261,20 @@ def _choice_name(t):
 
 
 _CELL_ORDER = ("三塁手", "その他野手", "投手", "野手")
+# 【野手】【投手】の並び順はキャラの種別で固定（野手用＝野手が上、投手用＝投手が上。兼用は管理人に確認）
+_CELL_ORDER_BY_TYPE = {
+    "野手用": ("三塁手", "その他野手", "野手", "投手"),
+    "投手用": ("投手", "三塁手", "その他野手", "野手"),
+}
+_CTYPE = [None]
 _CELL_SKIP = ("選択肢", "効果", "正解", "その他")
 
 
 def _cell(x):
     """1行ぶんの「その他」欄。【投手】【野手】【三塁手】など見出しごとの項目と、見出し無しのその他を縦に並べる"""
     out = ""
-    labs = [k for k in _CELL_ORDER if k in x] + [k for k in x if k not in _CELL_ORDER and k not in _CELL_SKIP]
+    order = _CELL_ORDER_BY_TYPE.get(_CTYPE[0], _CELL_ORDER)
+    labs = [k for k in order if k in x] + [k for k in x if k not in order and k not in _CELL_SKIP]
     for lab in labs:
         if x.get(lab):
             out += f'<div class="cp-t-lab">【{lab}】</div>' + "".join(_item(i) for i in x[lab])
@@ -442,6 +449,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     p = c.get("プロフィール", {})
     bonus = c["bonus"]
     ctype = char_type(c, config["種別の判定"])
+    _CTYPE[0] = ctype
     top_names, tap = config["重要ボーナス"][ctype], config["タップ欄のボーナス"][ctype]
     important = [(n, bonus[n]) for n in top_names if n in bonus and (bonus_lines(bonus[n]) or bonus[n].get("固有文字"))]
     unknown = [n for n in bonus if n not in top_names and n not in tap]
