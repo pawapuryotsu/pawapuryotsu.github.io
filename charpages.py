@@ -207,17 +207,51 @@ def events_of(text, kinds):
     return ev
 
 
+def _cell(x):
+    """1行ぶんの「その他」欄。投手／野手ごとの項目と、共通のその他を縦に並べる"""
+    out = ""
+    for lab in ("投手", "野手"):
+        if x.get(lab):
+            out += f'<div class="cp-t-lab">【{lab}】</div>' + "".join(f"<div>{e(i)}</div>" for i in x[lab])
+    out += "".join(f"<div>{e(i)}</div>" for i in x.get("その他", []))
+    return out
+
+
+def sub_table(rows):
+    """イベントの表。選択肢ごとに1行。左＝選択肢名、中＝効果（＋）、右＝投手／野手などその他。選択肢が無いイベントは左の列を出さない"""
+    has_name = any(r.get("選択肢") for r in rows)
+    head = ("<th></th>" if has_name else "") + "<th>＋</th><th>その他</th>"
+    body = ""
+    for r in rows:
+        name = f'<th class="{"ok" if r.get("正解") else ""}">{"◎ " if r.get("正解") else ""}{e(r.get("選択肢", ""))}</th>' if has_name else ""
+        eff = "".join(f"<div>{e(i)}</div>" for i in r.get("効果", []))
+        body += f"<tr>{name}<td>{eff}</td><td>{_cell(r)}</td></tr>"
+    return f'<div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>'
+
+
 def event_detail(ev):
-    """イベント詳細。金特イベント・共通イベント・自己紹介など全部をここに並べる。選択肢は、正解に ◎ を付ける"""
+    """イベント詳細。金特イベント・共通イベント・自己紹介など全部をここに並べる。
+    「小イベント」（名前＋表の行）があれば表で、無ければ従来の書き方（体力・やる気・コツ・選択肢・詳細）で出す。
+    小イベントに「折りたたむ: true」を付けると『詳細を表示』ボタンの中に入る"""
     parts = []
     for k, x in ev.items():
-        inner = ""
+        inner = paras(x.get("詳細", [])) if x.get("小イベント") else ""
+        for sub in x.get("小イベント", []):
+            t = sub_table(sub.get("行", []))
+            if sub.get("名前"):
+                head = f'<h4 class="cp-sub">・{e(sub["名前"])}</h4>'
+            else:
+                head = ""
+            if sub.get("折りたたむ"):
+                t = f'<details class="cp-fold"><summary>詳細を表示</summary>{t}</details>'
+            inner += head + t
         eff = " / ".join(f"{lab}：{x[key]}" for key, lab in (("体力", "体力"), ("やる気", "やる気")) if x.get(key))
         if x.get("コツ"):
             eff += (" / " if eff else "") + "もらえるコツ：" + "、".join(x["コツ"])
         if eff:
             inner += f'<p class="cp-eff">{e(eff)}</p>'
-        inner += paras(x.get("詳細", []))
+        if not x.get("小イベント"):
+            inner += paras(x.get("詳細", []))
         if x.get("選択肢"):
             inner += "<ul class=cp-choices>" + "".join(
                 f'<li{" class=ok" if c.get("正解") else ""}>{"◎ " if c.get("正解") else ""}{e(c["文"])}'

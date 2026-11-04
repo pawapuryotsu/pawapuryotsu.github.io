@@ -309,3 +309,13 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cp-eff{margin:2px 0 4px;font-size:14px;font-weight:700}
 .cp-choices{margin:4px 0 8px;padding-left:18px}
 .cp-choices li.ok{font-weight:700}
+.cp-sec h4.cp-sub{font-size:13px;margin:10px 0 4px;color:var(--ok,#2a7a2a)}
+.cp-tbl-wrap{overflow-x:auto;margin:4px 0 8px}
+.cp-tbl{border-collapse:collapse;font-size:13px;min-width:260px}
+.cp-tbl th,.cp-tbl td{border:1px solid var(--line);padding:5px 8px;vertical-align:top;text-align:left}
+.cp-tbl thead th{background:var(--surface);text-align:center}
+.cp-tbl tbody th{background:var(--surface);font-weight:700}
+.cp-tbl tbody th.ok{color:var(--accent)}
+.cp-t-lab{font-weight:700;margin-top:2px}
+.cp-fold summary{cursor:pointer;display:inline-block;border:1px solid var(--line);border-radius:3px;padding:3px 10px;font-size:13px;background:var(--surface)}
+.cp-fold[open] summary{margin-bottom:6px}
