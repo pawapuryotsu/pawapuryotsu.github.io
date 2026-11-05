@@ -591,10 +591,15 @@ def yomi_paren(c):
     return f"（{y}）" if y else ""
 
 
-def head_html(full, c):
+def head_html(full, c, pid=None):
     y = yomi_of(c)
-    return (f'<section class="phead"><p class="eyebrow">イベキャラ データ</p><h1><span class="cp-h1">{e(full)}</span> <span class="cp-h1">データ・イベントまとめ</span></h1>'
-            + (f'<p class="cp-yomi">読み：{e(y)}</p>' if y else "") + "</section>\n")
+    icon = (f'<img class="cp-icon" src="../../img/chars/{pid}.png" alt="{e(full)}のアイコン" width="72" height="72" decoding="async">'
+            if pid and c.get("_icon") else "")
+    text = (f'<p class="eyebrow">イベキャラ データ</p><h1><span class="cp-h1">{e(full)}</span> <span class="cp-h1">データ・イベントまとめ</span></h1>'
+            + (f'<p class="cp-yomi">読み：{e(y)}</p>' if y else ""))
+    if not icon:
+        return f'<section class="phead">{text}</section>\n'
+    return f'<section class="phead cp-headrow">{icon}<div class="cp-headtxt">{text}</div></section>\n'
 
 
 def generate(chars_path, src, decks, noindex=True):
@@ -622,7 +627,7 @@ def generate(chars_path, src, decks, noindex=True):
         meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
                 f"description: パワプロアプリ（サクセス・パワクエ共通）のイベキャラ {full}{yomi_paren(c)} のボーナス、金特、イベント選択肢、選手能力をまとめています。\n"
                 f"path: {path}\nnav: none\n" + ("noindex: yes\n" if noindex and pid not in pub else ""))
-        body = (head_html(full, c)
+        body = (head_html(full, c, pid)
                 + build_page(c, text, config, decks, kinds))
         pages.append(f"<!--\n{meta}-->\n{body}")
     # データ未入力のキャラ（名前と読みだけ決まっている）。ページは「準備中」で、検索には出さない
@@ -636,7 +641,7 @@ def generate(chars_path, src, decks, noindex=True):
         meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
                 f"description: パワプロアプリのイベキャラ {full}{yomi_paren(c)} のページです。データは準備中です。\n"
                 f"path: chars/{pid}/\nnav: none\n" + ("" if pid in pub else "noindex: yes\n"))
-        body = (head_html(full, c)
+        body = (head_html(full, c, pid)
                 + stub_body(full, st))
         pages.append(f"<!--\n{meta}-->\n{body}")
     items.sort(key=lambda t: t[0])
