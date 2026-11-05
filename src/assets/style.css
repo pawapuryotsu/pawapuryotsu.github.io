@@ -346,3 +346,26 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 
 /* 幅320px以下（iPhone SE第1世代など）だけに効く調整。375px以上の見た目は変えない */
 @media (max-width:340px){.cp-tbl{font-size:11px}.cp-tbl th,.cp-tbl td{padding:3px 3px}}
+
+/* ===== イベキャラランキング（Tier表）と、キャラページ評価欄のランク表示 ===== */
+.tier{display:flex;align-items:center;justify-content:center;font-family:var(--head);font-weight:900;color:#14233a;line-height:1}
+.tier-SS{background:#ff6b6b}.tier-S{background:#ffa94d}.tier-A{background:#ffe066}.tier-B{background:#a9e34b}
+.tier-table{margin:14px 0;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--surface)}
+.tier-row{display:flex;border-top:1px solid var(--line)}
+.tier-row:first-child{border-top:0}
+.tier-row>.tier{flex:none;width:clamp(44px,14vw,64px);font-size:clamp(18px,5.4vw,26px)}
+.tier-ic{flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:6px;padding:8px;min-height:72px;align-items:flex-start}
+.rk-ic{display:flex;flex-direction:column;align-items:center;gap:2px;width:60px;text-decoration:none;color:var(--ink);font-size:10px;line-height:1.25;text-align:center}
+.rk-ic img,.rk-noicon{width:56px;height:56px;border-radius:6px;object-fit:cover;background:var(--gold-soft);display:block}
+.rk-ic span{display:block;max-width:100%;overflow-wrap:anywhere}
+.rk-date{font-size:13px;font-weight:700;color:var(--muted)}
+.rk-intro{margin:10px 0}
+.rk-note{margin:14px 0;padding-top:12px;border-top:1px solid var(--line)}
+.rk-note:first-of-type{border-top:0;padding-top:0}
+.rk-note h3,.rk-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rk-note h3{font-size:16px;margin:0 0 4px;color:var(--ink)}
+.rk-note h3 .tier,.rk-head .tier{flex:none;width:34px;height:26px;font-size:15px;border-radius:4px}
+.rk-box{margin:6px 0 12px}
+.rk-box:last-of-type{margin-bottom:0}
+.rk-head a{font-weight:700}
+.rk-intro p,.rk-note p,.rk-box p{margin:4px 0}
