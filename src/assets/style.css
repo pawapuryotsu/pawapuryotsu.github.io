@@ -370,3 +370,14 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .rk-head a{font-weight:700}
 .rk-intro p,.rk-note p,.rk-box p{margin:4px 0}
 .tips.memo li{text-wrap:pretty}
+/* キャラページ上部：アイコン＋タイトル（アイコンはPSR、無ければSR） */
+.cp-headrow{display:flex;align-items:center;gap:12px}
+.cp-icon{flex:none;width:72px;height:72px;border-radius:10px;background:#fff;border:1px solid var(--line);object-fit:cover}
+.cp-headtxt{min-width:0;display:grid;gap:4px}
+@media (max-width:340px){.cp-headrow{gap:8px}.cp-icon{width:56px;height:56px}}
+@media (min-width:720px){.cp-icon{width:96px;height:96px}.cp-headrow{gap:16px}}
+.cp-headrow h1{text-wrap:wrap}
+.cp-headrow h1 .cp-h1{display:block}
+.cp-headrow h1 .cp-h1+.cp-h1{font-size:clamp(13px,4.3vw,19px);margin-top:2px;white-space:nowrap}
+@media (min-width:720px){.cp-headrow h1 .cp-h1+.cp-h1{font-size:22px}}
+@media (max-width:340px){.cp-basic td,.cp-bonus td{white-space:normal;word-break:keep-all;overflow-wrap:anywhere}.cp-basic th,.cp-bonus th{font-size:13px;padding-right:6px}}
