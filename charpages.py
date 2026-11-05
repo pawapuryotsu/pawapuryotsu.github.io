@@ -451,8 +451,25 @@ def max_value(entry):
     return None
 
 
+def char_type_by_practice(c, rules):
+    """得意練習（メイン・サブ）で分類（管理人指示 2026-11-05）。投手の練習だけ→投手用、野手の練習だけ→野手用、両方→兼用。
+    得意練習のデータが無い時は None"""
+    pr = c.get("得意練習") or []
+    if not pr:
+        return None
+    unknown = [x for x in pr if x not in rules["投手の得意練習"] and x not in rules["野手の得意練習"]]
+    if unknown:
+        raise SystemExit(f'{c["name"]} の得意練習 {unknown} が config.json の「投手の得意練習」「野手の得意練習」にありません')
+    p = any(x in rules["投手の得意練習"] for x in pr)
+    f = any(x in rules["野手の得意練習"] for x in pr)
+    return "投手用" if p and not f else ("野手用" if f and not p else "兼用")
+
+
 def char_type(c, rules):
-    """野手用／投手用／兼用。どちらも満たさない（環境外）は兼用と同じ扱い"""
+    """野手用／投手用／兼用。まず得意練習で決める。得意練習のデータが無いキャラだけ、従来のルール（ボーナス条件→金特）で決める"""
+    t = char_type_by_practice(c, rules)
+    if t:
+        return t
     def ok(conds):
         return all((max_value(c["bonus"].get(k, {})) or 0) >= v for k, v in conds.items())
     p, f = ok(rules["投手条件"]), ok(rules["野手条件"])
