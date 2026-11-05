@@ -354,8 +354,8 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .tier-row{display:flex;border-top:1px solid var(--line)}
 .tier-row:first-child{border-top:0}
 .tier-row>.tier{flex:none;width:clamp(44px,14vw,64px);font-size:clamp(18px,5.4vw,26px)}
-.tier-ic{flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:6px;padding:8px;min-height:72px;align-items:flex-start}
-.rk-ic{display:flex;flex-direction:column;align-items:center;gap:2px;width:60px;text-decoration:none;color:var(--ink);font-size:10px;line-height:1.25;text-align:center}
+.tier-ic{flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:4px;padding:8px;min-height:72px;align-items:flex-start}
+.rk-ic{display:flex;flex-direction:column;align-items:center;gap:2px;width:64px;text-decoration:none;color:var(--ink);font-size:10px;line-height:1.25;text-align:center}
 .rk-ic img,.rk-noicon{width:56px;height:56px;border-radius:6px;object-fit:cover;background:var(--gold-soft);display:block}
 .rk-ic span{display:block;max-width:100%;overflow-wrap:anywhere}
 .rk-date{font-size:13px;font-weight:700;color:var(--muted)}
@@ -369,3 +369,6 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .rk-box:last-of-type{margin-bottom:0}
 .rk-head a{font-weight:700}
 .rk-intro p,.rk-note p,.rk-box p{margin:4px 0}
+.rk-ic small{font-size:8px;letter-spacing:-.3px;white-space:nowrap;color:var(--muted)}
+.rk-ic span.lg{font-size:9px}
+.rk-ic span b{font-weight:inherit;display:inline-block}
