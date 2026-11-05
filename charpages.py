@@ -752,7 +752,7 @@ def ranking_pages(items, config, chars, chars_path):
                 if r.get("学園") and c.get("所属高校") == r["学園"]:
                     marks += '<em class="rk-school">●高校所属キャラ</em>'
                 if any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in c.get("金特", {}).get("投手", [])):
-                    marks += '<em class="rk-supreme">☆至高</em>'
+                    marks += '<em class="rk-supreme">☆至高金特</em>'
                 icons += f'<{tag} class="rk-ic"{href}>{icon}{label}{marks}</{tag}>'
                 if why:
                     link = f'<a href="../../chars/{pid}/">{e(full)}</a>' if pid else e(full)
