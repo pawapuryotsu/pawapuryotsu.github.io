@@ -141,6 +141,17 @@ def bonus_lines(entry):
     return head, steps
 
 
+def cap_max_text(entry):
+    """基礎上限の表示：そのキャラの最大値（PSRの最大Lvの値。PSRが無ければSR）。Lv35で0・Lv40で2のように途中から付くものも最大値を出す"""
+    shown, unit = entry.get("表示") or {}, entry.get("単位") or ""
+    mx = {r: t[max(t, key=int)] for r, t in shown.items() if t}
+    if not mx:
+        return bonus_lines(entry)[0]
+    if len(mx) == 2 and mx["SR"] != mx["PSR"]:
+        return f'{fmt(mx["SR"])}{unit}(SR) {fmt(mx["PSR"])}{unit}(PSR)'
+    return f'{fmt(mx.get("PSR", mx.get("SR")))}{unit}'
+
+
 def unique_mark(entry):
     """固有ボーナスの表記。固有だけの項目は「(固有)」、SR/PSRの値に固有が足されている項目は「(固有6含む)」（表示の値は固有を含んだ値）"""
     g = entry.get("固有")
@@ -498,7 +509,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     others = sorted(((n, b) for n, b in bonus.items() if n not in top_names and (bonus_lines(b) or b.get("固有文字"))),
                     key=lambda nb: tap.index(nb[0]) if nb[0] in tap else len(tap))
     caps = [(n, bonus[n]) for n in config["基礎上限の項目"] if n in bonus and bonus_lines(bonus[n])]
-    cap_txt = "<br>".join(f'{e(n.replace("アップ", ""))}：{e(bonus_lines(b)[0])}' for n, b in caps) or "なし"
+    cap_txt = "<br>".join(f'{e(n.replace("アップ", ""))}：{e(cap_max_text(b))}' for n, b in caps) or "なし"
     awake_cap = any(b.get("覚醒") or b.get("覚醒PSR") for _, b in caps)  # 基礎上限に覚醒で付く分があるキャラだけ ※ を出す
     ev = {"後": "後", "前": "前"}.get(p.get("前後イベ"), p.get("前後イベ") or "不明")
     basic = (f'<table class="cp-basic"><tbody>'
