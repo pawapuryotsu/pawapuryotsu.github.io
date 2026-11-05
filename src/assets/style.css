@@ -380,3 +380,4 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cp-headrow h1 .cp-h1{display:block}
 .cp-headrow h1 .cp-h1+.cp-h1{font-size:clamp(13px,4.3vw,19px);margin-top:2px;white-space:nowrap}
 @media (min-width:720px){.cp-headrow h1 .cp-h1+.cp-h1{font-size:22px}}
+@media (max-width:340px){.cp-basic td,.cp-bonus td{white-space:normal;word-break:keep-all;overflow-wrap:anywhere}.cp-basic th,.cp-bonus th{font-size:13px;padding-right:6px}}
