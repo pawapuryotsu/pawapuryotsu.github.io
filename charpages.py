@@ -740,6 +740,18 @@ q.addEventListener("input",run);
     return f"<!--\n{meta}-->\n{body}"
 
 
+def guide_html(r):
+    """ランキングの解説欄（評価基準・加点要素など）。Tier表の下に、見出しごとのまとまりで出す"""
+    out = ""
+    for g in r.get("解説欄", []):
+        body = ""
+        if g.get("箇条書き"):
+            body += '<ul class="rk-list">' + "".join(f"<li>{e(x)}</li>" for x in g["箇条書き"]) + "</ul>"
+        body += paras(g.get("文章", []))
+        out += f'<section class="cp-sec"><h2>{e(g["見出し"])}</h2>{body}</section>'
+    return out
+
+
 def ranking_pages(items, config, chars, chars_path):
     """ランキングページ（/ranking/〇〇/）。Tier表（顔アイコン）と、キャラごとの解説。
     キャラページがまだ無いキャラも載せられる（アイコンはリンクなし。ページができたら自動でリンクされる）"""
@@ -801,6 +813,7 @@ def ranking_pages(items, config, chars, chars_path):
                 f'<p>{date_label(r)}</p></section>'
                 + (f'<div class="rk-intro">{intro}</div>' if intro else "")
                 + (f'<div class="tier-table">{rows}</div>' if n else '<p class="muted">準備中です。</p>')
+                + guide_html(r)
                 + (f'<section class="cp-sec"><h2>ランクの解説</h2>{notes}</section>' if notes else ""))
         meta = "\n".join([f'title: {r["title"]}｜パワプロアプリ攻略ベース',
                           f'description: パワプロアプリのイベキャラを、Tier表（SS・S・A・B）でランク付けしました。{r["title"]}の評価と理由を、キャラごとに解説しています。',
