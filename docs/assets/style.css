@@ -369,3 +369,4 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .rk-box:last-of-type{margin-bottom:0}
 .rk-head a{font-weight:700}
 .rk-intro p,.rk-note p,.rk-box p{margin:4px 0}
+.tips.memo li{text-wrap:pretty}

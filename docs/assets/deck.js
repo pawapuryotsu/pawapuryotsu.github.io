@@ -141,6 +141,7 @@ function renderList(){
         <div><h3>追加アイテム</h3>${itemList(d.main)}</div>
         <div><h3>サポートデッキ${SCHOOL_MARK[state.school].sub?` <small>●＝${SCHOOL_NAME[state.school]}のキャラ</small>`:""}</h3>${supportTable(d.sub,d.pos)}</div>
         <div><h3>育成のポイント</h3>${Array.isArray(d.tips)?`<ul class="tips">${d.tips.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<p>${d.tips}</p>`}</div>
+        ${Array.isArray(d.memo)&&d.memo.length?`<div><h3>育成メモ</h3><ul class="tips memo">${d.memo.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}
         ${d.a?`<div><h3>育成した選手の能力</h3><img class="abilityimg" src="${IMG[d.a]}" alt="${esc(lbl)}で育成した選手の基礎能力" loading="lazy"></div>`:""}
         <div><h3>解説動画</h3>${videoBlock(d.video)}${d.videoNote?`<p class="vnote">※${esc(d.videoNote)}</p>`:""}</div>
         ${d.date?`<p class="ddate">育成日（更新日）：<time datetime="${esc(d.date)}">${esc(d.date.replace(/-/g,"/"))}</time></p>`:""}
