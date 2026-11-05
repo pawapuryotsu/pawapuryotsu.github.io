@@ -451,6 +451,34 @@ def char_type(c, rules):
     return "投手用" if gp and not gf else ("野手用" if gf and not gp else "兼用")
 
 
+TIERS = ("SS", "S", "A", "B")
+_RANKING = {}   # generate() が src/ranking/ranking.json から読む
+
+
+def rankings_of(name):
+    """このキャラが載っているランキング［(ランキング, ランク, 理由)］。評価欄に出す"""
+    out = []
+    for r in _RANKING.get("ranking", {}).values():
+        for t in TIERS:
+            for x in r.get("ランク", {}).get(t, []):
+                if x["name"] == name:
+                    out.append((r, t, x.get("理由", [])))
+    return out
+
+
+def date_label(r):
+    return f'<span class="rk-date">【評価日{e(r["評価日"])}】</span>' if r.get("評価日") else ""
+
+
+def ranking_eval_html(name, root):
+    """キャラページの評価欄に出す、ランキングでの位置づけ"""
+    out = ""
+    for r, t, why in rankings_of(name):
+        out += (f'<div class="rk-box"><div class="rk-head"><span class="tier tier-{t}">{t}</span>'
+                f'<a href="{root}{r["path"]}">{e(r["短い名前"])}</a>{date_label(r)}</div>' + paras(why) + "</div>")
+    return out
+
+
 def build_page(c, text, config, decks, kinds, root="../../"):
     p = c.get("プロフィール", {})
     bonus = c["bonus"]
@@ -512,7 +540,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
         section(f"{name}のイベント詳細", event_detail(ev)),
     ]
     parts += [
-        section(f"{name}の評価", paras(text.get("評価", []))),
+        section(f"{name}の評価", ranking_eval_html(c["name"], root) + paras(text.get("評価", []))),
         section(f"{name}の使用デッキ例", deck_examples(c["name"], decks, root), "このキャラを使ったデッキは準備中です。"),
         section(f"{name}の選手能力", ability),
     ]
@@ -562,6 +590,9 @@ def generate(chars_path, src, decks, noindex=True):
     config = json.loads((src / "chars" / "config.json").read_text(encoding="utf-8"))
     kinds = json.loads((src / "chars" / "skill_kinds.json").read_text(encoding="utf-8"))  # 特殊能力の種類（青・金・赤・緑・虹）。pawa-data の skills.json から作る
     chars = {c["name"]: c for c in json.loads(Path(chars_path).read_text(encoding="utf-8"))}
+    global _RANKING
+    rf = src / "ranking" / "ranking.json"
+    _RANKING = json.loads(rf.read_text(encoding="utf-8")) if rf.exists() else {}
     pages, items = [], []
     pub = set(config.get("検索に出すページ", []))   # ここに書いた番号のページだけ検索に出す（サイトマップにも入る）
     for pid, name in config["公開するキャラ"].items():
@@ -598,6 +629,7 @@ def generate(chars_path, src, decks, noindex=True):
                 + stub_body(full, st))
         pages.append(f"<!--\n{meta}-->\n{body}")
     items.sort(key=lambda t: t[0])
+    pages += ranking_pages(items, config)
     pages.append(index_page(items, config, noindex and not pub))
     return pages
 
@@ -665,3 +697,38 @@ q.addEventListener("input",run);
 }})();
 </script>''')
     return f"<!--\n{meta}-->\n{body}"
+
+
+def ranking_pages(items, config):
+    """ランキングページ（/ranking/〇〇/）。Tier表（顔アイコン）と、キャラごとの解説"""
+    by_name = {}
+    for pid, c, full in items:
+        if not c.get("_準備中"):
+            by_name[c["name"]] = (pid, c, full)
+    pages = []
+    for key, r in _RANKING.get("ranking", {}).items():
+        rows, notes, n = "", "", 0
+        for t in TIERS:
+            icons = ""
+            for x in r["ランク"].get(t, []):
+                if x["name"] not in by_name:
+                    raise SystemExit(f'ランキング {key} のキャラ {x["name"]} が「公開するキャラ」にありません')
+                pid, c, full = by_name[x["name"]]
+                n += 1
+                icon = (f'<img src="../../img/chars/{pid}.png" alt="" width="56" height="56" loading="lazy">' if c.get("_icon") else '<span class="rk-noicon"></span>')
+                icons += f'<a class="rk-ic" href="#c-{pid}" aria-label="{e(full)}の解説へ">{icon}<span>{e(c["苗字"])}{e(c["名前"] or "")}</span></a>'
+                notes += (f'<div class="rk-note" id="c-{pid}"><h3><span class="tier tier-{t}">{t}</span>'
+                          f'<a href="../../chars/{pid}/">{e(full)}</a></h3>' + paras(x.get("理由", [])) + "</div>")
+            rows += f'<div class="tier-row"><div class="tier tier-{t}">{t}</div><div class="tier-ic">{icons}</div></div>'
+        intro = paras(r.get("導入", []))
+        h1_title = " ".join(f'<span class="cp-h1">{e(w)}</span>' for w in r["title"].split())  # 空白の所でだけ折り返す
+        body = (f'<section class="phead"><p class="eyebrow">イベキャラランキング</p><h1>{h1_title}</h1>'
+                f'<p>{date_label(r)}</p></section>'
+                + (f'<div class="rk-intro">{intro}</div>' if intro else "")
+                + (f'<div class="tier-table">{rows}</div>' if n else '<p class="muted">準備中です。</p>')
+                + (f'<section class="cp-sec"><h2>ランクの解説</h2>{notes}</section>' if n else ""))
+        meta = "\n".join([f'title: {r["title"]}｜パワプロアプリ攻略ベース',
+                          f'description: パワプロアプリのイベキャラを、Tier表（SS・S・A・B）でランク付けしました。{r["title"]}の評価と理由を、キャラごとに解説しています。',
+                          f'path: {r["path"]}', "nav: none"] + ([] if r.get("公開") else ["noindex: yes"])) + "\n"
+        pages.append(f"<!--\n{meta}-->\n{body}")
+    return pages
