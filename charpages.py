@@ -745,12 +745,7 @@ def ranking_pages(items, config, chars, chars_path):
                 icon = (f'<img src="../../img/chars/{img_id}.png" alt="" width="56" height="56" loading="lazy">' if c.get("_icon") else '<span class="rk-noicon"></span>')
                 label = (f'<small>[{e(c["二つ名"])}]</small>' if c.get("二つ名") else "") + f'<span{" class=lg" if len(c["苗字"] + (c["名前"] or "")) > 6 else ""}>{"".join(f"<b>{e(w)}</b>" for w in re.findall(r"[^・]+・?", c["苗字"] + (c["名前"] or "")))}</span>'
                 why = x.get("理由", [])
-                if why:
-                    href = f' href="#c-{img_id}"'
-                elif pid:
-                    href = f' href="../../chars/{pid}/"'
-                else:
-                    href = ""
+                href = f' href="../../chars/{pid}/"' if pid else ""   # アイコンを押すとそのキャラのページへ（ページがまだ無いキャラはリンクなし）
                 tag = "a" if href else "div"
                 # 目印：●高校所属キャラ（そのランキングの学園に所属・青）、☆至高（至高のスターター／リリーバー／クローザーが取れる・赤）
                 marks = ""
