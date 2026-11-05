@@ -119,6 +119,8 @@ def static_decks(school):
                      f'<p>育成日：{_e(k["date"])}</p><p>メインデッキ：{mains}</p><p>サポートデッキ：{subs}</p>')
         if k.get("tips"):
             parts.append("<h3>育成のポイント</h3><ul>" + "".join(f"<li>{_e(t)}</li>" for t in k["tips"]) + "</ul>")
+        if k.get("memo"):
+            parts.append("<h3>育成メモ</h3><ul>" + "".join(f"<li>{_e(t)}</li>" for t in k["memo"]) + "</ul>")
     parts.append("</div>")
     return "\n".join(parts)
 
