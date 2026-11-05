@@ -753,6 +753,11 @@ def ranking_pages(items, config, chars, chars_path):
                     marks += '<em class="rk-school">●高校所属キャラ</em>'
                 if any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in c.get("金特", {}).get("投手", [])):
                     marks += '<em class="rk-supreme">☆至高金特</em>'
+                pit = c.get("金特", {}).get("投手", [])
+                if "オリジナルストレート" in pit:
+                    marks += '<em class="rk-supreme">★オリスト</em>'
+                if any(k.startswith("オリジナル変化球") for k in pit):
+                    marks += '<em class="rk-supreme">★オリ変</em>'
                 icons += f'<{tag} class="rk-ic"{href}>{icon}{label}{marks}</{tag}>'
                 if why:
                     link = f'<a href="../../chars/{pid}/">{e(full)}</a>' if pid else e(full)
