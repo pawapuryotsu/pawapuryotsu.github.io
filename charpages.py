@@ -206,7 +206,10 @@ def join_patterns(pats):
 
 def gold_text(c, kind):
     pats = join_patterns([p.get(kind) for p in c["金特"].get("パターン", [])])
-    return "<br>".join(e(p) for p in pats) if pats else "なし"
+    def brk(p):
+        # 長いパターン（スマホ幅375pxで1行に収まらないもの）だけ、「＋」の後ろで改行する
+        return e(p).replace("＋", "＋<br>") if len(p) > 18 else e(p)
+    return "<br>".join(brk(p) for p in pats) if pats else "なし"
 
 
 def friend_text(c):
@@ -742,15 +745,15 @@ def ranking_pages(items, config, chars, chars_path):
                     full = f'{c["二つ名"] and "[" + c["二つ名"] + "]" or ""}{c["苗字"]}{c["名前"] or ""}'
                 n += 1
                 img_id = pid or rid
-                icon = (f'<img src="../../img/chars/{img_id}.png" alt="" width="56" height="56" loading="lazy">' if c.get("_icon") else '<span class="rk-noicon"></span>')
+                icon = (f'<img src="../../img/chars/{img_id}.png" alt="" width="60" height="60" loading="lazy">' if c.get("_icon") else '<span class="rk-noicon"></span>')
                 label = (f'<small>[{e(c["二つ名"])}]</small>' if c.get("二つ名") else "") + f'<span{" class=lg" if len(c["苗字"] + (c["名前"] or "")) > 6 else ""}>{"".join(f"<b>{e(w)}</b>" for w in re.findall(r"[^・]+・?", c["苗字"] + (c["名前"] or "")))}</span>'
                 why = x.get("理由", [])
                 href = f' href="../../chars/{pid}/"' if pid else ""   # アイコンを押すとそのキャラのページへ（ページがまだ無いキャラはリンクなし）
                 tag = "a" if href else "div"
-                # 目印：●高校所属キャラ（そのランキングの学園に所属・青）、☆至高（至高のスターター／リリーバー／クローザーが取れる・赤）
+                # 目印：●高校キャラ（そのランキングの学園に所属・青）、☆至高（至高のスターター／リリーバー／クローザーが取れる・赤）
                 marks = ""
                 if r.get("学園") and c.get("所属高校") == r["学園"]:
-                    marks += '<em class="rk-school">●高校所属キャラ</em>'
+                    marks += '<em class="rk-school">●高校キャラ</em>'
                 if any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in c.get("金特", {}).get("投手", [])):
                     marks += '<em class="rk-supreme">☆至高金特</em>'
                 pit = c.get("金特", {}).get("投手", [])
