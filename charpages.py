@@ -451,8 +451,25 @@ def max_value(entry):
     return None
 
 
+def char_type_by_practice(c, rules):
+    """得意練習（メイン・サブ）で分類（管理人指示 2026-11-05）。投手の練習だけ→投手用、野手の練習だけ→野手用、両方→兼用。
+    得意練習のデータが無い時は None"""
+    pr = c.get("得意練習") or []
+    if not pr:
+        return None
+    unknown = [x for x in pr if x not in rules["投手の得意練習"] and x not in rules["野手の得意練習"]]
+    if unknown:
+        raise SystemExit(f'{c["name"]} の得意練習 {unknown} が config.json の「投手の得意練習」「野手の得意練習」にありません')
+    p = any(x in rules["投手の得意練習"] for x in pr)
+    f = any(x in rules["野手の得意練習"] for x in pr)
+    return "投手用" if p and not f else ("野手用" if f and not p else "兼用")
+
+
 def char_type(c, rules):
-    """野手用／投手用／兼用。どちらも満たさない（環境外）は兼用と同じ扱い"""
+    """野手用／投手用／兼用。まず得意練習で決める。得意練習のデータが無いキャラだけ、従来のルール（ボーナス条件→金特）で決める"""
+    t = char_type_by_practice(c, rules)
+    if t:
+        return t
     def ok(conds):
         return all((max_value(c["bonus"].get(k, {})) or 0) >= v for k, v in conds.items())
     p, f = ok(rules["投手条件"]), ok(rules["野手条件"])
@@ -497,12 +514,17 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     p = c.get("プロフィール", {})
     bonus = c["bonus"]
     ctype = char_type(c, config["種別の判定"])
-    # 並び順用の種別。兼用は config「兼用の並び順」に管理人の指示があればそれ（無ければ聞く）
+    # 並び順用の種別。兼用は、メインポジションが投手なら【投手】が上、投手以外なら【野手】が上（管理人指示 2026-11-05）。
+    # 得意練習のデータが無いキャラ（ポジションでは決めない）は config「兼用の並び順」に管理人の指示があればそれ（無ければ聞く）
     order_type = ctype
     if ctype == "兼用":
-        order_type = {"投手": "投手用", "野手": "野手用"}.get(config.get("兼用の並び順", {}).get(c["苗字"] + (c["名前"] or ""), ""), "兼用")
-        if order_type == "兼用":
-            print(f"警告: {c['苗字']}{c['名前'] or ''} は兼用判定です。【野手】【投手】の並びを管理人に確認して config.json の「兼用の並び順」に書いてください")
+        name = c["苗字"] + (c["名前"] or "")
+        if c.get("得意練習") and c.get("ポジション"):
+            order_type = "投手用" if c["ポジション"] == "投" else "野手用"
+        else:
+            order_type = {"投手": "投手用", "野手": "野手用"}.get(config.get("兼用の並び順", {}).get(name, ""), "兼用")
+            if order_type == "兼用":
+                print(f"警告: {name} は兼用判定で、メインポジションか得意練習のデータがありません。【野手】【投手】の並びを管理人に確認して config.json の「兼用の並び順」に書いてください")
     _CTYPE[0] = order_type
     top_names, tap = config["重要ボーナス"][ctype], config["タップ欄のボーナス"][ctype]
     important = [(n, bonus[n]) for n in top_names if n in bonus and (bonus_lines(bonus[n]) or bonus[n].get("固有文字"))]
