@@ -223,7 +223,7 @@ _RICH = {"青": "tx-b", "赤": "tx-r", "太": "tx-bold", "青太": "tx-b tx-bold
 
 def rich(t):
     """文字の色・太さの指示。{青:…} {赤:…} {太:…} {青太:…} {赤太:…} を色・太字にする（それ以外は普通の文字）"""
-    return re.sub(r"\{(青太|赤太|青|赤|太):([^{}]*)\}",
+    return re.sub(r"[{｛](青太|赤太|青|赤|太)[:：]([^{}｛｝]*)[}｝]",
                   lambda m: f'<span class="{_RICH[m.group(1)]}">{m.group(2)}</span>', e(t))
 
 
