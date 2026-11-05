@@ -514,12 +514,17 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     p = c.get("プロフィール", {})
     bonus = c["bonus"]
     ctype = char_type(c, config["種別の判定"])
-    # 並び順用の種別。兼用は config「兼用の並び順」に管理人の指示があればそれ（無ければ聞く）
+    # 並び順用の種別。兼用は、メインポジションが投手なら【投手】が上、投手以外なら【野手】が上（管理人指示 2026-11-05）。
+    # 得意練習のデータが無いキャラ（ポジションでは決めない）は config「兼用の並び順」に管理人の指示があればそれ（無ければ聞く）
     order_type = ctype
     if ctype == "兼用":
-        order_type = {"投手": "投手用", "野手": "野手用"}.get(config.get("兼用の並び順", {}).get(c["苗字"] + (c["名前"] or ""), ""), "兼用")
-        if order_type == "兼用":
-            print(f"警告: {c['苗字']}{c['名前'] or ''} は兼用判定です。【野手】【投手】の並びを管理人に確認して config.json の「兼用の並び順」に書いてください")
+        name = c["苗字"] + (c["名前"] or "")
+        if c.get("得意練習") and c.get("ポジション"):
+            order_type = "投手用" if c["ポジション"] == "投" else "野手用"
+        else:
+            order_type = {"投手": "投手用", "野手": "野手用"}.get(config.get("兼用の並び順", {}).get(name, ""), "兼用")
+            if order_type == "兼用":
+                print(f"警告: {name} は兼用判定で、メインポジションか得意練習のデータがありません。【野手】【投手】の並びを管理人に確認して config.json の「兼用の並び順」に書いてください")
     _CTYPE[0] = order_type
     top_names, tap = config["重要ボーナス"][ctype], config["タップ欄のボーナス"][ctype]
     important = [(n, bonus[n]) for n in top_names if n in bonus and (bonus_lines(bonus[n]) or bonus[n].get("固有文字"))]
