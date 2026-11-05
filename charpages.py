@@ -645,7 +645,7 @@ def generate(chars_path, src, decks, noindex=True):
                 + stub_body(full, st))
         pages.append(f"<!--\n{meta}-->\n{body}")
     items.sort(key=lambda t: t[0])
-    pages += ranking_pages(items, config)
+    pages += ranking_pages(items, config, chars, chars_path)
     pages.append(index_page(items, config, noindex and not pub))
     return pages
 
@@ -715,8 +715,10 @@ q.addEventListener("input",run);
     return f"<!--\n{meta}-->\n{body}"
 
 
-def ranking_pages(items, config):
-    """ランキングページ（/ranking/〇〇/）。Tier表（顔アイコン）と、キャラごとの解説"""
+def ranking_pages(items, config, chars, chars_path):
+    """ランキングページ（/ranking/〇〇/）。Tier表（顔アイコン）と、キャラごとの解説。
+    キャラページがまだ無いキャラも載せられる（アイコンはリンクなし。ページができたら自動でリンクされる）"""
+    import hashlib
     by_name = {}
     for pid, c, full in items:
         if not c.get("_準備中"):
@@ -727,14 +729,51 @@ def ranking_pages(items, config):
         for t in TIERS:
             icons = ""
             for x in r["ランク"].get(t, []):
-                if x["name"] not in by_name:
-                    raise SystemExit(f'ランキング {key} のキャラ {x["name"]} が「公開するキャラ」にありません')
-                pid, c, full = by_name[x["name"]]
+                nm = x["name"]
+                if nm in by_name:
+                    pid, c, full = by_name[nm]
+                else:
+                    c = chars.get(nm)
+                    if not c:
+                        raise SystemExit(f"ランキング {key} のキャラ {nm} が chars.json にありません")
+                    pid = None
+                    rid = "r" + hashlib.md5(nm.encode("utf-8")).hexdigest()[:8]
+                    c = dict(c, _icon=find_icon(chars_path, c, rid))
+                    full = f'{c["二つ名"] and "[" + c["二つ名"] + "]" or ""}{c["苗字"]}{c["名前"] or ""}'
                 n += 1
-                icon = (f'<img src="../../img/chars/{pid}.png" alt="" width="56" height="56" loading="lazy">' if c.get("_icon") else '<span class="rk-noicon"></span>')
-                icons += f'<a class="rk-ic" href="#c-{pid}" aria-label="{e(full)}の解説へ">{icon}<span>{e(c["苗字"])}{e(c["名前"] or "")}</span></a>'
-                notes += (f'<div class="rk-note" id="c-{pid}"><h3><span class="tier tier-{t}">{t}</span>'
-                          f'<a href="../../chars/{pid}/">{e(full)}</a></h3>' + paras(x.get("理由", [])) + "</div>")
+                img_id = pid or rid
+                icon = (f'<img src="../../img/chars/{img_id}.png" alt="" width="56" height="56" loading="lazy">' if c.get("_icon") else '<span class="rk-noicon"></span>')
+                label = (f'<small>[{e(c["二つ名"])}]</small>' if c.get("二つ名") else "") + f'<span{" class=lg" if len(c["苗字"] + (c["名前"] or "")) > 6 else ""}>{"".join(f"<b>{e(w)}</b>" for w in re.findall(r"[^・]+・?", c["苗字"] + (c["名前"] or "")))}</span>'
+                why = x.get("理由", [])
+                if why:
+                    href = f' href="#c-{img_id}"'
+                elif pid:
+                    href = f' href="../../chars/{pid}/"'
+                else:
+                    href = ""
+                tag = "a" if href else "div"
+                # 目印：●高校所属キャラ（そのランキングの学園に所属・青）、☆至高（至高のスターター／リリーバー／クローザーが取れる・赤）
+                marks = ""
+                if r.get("学園") and c.get("所属高校") == r["学園"]:
+                    marks += '<em class="rk-school">●高校所属キャラ</em>'
+                if any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in c.get("金特", {}).get("投手", [])):
+                    marks += '<em class="rk-supreme">☆至高金特</em>'
+                pit = c.get("金特", {}).get("投手", [])
+                pats = [p_.get("投手", []) for p_ in c.get("金特", {}).get("パターン", [])]
+                supreme = any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in pit)
+
+                def with_supreme(match):
+                    # 至高金特を取れるキャラは、同じ獲得パターンで両立できる時だけ★を出す（両立できなければ☆至高金特を優先）
+                    return any(match(k) for k in pit) and (not supreme or any(
+                        any(match(k) for k in pt) and any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in pt) for pt in pats))
+                if with_supreme(lambda k: k == "オリジナルストレート"):
+                    marks += '<em class="rk-supreme">★オリスト</em>'
+                if with_supreme(lambda k: k.startswith("オリジナル変化球")):
+                    marks += '<em class="rk-supreme">★オリ変</em>'
+                icons += f'<{tag} class="rk-ic"{href}>{icon}{label}{marks}</{tag}>'
+                if why:
+                    link = f'<a href="../../chars/{pid}/">{e(full)}</a>' if pid else e(full)
+                    notes += (f'<div class="rk-note" id="c-{img_id}"><h3><span class="tier tier-{t}">{t}</span>{link}</h3>' + paras(why) + "</div>")
             rows += f'<div class="tier-row"><div class="tier tier-{t}">{t}</div><div class="tier-ic">{icons}</div></div>'
         intro = paras(r.get("導入", []))
         h1_title = " ".join(f'<span class="cp-h1">{e(w)}</span>' for w in r["title"].split())  # 空白の所でだけ折り返す
@@ -742,7 +781,7 @@ def ranking_pages(items, config):
                 f'<p>{date_label(r)}</p></section>'
                 + (f'<div class="rk-intro">{intro}</div>' if intro else "")
                 + (f'<div class="tier-table">{rows}</div>' if n else '<p class="muted">準備中です。</p>')
-                + (f'<section class="cp-sec"><h2>ランクの解説</h2>{notes}</section>' if n else ""))
+                + (f'<section class="cp-sec"><h2>ランクの解説</h2>{notes}</section>' if notes else ""))
         meta = "\n".join([f'title: {r["title"]}｜パワプロアプリ攻略ベース',
                           f'description: パワプロアプリのイベキャラを、Tier表（SS・S・A・B）でランク付けしました。{r["title"]}の評価と理由を、キャラごとに解説しています。',
                           f'path: {r["path"]}', "nav: none"] + ([] if r.get("公開") else ["noindex: yes"])) + "\n"
