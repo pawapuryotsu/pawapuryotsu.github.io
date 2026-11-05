@@ -390,3 +390,5 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .rk-list{margin:4px 0 0;padding-left:1.3em;text-wrap:pretty}
 .rk-list li{margin:3px 0}
 .cp-sec>p{text-wrap:pretty}
+
+.tx-b{color:#1565c0}.tx-r{color:#c62828}.tx-bold{font-weight:700}

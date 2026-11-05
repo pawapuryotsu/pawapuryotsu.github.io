@@ -218,8 +218,17 @@ def friend_text(c):
     return "<br>".join(e(p) for p in parts) if parts else "なし"
 
 
+_RICH = {"青": "tx-b", "赤": "tx-r", "太": "tx-bold", "青太": "tx-b tx-bold", "赤太": "tx-r tx-bold"}
+
+
+def rich(t):
+    """文字の色・太さの指示。{青:…} {赤:…} {太:…} {青太:…} {赤太:…} を色・太字にする（それ以外は普通の文字）"""
+    return re.sub(r"[{｛](青太|赤太|青|赤|太)[:：]([^{}｛｝]*)[}｝]",
+                  lambda m: f'<span class="{_RICH[m.group(1)]}">{m.group(2)}</span>', e(t))
+
+
 def paras(lst):
-    return "".join(f"<p>{e(t)}</p>" for t in lst)
+    return "".join(f"<p>{rich(t)}</p>" for t in lst)
 
 
 def event_kinds(c, config, text, has_friend):
@@ -746,7 +755,7 @@ def guide_html(r):
     for g in r.get("解説欄", []):
         body = ""
         if g.get("箇条書き"):
-            body += '<ul class="rk-list">' + "".join(f"<li>{e(x)}</li>" for x in g["箇条書き"]) + "</ul>"
+            body += '<ul class="rk-list">' + "".join(f"<li>{rich(x)}</li>" for x in g["箇条書き"]) + "</ul>"
         body += paras(g.get("文章", []))
         out += f'<section class="cp-sec"><h2>{e(g["見出し"])}</h2>{body}</section>'
     return out
