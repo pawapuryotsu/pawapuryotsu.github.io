@@ -387,3 +387,6 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 @media (min-width:720px){.cp-headrow h1 .cp-h1+.cp-h1{font-size:22px}}
 @media (max-width:340px){.cp-basic td,.cp-bonus td{white-space:normal;word-break:keep-all;overflow-wrap:anywhere}.cp-basic th,.cp-bonus th{font-size:13px;padding-right:6px}}
 .scard.rkcard h3{padding-right:24px}
+.rk-list{margin:4px 0 0;padding-left:1.3em;text-wrap:pretty}
+.rk-list li{margin:3px 0}
+.cp-sec>p{text-wrap:pretty}
