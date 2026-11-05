@@ -822,10 +822,9 @@ def ranking_pages(items, config, chars, chars_path):
                 f'<p>{date_label(r)}</p></section>'
                 + (f'<div class="rk-intro">{intro}</div>' if intro else "")
                 + (f'<div class="tier-table">{rows}</div>' if n else '<p class="muted">準備中です。</p>')
-                + guide_html(r)
-                + (f'<section class="cp-sec"><h2>ランクの解説</h2>{notes}</section>' if notes else ""))
+                + guide_html(r))   # キャラごとの評価文章は、各キャラのページ（src/chars/texts/<名前>.json の「評価」）にだけ書く
         meta = "\n".join([f'title: {r["title"]}｜パワプロアプリ攻略ベース',
-                          f'description: パワプロアプリのイベキャラを、Tier表（SS・S・A・B）でランク付けしました。{r["title"]}の評価と理由を、キャラごとに解説しています。',
+                          f'description: パワプロアプリのイベキャラを、Tier表（SS・S・A・B）でランク付けしました。{r["title"]}の評価基準と、各キャラのランクをまとめています。',
                           f'path: {r["path"]}', "nav: none"] + ([] if r.get("公開") else ["noindex: yes"])) + "\n"
         pages.append(f"<!--\n{meta}-->\n{body}")
     return pages
