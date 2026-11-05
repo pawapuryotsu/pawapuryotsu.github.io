@@ -754,9 +754,16 @@ def ranking_pages(items, config, chars, chars_path):
                 if any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in c.get("金特", {}).get("投手", [])):
                     marks += '<em class="rk-supreme">☆至高金特</em>'
                 pit = c.get("金特", {}).get("投手", [])
-                if "オリジナルストレート" in pit:
+                pats = [p_.get("投手", []) for p_ in c.get("金特", {}).get("パターン", [])]
+                supreme = any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in pit)
+
+                def with_supreme(match):
+                    # 至高金特を取れるキャラは、同じ獲得パターンで両立できる時だけ★を出す（両立できなければ☆至高金特を優先）
+                    return any(match(k) for k in pit) and (not supreme or any(
+                        any(match(k) for k in pt) and any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in pt) for pt in pats))
+                if with_supreme(lambda k: k == "オリジナルストレート"):
                     marks += '<em class="rk-supreme">★オリスト</em>'
-                if any(k.startswith("オリジナル変化球") for k in pit):
+                if with_supreme(lambda k: k.startswith("オリジナル変化球")):
                     marks += '<em class="rk-supreme">★オリ変</em>'
                 icons += f'<{tag} class="rk-ic"{href}>{icon}{label}{marks}</{tag}>'
                 if why:
