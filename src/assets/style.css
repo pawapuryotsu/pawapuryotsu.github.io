@@ -392,3 +392,10 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cp-sec>p{text-wrap:pretty}
 
 .tx-b{color:#1565c0}.tx-r{color:#c62828}.tx-bold{font-weight:700}
+
+/* イベント欄：金特イベントと共通イベントを帯で見分ける（管理人指示 2026-11-06） */
+.cp-sec h3.cp-ev{font-family:var(--head);font-weight:900;font-size:16px;line-height:1.5;color:#14233a;margin:22px 0 8px;padding:7px 10px;border-radius:4px;border-left:6px solid #888;background:#eee}
+.cp-sec h3.cp-ev:first-of-type{margin-top:10px}
+.cp-sec h3.cp-ev-gold{background:linear-gradient(#fff3b8,#ffe48a);border-left-color:#d9a000}
+.cp-sec h3.cp-ev-common{background:linear-gradient(#e3f4ff,#c4e5ff);border-left-color:#2f8fe6}
+.cp-sec h3.cp-ev .cp-h3-side{display:block;margin:2px 0 0;font-size:14px}
