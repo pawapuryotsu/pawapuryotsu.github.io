@@ -68,6 +68,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--sub);font-weight:60
   <div class="fld"><label>上限突破</label><span id="brk" class="tabs"></span></div>
   <div class="fld"><label>コーチ</label><span id="coachN" class="tabs"></span></div>
   <div class="row"><b id="lvline"></b></div>
+  <div class="fld" id="jkrow" hidden><label>熟練スキル</label><select id="jk" style="width:100%;max-width:100%;box-sizing:border-box"></select><div class="note">コーチなしで付く特訓値です。コーチ分と合わせて+50（球速は190）が上限なので、理論値は変わりません。</div></div>
   <div class="fld"><label>起用</label><span id="modeSel" class="tabs"></span></div>
   <div class="row" id="posrow" hidden><label>守備位置</label><span id="posSel" class="tabs"></span></div>
   <div class="row note" id="posnote" hidden></div>
@@ -165,6 +166,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--sub);font-weight:60
 <li>理論値ランキングの守備位置別には、サブポジのキャラも載せています。扱いは、ランキングの画面の「サブポジの扱い」に書いています。</li>
 <li>両立して獲得できない特能（片方を持っていると、もう片方は伝授できない。伝授する中でも両方は選べない。金特の下位の青特も含む。元から片方を持っているキャラでも、反対側の金特は伝授できるが、元の系統の査定は失う）：広角打法系統とプルヒッター系統／対ストレート系統と対変化球系統／ポーカーフェイス系統と闘志系統（投手）／インコース系統とアウトコース系統／ハイボールヒッター系統とローボールヒッター系統。</li>
 <li>特能全取得のターン数＝ceil(金特の数÷6)＋ceil(青特の数÷6)。伝授と元から持つ特能をすべて数え、取得済みの上位がある下位の青特は数えません。</li>
+<li>熟練の○○（熟練の投球・打撃・走塁・守備）は、コーチなしで付く特訓値です。「1人を調べる」「契約書を比べる」で選べます。特訓値＝コーチ分＋熟練分で、上限は変わらず+50（球速は190）です。そのため理論値ランキングは変わらず、コーチの枠が少なくてもオール+50を目指しやすくなります。数値が分かっているもの（投球1・2、打撃1、走塁1、守備1）だけ入れています。</li>
 <li>獲得経験点上限を持つキャラがデッキにいれば、サポートに回します。いなければ「※獲得経験点上限無し」と出します。</li>
 </ul>
 <h2>仮定していること（要確認）</h2>
@@ -174,6 +176,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--sub);font-weight:60
 <li>野手キャラの投手能力（球速など）は査定0、投手キャラの野手特殊能力は査定表の値を使っています。投手キャラに野手の金特・青特は伝授しません。</li>
 <li>デッキに使えるキャラは、入力シートに入っている全員（期間限定も含む）から、持っていないキャラを除いたものです。上限アップは覚醒・凸の最大値としています。</li>
 <li>コーチ+N＝育成選手N人、上限アップはN人分の合計、という理解で計算しています。</li>
+<li>熟練の○○の特訓値は、コーチ分に足してから+50で止める（コーチ分だけで+50を超える分は増えない）として計算しています。</li>
 </ul>
 <h2>修正履歴（公開後に直した間違い）</h2>
 <ul>
@@ -350,15 +353,24 @@ const DATA = {"chars":[{"name":"[エアギター]志藤玲美","苗字":"志藤"
     return { total, detail };
   }
 
+  // ---------- 熟練の○○（数値が分かっているものだけ。調査中のものは追加していく）----------
+  const JUKUREN = {
+    投: [["熟練の投球1", { 球速: 6, コントロール: 6, スタミナ: 6 }], ["熟練の投球2", { 球速: 8, コントロール: 8, スタミナ: 8 }]],
+    野: [["熟練の打撃1", { ミート: 7, パワー: 7 }], ["熟練の走塁1", { 走力: 10 }], ["熟練の守備1", { 肩力: 6, 守備力: 6, 捕球: 6 }]],
+  };
+  const jukurenOf = (name) => { for (const k of Object.keys(JUKUREN)) for (const [n, v] of JUKUREN[k]) if (n === name) return v; return {}; };
+
   // ---------- 特訓値 ----------
   function trainFromDecks(decks) {
     const sum = {}; for (const s of CAP_STATS) sum[s] = 0;
     for (const deck of decks) for (const c of deck) for (const s of CAP_STATS) sum[s] += c.上限[s] || 0;
-    const train = {}; for (const s of CAP_STATS) train[s] = Math.min(50, sum[s]);
+    // 熟練の○○：コーチなしで付く特訓値。コーチ分と合わせて +50（球速は190）が上限なので、理論値は変わらない
+    const J = root.SimEngine.opts.jukuren || {};
+    const train = {}; for (const s of CAP_STATS) train[s] = Math.min(50, sum[s] + (J[s] || 0));
     return train;
   }
 
-  root.SimEngine = { opts: { pitch7: true, allStats50: false, subF: 1 }, POS_MAP, BAT_STATS, PIT_STATS, CAP_STATS, SCENARIO_GOLD, makeSkillBook, posMatch, lookup, closure, charSkills, skillValue, skillElemVal, levelStat, baseValue, trainFromDecks };
+  root.SimEngine = { opts: { pitch7: true, allStats50: false, subF: 1, jukuren: {} }, JUKUREN, jukurenOf, POS_MAP, BAT_STATS, PIT_STATS, CAP_STATS, SCENARIO_GOLD, makeSkillBook, posMatch, lookup, closure, charSkills, skillValue, skillElemVal, levelStat, baseValue, trainFromDecks };
   if (typeof module !== "undefined") module.exports = root.SimEngine;
 })(typeof window !== "undefined" ? window : globalThis);
 </script>
@@ -601,7 +613,7 @@ const DATA = {"chars":[{"name":"[エアギター]志藤玲美","苗字":"志藤"
       const mk = mode === "main" ? "main" : "sub";
       const V0 = E.baseValue(data.base, ch, lv, {}, mk).total;
       const Vs = CS.map((k) => { const a = []; for (let t = 0; t <= 50; t++) { const tr = {}; tr[k] = t; a.push(E.baseValue(data.base, ch, lv, tr, mk).total - V0); } return a; });
-      const baseOf = (tot) => { let v = V0; const tr = {}; for (let j = 0; j < CS.length; j++) { const t = tot[j] > 50 ? 50 : tot[j]; v += Vs[j][t]; tr[CS[j]] = t; } return v + policy(tr); };
+      const JK = E.opts.jukuren || {}; const baseOf = (tot) => { let v = V0; const tr = {}; for (let j = 0; j < CS.length; j++) { const t = Math.min(50, tot[j] + (JK[CS[j]] || 0)); v += Vs[j][t]; tr[CS[j]] = t; } return v + policy(tr); };
       const stateOf = (ds) => { const tot = CS.map(() => 0); let rw = 0, ex = 0, ev = 0; ds.forEach((d, p) => { d.main.concat(d.sup).forEach((i) => { CS.forEach((k, j) => (tot[j] += capv[i][j])); rw += wv[i]; }); ex += expBonus(data, d); if (per[p].length) ev += evPenalty(data, d.main); }); return { tot, rw, ex, ev }; };
       let st = stateOf(decks);
       // 山登り：1枠ずつ、候補すべてを試して一番よいものに入れ替える。変わらなくなるまで繰り返す
@@ -1056,7 +1068,7 @@ const DATA = {"chars":[{"name":"[エアギター]志藤玲美","苗字":"志藤"
       for (let t = 0; t <= 50; t++) bin.add(`z_${s}_${t}`);
       const terms = Array.from({ length: 51 }, (_, t) => (t ? [t, `z_${s}_${t}`] : null)).filter(Boolean);
       for (let d = 0; d < N; d++) for (let c = 0; c < P; c++) if (capv[c][s]) { terms.push([-capv[c][s], mv(d, c)]); terms.push([-capv[c][s], sv(d, c)]); }
-      add(terms, "<=", 0);
+      add(terms, "<=", (E.opts.jukuren || {})[k] || 0); // 熟練の○○の分は、コーチなしで付く
     });
 
     const skillTerms = elems.map((e, k) => [elemVal[e], `y_${k}`]);
@@ -1200,7 +1212,14 @@ const ZK = [[20, "PSR +20"], [10, "SR +10"], [5, "PR/R +5"], [3, "PN/N +3"], [0,
 const CN = [[2, "+2"], [3, "+3"], [4, "+4"]];
 const PL = [["balance", "査定の合計が最大"], ["speed", "球速190を優先"], ["bat", "野手能力オール+50を優先"]];
 const BR = [[0, "なし"], [1, "1(+5)"], [2, "2(+10)"], [3, "3(+15)"], [4, "4(+20)"], [5, "5(+25)"]];
+// 熟練の○○（投手は投球、野手は打撃・走塁・守備）。選択肢を入れ替える
+function jkOptions(isP) { return `<option value="">なし</option>` + SimEngine.JUKUREN[isP ? "投" : "野"].map(([n, v]) => `<option value="${n}">${n}（${Object.entries(v).map(([k, x]) => `${k}+${x}`).join("、")}）</option>`).join(""); }
+function refreshJk() {
+  const ok = state.cIdx !== null; $("jkrow").hidden = !ok;
+  if (ok) { const old = $("jk").value; $("jk").innerHTML = jkOptions(CH[state.cIdx].ポジション === "投"); if ([...$("jk").options].some((o) => o.value === old)) $("jk").value = old; }
+}
 function refreshMode() {
+  refreshJk();
   const isP = state.cIdx !== null && CH[state.cIdx].ポジション === "投";
   $("polrow").hidden = !isP;
   btnGroup($("modeSel"), isP ? [["main", "先発"], ["sub", "中継ぎ・抑え"]] : [["main", "スタメン"], ["sub", "ベンチ"]], "mode", refreshPos, state);
@@ -1343,9 +1362,9 @@ function renderResult(ch, lv, mode, N, r) {
       <tr><td></td><td style="text-align:left"><b>このデッキの合計</b></td>${CAPS.map((s) => `<td><b>${sum[s]}</b></td>`).join("")}</tr></table></div>
       ${pl.items.length ? `<div class="note">メインの前後イベ：前${d.main.filter((j) => CH[j].前後 === "前").length}・後${d.main.filter((j) => CH[j].前後 === "後").length}（金特・威圧感を取るデッキは、同じ側が6枚にならず、できるだけ5枚も避ける）</div>` : ""}${r.noExpPt[i] ? '<div class="warn">※獲得経験点上限無し</div>' : ""}</div>`;
   }).join("");
-  const capRow = `<div class="card"><h2>特訓値（全デッキの合計、各+50まで）</h2><div style="overflow-x:auto"><table><tr><th></th>${head}</tr><tr><td style="text-align:left">合計</td>${CAPS.map((s) => `<td>${tot[s]}</td>`).join("")}</tr><tr><td style="text-align:left">特訓値</td>${CAPS.map((s) => `<td><b>${r.train[s] || 0}</b></td>`).join("")}</tr></table></div></div>`;
+  const capRow = `<div class="card"><h2>特訓値（全デッキの合計${r.jukuren ? "＋熟練" : ""}、各+50まで）</h2><div style="overflow-x:auto"><table><tr><th></th>${head}</tr><tr><td style="text-align:left">合計</td>${CAPS.map((s) => `<td>${tot[s]}</td>`).join("")}</tr>${r.jukuren ? `<tr><td style="text-align:left">${r.jukuren}</td>${CAPS.map((s) => `<td>${SimEngine.jukurenOf(r.jukuren)[s] ? "+" + SimEngine.jukurenOf(r.jukuren)[s] : ""}</td>`).join("")}</tr>` : ""}<tr><td style="text-align:left">特訓値</td>${CAPS.map((s) => `<td><b>${r.train[s] || 0}</b></td>`).join("")}</tr></table></div></div>`;
   const trainTxt = Object.entries(r.train).filter(([k, v]) => v && (isP || !["球速", "コントロール", "スタミナ"].includes(k))).map(([k, v]) => `${k}+${v}`).join("　");
-  return `<div class="card"><div class="note">${ch.name}／Lv${lv}／コーチ+${N}／${isP ? (mode === "main" ? "先発" : "中継ぎ・抑え") : (mode === "main" ? "スタメン" : "ベンチ")}${SimEngine.opts.subF !== 1 ? `／サブポジ（守備力の査定×${SimEngine.opts.subF}）` : ""}</div>
+  return `<div class="card"><div class="note">${ch.name}／Lv${lv}／コーチ+${N}${r.jukuren ? `／${r.jukuren}` : ""}／${isP ? (mode === "main" ? "先発" : "中継ぎ・抑え") : (mode === "main" ? "スタメン" : "ベンチ")}${SimEngine.opts.subF !== 1 ? `／サブポジ（守備力の査定×${SimEngine.opts.subF}）` : ""}</div>
   <div class="big">${fmt(r.total)}</div><div class="note">基礎能力 ${fmt(r.baseNoTrain)} ＋ 特訓値 ${fmt(r.baseTotal - r.baseNoTrain)} ＋ 特殊能力 ${fmt(r.skills.value)}（うち伝授の上乗せ ${fmt(r.skills.gain)}）</div>${r.turns ? `<div class="note">特能をすべて取るのに必要なターン：<b>${r.turns.turns}ターン</b>（金特${r.turns.gold}個・青特${r.turns.blue}個、金青は別々に1ターン6個まで）</div>` : ""}</div>
   <div class="grid"><div class="card"><h2>基礎能力</h2><table><tr><th>能力</th><th>Lv時</th><th>特訓</th><th class="tot">合計</th><th>査定</th></tr>${rows}${subAdj}</table><div class="note">特訓値：${trainTxt || "なし"}</div></div>
   </div>
@@ -1398,14 +1417,16 @@ onmessage = async (e) => {
 })();
 // 厳密に計算して、使えない環境では簡易探索に切り替える
 async function runOptimize(ch, lv, mode, N, opts) {
+  const oldJk = SimEngine.opts.jukuren; SimEngine.opts.jukuren = SimEngine.jukurenOf(opts.jukuren);
   try {
-    return await SimExact.optimizeExact(DATA, ch, lv, mode, N, opts, (lp, o) => Solver.solve(lp, o));
+    const r = await SimExact.optimizeExact(DATA, ch, lv, mode, N, opts, (lp, o) => Solver.solve(lp, o));
+    r.jukuren = opts.jukuren || ""; return r;
   } catch (err) {
     console.warn(err);
     const r = SimOpt.optimize(DATA, ch, lv, mode, N, opts);
-    r.fallback = String(err && err.message || err);
+    r.fallback = String(err && err.message || err); r.jukuren = opts.jukuren || "";
     return r;
-  }
+  } finally { SimEngine.opts.jukuren = oldJk; }
 }
 document.addEventListener("change", (e) => {
   const el = e.target; if (!el.dataset || el.dataset.ex === undefined) return;
@@ -1424,7 +1445,7 @@ $("run").onclick = () => {
   const tick = setInterval(() => { $("status").textContent = `厳密に計算中… ${Math.round((performance.now() - t) / 1000)}秒`; }, 500);
   const spM = state.mode === "main" && state.sp ? ch.サブ[state.sp] : null;
   SimEngine.opts.subF = SUBF[spM] || 1;
-  runOptimize(ch, lv, state.mode, state.N, { needExp: $("needExp").checked, pitchPolicy: state.pol, exclude: [...exclude] }).then((r) => {
+  runOptimize(ch, lv, state.mode, state.N, { needExp: $("needExp").checked, pitchPolicy: state.pol, exclude: [...exclude], jukuren: $("jk").value }).then((r) => {
     $("out").innerHTML = renderResult(ch, lv, state.mode, state.N, r);
     const ex = r.exact;
     $("status").textContent = r.fallback ? `簡易探索で計算しました（${r.fallback}）` : (ex && /^Optimal\/Optimal\/Optimal$/.test(ex.status) ? `完了：最大であることを確認済み（${Math.round((performance.now() - t) / 1000)}秒）` : `完了（時間切れのため最良の解：${ex ? ex.status : ""}）`);
@@ -1493,13 +1514,14 @@ $("trk").onchange = showTheory; $("trNoLim").onchange = showTheory; $("trSort").
 const cs = { pol: "balance" };
 const CPOS = ["捕", "一", "二", "三", "遊", "外"];
 function makeSlot(P) {
-  const st = { P, cIdx: null, zukan: 20, brk: 0, N: 2 };
+  const st = { P, cIdx: null, zukan: 20, brk: 0, N: 2, jk: "" };
   const root = document.createElement("div"); root.id = "cmp" + P; $("cmpWrap").appendChild(root); st.root = root;
   root.innerHTML = `<div class="card"><h2>${P}${slots.length >= 2 ? `<button id="${P}del" style="float:right">削除</button>` : ""}</h2><input id="${P}q" style="width:100%;box-sizing:border-box" placeholder="キャラ名で検索"><div id="${P}sug" class="suggest" style="display:none"></div><div class="row" id="${P}sel"><span class="note">未選択</span></div>
-    <div class="fld"><label>図鑑</label><span id="${P}zk" class="tabs"></span></div><div class="fld"><label>上限突破</label><span id="${P}br" class="tabs"></span></div><div class="fld"><label>コーチ</label><span id="${P}cn" class="tabs"></span></div><div class="row"><b id="${P}lv"></b></div></div>`;
+    <div class="fld"><label>図鑑</label><span id="${P}zk" class="tabs"></span></div><div class="fld"><label>上限突破</label><span id="${P}br" class="tabs"></span></div><div class="fld"><label>コーチ</label><span id="${P}cn" class="tabs"></span></div><div class="fld" id="${P}jkrow" hidden><label>熟練スキル</label><select id="${P}jk" style="width:100%;max-width:100%;box-sizing:border-box"></select></div><div class="row"><b id="${P}lv"></b></div></div>`;
   const c0 = () => contracts.find((x) => x.idx === st.cIdx);
   st.lv = () => { const c = c0(); return c && c.limit != null ? c.limit + zk(c, st.zukan) + 5 * st.brk : null; };
   const setLv = () => { const c = c0(), lv = st.lv(); $(P + "lv").textContent = !c ? "" : lv === null ? "限界Lvが未入力のため計算できません" : `限界Lv ${c.limit} ＋ 図鑑 ${zk(c, st.zukan)}${c.noPSR && st.zukan > 10 ? "（PSRなしのためSR +10）" : ""}${st.brk ? ` ＋ 上限突破 ${5 * st.brk}` : ""} ＝ Lv${lv}`; };
+  $(P + "jk").onchange = () => { st.jk = $(P + "jk").value; };
   btnGroup($(P + "zk"), ZK, "zukan", setLv, st); btnGroup($(P + "br"), BR, "brk", setLv, st); btnGroup($(P + "cn"), CN, "N", null, st);
   $(P + "q").oninput = () => {
     const q = norm($(P + "q").value), box = $(P + "sug");
@@ -1512,7 +1534,7 @@ function makeSlot(P) {
       if (c.noPSR) { const t = document.createElement("span"); t.className = "tag-nopsr"; t.textContent = " PSRなし"; d.appendChild(t); }
       d.onclick = () => { st.cIdx = c.idx; $(P + "q").value = ""; box.style.display = "none";
         $(P + "sel").innerHTML = `<b>${c.表示}</b>${c.限定 ? '<span class="pill tag-lim">※限定</span>' : ""}${c.noPSR ? '<span class="pill tag-nopsr">PSRなし</span>' : ""}　<span class="pill">${POSN[CH[c.idx].ポジション] || "-"}</span><span class="pill">限界Lv ${c.limit ?? "不明"}</span><span class="pill">コスト 白袋${c.cost ?? "不明"}／銀袋${c.cost == null ? "不明" : Math.ceil(c.cost * 0.8)}／金袋${c.cost == null ? "不明" : Math.ceil(c.cost * 0.6)}</span>`;
-        setLv(); refreshCpos(); };
+        st.jk = ""; $(P + "jk").innerHTML = jkOptions(CH[c.idx].ポジション === "投"); $(P + "jkrow").hidden = false; setLv(); refreshCpos(); };
       box.appendChild(d);
     });
   };
@@ -1535,7 +1557,7 @@ refreshCpos();
 $("crun").onclick = async () => {
   const v = $("cpos").value, jobs = [];
   if (slots.some((s) => s.cIdx === null)) { $("cstatus").textContent = "選んでいない欄があります（使わない欄は「削除」してください）"; return; }
-  const sig = slots.map((s) => [s.cIdx, s.lv(), s.N].join("_"));
+  const sig = slots.map((s) => [s.cIdx, s.lv(), s.N, s.jk].join("_"));
   if (new Set(sig).size < sig.length) { $("cstatus").textContent = "同じキャラ・同じ条件の欄があります。条件を変えるか、別のキャラにしてください"; return; }
   const pT = slots.map((s) => CH[s.cIdx].ポジション === "投");
   if (pT.some((x) => x !== pT[0])) { $("cstatus").textContent = "投手と野手は比べられません（同じ区分のキャラを選んでください）"; return; }
@@ -1560,7 +1582,7 @@ $("crun").onclick = async () => {
       const j = jobs[i];
       $("cstatus").textContent = `厳密に計算中 ${i + 1}/${jobs.length}（${Math.round((performance.now() - t0) / 1000)}秒）`;
       SimEngine.opts.subF = j.f;
-      const r = await runOptimize(j.ch, j.lv, j.mode, j.s.N, { needExp: $("cneedExp").checked, pitchPolicy: cs.pol, exclude: [...exclude] });
+      const r = await runOptimize(j.ch, j.lv, j.mode, j.s.N, { needExp: $("cneedExp").checked, pitchPolicy: cs.pol, exclude: [...exclude], jukuren: j.s.jk });
       if (r.error) { $("cstatus").textContent = `${j.s.P}：${r.error}`; return; }
       res.push({ ...j, r, html: renderResult(j.ch, j.lv, j.mode, j.s.N, r) });
     }
@@ -1569,7 +1591,7 @@ $("crun").onclick = async () => {
   res.sort((x, y) => y.r.total - x.r.total);
   const top = res[0].r.total;
   const nm = (x) => `${x.s.P}：${x.ch.name}`;
-  const lab = (x, i) => `<div>${i + 1}位</div>${x.ch.name}<div class="note">${x.s.P}／Lv${x.lv}／コーチ+${x.s.N}${x.note ? `／${x.note}` : ""}</div>`;
+  const lab = (x, i) => `<div>${i + 1}位</div>${x.ch.name}<div class="note">${x.s.P}／Lv${x.lv}／コーチ+${x.s.N}${x.s.jk ? `／${x.s.jk}` : ""}${x.note ? `／${x.note}` : ""}</div>`;
   const row = (label, f, cls) => `<tr><td style="text-align:left">${label}</td>${res.map((x) => `<td class="${cls || ""}">${f(x)}</td>`).join("")}</tr>`;
   const second = res[1];
   const verdict = res.length === 2 && second.r.total === top ? "同じ査定です" : `1位は ${nm(res[0])}（${fmt(top)}点）。${res.length > 1 ? (second.r.total === top ? "同点のキャラがいます。" : `2位との差は${fmt(top - second.r.total)}点です。`) : ""}`;
