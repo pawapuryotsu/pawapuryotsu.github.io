@@ -59,6 +59,9 @@ const abbrPractice=v=>state.school==="roman"&&typeof v==="string"?PRACTICE_ABBR.
 
 const fmt=n=>n.toLocaleString("ja-JP");
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+/* 文の中の {赤:…} {青:…} {太:…} {青太:…} {赤太:…} を色・太字にする（育成のポイント用） */
+const RICH={"青":"tx-b","赤":"tx-r","太":"tx-bold","青太":"tx-b tx-bold","赤太":"tx-r tx-bold"};
+const rich=s=>esc(s).replace(/[{｛](青太|赤太|青|赤|太)[:：]([^{}｛｝]*)[}｝]/g,(m,k,t)=>`<span class="${RICH[k]}">${t}</span>`);
 const state={school:document.body.dataset.school,sort:"rank",pos:{},q:"",f2p:false};
 const norm=s=>s.normalize("NFKC").toLowerCase().replace(/[\s　]/g,"").replace(/[ぁ-ゖ]/g,c=>String.fromCharCode(c.charCodeAt(0)+96));
 const terms=()=>state.q.split(/[\s　]+/).map(norm).filter(Boolean);
@@ -140,7 +143,7 @@ function renderList(){
         <div><h3>メインデッキ <small>●＝${SCHOOL_NAME[state.school]}のキャラ　☆＝このポジションの至高・球界の頭脳が取れる</small></h3>${slotTable(d.main,d.pos)}</div>
         <div><h3>追加アイテム</h3>${itemList(d.main)}</div>
         <div><h3>サポートデッキ${SCHOOL_MARK[state.school].sub?` <small>●＝${SCHOOL_NAME[state.school]}のキャラ</small>`:""}</h3>${supportTable(d.sub,d.pos)}</div>
-        <div><h3>育成のポイント</h3>${Array.isArray(d.tips)?`<ul class="tips">${d.tips.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<p>${d.tips}</p>`}</div>
+        <div><h3>育成のポイント</h3>${Array.isArray(d.tips)?`<ul class="tips">${d.tips.map(x=>`<li>${rich(x)}</li>`).join("")}</ul>`:`<p>${d.tips}</p>`}</div>
         ${Array.isArray(d.memo)&&d.memo.length?`<div><h3>育成メモ</h3><ul class="tips memo">${d.memo.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}
         ${d.a?`<div><h3>育成した選手の能力</h3><img class="abilityimg" src="${IMG[d.a]}" alt="${esc(lbl)}で育成した選手の基礎能力" loading="lazy"></div>`:""}
         <div><h3>解説動画</h3>${videoBlock(d.video)}${d.videoNote?`<p class="vnote">※${esc(d.videoNote)}</p>`:""}</div>
