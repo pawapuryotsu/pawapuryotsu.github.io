@@ -254,6 +254,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cp-basic th,.cp-bonus th{border-bottom:1px solid var(--line)}
 .cp-bonus .step{display:block;color:var(--stitch);font-weight:700}
 .cp-bonus .awk{white-space:nowrap}
+.cp-bonus td{white-space:normal;word-break:keep-all} /* 375pxで「70(SR) 80(PSR)(固有10含む)」などが横にはみ出さないよう、入りきらない時だけ空白の位置で折り返す */
 .cp-bonus .step small{font-size:12px}
 .cp-note{font-size:12px;color:var(--muted);margin:8px 0 0}
 .cp-more{margin-top:10px}
@@ -390,7 +391,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cp-headrow h1 .cp-h1{display:block}
 .cp-headrow h1 .cp-h1+.cp-h1{font-size:clamp(13px,4.3vw,19px);margin-top:2px;white-space:nowrap}
 @media (min-width:720px){.cp-headrow h1 .cp-h1+.cp-h1{font-size:22px}}
-@media (max-width:340px){.cp-basic td,.cp-bonus td{white-space:normal;word-break:keep-all;overflow-wrap:anywhere}.cp-basic th,.cp-bonus th{font-size:13px;padding-right:6px}}
+@media (max-width:340px){.cp-basic td,.cp-bonus td{white-space:normal;word-break:keep-all;overflow-wrap:anywhere}.cp-bonus .step{white-space:nowrap}.cp-basic th,.cp-bonus th{font-size:13px;padding-right:6px}}
 .scard.rkcard h3{padding-right:24px}
 .rk-list{margin:4px 0 0;padding-left:1.3em;text-wrap:pretty}
 .rk-list li{margin:3px 0}

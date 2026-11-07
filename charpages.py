@@ -192,15 +192,19 @@ def bonus_table(rows, extra=""):
     out = ['<table class="cp-bonus"><tbody>']
     for name, entry in rows:
         r = bonus_lines(entry)
-        if not r and entry.get("固有文字"):  # 固有の値がゲーム内で分からない項目（得意練習率アップα）は文字のまま出す
-            r = (f'{entry["固有文字"]}', [])
-            out.append(f'<tr><th>{e(name)}</th><td><b>{e(r[0])}</b>(固有)</td></tr>')
+        alpha = entry.get("固有文字") == "α"   # 得意練習率アップの固有はゲーム内で値を測れないので「+α(固有)」と書く（管理人指示 2026-11-07）
+        if not r and entry.get("固有文字"):  # 固有の値がゲーム内で分からない項目は文字のまま出す（αは「+α(固有)」、ほかは「あり(固有)」など）
+            txt = "+α" if alpha else entry["固有文字"]
+            out.append(f'<tr><th>{e(name)}</th><td><b>{e(txt)}</b>(固有)</td></tr>')
             continue
         if not r:
             continue
         head, steps = r
         h, am = awake_head(entry, head)
-        cell = f'<b>{e(h)}</b>' + (f'<span class="awk">{e(am)}</span>' if am else "") + e(unique_mark(entry)) + "".join(
+        if alpha:   # 0%+α は「+α」。Lvで伸びた値にも固有のαは付いたままなので「+α」を付ける
+            h = "+α" if h in ("0", "0%") else h + "+α"
+            steps = [(v + "+α", l) for v, l in steps]
+        cell = f'<b>{e(h)}</b>' + (f'<span class="awk">{e(am)}</span>' if am else "") + (lambda m: f'<span class="awk">{e(m)}</span>' if m else "")("(固有)" if alpha else unique_mark(entry)) + "".join(
             f'<span class="step">⇒{e(v)}<small>({e(l)})</small></span>' for v, l in steps)
         out.append(f"<tr><th>{e(name)}</th><td>{cell}</td></tr>")
     out.append(extra)
