@@ -176,6 +176,18 @@ def reform_text(c):
     return "<br>".join(e(n) for n in names) or "なし"
 
 
+def awake_head(entry, head):
+    """覚醒で伸びた値の表記（管理人指示 2026-11-07）。表示の値は覚醒込みなので、そのことを基準値のあとに書く。
+    SR覚醒（覚醒）→『150%(SR覚醒含む)』、PSR覚醒（覚醒PSR）→『10(PSR覚醒含む)』。値がSRとPSRで違う形（○○(SR) △△(PSR)）のPSR覚醒は『△△(PSR覚醒含む)』。
+    （表示, 折り返さない注記）を返す。注記は途中で折り返さない（320pxで「む」だけ次の行にならないように）"""
+    sr, psr = entry.get("覚醒"), entry.get("覚醒PSR")
+    if psr and not sr:
+        return (head[:-len("(PSR)")], "(PSR覚醒含む)") if head.endswith("(PSR)") else (head, "(PSR覚醒含む)")
+    if sr and psr:
+        return head, "(SR・PSR覚醒含む)"
+    return (head, "(SR覚醒含む)") if sr else (head, "")
+
+
 def bonus_table(rows, extra=""):
     out = ['<table class="cp-bonus"><tbody>']
     for name, entry in rows:
@@ -187,7 +199,8 @@ def bonus_table(rows, extra=""):
         if not r:
             continue
         head, steps = r
-        cell = f'<b>{e(head)}</b>{e(unique_mark(entry))}' + "".join(
+        h, am = awake_head(entry, head)
+        cell = f'<b>{e(h)}</b>' + (f'<span class="awk">{e(am)}</span>' if am else "") + e(unique_mark(entry)) + "".join(
             f'<span class="step">⇒{e(v)}<small>({e(l)})</small></span>' for v, l in steps)
         out.append(f"<tr><th>{e(name)}</th><td>{cell}</td></tr>")
     out.append(extra)
