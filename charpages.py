@@ -267,10 +267,14 @@ def _is_gold_kotsu(item):
     return n == "威圧感" or any(g.get(n) == "金特" for g in _KINDS.values())
 
 
+_FRIEND = [set()]  # このキャラの友情特殊能力の名前（イベントの表で青太字にする）
+
+
 def _item(i):
     """「○○コツLv3」は、狭い幅では能力名とコツLvの間でだけ折り返す（<wbr>）"""
     t = e(i).replace("コツLv", "<wbr>コツLv")
-    cls = "cp-kotsu cp-kotsu-gold" if _is_gold_kotsu(i) else ("cp-kotsu" if "コツLv" in i else "")
+    is_friend = any(i.startswith(n + "コツ") for n in _FRIEND[0])
+    cls = "cp-kotsu cp-kotsu-gold" if (_is_gold_kotsu(i) or is_friend) else ("cp-kotsu" if "コツLv" in i else "")
     return f'<div class="{cls}">{t}</div>' if cls else f"<div>{t}</div>"
 
 
@@ -536,6 +540,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
             if order_type == "兼用":
                 print(f"警告: {name} は兼用判定で、メインポジションか得意練習のデータがありません。【野手】【投手】の並びを管理人に確認して config.json の「兼用の並び順」に書いてください")
     _CTYPE[0] = order_type
+    _FRIEND[0] = {n for k in ("野手", "投手") for n in c["金特"].get("友情", {}).get(k, [])}
     top_names, tap = config["重要ボーナス"][ctype], config["タップ欄のボーナス"][ctype]
     important = [(n, bonus[n]) for n in top_names if n in bonus and (bonus_lines(bonus[n]) or bonus[n].get("固有文字"))]
     unknown = [n for n in bonus if n not in top_names and n not in tap]
