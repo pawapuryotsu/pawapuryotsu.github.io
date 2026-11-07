@@ -404,6 +404,41 @@ def event_detail(ev):
     return "".join(parts)
 
 
+_COMBOS = []    # generate() が src/chars/combos.json から読む（コンボイベント）
+_BASE_PID = {}  # 二つ名なしの名前（苗字＋名前）→ 最初のページ番号（コンボの相手へのリンク用）
+
+
+def base_name(c):
+    return f'{c["苗字"]}{c.get("名前") or ""}'
+
+
+def combos_of(c):
+    """そのキャラが入っているコンボ。別バージョン（二つ名違い）でも出る。コンボの「対象外」に書いたバージョンは出さない"""
+    return [x for x in _COMBOS if base_name(c) in x["キャラ"] and c["name"] not in x.get("対象外", [])]
+
+
+def combo_html(x, root, me=None):
+    """コンボイベント1つ分。見出し・コンボキャラ・イベント前後・表。me はそのキャラページの持ち主（太字にする）"""
+    def who(n):
+        t = e(n)
+        if n == me:
+            t = f"<b>{t}</b>"
+        elif n in _BASE_PID:
+            t = f'<a href="{root}chars/{_BASE_PID[n]}/">{t}</a>'
+        return f'<span class="cp-nw">{t}</span>'
+    basic = ('<table class="cp-basic"><tbody>'
+             f'<tr><th>コンボキャラ</th><td>{"、<wbr>".join(who(n) for n in x["キャラ"])}</td></tr>'
+             f'<tr><th>イベント前後</th><td>{e(x.get("前後") or "不明")}</td></tr></tbody></table>')
+    subs = ""
+    for sub in x.get("小イベント", []):
+        if sub.get("名前"):
+            subs += f'<h4 class="cp-sub">・{e(sub["名前"])}</h4>'
+        subs += paras(sub.get("詳細", [])) + (sub_table(sub["行"]) if sub.get("行") else "")
+    if not subs:
+        subs = '<p class="muted">準備中です。</p>'
+    return f'<div class="cp-combo"><h3 class="cp-ev cp-ev-combo">{e(x["名前"])}</h3>{basic}{subs}</div>'
+
+
 def section(title, inner, empty="準備中です。"):
     # 見出しの最後の「の○○」（の評価・の基本情報…）は折り返さない（「価」だけ次の行になる等を防ぐ）
     head, sep, tail = title.rpartition("の")
@@ -641,6 +676,9 @@ def build_page(c, text, config, decks, kinds, root="../../"):
         section(f"{name}の重要ボーナス", imp),
         section(f"{name}のイベント詳細", event_detail(ev)),
     ]
+    cbs = combos_of(c)
+    if cbs:
+        parts.append(section(f"{name}のコンボイベント", "".join(combo_html(x, root, base_name(c)) for x in cbs)))
     parts += [
         section(f"{name}の評価", ranking_eval_html(c["name"], root) + paras(text.get("評価", []))),
         section(f"{name}の使用デッキ例", deck_examples(c["name"], decks, root), "このキャラを使ったデッキは準備中です。"),
@@ -700,6 +738,13 @@ def generate(chars_path, src, decks, noindex=True):
     global _RANKING
     rf = src / "ranking" / "ranking.json"
     _RANKING = json.loads(rf.read_text(encoding="utf-8")) if rf.exists() else {}
+    global _COMBOS
+    cf = src / "chars" / "combos.json"
+    _COMBOS = json.loads(cf.read_text(encoding="utf-8")).get("コンボ", []) if cf.exists() else []
+    _BASE_PID.clear()
+    for pid, nm in config["公開するキャラ"].items():
+        if nm in chars:
+            _BASE_PID.setdefault(base_name(chars[nm]), pid)
     pages, items = [], []
     pub = set(config.get("検索に出すページ", []))   # ここに書いた番号のページだけ検索に出す（サイトマップにも入る）
     for pid, name in config["公開するキャラ"].items():
@@ -737,8 +782,23 @@ def generate(chars_path, src, decks, noindex=True):
         pages.append(f"<!--\n{meta}-->\n{body}")
     items.sort(key=lambda t: t[0])
     pages += ranking_pages(items, config, chars, chars_path)
+    if _COMBOS:
+        pages.append(combo_page())
     pages.append(index_page(items, config, noindex and not pub))
     return pages
+
+
+def combo_page():
+    """コンボイベントだけをまとめたページ（/chars/combo/）。キャラページの「コンボイベント」欄と同じ内容"""
+    global _CTYPE
+    _CTYPE[0] = None
+    meta = ("title: コンボイベント一覧｜パワプロアプリ攻略ベース\n"
+            "description: パワプロアプリのイベキャラの組み合わせで発生するコンボイベントを、組み合わせ・イベント前後・効果ごとにまとめています。\n"
+            "path: chars/combo/\nnav: none\nnoindex: yes\n")
+    body = ('<section class="phead"><p class="eyebrow">イベキャラ</p><h1>コンボイベント一覧</h1></section>\n'
+            '<p class="cp-sec-lead">特定のイベキャラの組み合わせで発生するイベントです。イベント前後は、イベキャラの前後とは関係なく、コンボごとに決まっています。二つ名が異なる別バージョンでも基本的に同じように発生します。</p>'
+            + "".join(f'<section class="cp-sec">{combo_html(x, "../../")}</section>' for x in _COMBOS))
+    return f"<!--\n{meta}-->\n{body}"
 
 
 def stub_body(full, st):

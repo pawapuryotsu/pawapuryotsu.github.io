@@ -407,3 +407,8 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cp-sec h3.cp-ev-friend .cp-h3-side{display:inline;margin:0;font-size:inherit}
 .cp-nw{white-space:nowrap}
 @media (max-width:340px){.cp-tbl td>div.cp-kotsu{overflow-wrap:anywhere}}
+
+/* コンボイベント欄（キャラページとコンボ一覧ページ） */
+.cp-sec h3.cp-ev-combo{background:linear-gradient(#f3e8ff,#e2ccff);border-left-color:#8e44d6;margin-top:14px}
+.cp-sec h3.cp-ev-combo+.cp-basic{margin:4px 0 8px}
+.cp-combo .cp-tbl th{text-wrap:balance}
