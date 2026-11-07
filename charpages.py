@@ -398,7 +398,10 @@ def event_detail(ev):
 
 
 def section(title, inner, empty="準備中です。"):
-    return f'<section class="cp-sec"><h2>{e(title)}</h2>{inner or f"<p class=muted>{e(empty)}</p>"}</section>'
+    # 見出しの最後の「の○○」（の評価・の基本情報…）は折り返さない（「価」だけ次の行になる等を防ぐ）
+    head, sep, tail = title.rpartition("の")
+    h = f'{e(head)}<span class="cp-tail">{e(sep + tail)}</span>' if head else e(title)
+    return f'<section class="cp-sec"><h2>{h}</h2>{inner or f"<p class=muted>{e(empty)}</p>"}</section>'
 
 
 # 緑と赤が半々のボックスで出す特殊能力（管理人指定。データ上は青特で入っている）
