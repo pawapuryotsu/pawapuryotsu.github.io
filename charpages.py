@@ -294,7 +294,9 @@ def _kind_of(name):
 
 def _item(i):
     """「○○コツLv3」は、狭い幅では能力名とコツLvの間でだけ折り返す（<wbr>）"""
-    t = e(i).replace("コツLv", "<wbr>コツLv")
+    t = e(i).replace("コツLv", "<wbr>コツLv").replace("取得", "<wbr>取得")
+    if re.match(r"^オリジナル(ストレート|変化球)", i) and i.endswith("取得"):  # オリジナルストレート取得・オリジナル変化球(○○方向)取得は青字（管理人指示 2026-11-07）
+        return f'<div class="tx-b tx-bold">{t.replace("(", "<wbr>(")}</div>'
     m = re.match(r"^(.+?)取得$", i)
     if m and _kind_of(m.group(1)) in ("赤特", "緑特"):  # 「○○取得」は、赤特は赤文字、緑特は緑文字
         return f'<div class="{"tx-r" if _kind_of(m.group(1)) == "赤特" else "tx-g"}">{t}</div>'
