@@ -327,6 +327,10 @@ def _cell(x):
 
 def _eff(i):
     """効果の1項目。体力・体力最大値・やる気は、＋が付けば青、－（-）が付けば赤で出す"""
+    if re.match(r"^(いいヤツ|世渡り上手|モテモテ|センス〇)", i):  # サクセス中のプラス効果＝青
+        return f'<span class="tx-b">{e(i)}</span>'
+    if i.startswith("センス×"):  # サクセス中のマイナス効果＝赤
+        return f'<span class="tx-r">{e(i)}</span>'
     m = re.match(r"^(体力最大値|体力|やる気)([+＋\-－−ー]+)", i)
     if not m:
         return e(i)
