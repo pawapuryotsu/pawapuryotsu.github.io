@@ -510,9 +510,9 @@ def pitch_chart(p):
         segs = []
         for i in range(6):
             col = seg_color(i, n) if i < n else "#46a8ff"
-            segs.append(f'<rect x="{22 + i * 15}" y="-7" width="14" height="14" fill="{col}" stroke="#0b3f9e" stroke-width="1.5"/>')
+            segs.append(f'<rect x="{22 + i * 15}" y="-9" width="14" height="18" fill="{col}" stroke="#0b3f9e" stroke-width="1.5"/>')
         tipcol = seg_color(6, n) if n >= 7 else "#46a8ff"
-        tip = f'<path d="M112 -7L119 -7L127 0L119 7L112 7Z" fill="{tipcol}" stroke="#0b3f9e" stroke-width="1.5"/>'
+        tip = f'<path d="M112 -9L119 -9L127 0L119 9L112 9Z" fill="{tipcol}" stroke="#0b3f9e" stroke-width="1.5"/>'
         out.append(f'<g transform="translate({CX} {CY}) rotate({a})">{"".join(segs)}{tip}</g>')
         if x:
             name = x.get("オリジナル名") or x.get("種類")  # オリジナル球種は、データに入力した名前を表記
