@@ -321,8 +321,8 @@ def _choice_name(t):
 _CELL_ORDER = ("三塁手", "その他野手", "投手", "野手")
 # 【野手】【投手】の並び順はキャラの種別で固定（野手用＝野手が上、投手用＝投手が上。兼用は管理人に確認）
 _CELL_ORDER_BY_TYPE = {
-    "野手用": ("三塁手", "その他野手", "野手", "投手"),
-    "投手用": ("投手", "三塁手", "その他野手", "野手"),
+    "野手用": ("三塁手", "その他野手", "捕手", "捕手以外の野手", "野手", "投手"),
+    "投手用": ("投手", "三塁手", "その他野手", "捕手", "捕手以外の野手", "野手"),
 }
 _CTYPE = [None]
 _CELL_SKIP = ("選択肢", "効果", "正解", "その他")
@@ -365,6 +365,11 @@ def sub_table(rows):
     return f'<div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>'
 
 
+def side_html(t):
+    """見出し横の文。「、」で区切った1まとまりごとに折り返さない（「御／幸塾」のように名前の途中で折り返さないため）"""
+    return "、<wbr>".join(f'<span class="cp-nw">{e(p)}</span>' for p in t.split("、"))
+
+
 def event_detail(ev):
     """イベント詳細。金特イベント・共通イベント・自己紹介など全部をここに並べる。
     「小イベント」（名前＋表の行）があれば表で、無ければ従来の書き方（体力・やる気・コツ・選択肢・詳細）で出す。
@@ -395,7 +400,7 @@ def event_detail(ev):
                 f'<li{" class=ok" if c.get("正解") else ""}>{"◎ " if c.get("正解") else ""}{e(c["文"])}'
                 + (f'<br><span class="muted">{e(c["結果"])}</span>' if c.get("結果") else "") + "</li>" for c in x["選択肢"]) + "</ul>"
         cls = {"金特イベント": " cp-ev-gold", "共通イベント": " cp-ev-common", "友情イベント": " cp-ev-friend"}.get(k, "")
-        parts.append(f'<h3 class="cp-ev{cls}">{e(k)}' + (f'{"" if k == "友情イベント" else " "}<span class="cp-h3-side">{e(x["見出し横"])}</span>' if x.get("見出し横") else "") + "</h3>" + (inner or '<p class="muted">準備中です。</p>'))
+        parts.append(f'<h3 class="cp-ev{cls}">{e(k)}' + (f'{"" if k == "友情イベント" else " "}<span class="cp-h3-side">{side_html(x["見出し横"])}</span>' if x.get("見出し横") else "") + "</h3>" + (inner or '<p class="muted">準備中です。</p>'))
     return "".join(parts)
 
 
