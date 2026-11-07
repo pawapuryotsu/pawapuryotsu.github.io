@@ -270,9 +270,21 @@ def _is_gold_kotsu(item):
 _FRIEND = [set()]  # このキャラの友情特殊能力の名前（イベントの表で青太字にする）
 
 
+def _kind_of(name):
+    """特殊能力名の種類（赤特・緑特など）。skill_kinds.json に無ければ None"""
+    _is_gold_kotsu("威圧感コツ")  # _KINDS を読み込む
+    for g in _KINDS.values():
+        if name in g:
+            return g[name]
+    return None
+
+
 def _item(i):
     """「○○コツLv3」は、狭い幅では能力名とコツLvの間でだけ折り返す（<wbr>）"""
     t = e(i).replace("コツLv", "<wbr>コツLv")
+    m = re.match(r"^(.+?)取得$", i)
+    if m and _kind_of(m.group(1)) in ("赤特", "緑特"):  # 「○○取得」は、赤特は赤文字、緑特は緑文字
+        return f'<div class="{"tx-r" if _kind_of(m.group(1)) == "赤特" else "tx-g"}">{t}</div>'
     is_friend = any(i.startswith(n + "コツ") for n in _FRIEND[0])
     cls = "cp-kotsu cp-kotsu-gold" if (_is_gold_kotsu(i) or is_friend) else ("cp-kotsu" if "コツLv" in i else "")
     return f'<div class="{cls}">{t}</div>' if cls else f"<div>{t}</div>"
@@ -329,7 +341,7 @@ def sub_table(rows):
     body = ""
     for r in rows:
         name = f'<th class="{"ok" if r.get("正解") else ""}">{"◎ " if r.get("正解") else ""}{_choice_name(r.get("選択肢", ""))}</th>' if has_name else ""
-        eff = "".join(f"<div>{_eff(i)}</div>" for i in r.get("効果", []))
+        eff = "".join(f'<div{" class=cp-note" if i.startswith("※") else ""}>{_eff(i)}</div>' for i in r.get("効果", []))
         body += f"<tr>{name}<td>{eff}</td>" + (f"<td>{_cell(r)}</td>" if has_other else "") + "</tr>"
     return f'<div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>'
 
@@ -363,8 +375,8 @@ def event_detail(ev):
             inner += "<ul class=cp-choices>" + "".join(
                 f'<li{" class=ok" if c.get("正解") else ""}>{"◎ " if c.get("正解") else ""}{e(c["文"])}'
                 + (f'<br><span class="muted">{e(c["結果"])}</span>' if c.get("結果") else "") + "</li>" for c in x["選択肢"]) + "</ul>"
-        cls = {"金特イベント": " cp-ev-gold", "共通イベント": " cp-ev-common"}.get(k, "")
-        parts.append(f'<h3 class="cp-ev{cls}">{e(k)}' + (f' <span class="cp-h3-side">{e(x["見出し横"])}</span>' if x.get("見出し横") else "") + "</h3>" + (inner or '<p class="muted">準備中です。</p>'))
+        cls = {"金特イベント": " cp-ev-gold", "共通イベント": " cp-ev-common", "友情イベント": " cp-ev-friend"}.get(k, "")
+        parts.append(f'<h3 class="cp-ev{cls}">{e(k)}' + (f'{"" if k == "友情イベント" else " "}<span class="cp-h3-side">{e(x["見出し横"])}</span>' if x.get("見出し横") else "") + "</h3>" + (inner or '<p class="muted">準備中です。</p>'))
     return "".join(parts)
 
 
