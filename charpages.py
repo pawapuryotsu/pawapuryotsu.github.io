@@ -505,13 +505,14 @@ def pitch_chart(p):
     out = ['<svg class="pchart" viewBox="0 0 360 240" role="img" aria-label="変化球の方向と変化量">']
     for direction, ang in DIR_ANGLE.items():
         x = pitches.get(direction)
-        n = int(x["変化量"]) if x and x.get("変化量") else 0
+        n = min(int(x["変化量"]), 7) if x and x.get("変化量") else 0  # 7目盛り＝□6個＋先端の△1個（変化量7で△まで塗る。管理人指示 2026-11-07）
         a = (180 - ang) if lefty else ang
         segs = []
-        for i in range(7):
+        for i in range(6):
             col = seg_color(i, n) if i < n else "#46a8ff"
-            segs.append(f'<rect x="{22 + i * 13}" y="-7" width="12" height="14" fill="{col}" stroke="#0b3f9e" stroke-width="1.5"/>')
-        tip = '<path d="M113 -7L127 0L113 7Z" fill="#46a8ff" stroke="#0b3f9e" stroke-width="1.5"/>'
+            segs.append(f'<rect x="{22 + i * 15}" y="-9" width="14" height="18" fill="{col}" stroke="#0b3f9e" stroke-width="1.5"/>')
+        tipcol = seg_color(6, n) if n >= 7 else "#46a8ff"
+        tip = f'<path d="M112 -9L119 -9L127 0L119 9L112 9Z" fill="{tipcol}" stroke="#0b3f9e" stroke-width="1.5"/>'
         out.append(f'<g transform="translate({CX} {CY}) rotate({a})">{"".join(segs)}{tip}</g>')
         if x:
             name = x.get("オリジナル名") or x.get("種類")  # オリジナル球種は、データに入力した名前を表記
