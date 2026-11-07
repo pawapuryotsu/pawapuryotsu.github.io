@@ -293,8 +293,8 @@ def _kind_of(name):
 
 
 def _item(i):
-    """「○○コツLv3」は、狭い幅では能力名とコツLvの間でだけ折り返す（<wbr>）"""
-    t = e(i).replace("コツLv", "<wbr>コツLv").replace("取得", "<wbr>取得")
+    """「○○コツLv3」は、狭い幅では能力名とコツLvの間でだけ折り返す（<wbr>）。長い名前は伸ばし棒「ー」のあとでも折り返せる（「ポーカーフェイスコツ」が表の外に切れないように）"""
+    t = e(i).replace("コツLv", "<wbr>コツLv").replace("取得", "<wbr>取得").replace("ー", "ー<wbr>")
     if re.match(r"^オリジナル(ストレート|変化球)", i) and i.endswith("取得"):  # オリジナルストレート取得・オリジナル変化球(○○方向)取得は青字（管理人指示 2026-11-07）
         return f'<div class="tx-b tx-bold">{t.replace("(", "<wbr>(")}</div>'
     m = re.match(r"^(.+?)取得$", i)
