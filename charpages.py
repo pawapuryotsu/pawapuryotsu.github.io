@@ -267,20 +267,40 @@ def _is_gold_kotsu(item):
     return n == "威圧感" or any(g.get(n) == "金特" for g in _KINDS.values())
 
 
+_FRIEND = [set()]  # このキャラの友情特殊能力の名前（イベントの表で青太字にする）
+
+
+def _kind_of(name):
+    """特殊能力名の種類（赤特・緑特など）。skill_kinds.json に無ければ None"""
+    _is_gold_kotsu("威圧感コツ")  # _KINDS を読み込む
+    for g in _KINDS.values():
+        if name in g:
+            return g[name]
+    return None
+
+
 def _item(i):
     """「○○コツLv3」は、狭い幅では能力名とコツLvの間でだけ折り返す（<wbr>）"""
     t = e(i).replace("コツLv", "<wbr>コツLv")
-    cls = "cp-kotsu cp-kotsu-gold" if _is_gold_kotsu(i) else ("cp-kotsu" if "コツLv" in i else "")
+    m = re.match(r"^(.+?)取得$", i)
+    if m and _kind_of(m.group(1)) in ("赤特", "緑特"):  # 「○○取得」は、赤特は赤文字、緑特は緑文字
+        return f'<div class="{"tx-r" if _kind_of(m.group(1)) == "赤特" else "tx-g"}">{t}</div>'
+    is_friend = any(i.startswith(n + "コツ") for n in _FRIEND[0])
+    cls = "cp-kotsu cp-kotsu-gold" if (_is_gold_kotsu(i) or is_friend) else ("cp-kotsu" if "コツLv" in i else "")
     return f'<div class="{cls}">{t}</div>' if cls else f"<div>{t}</div>"
 
 
 def _choice_name(t):
-    """選択肢の名前。（イベント継続）（成功）は青、（イベント終了）（失敗）は赤で、改行して出す"""
-    m = re.match(r"^(.*?)[（(](イベント継続|イベント終了|成功|失敗)[）)]$", t)
+    """選択肢の名前。（イベント継続）（成功）は青、（イベント終了）（失敗）は赤で、改行して出す。
+    成功・失敗の表記は「（成功）」「（失敗）」に統一（「成功時」「失敗時」と書いても同じ表示）"""
+    m = re.match(r"^(.*?)\s*[（(](イベント継続|イベント終了|成功時|失敗時|成功|失敗)[）)]$", t, re.S)
+    if not m and t.strip() in ("成功時", "失敗時", "成功", "失敗"):
+        m = re.match(r"^()(.+)$", t.strip())
     if not m:
-        return e(t).replace("\n", "<br>")  # 選択肢名の中の改行（例：海釣り↵（成功））
-    cls = "cp-cont" if m.group(2) in ("イベント継続", "成功") else "cp-end"
-    return f'{e(m.group(1))}<br><span class="{cls}">（{m.group(2)}）</span>'
+        return e(t).replace("\n", "<br>")
+    lab = m.group(2).rstrip("時")
+    cls = "cp-cont" if lab in ("イベント継続", "成功") else "cp-end"
+    return (f'{e(m.group(1))}<br>' if m.group(1) else "") + f'<span class="{cls}">（{lab}）</span>'
 
 
 _CELL_ORDER = ("三塁手", "その他野手", "投手", "野手")
@@ -305,6 +325,14 @@ def _cell(x):
     return out
 
 
+def _eff(i):
+    """効果の1項目。体力・体力最大値・やる気は、＋が付けば青、－（-）が付けば赤で出す"""
+    m = re.match(r"^(体力最大値|体力|やる気)([+＋\-－−ー]+)", i)
+    if not m:
+        return e(i)
+    return f'<span class="{"tx-b" if m.group(2)[0] in "+＋" else "tx-r"}">{e(i)}</span>'
+
+
 def sub_table(rows):
     """イベントの表。選択肢ごとに1行。左＝選択肢名、中＝効果（＋）、右＝投手／野手などその他。選択肢が無いイベントは左の列を出さない"""
     has_name = any(r.get("選択肢") for r in rows)
@@ -313,7 +341,7 @@ def sub_table(rows):
     body = ""
     for r in rows:
         name = f'<th class="{"ok" if r.get("正解") else ""}">{"◎ " if r.get("正解") else ""}{_choice_name(r.get("選択肢", ""))}</th>' if has_name else ""
-        eff = "".join(f"<div>{e(i)}</div>" for i in r.get("効果", []))
+        eff = "".join(f'<div{" class=cp-note" if i.startswith("※") else ""}>{_eff(i)}</div>' for i in r.get("効果", []))
         body += f"<tr>{name}<td>{eff}</td>" + (f"<td>{_cell(r)}</td>" if has_other else "") + "</tr>"
     return f'<div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>'
 
@@ -347,8 +375,8 @@ def event_detail(ev):
             inner += "<ul class=cp-choices>" + "".join(
                 f'<li{" class=ok" if c.get("正解") else ""}>{"◎ " if c.get("正解") else ""}{e(c["文"])}'
                 + (f'<br><span class="muted">{e(c["結果"])}</span>' if c.get("結果") else "") + "</li>" for c in x["選択肢"]) + "</ul>"
-        cls = {"金特イベント": " cp-ev-gold", "共通イベント": " cp-ev-common"}.get(k, "")
-        parts.append(f'<h3 class="cp-ev{cls}">{e(k)}' + (f' <span class="cp-h3-side">{e(x["見出し横"])}</span>' if x.get("見出し横") else "") + "</h3>" + (inner or '<p class="muted">準備中です。</p>'))
+        cls = {"金特イベント": " cp-ev-gold", "共通イベント": " cp-ev-common", "友情イベント": " cp-ev-friend"}.get(k, "")
+        parts.append(f'<h3 class="cp-ev{cls}">{e(k)}' + (f'{"" if k == "友情イベント" else " "}<span class="cp-h3-side">{e(x["見出し横"])}</span>' if x.get("見出し横") else "") + "</h3>" + (inner or '<p class="muted">準備中です。</p>'))
     return "".join(parts)
 
 
@@ -536,6 +564,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
             if order_type == "兼用":
                 print(f"警告: {name} は兼用判定で、メインポジションか得意練習のデータがありません。【野手】【投手】の並びを管理人に確認して config.json の「兼用の並び順」に書いてください")
     _CTYPE[0] = order_type
+    _FRIEND[0] = {n for k in ("野手", "投手") for n in c["金特"].get("友情", {}).get(k, [])}
     top_names, tap = config["重要ボーナス"][ctype], config["タップ欄のボーナス"][ctype]
     important = [(n, bonus[n]) for n in top_names if n in bonus and (bonus_lines(bonus[n]) or bonus[n].get("固有文字"))]
     unknown = [n for n in bonus if n not in top_names and n not in tap]
