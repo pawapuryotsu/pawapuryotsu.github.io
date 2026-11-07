@@ -279,14 +279,16 @@ def _item(i):
 
 
 def _choice_name(t):
-    """選択肢の名前。（イベント継続）（成功）は青、（イベント終了）（失敗）は赤で、改行して出す"""
-    m = re.match(r"^(.*?)[（(](イベント継続|イベント終了|成功時|失敗時|成功|失敗)[）)]$", t)
+    """選択肢の名前。（イベント継続）（成功）は青、（イベント終了）（失敗）は赤で、改行して出す。
+    成功・失敗の表記は「（成功）」「（失敗）」に統一（「成功時」「失敗時」と書いても同じ表示）"""
+    m = re.match(r"^(.*?)\s*[（(](イベント継続|イベント終了|成功時|失敗時|成功|失敗)[）)]$", t, re.S)
+    if not m and t.strip() in ("成功時", "失敗時", "成功", "失敗"):
+        m = re.match(r"^()(.+)$", t.strip())
     if not m:
-        if t.strip() in ("成功時", "失敗時", "成功", "失敗"):  # 成功・失敗だけの選択肢名は、そのまま青・赤で出す
-            return f'<span class="{"cp-cont" if t.strip().startswith("成功") else "cp-end"}">{e(t.strip())}</span>'
-        return e(t).replace("\n", "<br>")  # 選択肢名の中の改行（例：海釣り↵（成功））
-    cls = "cp-cont" if m.group(2) in ("イベント継続", "成功", "成功時") else "cp-end"
-    return (f'{e(m.group(1))}<br>' if m.group(1) else "") + f'<span class="{cls}">（{m.group(2)}）</span>'
+        return e(t).replace("\n", "<br>")
+    lab = m.group(2).rstrip("時")
+    cls = "cp-cont" if lab in ("イベント継続", "成功") else "cp-end"
+    return (f'{e(m.group(1))}<br>' if m.group(1) else "") + f'<span class="{cls}">（{lab}）</span>'
 
 
 _CELL_ORDER = ("三塁手", "その他野手", "投手", "野手")
