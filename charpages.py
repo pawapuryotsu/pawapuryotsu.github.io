@@ -204,7 +204,7 @@ def bonus_table(rows, extra=""):
         if alpha:   # 0%+α は「+α」。Lvで伸びた値にも固有のαは付いたままなので「+α」を付ける
             h = "+α" if h in ("0", "0%") else h + "+α"
             steps = [(v + "+α", l) for v, l in steps]
-        cell = f'<b>{e(h)}</b>' + (f'<span class="awk">{e(am)}</span>' if am else "") + e("(固有)" if alpha else unique_mark(entry)) + "".join(
+        cell = f'<b>{e(h)}</b>' + (f'<span class="awk">{e(am)}</span>' if am else "") + (lambda m: f'<span class="awk">{e(m)}</span>' if m else "")("(固有)" if alpha else unique_mark(entry)) + "".join(
             f'<span class="step">⇒{e(v)}<small>({e(l)})</small></span>' for v, l in steps)
         out.append(f"<tr><th>{e(name)}</th><td>{cell}</td></tr>")
     out.append(extra)
