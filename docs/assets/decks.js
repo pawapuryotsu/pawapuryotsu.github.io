@@ -30,7 +30,7 @@ window.DECKS={
   andromeda:{title:"アンドロメダ学園",kind:"野手向け",sub:"野手向けデッキ。カードをタップすると編成の詳細が開きます。",tool:false,
     list:[
       {pos:"一",rank:33,date:"2026-11-07",exp:5016000,r:"result_andromeda_11",a:"ability_andromeda_11",d:"main_andromeda_11",s:"sub_andromeda_11",u:"base_andromeda_11",
-       main:[["パワ子","PSR",50,{cell:"敏捷"}],["[応援団]エイル・オーウェン","PSR",50,{cell:"技術"}],["[キャプテン]御幸一也","PSR",50,{cell:"筋力"}],["紅月カレン","SR",35,{cell:"筋力"}],["曙緋緒","PSR",50,{cell:"強化マス"}],["神崎こりす","PSR",50,{cell:"タッグ"}]],
+       main:[["[わんこだよ！]パーちゃん","PSR",50,{cell:"敏捷"}],["[応援団]エイル・オーウェン","PSR",50,{cell:"技術"}],["[キャプテン]御幸一也","PSR",50,{cell:"筋力"}],["紅月カレン","SR",35,{cell:"筋力"}],["曙緋緒","PSR",50,{cell:"強化マス"}],["神崎こりす","PSR",50,{cell:"タッグ"}]],
        sub:[["初白百合","SR",45],["[ビター&スイート]佐渡至皇理","PSR",50],["大家まどか","SR",45]],
        tips:["パワー特化させつつ、余裕があれば捕球も上げる。","敏捷は金特獲得に必要な最低限だけ確保し、8月に経験点トンボを使って他の経験点に分散させる。"],video:"なし"},
       {pos:"外",rank:41,date:"2026-10-22",exp:5259108,r:"result_andromeda_10",a:"ability_andromeda_10",d:"main_andromeda_10",s:"sub_andromeda_10",u:"base_andromeda_10",
