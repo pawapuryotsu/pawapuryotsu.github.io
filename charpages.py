@@ -313,6 +313,14 @@ def _cell(x):
     return out
 
 
+def _eff(i):
+    """効果の1項目。体力・体力最大値・やる気は、＋が付けば青、－（-）が付けば赤で出す"""
+    m = re.match(r"^(体力最大値|体力|やる気)([+＋\-－−ー]+)", i)
+    if not m:
+        return e(i)
+    return f'<span class="{"tx-b" if m.group(2)[0] in "+＋" else "tx-r"}">{e(i)}</span>'
+
+
 def sub_table(rows):
     """イベントの表。選択肢ごとに1行。左＝選択肢名、中＝効果（＋）、右＝投手／野手などその他。選択肢が無いイベントは左の列を出さない"""
     has_name = any(r.get("選択肢") for r in rows)
@@ -321,7 +329,7 @@ def sub_table(rows):
     body = ""
     for r in rows:
         name = f'<th class="{"ok" if r.get("正解") else ""}">{"◎ " if r.get("正解") else ""}{_choice_name(r.get("選択肢", ""))}</th>' if has_name else ""
-        eff = "".join(f"<div>{e(i)}</div>" for i in r.get("効果", []))
+        eff = "".join(f"<div>{_eff(i)}</div>" for i in r.get("効果", []))
         body += f"<tr>{name}<td>{eff}</td>" + (f"<td>{_cell(r)}</td>" if has_other else "") + "</tr>"
     return f'<div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>'
 
