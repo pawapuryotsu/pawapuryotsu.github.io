@@ -27,11 +27,14 @@ function maxCap(rows){ return Math.max(0,...rows.map(([n,rar,lv])=>lvValue(CHAR[
 function itemList(rows){ const m=new Map();
   rows.forEach(([n])=>(CHAR[n]?.アイテム||[]).forEach(x=>{ if(!m.has(x.名前)) m.set(x.名前,[]); const w=shortName(n); if(!m.get(x.名前).includes(w)) m.get(x.名前).push(w); }));
   return m.size?`<ul class="items">${[...m].map(([k,v])=>`<li>${esc(k)}(${esc(v.join("、"))})</li>`).join("")}</ul>`:`<p class="muted">なし</p>`; }
+/* 指で操作する端末（スマホ・タブレット） */
+const IS_TOUCH=matchMedia("(hover: none) and (pointer: coarse)").matches;
 function videoBlock(id){ if(id==="なし") return `<p>なし</p>`;
   if(!/^[\w-]{11}$/.test(id||"")) return `<p class="muted">準備中</p>`;
-  const url=`https://youtu.be/${id}`;
-  return `<button type="button" class="yt" data-id="${id}" aria-label="動画を再生"><img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="動画のサムネイル" loading="lazy" onerror="this.parentNode.style.display='none'"><span class="play">▶</span></button>
-    <a class="video" href="${url}" target="_blank" rel="noopener">YouTubeで見る</a>`; }
+  /* スマホ：普通のリンク（target なし）にして、タップで YouTube アプリが開くようにする。PC：サムネはその場で再生、リンクは別タブ */
+  const url=`https://www.youtube.com/watch?v=${id}`, tgt=IS_TOUCH?"":` target="_blank" rel="noopener"`;
+  return `<a class="yt" href="${url}" data-id="${id}" aria-label="動画を再生"${tgt}><img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="動画のサムネイル" loading="lazy" onerror="this.parentNode.style.display='none'"><span class="play">▶</span></a>
+    <a class="video" href="${url}"${tgt}>YouTubeで見る</a>`; }
 function reformLine(d){
   const rows=[...d.main,...d.sub];
   return `<p class="reform">${REFORM[state.school].map(([label,prefix])=>{const ok=hasReform(rows,prefix);return `<span class="${ok?"ok":"ng"}">${label} ${ok?"〇":"×"}</span>`}).join("")}</p>`;
@@ -150,7 +153,8 @@ function renderList(){
         ${d.date?`<p class="ddate">育成日（更新日）：<time datetime="${esc(d.date)}">${esc(d.date.replace(/-/g,"/"))}</time></p>`:""}
       </div></details>`}).join(""):s.list.length===0?`<div class="empty">このシナリオのデッキは準備中です。<br>掲載しだい <a href="${SNS.x}" target="_blank" rel="noopener">X</a> でお知らせします。</div>`:`<div class="empty">条件に合うデッキがありません。<br>ポジションのチェックやキャラ名を見直してください。</div>`;
 }
-document.addEventListener("click",e=>{const b=e.target.closest(".yt"); if(!b) return;
+document.addEventListener("click",e=>{const b=e.target.closest(".yt[data-id]"); if(!b||IS_TOUCH) return;
+  e.preventDefault();
   b.outerHTML=`<div class="ytframe"><iframe src="https://www.youtube-nocookie.com/embed/${b.dataset.id}?autoplay=1" title="解説動画" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`;});
 
 function renderDecks(){
