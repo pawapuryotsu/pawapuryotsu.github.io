@@ -38,4 +38,5 @@
 ## 使い方
 `node youtube-slides/deck_slides.js <デッキ> [出力先フォルダ] [--thumb サムネイル画像]`
 - `<デッキ>` は decks.js の画像名の後ろ（育成結果が `result_roman_8` なら `roman_8`）
+- メイン画像の下の端（アイテム枠の下の線）が切れている roman_1〜5 は、切れた分（6px）を下に足してから青の縁を付ける（deck_slides.js の MAIN_PAD）
 - サムネイルは decks.js の video から https://i.ytimg.com を自動で読む（クラウド環境は 2026-11-10 に i.ytimg.com を許可済み）。読めない時や動画が「なし」のデッキは灰色の空枠。画像をもらった時は `--thumb` で渡す
