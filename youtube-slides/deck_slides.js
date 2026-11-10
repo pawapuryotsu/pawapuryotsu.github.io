@@ -33,9 +33,9 @@ const CSS = `
 body{width:1920px;height:1080px;overflow:hidden;background:#eaeeea;font-family:'M PLUS 1p',sans-serif;color:#14233a;position:relative}
 .abs{position:absolute}
 .result{left:48px;top:37px;height:146px;display:block}
-.label{font-weight:900;font-size:82px;line-height:1;letter-spacing:2px;-webkit-text-stroke:12px #fff;paint-order:stroke fill;filter:drop-shadow(0 4px 0 rgba(0,0,0,.25))}
-.lmain{left:56px;top:215px;color:#1a3cff}
-.lsub{right:56px;top:215px;color:#169a2c}
+.label{font-weight:900;font-size:82px;line-height:1;letter-spacing:2px;color:#fff;-webkit-text-stroke:14px var(--c);paint-order:stroke fill;filter:drop-shadow(0 4px 0 rgba(0,0,0,.25))}
+.lmain{left:56px;top:215px;--c:#1a3cff}
+.lsub{right:56px;top:215px;--c:#169a2c}
 .deck{top:305px;display:flex;background:#fff}
 .deck img{display:block;height:100%;width:auto}
 .dmain{left:55px;border:8px solid #0a2cff}
