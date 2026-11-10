@@ -92,6 +92,7 @@ body.selecting{padding-bottom:70px}
   <button id="addTier">＋Tier追加</button>
   <button id="png" class="primary">画像で保存(PNG)</button>
   <button id="xshare">𝕏で共有</button>
+  <label style="font-size:12px">画像の形 <select id="pngshape" title="保存する画像の形"><option value="l">横長</option><option value="p">縦長</option></select></label>
   <label style="font-size:12px"><input type="checkbox" id="pngname" checked>画像に名前も入れる</label>
   <button id="save" class="admin hidden">データ保存(JSON)</button>
   <button id="load" class="admin hidden">データ読込</button>
@@ -133,11 +134,16 @@ body.selecting{padding-bottom:70px}
     ・同じキャラを別のLv区分でも使いたいときは、アイコンの上にマウスを乗せて出る <b>＋</b> を押すと、同じキャラのアイコンがもう1枚増えます。増やした分は <b>×</b> で消せます。Tierに置いたキャラの <b>×</b> は、削除せずに未配置へ戻します（スマホは常に表示されます）。<br>
     ・入力内容は、このブラウザに自動で保存されます。<br>
     ・「𝕏で共有」を押すと、Tier画像をコピーします。出てきた「𝕏アプリを開く」（PCは「𝕏（ブラウザ版）を開く」）を押して、本文欄に貼り付けてください。<br>
+    ・画像は「横長」と「縦長（スマホ向け）」から選べます（PC・スマホどちらでも）。横長は横に8人、縦長は4人ずつ並び、多いときは自動で次の段に折り返します。保存するファイル名はタイトルの名前になります。<br>
     ・タイトル・サブタイトル・Tier名・アイコン下の文字に不適切な言葉が含まれていると、画像(PNG)で保存できません。
   </p></div>
   <div id="log" class="log hidden">
     <h3>2026-11-10</h3>
     <ul>
+      <li>画像で保存するときのファイル名を、タイトルの名前にしました（タイトルが空のときは「tier.png」）</li>
+      <li>サブタイトルが空のときは、画像のタイトルの下の空白を詰めて出力するようにしました</li>
+      <li>画像の形を「横長」「縦長（スマホ向け）」から選べるようにしました（PCでも縦長で保存できます）</li>
+      <li>最初の（やり直したときの）Tierを「SS・S・A・B・C」にしました</li>
       <li>Tier名（S・Aなど）を、編集画面と画像で同じフォント・同じ見た目で表示するようにしました。長い名前は自動で2行に折り返します（名前をタップすると変更できます）</li>
       <li>画像で保存・共有するとき、横に並ぶキャラを8人までにしました（9人目からは次の段に折り返します）</li>
     </ul>
@@ -211,7 +217,7 @@ function fresh(){
   const cards = {}, pool = [];
   CHARS.forEach((c, i) => { cards["c" + i] = {char: c.id, lv: ""}; pool.push("c" + i); });
   return {title: "イベキャラTier表", subtitle: "独断と偏見", seq: CHARS.length,
-    tiers: ["S","A","B","C","D"].map((n, i) => ({name: n, color: COLORS[i], cards: []})), pool, cards};
+    tiers: ["SS","S","A","B","C"].map((n, i) => ({name: n, color: COLORS[i], cards: []})), pool, cards};
 }
 function load(){
   try {
@@ -461,44 +467,55 @@ const imgCache = {};
 function loadImg(src){ return imgCache[src] || (imgCache[src] = new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = src; })); }
 async function makePng(){
   if (checkTexts()) { alert("不適切な言葉が含まれているため、画像で保存・共有できません。タイトル・Tier名・アイコン下の文字を見直してください。"); return null; }
-  const per = 8, LW = 150, CW = 122, IC = 112, PAD = 8, TOP = 120, nm = $("pngname").checked;   // 横に8人まで
-  const W = 40 + LW + PAD * 2 + per * CW;
+  const portrait = $("pngshape").value === "p", sub = (S.subtitle || "").trim() !== "";
+  // 横長：横に8人まで（幅1182）。縦長（スマホ向け）：幅750でアイコン4列。どちらも入りきらなければ次の段に折り返す
+  const Q = portrait
+    ? {per:4, M:12, LW:96, CW:156, IC:148, PAD:6, TOP:sub ? 104 : 80, T1:40, T1y:54, T2:22, T2y:86, LV:30, LVy:31, NM:22, NMy1:62, NMy0:26, EL:38, EN:28, GAP:8, BOT:24}
+    : {per:8, M:20, LW:150, CW:122, IC:112, PAD:8, TOP:sub ? 120 : 92, T1:46, T1y:62, T2:24, T2y:98, LV:22, LVy:23, NM:15, NMy1:42, NMy0:18, EL:28, EN:18, GAP:6, BOT:30};
+  const {per, M, LW, CW, IC, PAD, TOP, GAP} = Q, nm = $("pngname").checked;
+  const W = 2 * M + LW + PAD * 2 + per * CW, NK = (LW - 10) / NAME_W;   // NK：Tier名の大きさの倍率（縦長はラベルが細いので縮める）
   const rows = S.tiers.map(t => Math.max(1, Math.ceil(t.cards.length / per)));
   const anyLv = S.tiers.some(t => t.cards.some(u => (S.cards[u].lv || "").trim() !== ""));   // 画像全体でLvなどの文字が1つも無いときは、その分の空白を詰める
   const hasLv = S.tiers.map(() => anyLv);
-  const EXs = hasLv.map(h => (h ? 28 : 0) + (nm ? 18 : 0));
-  const RH = (r, i) => r * (IC + EXs[i] + 6) + PAD;
-  const H = TOP + rows.reduce((a, r, i) => a + RH(r, i), 0) + 30;
+  const EXs = hasLv.map(h => (h ? Q.EL : 0) + (nm ? Q.EN : 0));
+  const RH = (r, i) => r * (IC + EXs[i] + GAP) + PAD;
+  const H = TOP + rows.reduce((a, r, i) => a + RH(r, i), 0) + Q.BOT;
   const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
   const g = cv.getContext("2d");
   g.fillStyle = "#161616"; g.fillRect(0, 0, W, H);
   g.fillStyle = "#fff"; g.textAlign = "center";
-  g.font = `bold 46px ${FONT}`; g.fillText(S.title, W / 2, 62, W - 40);
-  g.fillStyle = "#9a9a9a"; g.font = `24px ${FONT}`; g.fillText(S.subtitle, W / 2, 98, W - 40);
+  g.font = `bold ${Q.T1}px ${FONT}`; g.fillText(S.title, W / 2, Q.T1y, W - 2 * M);
+  g.fillStyle = "#9a9a9a"; g.font = `${Q.T2}px ${FONT}`; if (sub) g.fillText(S.subtitle, W / 2, Q.T2y, W - 2 * M);   // 空なら描かず、上の間隔も詰める
   let y = TOP;
   for (let i = 0; i < S.tiers.length; i++) {
     const t = S.tiers[i], h = RH(rows[i], i), EX = EXs[i];
-    g.fillStyle = "#1c1c1e"; g.fillRect(20, y, W - 40, h);
-    g.fillStyle = t.color; g.fillRect(20, y, LW, h);
-    const L = nameLayout(t.name);
-    g.fillStyle = "#111"; g.textAlign = "center"; g.textBaseline = "middle"; g.font = `900 ${L.px}px ${FONT}`;
-    L.lines.forEach((s, j) => g.fillText(s, 20 + LW / 2, y + h / 2 + (j - (L.lines.length - 1) / 2) * L.px * 1.1, NAME_W));
+    g.fillStyle = "#1c1c1e"; g.fillRect(M, y, W - 2 * M, h);
+    g.fillStyle = t.color; g.fillRect(M, y, LW, h);
+    const L = nameLayout(t.name), px = L.px * NK;
+    g.fillStyle = "#111"; g.textAlign = "center"; g.textBaseline = "middle"; g.font = `900 ${px}px ${FONT}`;
+    L.lines.forEach((s, j) => g.fillText(s, M + LW / 2, y + h / 2 + (j - (L.lines.length - 1) / 2) * px * 1.1, LW - 10));
     g.textBaseline = "alphabetic";
     for (let k = 0; k < t.cards.length; k++) {
       const u = t.cards[k], card = S.cards[u], c = byId[card.char];
-      const x = 20 + LW + PAD + (k % per) * CW, yy = y + PAD / 2 + Math.floor(k / per) * (IC + EX + 6);
+      const x = M + LW + PAD + (k % per) * CW, yy = y + PAD / 2 + Math.floor(k / per) * (IC + EX + GAP);
       g.drawImage(await loadImg(c.icon), x, yy, IC, IC);
       if ((card.lv || "").trim()) {
-        g.font = `800 22px ${FONT}`; g.fillStyle = "#fff"; g.textAlign = "center";
-        g.fillText(card.lv, x + IC / 2, yy + IC + 23, CW - 4);
+        g.font = `800 ${Q.LV}px ${FONT}`; g.fillStyle = "#fff"; g.textAlign = "center";
+        g.fillText(card.lv, x + IC / 2, yy + IC + Q.LVy, CW - 4);
       }
-      if (nm) { g.font = `700 15px ${FONT}`; g.fillStyle = "#ddd"; g.textAlign = "center"; g.fillText(c.name, x + IC / 2, yy + IC + (hasLv[i] ? 42 : 18), CW - 4); }
+      if (nm) { g.font = `700 ${Q.NM}px ${FONT}`; g.fillStyle = "#ddd"; g.textAlign = "center"; g.fillText(c.name, x + IC / 2, yy + IC + (hasLv[i] ? Q.NMy1 : Q.NMy0), CW - 4); }
     }
     y += h;
   }
   return cv;
 }
-function saveCanvas(cv){ const a = document.createElement("a"); a.href = cv.toDataURL("image/png"); a.download = "tier.png"; a.click(); }
+function pngName(){   // 保存ファイル名＝タイトル（空なら tier）。ファイル名に使えない記号は除く
+  const t = (S.title || "").replace(/[\\/:*?"<>|\u0000-\u001f]/g, "").replace(/\s+/g, " ").trim().replace(/^\.+/, "").slice(0, 80);
+  return (t || "tier") + ".png";
+}
+function saveCanvas(cv){ const a = document.createElement("a"); a.href = cv.toDataURL("image/png"); a.download = pngName(); a.click(); }
+try { const v = localStorage.getItem("tier-pngshape"); if (v === "p" || v === "l") $("pngshape").value = v; } catch(e) {}
+$("pngshape").onchange = () => { try { localStorage.setItem("tier-pngshape", $("pngshape").value); } catch(e) {} };
 $("png").onclick = async () => { const cv = await makePng(); if (cv) saveCanvas(cv); };
 
 /* ---------- Xで共有 ---------- */
