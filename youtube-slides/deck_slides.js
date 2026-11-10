@@ -52,6 +52,7 @@ td.name{font-weight:900}
 td.memo{font-size:20px;line-height:1.35;color:#6b7684;font-weight:700}
 .judge{display:inline-block;font-size:24px;font-weight:800;border-radius:6px;padding:2px 14px}
 .judge.ok{background:#e3f4e6;color:#1d7a32}.judge.ng{background:#eef0f2;color:#6b7684}.judge.heal{background:#fbf0d2;color:#9a6b00}
+.base{display:block;border-radius:4px}
 .ability{left:55px;top:590px;display:block}
 .thumb{right:56px;top:590px;width:634px;height:357px;background:#d9ded9;overflow:hidden}
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
@@ -70,7 +71,7 @@ td.memo{font-size:20px;line-height:1.35;color:#6b7684;font-weight:700}
     if (!d) return null;
     const clean = h => h.replace(/<span class="smark"[^>]*>●<\/span>/g, '').replace(/<span class="star"[^>]*>☆<\/span>/g, '')
       .replace(/​/g, '').replace(/<br>/g, '<br>');
-    return {main: clean(slotTable(d.main, d.pos)), sub: clean(supportTable(d.sub, d.pos)), r: d.r, d: d.d, s: d.s, a: d.a, video: d.video};
+    return {main: clean(slotTable(d.main, d.pos)), sub: clean(supportTable(d.sub, d.pos)), r: d.r, d: d.d, s: d.s, a: d.a, u: d.u, video: d.video};
   }, KEY);
   if (!info) { console.error(`${KEY} のデッキが decks.js にありません（育成結果画像の名前 result_${KEY} で探しています）`); process.exit(1); }
   const img = n => `${base}img/decks/${n}.jpg`;
@@ -87,7 +88,8 @@ td.memo{font-size:20px;line-height:1.35;color:#6b7684;font-weight:700}
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@700;800;900&display=swap" rel="stylesheet">
     <style>${CSS}</style></head><body>${body}</body></html>`;
   const s1 = doc(head + `<div class="abs tbl" style="left:55px;width:1000px">${info.main}</div>
-    <div class="abs tbl" style="right:56px;width:760px">${info.sub}</div>`);
+    <div class="abs tbl tsub" style="right:56px;width:760px">${info.sub}</div>`
+    + (info.u ? `<img class="abs base" src="${img(info.u)}">` : ''));   // サポートの表の下に基礎上限の画像（管理人指示 2026-11-10）
   const thumbSrc = THUMB ? `${base}__thumb` : (/^[\w-]{11}$/.test(info.video || '') ? `https://i.ytimg.com/vi/${info.video}/maxresdefault.jpg` : '');
   const s2 = doc(head + (info.a ? `<img class="abs ability" src="${img(info.a)}" style="width:1113px;height:357px;object-fit:contain;object-position:left top">` : '')
     + `<div class="abs thumb">${thumbSrc ? `<img src="${thumbSrc}" onerror="this.remove()">` : ''}</div>`);
@@ -101,6 +103,13 @@ td.memo{font-size:20px;line-height:1.35;color:#6b7684;font-weight:700}
       const z = Math.min(1, (t.clientWidth - 36) / tb.scrollWidth, (1074 - r.top) / r.height);
       if (z < 1) tb.style.zoom = z;
     });
+    // 基礎上限の画像：サポートの表のすぐ下に、残りの高さと表の幅に収まる大きさで置く
+    const bs = document.querySelector('.base'), ts = document.querySelector('.tsub');
+    if (bs && ts) {
+      await bs.decode().catch(() => {});
+      const r = ts.getBoundingClientRect(), top = r.bottom + 18, h = Math.min(1062 - top, r.width * bs.naturalHeight / bs.naturalWidth);
+      Object.assign(bs.style, {top: top + 'px', height: h + 'px', width: 'auto', right: '56px'});
+    }
   });
   const shots = [];
   for (const [i, html] of [[1, s1], [2, s2]]) {
