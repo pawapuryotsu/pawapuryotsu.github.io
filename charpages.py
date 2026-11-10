@@ -784,7 +784,7 @@ def generate(chars_path, src, decks, noindex=True):
         if not re.fullmatch(r"\d{4}", pid) or pid in config["公開するキャラ"]:
             raise SystemExit(f"準備中のキャラの番号が不正か重複しています: {pid}")
         full = f'{st.get("二つ名") and "[" + st["二つ名"] + "]" or ""}{st["苗字"]}{st.get("名前") or ""}'
-        c = {"二つ名": st.get("二つ名") or "", "苗字": st["苗字"], "名前": st.get("名前") or "", "読み": st.get("読み"), "二つ名読み": st.get("二つ名読み") or "", "_準備中": True}
+        c = {"二つ名": st.get("二つ名") or "", "苗字": st["苗字"], "名前": st.get("名前") or "", "読み": st.get("読み"), "二つ名読み": st.get("二つ名読み") or "", "実装日": st.get("実装日"), "_準備中": True}
         c["_icon"] = find_icon(chars_path, c, pid)
         items.append((pid, c, full))
         meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
