@@ -51,3 +51,10 @@
 `python3 youtube-slides/list_slides.py --since 2026/09/05 --title "タイトル" [--exclude "[キャプテン]御幸一也" ...] [--until 日付] [--name 出力名] [出力先フォルダ]`
 - キャラ名は [二つ名]名前 を1行で出す。入りきらない時だけ二つ名を上の行に小さく出す（2026-11-10 管理人）。
 - 例（2026-11-10 管理人依頼の投手向け）：`--exclude "[キャプテン]御幸一也" "[わんこだよ！]パーちゃん" 天道あかね シャンプー --name pitcher_since0905 /mnt/project-files/youtube-slides/lists`
+
+---
+
+# 評価基準・加点要素スライド
+
+ランキングの解説欄（src/ranking/ranking.json の「解説欄」）のうち、箇条書きの見出し（評価基準・加点要素）を1見出し1枚にする。文章はそのまま使い、{赤太:…} の色もサイトと同じ。
+`python3 youtube-slides/guide_slides.py <ランキングのキー> [出力先フォルダ] [--all]` → `<キー>_guide/guide_1.png …` と order.txt。`--all` で評価理由詳細などの文章の見出しも作る。
