@@ -92,7 +92,7 @@ td.memo{font-size:20px;line-height:1.35;color:#6b7684;font-weight:700}
     + (info.u ? `<img class="abs base" src="${img(info.u)}">` : ''));   // サポートの表の下に基礎上限の画像（管理人指示 2026-11-10）
   const thumbSrc = THUMB ? `${base}__thumb` : (/^[\w-]{11}$/.test(info.video || '') ? `https://i.ytimg.com/vi/${info.video}/maxresdefault.jpg` : '');
   const s2 = doc(head + (info.a ? `<img class="abs ability" src="${img(info.a)}" style="width:1113px;height:357px;object-fit:contain;object-position:left top">` : '')
-    + `<div class="abs thumb">${thumbSrc ? `<img src="${thumbSrc}" onerror="this.remove()">` : ''}</div>`);
+    + `<div class="abs thumb">${thumbSrc ? `<img src="${thumbSrc}" onerror="if(!this.dataset.hq&&/maxresdefault/.test(this.src)){this.dataset.hq=1;this.src=this.src.replace('maxresdefault','hqdefault')}else this.remove()">` : ''}</div>`);
 
   fs.mkdirSync(OUT, {recursive: true});
   const fit = async () => p.evaluate(async () => {
@@ -123,5 +123,5 @@ td.memo{font-size:20px;line-height:1.35;color:#6b7684;font-weight:700}
   const thumbOk = await p.evaluate(() => !!document.querySelector('.thumb img')?.naturalWidth);
   await b.close(); server.close();
   console.log(shots.join('\n'));
-  if (!thumbOk) console.log('※ サムネイルを読めなかったので、2枚目のサムネイル欄は空です（--thumb で画像を渡せます）');
+  if (!thumbOk) console.log(info.video === 'なし' ? '※ このデッキは動画が「なし」なので、2枚目のサムネイル欄は空です' : '※ サムネイルを読めなかったので、2枚目のサムネイル欄は空です（--thumb で画像を渡せます）');
 })();
