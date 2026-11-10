@@ -143,6 +143,7 @@ body.selecting{padding-bottom:70px}
       <li>画像で保存するときのファイル名を、タイトルの名前にしました（タイトルが空のときは「tier.png」）</li>
       <li>サブタイトルが空のときは、画像のタイトルの下の空白を詰めて出力するようにしました</li>
       <li>画像の形を「横長」「縦長（スマホ向け）」から選べるようにしました（PCでも縦長で保存できます）</li>
+      <li>最初の（やり直したときの）Tierを「SS・S・A・B・C」にしました</li>
       <li>Tier名（S・Aなど）を、編集画面と画像で同じフォント・同じ見た目で表示するようにしました。長い名前は自動で2行に折り返します（名前をタップすると変更できます）</li>
       <li>画像で保存・共有するとき、横に並ぶキャラを8人までにしました（9人目からは次の段に折り返します）</li>
     </ul>
@@ -216,7 +217,7 @@ function fresh(){
   const cards = {}, pool = [];
   CHARS.forEach((c, i) => { cards["c" + i] = {char: c.id, lv: ""}; pool.push("c" + i); });
   return {title: "イベキャラTier表", subtitle: "独断と偏見", seq: CHARS.length,
-    tiers: ["S","A","B","C","D"].map((n, i) => ({name: n, color: COLORS[i], cards: []})), pool, cards};
+    tiers: ["SS","S","A","B","C"].map((n, i) => ({name: n, color: COLORS[i], cards: []})), pool, cards};
 }
 function load(){
   try {
