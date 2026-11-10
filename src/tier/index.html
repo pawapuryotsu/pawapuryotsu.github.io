@@ -25,7 +25,9 @@ main{max-width:1100px;margin:0 auto;padding:16px}
 .tier{display:flex;border:1px solid var(--line);background:var(--panel);min-height:130px}
 .tier+.tier{border-top:0}
 .tier-label{width:clamp(52px,16vw,110px);flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:4px;color:#111;font-weight:700}
-.tier-label input.name{width:100%;text-align:center;background:transparent;border:0;font-size:clamp(20px,8vw,56px);font-weight:900;color:#111;font-family:inherit;padding:0}
+.tier-label input.name{display:none;width:100%;text-align:center;background:rgba(255,255,255,.6);border:0;border-radius:4px;font-size:15px;font-weight:900;color:#111;font-family:inherit;padding:2px 0}
+.tier-label .nameview{width:100%;min-height:1.1em;text-align:center;font-weight:900;color:#111;line-height:1.1;white-space:nowrap;overflow:hidden;cursor:text;font-size:20px}   /* Tier名：画像と同じフォント・同じ折り返し（最大2行）で表示 */
+.tier-label.editing .nameview{display:none}.tier-label.editing input.name{display:block}
 .tier-tools{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;opacity:.55}
 .tier-tools:hover{opacity:1}
 .tier-tools button{padding:0 5px;font-size:11px;background:rgba(255,255,255,.55);color:#111;border:0}
@@ -132,6 +134,11 @@ body.selecting{padding-bottom:70px}
     ・タイトル・サブタイトル・Tier名・アイコン下の文字に不適切な言葉が含まれていると、画像(PNG)で保存できません。
   </p></div>
   <div id="log" class="log hidden">
+    <h3>2026-11-10</h3>
+    <ul>
+      <li>Tier名（S・Aなど）を、編集画面と画像で同じフォント・同じ見た目で表示するようにしました。長い名前は自動で2行に折り返します（名前をタップすると変更できます）</li>
+      <li>画像で保存・共有するとき、横に並ぶキャラを8人までにしました（9人目からは次の段に折り返します）</li>
+    </ul>
     <h3>2026-11-07</h3>
     <ul>
       <li>キャラ一覧（未配置）の最初の並びを、実装日が新しい順（左上が最新）にしました。実装日が未記載のキャラは最後に並びます。すでに使っている方の保存データの並びは変わりません</li>
@@ -245,16 +252,21 @@ function render(){
   const box = $("tiers"); box.innerHTML = "";
   S.tiers.forEach((t, i) => {
     const row = document.createElement("div"); row.className = "tier";
-    row.innerHTML = `<div class="tier-label" style="background:${t.color}"><input class="name" type="text" value="">
+    row.innerHTML = `<div class="tier-label" style="background:${t.color}"><div class="nameview" title="タップして名前を変更"></div><input class="name" type="text" value="">
       <div class="tier-tools"><input type="color" value="${t.color}"><button data-a="up">↑</button><button data-a="down">↓</button><button data-a="del">×</button></div></div>
       <div class="drop" data-tier="${i}"></div>`;
     row.querySelector(".name").value = t.name;
     const drop = row.querySelector(".drop");
     t.cards.forEach(u => drop.appendChild(cardEl(u, false)));
-    row.querySelector(".name").oninput = e => { t.name = e.target.value; persist(); };
+    const lbl = row.querySelector(".tier-label"), inp = row.querySelector(".name"), view = row.querySelector(".nameview");
+    row._nv = () => drawNameView(view, lbl, t.name);
+    inp.oninput = e => { t.name = e.target.value; persist(); row._nv(); };
+    view.onclick = () => { lbl.classList.add("editing"); inp.focus(); const n = inp.value.length; inp.setSelectionRange(n, n); };
+    inp.onblur = () => { lbl.classList.remove("editing"); row._nv(); };
+    inp.onkeydown = e => { if (e.key === "Enter") inp.blur(); };
     row.querySelector("input[type=color]").oninput = e => { t.color = e.target.value; row.querySelector(".tier-label").style.background = t.color; persist(); };
     row.querySelectorAll(".tier-tools button").forEach(b => b.onclick = () => tierOp(i, b.dataset.a));
-    box.appendChild(row);
+    box.appendChild(row); row._nv();
   });
   const pool = $("pool"); pool.innerHTML = "";
   S.pool.forEach(u => pool.appendChild(cardEl(u, true)));
@@ -415,13 +427,40 @@ function checkTexts(){
   return null;
 }
 
+/* ---------- Tier名の配置（編集画面と画像で共通。長いときは2行に折り返す） ---------- */
+const FONT = 'system-ui,"Hiragino Sans","Noto Sans JP",sans-serif';   // 画面（body）と同じフォント。画像もこれで描く
+const NAME_W = 140, NAME_H = 116;    // 画像でのTier名の枠（幅・高さ）
+const measureG = document.createElement("canvas").getContext("2d");
+function nameLayout(name){
+  name = name || "";
+  const wid = (s, px) => { measureG.font = `900 ${px}px ${FONT}`; return measureG.measureText(s).width; };
+  for (let px = 80; px >= 44; px -= 2) if (wid(name, px) <= NAME_W) return {px, lines: [name]};
+  const ch = [...name]; let best = null;          // 2行：左右の行の幅がなるべく揃う所で分ける（空白があればそこを優先）
+  for (let k = 1; k < ch.length; k++) {
+    const a = ch.slice(0, k).join("").trim(), b = ch.slice(k).join("").trim();
+    if (!a || !b) continue;
+    const w = Math.max(wid(a, 100), wid(b, 100)) * (/\s/.test(ch[k - 1] + ch[k]) ? 0.9 : 1);
+    if (!best || w < best.w) best = {w, lines: [a, b]};
+  }
+  if (!best) return {px: 44, lines: [name]};
+  const real = Math.max(wid(best.lines[0], 100), wid(best.lines[1], 100));
+  return {px: Math.max(14, Math.min(Math.floor(100 * NAME_W / real), Math.floor(NAME_H / 2 / 1.1))), lines: best.lines};
+}
+function drawNameView(view, lbl, name){
+  const L = nameLayout(name), k = Math.max(0.2, (lbl.clientWidth - 8) / NAME_W);
+  view.style.fontSize = (L.px * k) + "px";
+  view.innerHTML = "";
+  L.lines.forEach(s => { const d = document.createElement("div"); d.textContent = s; view.appendChild(d); });
+}
+window.addEventListener("resize", () => document.querySelectorAll(".tier").forEach(r => r._nv && r._nv()));
+
 /* ---------- PNG出力（canvasで自前描画） ---------- */
 const imgCache = {};
 function loadImg(src){ return imgCache[src] || (imgCache[src] = new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = src; })); }
 async function makePng(){
   if (checkTexts()) { alert("不適切な言葉が含まれているため、画像で保存・共有できません。タイトル・Tier名・アイコン下の文字を見直してください。"); return null; }
-  const W = 1500, LW = 150, CW = 122, IC = 112, PAD = 8, TOP = 120, nm = $("pngname").checked;
-  const per = Math.floor((W - 40 - LW - PAD) / CW);
+  const per = 8, LW = 150, CW = 122, IC = 112, PAD = 8, TOP = 120, nm = $("pngname").checked;   // 横に8人まで
+  const W = 40 + LW + PAD * 2 + per * CW;
   const rows = S.tiers.map(t => Math.max(1, Math.ceil(t.cards.length / per)));
   const anyLv = S.tiers.some(t => t.cards.some(u => (S.cards[u].lv || "").trim() !== ""));   // 画像全体でLvなどの文字が1つも無いときは、その分の空白を詰める
   const hasLv = S.tiers.map(() => anyLv);
@@ -432,24 +471,26 @@ async function makePng(){
   const g = cv.getContext("2d");
   g.fillStyle = "#161616"; g.fillRect(0, 0, W, H);
   g.fillStyle = "#fff"; g.textAlign = "center";
-  g.font = "bold 46px sans-serif"; g.fillText(S.title, W / 2, 62);
-  g.fillStyle = "#9a9a9a"; g.font = "24px sans-serif"; g.fillText(S.subtitle, W / 2, 98);
+  g.font = `bold 46px ${FONT}`; g.fillText(S.title, W / 2, 62, W - 40);
+  g.fillStyle = "#9a9a9a"; g.font = `24px ${FONT}`; g.fillText(S.subtitle, W / 2, 98, W - 40);
   let y = TOP;
   for (let i = 0; i < S.tiers.length; i++) {
     const t = S.tiers[i], h = RH(rows[i], i), EX = EXs[i];
     g.fillStyle = "#1c1c1e"; g.fillRect(20, y, W - 40, h);
     g.fillStyle = t.color; g.fillRect(20, y, LW, h);
-    g.fillStyle = "#111"; g.textAlign = "center"; g.font = "900 80px sans-serif";
-    g.fillText(t.name, 20 + LW / 2, y + h / 2 + 28, LW - 10);
+    const L = nameLayout(t.name);
+    g.fillStyle = "#111"; g.textAlign = "center"; g.textBaseline = "middle"; g.font = `900 ${L.px}px ${FONT}`;
+    L.lines.forEach((s, j) => g.fillText(s, 20 + LW / 2, y + h / 2 + (j - (L.lines.length - 1) / 2) * L.px * 1.1, NAME_W));
+    g.textBaseline = "alphabetic";
     for (let k = 0; k < t.cards.length; k++) {
       const u = t.cards[k], card = S.cards[u], c = byId[card.char];
       const x = 20 + LW + PAD + (k % per) * CW, yy = y + PAD / 2 + Math.floor(k / per) * (IC + EX + 6);
       g.drawImage(await loadImg(c.icon), x, yy, IC, IC);
       if ((card.lv || "").trim()) {
-        g.font = "800 22px sans-serif"; g.fillStyle = "#fff"; g.textAlign = "center";
+        g.font = `800 22px ${FONT}`; g.fillStyle = "#fff"; g.textAlign = "center";
         g.fillText(card.lv, x + IC / 2, yy + IC + 23, CW - 4);
       }
-      if (nm) { g.font = "700 15px sans-serif"; g.fillStyle = "#ddd"; g.textAlign = "center"; g.fillText(c.name, x + IC / 2, yy + IC + (hasLv[i] ? 42 : 18), CW - 4); }
+      if (nm) { g.font = `700 15px ${FONT}`; g.fillStyle = "#ddd"; g.textAlign = "center"; g.fillText(c.name, x + IC / 2, yy + IC + (hasLv[i] ? 42 : 18), CW - 4); }
     }
     y += h;
   }
