@@ -658,7 +658,10 @@ def build_page(c, text, config, decks, kinds, root="../../"):
              f'<tr><th>アイテム追加枠</th><td>{item_text(c)}</td></tr>'
              f'</tbody></table>'
              + ('<p class="cp-note">※ 覚醒で付く分も表記</p>' if awake_cap else ""))
-    imp = bonus_table(important) + (
+    # 重要ボーナスの一番下に、追加枠「○○」／キャラ持参アイテム「○○」を出す（管理人指示 2026-11-10）。データに無いキャラは出さない
+    item_rows = "".join(f'<tr><th>{e(it.get("種類") or "アイテム")}</th><td><b>{e(it["名前"])}</b></td></tr>'
+                        for it in c.get("アイテム") or [] if it.get("名前"))
+    imp = bonus_table(important, item_rows) + (
         f'<details class="cp-more"><summary>その他ボーナスはこちらをタップ</summary>{bonus_table(others)}</details>' if others else "")
     sub = "、".join(f"{k}{v}" for k, v in (p.get("サブポジ") or {}).items()) or "なし"
     ab = p.get("野手能力") or {}
