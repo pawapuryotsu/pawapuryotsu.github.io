@@ -663,23 +663,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
                         for it in c.get("アイテム") or [] if it.get("名前"))
     imp = bonus_table(important, item_rows) + (
         f'<details class="cp-more"><summary>その他ボーナスはこちらをタップ</summary>{bonus_table(others)}</details>' if others else "")
-    sub = "、".join(f"{k}{v}" for k, v in (p.get("サブポジ") or {}).items()) or "なし"
-    ab = p.get("野手能力") or {}
-    pab = p.get("投手能力") or {}
-    ab_t = ability_tiles(ab) if ab else ""
-    pab_t = ("<h3>投手能力</h3>" + ability_tiles(pab, pitch_chart(p))) if pab else ""
-    sp = p.get("特殊能力") or {}
-    def sp_block(title, lst, group):
-        lst = [x for x in (lst or []) if not str(x).startswith("オリジナル")]  # オリジナルストレート・変化球は特殊能力ではない（球種欄に名前が出る）
-        if not lst:
-            return ""
-        return f"<h3>{e(title)}</h3>" + '<div class="cp-sp">' + "".join(sp_box(x, group, kinds) for x in lst) + "</div>"
-    ability = (f'<table class="cp-basic"><tbody><tr><th>選手ランク</th><td>{player_rank_html(p.get("選手能力"))}</td></tr>'
-               f'<tr><th>メインポジション</th><td>{e(c["ポジション"] or "不明")}</td></tr>'
-               f'<tr><th>サブポジション</th><td>{e(sub)}</td></tr>'
-               f'<tr><th>利き腕</th><td>{e(p.get("利き腕", "不明"))}</td></tr></tbody></table>'
-               f'<h3>野手能力</h3>{ab_t}{pab_t}' + sp_block("野手特殊能力", sp.get("野手"), "野手") + sp_block("投手特殊能力", sp.get("投手"), "投手")
-               + sp_block("その他特殊能力", sp.get("その他"), "その他"))
+    ability = ability_html(c, kinds)
     name = c["name"]
     friend_ev = text.get("友情イベント") if (c["金特"].get("友情", {}).get("野手") or c["金特"].get("友情", {}).get("投手")) else None
     has_friend = bool(c["金特"].get("友情", {}).get("野手") or c["金特"].get("友情", {}).get("投手"))
@@ -791,7 +775,7 @@ def generate(chars_path, src, decks, noindex=True):
                 f"description: パワプロアプリのイベキャラ {full}{yomi_paren(c)} のページです。データは準備中です。\n"
                 f"path: chars/{pid}/\nnav: none\n" + ("" if pid in pub else "noindex: yes\n"))
         body = (head_html(full, c, pid)
-                + stub_body(full, st))
+                + stub_body(full, st, *stub_char(chars, st, kinds)))
         pages.append(f"<!--\n{meta}-->\n{body}")
     items.sort(key=lambda t: t[0])
     pages += ranking_pages(items, config, chars, chars_path)
@@ -814,7 +798,40 @@ def combo_page():
     return f"<!--\n{meta}-->\n{body}"
 
 
-def stub_body(full, st):
+def stub_char(chars, st, kinds):
+    """準備中キャラが入力シート（chars.json）に一部入っていれば、そのデータ（選手能力欄に使う）。無ければ (None, None)"""
+    name = (f'[{st["二つ名"]}]' if st.get("二つ名") else "") + st["苗字"] + (st.get("名前") or "")
+    c = chars.get(name)
+    if not c or not (c.get("プロフィール") or {}).get("野手能力") and not (c.get("プロフィール") or {}).get("投手能力"):
+        return (None, None)
+    _CTYPE[0] = None
+    return (c, kinds)
+
+
+def ability_html(c, kinds):
+    """選手能力欄（選手ランク・ポジション・利き腕・能力・特殊能力）。準備中ページでも使う"""
+    p = c.get("プロフィール", {})
+    sub = "、".join(f"{k}{v}" for k, v in (p.get("サブポジ") or {}).items()) or "なし"
+    ab = p.get("野手能力") or {}
+    pab = p.get("投手能力") or {}
+    ab_t = ability_tiles(ab) if ab else ""
+    pab_t = ("<h3>投手能力</h3>" + ability_tiles(pab, pitch_chart(p))) if pab else ""
+    sp = p.get("特殊能力") or {}
+    def sp_block(title, lst, group):
+        lst = [x for x in (lst or []) if not str(x).startswith("オリジナル")]  # オリジナルストレート・変化球は特殊能力ではない（球種欄に名前が出る）
+        if not lst:
+            return ""
+        return f"<h3>{e(title)}</h3>" + '<div class="cp-sp">' + "".join(sp_box(x, group, kinds) for x in lst) + "</div>"
+    ability = (f'<table class="cp-basic"><tbody><tr><th>選手ランク</th><td>{player_rank_html(p.get("選手能力"))}</td></tr>'
+               f'<tr><th>メインポジション</th><td>{e(c["ポジション"] or "不明")}</td></tr>'
+               f'<tr><th>サブポジション</th><td>{e(sub)}</td></tr>'
+               f'<tr><th>利き腕</th><td>{e(p.get("利き腕", "不明"))}</td></tr></tbody></table>'
+               f'<h3>野手能力</h3>{ab_t}{pab_t}' + sp_block("野手特殊能力", sp.get("野手"), "野手") + sp_block("投手特殊能力", sp.get("投手"), "投手")
+               + sp_block("その他特殊能力", sp.get("その他"), "その他"))
+    return ability
+
+
+def stub_body(full, st, c=None, kinds=None):
     """データ未入力キャラのページ本文。分かっている項目だけ出し、不明な所は「準備中」"""
     def pats(lst):
         return "<br>".join(f"パターン{i + 1}：{e(x)}" for i, x in enumerate(lst)) if lst else "準備中"
@@ -834,7 +851,7 @@ def stub_body(full, st):
             + section(f"{full}の共通イベント", "")
             + section(f"{full}の自己紹介", "")
             + section(f"{full}の評価", "")
-            + section(f"{full}の選手能力", ""))
+            + section(f"{full}の選手能力", ability_html(c, kinds) if c else ""))
 
 
 def index_page(items, config, noindex):
