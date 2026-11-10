@@ -49,4 +49,5 @@
 データは pawa-data の chars.json（実装日・入手方法）とアイコン。実装日が空欄のキャラは載らないので、実行時に名前を表示する。
 
 `python3 youtube-slides/list_slides.py --since 2026/09/05 --title "タイトル" [--exclude "[キャプテン]御幸一也" ...] [--until 日付] [--name 出力名] [出力先フォルダ]`
+- キャラ名は [二つ名]名前 を1行で出す。入りきらない時だけ二つ名を上の行に小さく出す（2026-11-10 管理人）。
 - 例（2026-11-10 管理人依頼の投手向け）：`--exclude "[キャプテン]御幸一也" "[わんこだよ！]パーちゃん" 天道あかね シャンプー --name pitcher_since0905 /mnt/project-files/youtube-slides/lists`

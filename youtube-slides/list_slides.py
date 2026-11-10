@@ -55,14 +55,15 @@ body{width:1920px;height:1080px;overflow:hidden;background:#eaeeea;font-family:'
 .row:nth-child(odd){background:#f6f8f6}
 .row img,.noimg{width:var(--ic);height:var(--ic);border-radius:12px;display:block;margin:auto;background:#f3e7c2}
 .nm{text-align:left;padding-left:30px;line-height:1.2}
-.nm small{display:block;font-size:30px;color:#666;font-weight:500}
-.nm span{display:block;font-size:54px;font-weight:900;white-space:nowrap}
+.nm .one{display:block;font-size:54px;font-weight:900;white-space:nowrap}
+.nm .one small{font-size:1em;font-weight:900}
+.nm.two .one small{display:block;font-size:30px;color:#666;font-weight:500}
 .dt{font-size:50px;font-weight:900;letter-spacing:1px}
 .ob{font-size:46px;font-weight:900}
 .ob.ev{color:#c62828}.ob.ga{color:#1565c0}
 """
 FIT_JS = """<script>window.fit=()=>{const t=document.querySelector('.title');let s=76;while(t.scrollWidth>t.clientWidth&&s>40){s-=2;t.style.fontSize=s+'px'}
-document.querySelectorAll('.nm span').forEach(el=>{let s=54;while(el.scrollWidth>el.clientWidth&&s>30){s-=2;el.style.fontSize=s+'px'}})};</script>"""
+document.querySelectorAll('.nm .one').forEach(el=>{if(el.scrollWidth>el.clientWidth)el.parentNode.classList.add('two');let s=54;while(el.scrollWidth>el.clientWidth&&s>30){s-=2;el.style.fontSize=s+'px'}})};</script>"""
 
 
 def e(s):
@@ -80,7 +81,7 @@ def slide(part, title):
         nm = e(c["苗字"] + (c.get("名前") or ""))
         ob = c.get("入手方法") or "ガチャ"
         cls = "ev" if ob == "イベント報酬" else "ga"
-        rows += (f'<div class="row"><div>{im}</div><div class="nm">{sub}<span>{nm}</span></div>'
+        rows += (f'<div class="row"><div>{im}</div><div class="nm"><span class="one">{sub}{nm}</span></div>'
                  f'<div class="dt">{e(c["実装日"])}</div><div class="ob {cls}">{e(ob)}</div></div>')
     return (f'<!doctype html><html><head><meta charset="utf-8">{FONT}<style>{CSS}</style>{FIT_JS}</head>'
             f'<body style="--rh:{rh}px;--ic:{ic}px"><div class="title">{e(title)}</div>'
