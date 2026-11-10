@@ -79,9 +79,12 @@ td.memo{font-size:20px;line-height:1.35;color:#6b7684;font-weight:700}
   const [mw, mh] = await size(info.d), [sw, sh] = await size(info.s);
   // メインとサポートの画像を同じ高さに並べる（横幅 1810px に収まる最大、高さは最大 270px）
   const gap = 62, border = 16;
-  const H = Math.min(270, Math.floor((1809 - gap - 2 * border) / (mw / mh + sw / sh)));
+  // サポート画像は「合致」の帯まで入った高さ（幅386:高さ188）を基準にする。帯の無い画像（合致キャラなし）も同じ大きさで上に寄せ、下は空白（管理人指示 2026-11-10）
+  const shFull = Math.max(sh, sw * 188 / 386);
+  const H = Math.min(270, Math.floor((1809 - gap - 2 * border) / (mw / mh + sw / shFull)));
+  const subW = Math.round(sw * H / shFull);
   const deckRow = `<div class="abs deck dmain" style="height:${H + border}px"><img src="${img(info.d)}"></div>
-    <div class="abs deck dsub" style="height:${H + border}px"><img src="${img(info.s)}"></div>`;
+    <div class="abs deck dsub" style="height:${H + border}px;align-items:flex-start"><img src="${img(info.s)}" style="width:${subW}px;height:auto"></div>`;
   const head = `<img class="abs result" src="${img(info.r)}">
     <div class="abs label lmain">メインデッキ</div><div class="abs label lsub">サポートデッキ</div>${deckRow}`;
   const doc = body => `<!doctype html><html lang="ja"><head><meta charset="utf-8">
