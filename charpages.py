@@ -916,7 +916,8 @@ def ranking_pages(items, config, chars, chars_path):
                 n += 1
                 img_id = pid or rid
                 icon = (f'<img src="../../img/chars/{img_id}.png" alt="" width="60" height="60" loading="lazy">' if c.get("_icon") else '<span class="rk-noicon"></span>')
-                label = (f'<small>[{e(c["二つ名"])}]</small>' if c.get("二つ名") else "") + f'<span{" class=lg" if len(c["苗字"] + (c["名前"] or "")) > 6 else ""}>{"".join(f"<b>{e(w)}</b>" for w in re.findall(r"[^・]+・?", c["苗字"] + (c["名前"] or "")))}</span>'
+                # 名前は「・」「=」の後でだけ折り返す（リムル=テンペスト など）
+                label = (f'<small>[{e(c["二つ名"])}]</small>' if c.get("二つ名") else "") + f'<span{" class=lg" if len(c["苗字"] + (c["名前"] or "")) > 6 else ""}>{"".join(f"<b>{e(w)}</b>" for w in re.findall(r"[^・=]+[・=]?", c["苗字"] + (c["名前"] or "")))}</span>'
                 why = x.get("理由", [])
                 href = f' href="../../chars/{pid}/"' if pid else ""   # アイコンを押すとそのキャラのページへ（ページがまだ無いキャラはリンクなし）
                 tag = "a" if href else "div"
