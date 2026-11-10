@@ -76,14 +76,19 @@ td.memo{font-size:20px;line-height:1.35;color:#6b7684;font-weight:700}
   if (!info) { console.error(`${KEY} のデッキが decks.js にありません（育成結果画像の名前 result_${KEY} で探しています）`); process.exit(1); }
   const img = n => `${base}img/decks/${n}.jpg`;
   const size = async n => p.evaluate(src => new Promise(r => { const i = new Image(); i.onload = () => r([i.naturalWidth, i.naturalHeight]); i.src = src; }), img(n));
-  const [mw, mh] = await size(info.d), [sw, sh] = await size(info.s);
+  const [mw, mh0] = await size(info.d), [sw, sh] = await size(info.s);
+  // 下の端（アイテム枠の下の線）が切れているメイン画像は、切れた分の高さを下に足して表示する（管理人指示 2026-11-10）。
+  // roman_1〜5 は roman_6〜8 より中身が6px下にずれて切り出されている。
+  const MAIN_PAD = {roman_1: 6, roman_2: 6, roman_3: 6, roman_4: 6, roman_5: 6};
+  const mpad = MAIN_PAD[KEY] || 0, mh = mh0 + mpad;
   // メインとサポートの画像を同じ高さに並べる（横幅 1810px に収まる最大、高さは最大 270px）
   const gap = 62, border = 16;
   // サポート画像は「合致」の帯まで入った高さ（幅386:高さ188）を基準にする。帯の無い画像（合致キャラなし）も同じ大きさで上に寄せ、下は空白（管理人指示 2026-11-10）
   const shFull = Math.max(sh, sw * 188 / 386);
   const H = Math.min(270, Math.floor((1809 - gap - 2 * border) / (mw / mh + sw / shFull)));
   const subW = Math.round(sw * H / shFull);
-  const deckRow = `<div class="abs deck dmain" style="height:${H + border}px"><img src="${img(info.d)}"></div>
+  const mainW = Math.round(mw * H / mh);
+  const deckRow = `<div class="abs deck dmain" style="height:${H + border}px;align-items:flex-start;background:#f2fbfe"><img src="${img(info.d)}" style="width:${mainW}px;height:auto"></div>
     <div class="abs deck dsub" style="height:${H + border}px;align-items:flex-start"><img src="${img(info.s)}" style="width:${subW}px;height:auto"></div>`;
   const head = `<img class="abs result" src="${img(info.r)}">
     <div class="abs label lmain">メインデッキ</div><div class="abs label lsub">サポートデッキ</div>${deckRow}`;
