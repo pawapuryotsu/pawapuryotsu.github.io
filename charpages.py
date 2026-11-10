@@ -905,7 +905,25 @@ def guide_html(r):
             body += '<ul class="rk-list">' + "".join(f"<li>{rich(x)}</li>" for x in g["箇条書き"]) + "</ul>"
         body += paras(g.get("文章", []))
         out += f'<section class="cp-sec"><h2>{e(g["見出し"])}</h2>{body}</section>'
-    return out
+    return out + video_html(r)
+
+
+def video_html(r):
+    """ランキングの解説動画（「動画」にYouTubeのIDを書く）。解説欄の下に出す。デッキページと同じ動き：
+    スマホは普通のリンク（タップでYouTubeアプリが開く）、PCはサムネを押すとその場で再生・リンクは別タブ"""
+    vid = r.get("動画", "")
+    if not vid:
+        return ""
+    if not re.fullmatch(r"[\w-]{11}", vid):
+        raise SystemExit(f"ランキング {r['title']} の「動画」がYouTubeのIDの形ではありません：{vid}")
+    url = f"https://www.youtube.com/watch?v={vid}"
+    return (f'<section class="cp-sec"><h2>{e(r.get("動画見出し", "【解説動画】"))}</h2>'
+            f'<a class="yt" href="{url}" data-id="{vid}" aria-label="動画を再生"><img src="https://i.ytimg.com/vi/{vid}/hqdefault.jpg" alt="動画のサムネイル" loading="lazy" onerror="this.parentNode.style.display=\'none\'"><span class="play">▶</span></a>'
+            f'<a class="video" href="{url}">YouTubeで見る</a></section>'
+            '<script>(function(){if(matchMedia("(hover: none) and (pointer: coarse)").matches)return;'
+            '[].forEach.call(document.querySelectorAll(".cp-sec a.yt,.cp-sec a.video"),function(a){a.target="_blank";a.rel="noopener"});'
+            'document.addEventListener("click",function(ev){var b=ev.target.closest(".yt[data-id]");if(!b)return;ev.preventDefault();'
+            'b.outerHTML=\'<div class="ytframe"><iframe src="https://www.youtube-nocookie.com/embed/\'+b.dataset.id+\'?autoplay=1" title="解説動画" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>\'})})();</script>')
 
 
 def ranking_pages(items, config, chars, chars_path):
