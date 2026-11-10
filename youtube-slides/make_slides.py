@@ -15,6 +15,11 @@ DEST = Path(sys.argv[2]) if len(sys.argv) > 2 else HERE / "out"
 WORK = Path(tempfile.mkdtemp())
 
 rank = json.load(open(SITE / "src/ranking/ranking.json"))["ranking"][KEY]
+# スライドの重要ボーナスから外す項目（ランキングの「種別」ごと。キャラページには両方の学園用が出るが、動画では不要：管理人指示 2026-11-10）
+#   投手（ロマン開花學園）…アンドロメダ用のコツイベントボーナス・試合経験点ボーナスを外す
+#   野手（アンドロメダ学園）…ロマン用の練習効果アップ・スペシャルタッグボーナスを外す
+HIDE = {"投手": ["コツイベントボーナス", "試合経験点ボーナス"],
+        "野手": ["練習効果アップ", "スペシャルタッグボーナス"]}.get(rank.get("種別"), [])
 TITLE = rank["title"]
 page = (SITE / f"docs/ranking/{KEY}/index.html").read_text()
 table = page[page.find('<div class="tier-table">'):]
@@ -148,7 +153,9 @@ def char_slide(c):
     base = c["name"]
     body = f'<div class="title">{e(TITLE)}</div>'
     body += tier_html(c, left=8, top=118, width=1158, height=740, icon=min(94, CW - 14), w=CW, tiercol=104, tierfont=50, nm=round(19 * min(1, CW / 115), 1), sm=round(14 * min(1, CW / 115), 1), pad=12)
-    body += f'<div class="panel"><h2>{base}の重要ボーナス</h2><table>{bonus_rows(H.unescape(c["full"]))}</table></div>'
+    rows_html = "".join(r for r in re.findall(r"<tr>.*?</tr>", bonus_rows(H.unescape(c["full"])), re.S)
+                        if re.match(r"<tr><th>(.*?)</th>", r).group(1) not in HIDE)
+    body += f'<div class="panel"><h2>{base}の重要ボーナス</h2><table>{rows_html}</table></div>'
     return doc(body)
 
 
