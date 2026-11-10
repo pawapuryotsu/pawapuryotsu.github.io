@@ -916,7 +916,8 @@ def ranking_pages(items, config, chars, chars_path):
                 n += 1
                 img_id = pid or rid
                 icon = (f'<img src="../../img/chars/{img_id}.png" alt="" width="60" height="60" loading="lazy">' if c.get("_icon") else '<span class="rk-noicon"></span>')
-                label = (f'<small>[{e(c["二つ名"])}]</small>' if c.get("二つ名") else "") + f'<span{" class=lg" if len(c["苗字"] + (c["名前"] or "")) > 6 else ""}>{"".join(f"<b>{e(w)}</b>" for w in re.findall(r"[^・]+・?", c["苗字"] + (c["名前"] or "")))}</span>'
+                # 名前は「・」「=」の後でだけ折り返す（リムル=テンペスト など）
+                label = (f'<small>[{e(c["二つ名"])}]</small>' if c.get("二つ名") else "") + f'<span{" class=lg" if len(c["苗字"] + (c["名前"] or "")) > 6 else ""}>{"".join(f"<b>{e(w)}</b>" for w in re.findall(r"[^・=]+[・=]?", c["苗字"] + (c["名前"] or "")))}</span>'
                 why = x.get("理由", [])
                 href = f' href="../../chars/{pid}/"' if pid else ""   # アイコンを押すとそのキャラのページへ（ページがまだ無いキャラはリンクなし）
                 tag = "a" if href else "div"
@@ -924,20 +925,25 @@ def ranking_pages(items, config, chars, chars_path):
                 marks = ""
                 if r.get("学園") and c.get("所属高校") == r["学園"]:
                     marks += '<em class="rk-school">●高校キャラ</em>'
-                if any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in c.get("金特", {}).get("投手", [])):
-                    marks += '<em class="rk-supreme">☆至高金特</em>'
-                pit = c.get("金特", {}).get("投手", [])
-                pats = [p_.get("投手", []) for p_ in c.get("金特", {}).get("パターン", [])]
-                supreme = any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in pit)
+                if r.get("種別") == "野手":
+                    # 野手ランキング：野手の至高金特（球界の頭脳・至高の〇〇手）が取れたら☆至高金特。オリスト・オリ変は野手育成で取れないので付けない（管理人指示 2026-11-10）
+                    if any(k in config["種別の判定"]["野手系の金特"] for k in c.get("金特", {}).get("野手", [])):
+                        marks += '<em class="rk-supreme">☆至高金特</em>'
+                else:
+                    if any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in c.get("金特", {}).get("投手", [])):
+                        marks += '<em class="rk-supreme">☆至高金特</em>'
+                    pit = c.get("金特", {}).get("投手", [])
+                    pats = [p_.get("投手", []) for p_ in c.get("金特", {}).get("パターン", [])]
+                    supreme = any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in pit)
 
-                def with_supreme(match):
-                    # 至高金特を取れるキャラは、同じ獲得パターンで両立できる時だけ★を出す（両立できなければ☆至高金特を優先）
-                    return any(match(k) for k in pit) and (not supreme or any(
-                        any(match(k) for k in pt) and any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in pt) for pt in pats))
-                if with_supreme(lambda k: k == "オリジナルストレート"):
-                    marks += '<em class="rk-supreme">★オリスト</em>'
-                if with_supreme(lambda k: k.startswith("オリジナル変化球")):
-                    marks += '<em class="rk-supreme">★オリ変</em>'
+                    def with_supreme(match):
+                        # 至高金特を取れるキャラは、同じ獲得パターンで両立できる時だけ★を出す（両立できなければ☆至高金特を優先）
+                        return any(match(k) for k in pit) and (not supreme or any(
+                            any(match(k) for k in pt) and any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in pt) for pt in pats))
+                    if with_supreme(lambda k: k == "オリジナルストレート"):
+                        marks += '<em class="rk-supreme">★オリスト</em>'
+                    if with_supreme(lambda k: k.startswith("オリジナル変化球")):
+                        marks += '<em class="rk-supreme">★オリ変</em>'
                 icons += f'<{tag} class="rk-ic"{href}>{icon}{label}{marks}</{tag}>'
                 if why:
                     link = f'<a href="../../chars/{pid}/">{e(full)}</a>' if pid else e(full)
