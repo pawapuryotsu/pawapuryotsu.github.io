@@ -145,6 +145,9 @@ for text in [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob(
            "robots": '<meta name="robots" content="noindex">' if noindex else "", "adsense_head": adsense_head(),
            "analytics_note": analytics_note(), "head_extra": ga_head() + '<meta name="google-site-verification" content="ZgxID967oum-2Mm1F5BCX9gvQE_vNl2ZDbXXWfyYP10" />', "nav": nav, "scripts": scripts, "operator": OPERATOR, "operator_intro": OPERATOR_INTRO,
            "contact_block": contact_block(), "policy_date": POLICY_DATE, "ad": ad_block()}
+    # トップのランキングカードの評価日は、ランキングページ（src/ranking/ranking.json）の評価日を自動で使う（管理人指示 2026-11-10）。{{rk_date_roman}} など
+    for _k, _r in charpages._RANKING.get("ranking", {}).items():
+        rep["rk_date_" + _k] = f'【評価日{_r["評価日"]}】' if _r.get("評価日") else ""
     if meta.get("school") in DECKS:
         body = body.replace('<p class="muted">読み込み中…</p>', static_decks(meta["school"]))
     html = layout.replace("{{content}}", body)
