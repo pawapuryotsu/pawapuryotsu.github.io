@@ -58,3 +58,16 @@
 
 ランキングの解説欄（src/ranking/ranking.json の「解説欄」）のうち、箇条書きの見出し（評価基準・加点要素）を1見出し1枚にする。文章はそのまま使い、{赤太:…} の色もサイトと同じ。
 `python3 youtube-slides/guide_slides.py <ランキングのキー> [出力先フォルダ] [--all]` → `<キー>_guide/guide_1.png …` と order.txt。`--all` で評価理由詳細などの文章の見出しも作る。
+
+---
+
+# 画像でもらったTier表を作り直すスライド
+
+ranking.json に無いTier表（過去の月のランキングの画像など）を、ランキングスライドと同じデザイン（make_slides.py のCSSをそのまま使う）の1枚にする。
+
+1. 画像から読み取ったランク・並び・キャラ名を `youtube-slides/tiers/<英数字の名前>.json` に書く（chars.json の名前と完全一致しないと止まる。推測で並べ替えたり足したりしない）
+2. `python3 youtube-slides/tier_slide.py youtube-slides/tiers/<名前>.json /mnt/project-files/youtube-slides/tiers` → `<名前>_tier.png`
+
+- ランクの色は上から 赤・橙・黄・緑・青（高校キャラ＝赤、C＝青を追加）。行が多いときはアイコンを自動で小さくする
+- アイコンは pawa-data の event-chars/icons（PSR、無ければSR）
+- 例：`tiers/sep2026.json`（9月のランキング※一部省略、2026-11-10 管理人依頼）
