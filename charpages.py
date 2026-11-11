@@ -416,7 +416,9 @@ def event_detail(ev):
             inner += "<ul class=cp-choices>" + "".join(
                 f'<li{" class=ok" if c.get("正解") else ""}>{"◎ " if c.get("正解") else ""}{e(c["文"])}'
                 + (f'<br><span class="muted">{e(c["結果"])}</span>' if c.get("結果") else "") + "</li>" for c in x["選択肢"]) + "</ul>"
-        cls = {"金特イベント": " cp-ev-gold", "共通イベント": " cp-ev-common", "友情イベント": " cp-ev-friend", **{x: " cp-ev-pink" for x in ("告白", "クリスマス", "初詣", "バレンタイン")}}.get(k, "")  # 告白・クリスマス・初詣・バレンタインはピンクの帯（管理人指示）
+        cls = {"金特イベント": " cp-ev-gold", "共通イベント": " cp-ev-common", "友情イベント": " cp-ev-friend", "エピローグ": " cp-ev-red"}.get(k, "")
+        if k in ("告白", "クリスマス", "初詣", "バレンタイン") or k.startswith("デート"):  # 告白・デート・クリスマス・初詣・バレンタインはピンク、エピローグは赤の帯（管理人指示）
+            cls = " cp-ev-pink"
         parts.append(f'<h3 class="cp-ev{cls}">{e(k)}' + (f'{"" if k == "友情イベント" else " "}<span class="cp-h3-side">{side_html(x["見出し横"])}</span>' if x.get("見出し横") else "") + "</h3>" + (inner or '<p class="muted">準備中です。</p>'))
     return "".join(parts)
 
