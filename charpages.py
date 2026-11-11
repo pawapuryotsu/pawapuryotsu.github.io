@@ -712,8 +712,8 @@ def build_page(c, text, config, decks, kinds, root="../../"):
         parts.append(section(f"{name}のコンボイベント", "".join(combo_html(x, root, alias_names(c)) for x in cbs)))
     parts += [
         section(f"{name}の評価", ranking_eval_html(c["name"], root)
-                + (f'<p class="cp-evdate"><span class="rk-date">【記入日{e(text["評価記入日"])}】</span></p>' if text.get("評価") and text.get("評価記入日") else "")   # 評価文を書いた日（管理人指示 2026-11-11）
-                + paras(text.get("評価", []))),
+                + paras(text.get("評価", []))
+                + (f'<p class="cp-evdate"><span class="rk-date">【記入日{e(text["評価記入日"])}】</span></p>' if text.get("評価") and text.get("評価記入日") else "")),   # 評価文を書いた日。評価文の一番下に出す（管理人指示 2026-11-11）
         section(f"{name}の使用デッキ例", deck_examples(c["name"], decks, root), "このキャラを使ったデッキは準備中です。"),
         section(f"{name}の選手能力", ability),
     ]
