@@ -254,6 +254,13 @@ def event_kinds(c, config, text, has_friend):
     if has_friend and "友情イベント" not in kinds and (c.get("分類") or "選手") == "選手":
         kinds.insert(kinds.index("共通イベント") + 1 if "共通イベント" in kinds else len(kinds), "友情イベント")
     # エピローグ：彼女・選手彼女・相棒は構成に含まれる。選手は、共通イベントの小イベントの1つとして texts に書く
+    # 構成に無い種類（例：選手のバレンタイン）が texts にあれば、texts で1つ前に書いた種類のすぐ後ろに足す
+    prev = None
+    for x in text.get("イベント", []):
+        k = x.get("種類")
+        if k and k not in kinds:
+            kinds.insert(kinds.index(prev) + 1 if prev in kinds else len(kinds), k)
+        prev = k or prev
     return kinds
 
 
@@ -409,7 +416,9 @@ def event_detail(ev):
             inner += "<ul class=cp-choices>" + "".join(
                 f'<li{" class=ok" if c.get("正解") else ""}>{"◎ " if c.get("正解") else ""}{e(c["文"])}'
                 + (f'<br><span class="muted">{e(c["結果"])}</span>' if c.get("結果") else "") + "</li>" for c in x["選択肢"]) + "</ul>"
-        cls = {"金特イベント": " cp-ev-gold", "共通イベント": " cp-ev-common", "友情イベント": " cp-ev-friend"}.get(k, "")
+        cls = {"金特イベント": " cp-ev-gold", "共通イベント": " cp-ev-common", "友情イベント": " cp-ev-friend", "エピローグ": " cp-ev-red"}.get(k, "")
+        if k in ("告白", "クリスマス", "初詣", "バレンタイン") or k.startswith("デート"):  # 告白・デート・クリスマス・初詣・バレンタインはピンク、エピローグは赤の帯（管理人指示）
+            cls = " cp-ev-pink"
         parts.append(f'<h3 class="cp-ev{cls}">{e(k)}' + (f'{"" if k == "友情イベント" else " "}<span class="cp-h3-side">{side_html(x["見出し横"])}</span>' if x.get("見出し横") else "") + "</h3>" + (inner or '<p class="muted">準備中です。</p>'))
     return "".join(parts)
 

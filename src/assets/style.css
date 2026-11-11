@@ -405,6 +405,8 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cp-sec h3.cp-ev:first-of-type{margin-top:10px}
 .cp-sec h3.cp-ev-gold{background:linear-gradient(#fff3b8,#ffe48a);border-left-color:#d9a000}
 .cp-sec h3.cp-ev-common{background:linear-gradient(#e3f4ff,#c4e5ff);border-left-color:#2f8fe6}
+.cp-sec h3.cp-ev-pink{background:linear-gradient(#ffe6f0,#ffc9de);border-left-color:#e8578f}
+.cp-sec h3.cp-ev-red{background:linear-gradient(#ffe2df,#ffbfb8);border-left-color:#d6332a}
 .cp-sec h3.cp-ev .cp-h3-side{display:block;margin:2px 0 0;font-size:14px}
 .cp-sec h3.cp-ev-friend .cp-h3-side{display:inline;margin:0;font-size:inherit}
 .cp-nw{white-space:nowrap}
