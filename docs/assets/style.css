@@ -439,3 +439,4 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .rk-xpost{max-width:550px;margin:10px 0 0}
 .rk-xpost .twitter-tweet{margin:0 auto!important}
 .rk-xpost blockquote.twitter-tweet{padding:12px;border:1px solid var(--line);border-radius:8px;overflow-wrap:anywhere}
+.cp-evdate{margin:10px 0 0}

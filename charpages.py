@@ -631,7 +631,7 @@ def rankings_of(name):
     """このキャラが載っているランキング［(ランキング, ランク, 理由)］。評価欄に出す"""
     out = []
     for r in _RANKING.get("ranking", {}).values():
-        if r.get("キャラページに出さない"):   # 記事用のランキング（次期環境の予想など）はキャラページの評価欄に出さない
+        if r.get("キャラページに出さない"):   # 「キャラページに出さない」: true のランキングは評価欄に出さない（次期野手シナリオ予想は2026-11-11に表示へ変更）
             continue
         for t in TIERS:
             for x in r.get("ランク", {}).get(t, []):
@@ -711,7 +711,9 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     if cbs:
         parts.append(section(f"{name}のコンボイベント", "".join(combo_html(x, root, alias_names(c)) for x in cbs)))
     parts += [
-        section(f"{name}の評価", ranking_eval_html(c["name"], root) + paras(text.get("評価", []))),
+        section(f"{name}の評価", ranking_eval_html(c["name"], root)
+                + (f'<p class="cp-evdate"><span class="rk-date">【記入日{e(text["評価記入日"])}】</span></p>' if text.get("評価") and text.get("評価記入日") else "")   # 評価文を書いた日（管理人指示 2026-11-11）
+                + paras(text.get("評価", []))),
         section(f"{name}の使用デッキ例", deck_examples(c["name"], decks, root), "このキャラを使ったデッキは準備中です。"),
         section(f"{name}の選手能力", ability),
     ]
