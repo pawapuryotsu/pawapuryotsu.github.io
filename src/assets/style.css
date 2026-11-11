@@ -431,3 +431,6 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .bt .bt-t{padding:3px 2px}
 .bt .bt-t .tier{display:inline-flex;min-width:1.9em;padding:2px 3px;border-radius:4px;font-weight:900;font-size:.9em}
 .bt-note{margin-top:8px;font-size:13px}
+.cp-sec a[target="_blank"]{overflow-wrap:anywhere}
+.rk-video{display:block;max-width:480px}
+.rk-video img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:6px}

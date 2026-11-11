@@ -994,6 +994,28 @@ def bonus_table_html(r, chars):
             '<li>推奨Lv：基礎合計とコツボナが両方とも最大値になるLv</li></ul></section>')
 
 
+def _autolink(h):
+    """文章の中の https://… をリンクにする（ランキングの「上の解説欄」用。公式Xのポストなど）"""
+    return re.sub(r"https?://[^\s<>\"]+", lambda m: f'<a href="{m.group(0)}" target="_blank" rel="noopener">{m.group(0)}</a>', h)
+
+
+def top_guide_html(r):
+    """Tier表の上に出す解説（「上の解説欄」。見出し・文章・箇条書き）。書き方は「解説欄」と同じ"""
+    out = ""
+    for g in r.get("上の解説欄", []):
+        body = ""
+        if g.get("文章"):
+            body += "".join(f"<p>{_autolink(rich(t))}</p>" for t in g["文章"])
+        if g.get("箇条書き"):
+            body += '<ul class="rk-list">' + "".join(f"<li>{_autolink(rich(x))}</li>" for x in g["箇条書き"]) + "</ul>"
+        out += f'<section class="cp-sec"><h2>{e(g["見出し"])}</h2>{body}</section>'
+    if r.get("動画"):   # 解説動画（YouTubeの動画ID）。サムネイル画像を押すとYouTubeが開く（埋め込みにしないのでページが重くならない）
+        vid = e(r["動画"])
+        out += (f'<section class="cp-sec"><h2>【解説動画】</h2><a class="rk-video" href="https://youtu.be/{vid}" target="_blank" rel="noopener">'
+                f'<img src="https://i.ytimg.com/vi/{vid}/hqdefault.jpg" alt="解説動画（YouTube）" width="480" height="360" loading="lazy"></a></section>')
+    return out
+
+
 def ranking_pages(items, config, chars, chars_path):
     """ランキングページ（/ranking/〇〇/）。Tier表（顔アイコン）と、キャラごとの解説。
     キャラページがまだ無いキャラも載せられる（アイコンはリンクなし。ページができたら自動でリンクされる）"""
@@ -1062,6 +1084,7 @@ def ranking_pages(items, config, chars, chars_path):
         body = (f'<section class="phead"><p class="eyebrow">イベキャラランキング</p><h1>{h1_title}</h1>'
                 f'<p>{date_label(r)}</p></section>'
                 + (f'<div class="rk-intro">{intro}</div>' if intro else "")
+                + top_guide_html(r)
                 + (f'<div class="tier-table">{rows}</div>' if n else '<p class="muted">準備中です。</p>')
                 + (bonus_table_html(r, chars) if r.get("ボーナス表") else "")
                 + guide_html(r))   # キャラごとの評価文章は、各キャラのページ（src/chars/texts/<名前>.json の「評価」）にだけ書く
