@@ -254,6 +254,13 @@ def event_kinds(c, config, text, has_friend):
     if has_friend and "友情イベント" not in kinds and (c.get("分類") or "選手") == "選手":
         kinds.insert(kinds.index("共通イベント") + 1 if "共通イベント" in kinds else len(kinds), "友情イベント")
     # エピローグ：彼女・選手彼女・相棒は構成に含まれる。選手は、共通イベントの小イベントの1つとして texts に書く
+    # 構成に無い種類（例：選手のバレンタイン）が texts にあれば、texts で1つ前に書いた種類のすぐ後ろに足す
+    prev = None
+    for x in text.get("イベント", []):
+        k = x.get("種類")
+        if k and k not in kinds:
+            kinds.insert(kinds.index(prev) + 1 if prev in kinds else len(kinds), k)
+        prev = k or prev
     return kinds
 
 
@@ -290,6 +297,7 @@ _FRIEND = [set()]  # このキャラの友情特殊能力の名前（イベン�
 def _kind_of(name):
     """特殊能力名の種類（赤特・緑特など）。skill_kinds.json に無ければ None"""
     _is_gold_kotsu("威圧感コツ")  # _KINDS を読み込む
+    name = name.replace("〇", "○")  # skill_kinds.json は「○」（記号）。入力の「〇」（漢数字のゼロ）でも同じに扱う
     for g in _KINDS.values():
         if name in g:
             return g[name]
@@ -350,7 +358,7 @@ def _eff(i):
         return rich(i)
     if re.match(r"^(いいヤツ|世渡り上手|モテモテ|センス〇|ムード〇)", i):  # サクセス中のプラス効果＝青
         return f'<span class="tx-b">{e(i)}</span>'
-    m = re.match(r"^(.+?)になる", i)  # 「○○になる」：○○が緑特なら緑文字、赤特なら赤文字
+    m = re.match(r"^(.+?)(?:になる|取得)$", i) or re.match(r"^(.+?)になる", i)  # 「○○になる」「○○取得」：○○が緑特なら緑文字、赤特なら赤文字
     if m and _kind_of(m.group(1)) in ("赤特", "緑特"):
         return f'<span class="{"tx-r" if _kind_of(m.group(1)) == "赤特" else "tx-g"}">{e(i)}</span>'
     if i.startswith("センス×"):  # サクセス中のマイナス効果＝赤
@@ -408,7 +416,9 @@ def event_detail(ev):
             inner += "<ul class=cp-choices>" + "".join(
                 f'<li{" class=ok" if c.get("正解") else ""}>{"◎ " if c.get("正解") else ""}{e(c["文"])}'
                 + (f'<br><span class="muted">{e(c["結果"])}</span>' if c.get("結果") else "") + "</li>" for c in x["選択肢"]) + "</ul>"
-        cls = {"金特イベント": " cp-ev-gold", "共通イベント": " cp-ev-common", "友情イベント": " cp-ev-friend"}.get(k, "")
+        cls = {"金特イベント": " cp-ev-gold", "共通イベント": " cp-ev-common", "友情イベント": " cp-ev-friend", "エピローグ": " cp-ev-red"}.get(k, "")
+        if k in ("告白", "クリスマス", "初詣", "バレンタイン") or k.startswith("デート"):  # 告白・デート・クリスマス・初詣・バレンタインはピンク、エピローグは赤の帯（管理人指示）
+            cls = " cp-ev-pink"
         parts.append(f'<h3 class="cp-ev{cls}">{e(k)}' + (f'{"" if k == "友情イベント" else " "}<span class="cp-h3-side">{side_html(x["見出し横"])}</span>' if x.get("見出し横") else "") + "</h3>" + (inner or '<p class="muted">準備中です。</p>'))
     return "".join(parts)
 
@@ -421,16 +431,26 @@ def base_name(c):
     return f'{c["苗字"]}{c.get("名前") or ""}'
 
 
+def alias_names(c):
+    """二つ名なしの名前と、chars.json の「別表記」の名前（例：暗黒スバル→星井スバル。読みの（）は外す）。同じキャラとして扱う"""
+    names = [base_name(c)]
+    alt = re.sub(r"[(（].*?[)）]", "", c.get("別表記") or "").strip()
+    if alt and alt not in names:
+        names.append(alt)
+    return names
+
+
 def combos_of(c):
-    """そのキャラが入っているコンボ。別バージョン（二つ名違い）でも出る。コンボの「対象外」に書いたバージョンは出さない"""
-    return [x for x in _COMBOS if base_name(c) in x["キャラ"] and c["name"] not in x.get("対象外", [])]
+    """そのキャラが入っているコンボ。別バージョン（二つ名違い）や別表記（暗黒スバル＝星井スバル）でも出る。コンボの「対象外」に書いたバージョンは出さない"""
+    names = alias_names(c)
+    return [x for x in _COMBOS if any(n in x["キャラ"] for n in names) and c["name"] not in x.get("対象外", [])]
 
 
 def combo_html(x, root, me=None):
     """コンボイベント1つ分。見出し・コンボキャラ・イベント前後・表。me はそのキャラページの持ち主（太字にする）"""
     def who(n):
         t = e(n)
-        if n == me:
+        if n == me or (isinstance(me, (list, tuple)) and n in me):
             t = f"<b>{t}</b>"
         elif n in _BASE_PID:
             t = f'<a href="{root}chars/{_BASE_PID[n]}/">{t}</a>'
@@ -658,25 +678,12 @@ def build_page(c, text, config, decks, kinds, root="../../"):
              f'<tr><th>アイテム追加枠</th><td>{item_text(c)}</td></tr>'
              f'</tbody></table>'
              + ('<p class="cp-note">※ 覚醒で付く分も表記</p>' if awake_cap else ""))
-    imp = bonus_table(important) + (
+    # 重要ボーナスの一番下に、追加枠「○○」／キャラ持参アイテム「○○」を出す（管理人指示 2026-11-10）。データに無いキャラは出さない
+    item_rows = "".join(f'<tr><th>{e(it.get("種類") or "アイテム")}</th><td><b>{e(it["名前"])}</b></td></tr>'
+                        for it in c.get("アイテム") or [] if it.get("名前"))
+    imp = bonus_table(important, item_rows) + (
         f'<details class="cp-more"><summary>その他ボーナスはこちらをタップ</summary>{bonus_table(others)}</details>' if others else "")
-    sub = "、".join(f"{k}{v}" for k, v in (p.get("サブポジ") or {}).items()) or "なし"
-    ab = p.get("野手能力") or {}
-    pab = p.get("投手能力") or {}
-    ab_t = ability_tiles(ab) if ab else ""
-    pab_t = ("<h3>投手能力</h3>" + ability_tiles(pab, pitch_chart(p))) if pab else ""
-    sp = p.get("特殊能力") or {}
-    def sp_block(title, lst, group):
-        lst = [x for x in (lst or []) if not str(x).startswith("オリジナル")]  # オリジナルストレート・変化球は特殊能力ではない（球種欄に名前が出る）
-        if not lst:
-            return ""
-        return f"<h3>{e(title)}</h3>" + '<div class="cp-sp">' + "".join(sp_box(x, group, kinds) for x in lst) + "</div>"
-    ability = (f'<table class="cp-basic"><tbody><tr><th>選手ランク</th><td>{player_rank_html(p.get("選手能力"))}</td></tr>'
-               f'<tr><th>メインポジション</th><td>{e(c["ポジション"] or "不明")}</td></tr>'
-               f'<tr><th>サブポジション</th><td>{e(sub)}</td></tr>'
-               f'<tr><th>利き腕</th><td>{e(p.get("利き腕", "不明"))}</td></tr></tbody></table>'
-               f'<h3>野手能力</h3>{ab_t}{pab_t}' + sp_block("野手特殊能力", sp.get("野手"), "野手") + sp_block("投手特殊能力", sp.get("投手"), "投手")
-               + sp_block("その他特殊能力", sp.get("その他"), "その他"))
+    ability = ability_html(c, kinds)
     name = c["name"]
     friend_ev = text.get("友情イベント") if (c["金特"].get("友情", {}).get("野手") or c["金特"].get("友情", {}).get("投手")) else None
     has_friend = bool(c["金特"].get("友情", {}).get("野手") or c["金特"].get("友情", {}).get("投手"))
@@ -688,7 +695,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     ]
     cbs = combos_of(c)
     if cbs:
-        parts.append(section(f"{name}のコンボイベント", "".join(combo_html(x, root, base_name(c)) for x in cbs)))
+        parts.append(section(f"{name}のコンボイベント", "".join(combo_html(x, root, alias_names(c)) for x in cbs)))
     parts += [
         section(f"{name}の評価", ranking_eval_html(c["name"], root) + paras(text.get("評価", []))),
         section(f"{name}の使用デッキ例", deck_examples(c["name"], decks, root), "このキャラを使ったデッキは準備中です。"),
@@ -754,7 +761,8 @@ def generate(chars_path, src, decks, noindex=True):
     _BASE_PID.clear()
     for pid, nm in config["公開するキャラ"].items():
         if nm in chars:
-            _BASE_PID.setdefault(base_name(chars[nm]), pid)
+            for n in alias_names(chars[nm]):
+                _BASE_PID.setdefault(n, pid)
     pages, items = [], []
     pub = set(config.get("検索に出すページ", []))   # ここに書いた番号のページだけ検索に出す（サイトマップにも入る）
     for pid, name in config["公開するキャラ"].items():
@@ -781,14 +789,14 @@ def generate(chars_path, src, decks, noindex=True):
         if not re.fullmatch(r"\d{4}", pid) or pid in config["公開するキャラ"]:
             raise SystemExit(f"準備中のキャラの番号が不正か重複しています: {pid}")
         full = f'{st.get("二つ名") and "[" + st["二つ名"] + "]" or ""}{st["苗字"]}{st.get("名前") or ""}'
-        c = {"二つ名": st.get("二つ名") or "", "苗字": st["苗字"], "名前": st.get("名前") or "", "読み": st.get("読み"), "二つ名読み": st.get("二つ名読み") or "", "_準備中": True}
+        c = {"二つ名": st.get("二つ名") or "", "苗字": st["苗字"], "名前": st.get("名前") or "", "読み": st.get("読み"), "二つ名読み": st.get("二つ名読み") or "", "実装日": st.get("実装日"), "_準備中": True}
         c["_icon"] = find_icon(chars_path, c, pid)
         items.append((pid, c, full))
         meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
                 f"description: パワプロアプリのイベキャラ {full}{yomi_paren(c)} のページです。データは準備中です。\n"
                 f"path: chars/{pid}/\nnav: none\n" + ("" if pid in pub else "noindex: yes\n"))
         body = (head_html(full, c, pid)
-                + stub_body(full, st))
+                + stub_body(full, st, *stub_char(chars, st, kinds)))
         pages.append(f"<!--\n{meta}-->\n{body}")
     items.sort(key=lambda t: t[0])
     pages += ranking_pages(items, config, chars, chars_path)
@@ -811,7 +819,40 @@ def combo_page():
     return f"<!--\n{meta}-->\n{body}"
 
 
-def stub_body(full, st):
+def stub_char(chars, st, kinds):
+    """準備中キャラが入力シート（chars.json）に一部入っていれば、そのデータ（選手能力欄に使う）。無ければ (None, None)"""
+    name = (f'[{st["二つ名"]}]' if st.get("二つ名") else "") + st["苗字"] + (st.get("名前") or "")
+    c = chars.get(name)
+    if not c or not (c.get("プロフィール") or {}).get("野手能力") and not (c.get("プロフィール") or {}).get("投手能力"):
+        return (None, None)
+    _CTYPE[0] = None
+    return (c, kinds)
+
+
+def ability_html(c, kinds):
+    """選手能力欄（選手ランク・ポジション・利き腕・能力・特殊能力）。準備中ページでも使う"""
+    p = c.get("プロフィール", {})
+    sub = "、".join(f"{k}{v}" for k, v in (p.get("サブポジ") or {}).items()) or "なし"
+    ab = p.get("野手能力") or {}
+    pab = p.get("投手能力") or {}
+    ab_t = ability_tiles(ab) if ab else ""
+    pab_t = ("<h3>投手能力</h3>" + ability_tiles(pab, pitch_chart(p))) if pab else ""
+    sp = p.get("特殊能力") or {}
+    def sp_block(title, lst, group):
+        lst = [x for x in (lst or []) if not str(x).startswith("オリジナル")]  # オリジナルストレート・変化球は特殊能力ではない（球種欄に名前が出る）
+        if not lst:
+            return ""
+        return f"<h3>{e(title)}</h3>" + '<div class="cp-sp">' + "".join(sp_box(x, group, kinds) for x in lst) + "</div>"
+    ability = (f'<table class="cp-basic"><tbody><tr><th>選手ランク</th><td>{player_rank_html(p.get("選手能力"))}</td></tr>'
+               f'<tr><th>メインポジション</th><td>{e(c["ポジション"] or "不明")}</td></tr>'
+               f'<tr><th>サブポジション</th><td>{e(sub)}</td></tr>'
+               f'<tr><th>利き腕</th><td>{e(p.get("利き腕", "不明"))}</td></tr></tbody></table>'
+               f'<h3>野手能力</h3>{ab_t}{pab_t}' + sp_block("野手特殊能力", sp.get("野手"), "野手") + sp_block("投手特殊能力", sp.get("投手"), "投手")
+               + sp_block("その他特殊能力", sp.get("その他"), "その他"))
+    return ability
+
+
+def stub_body(full, st, c=None, kinds=None):
     """データ未入力キャラのページ本文。分かっている項目だけ出し、不明な所は「準備中」"""
     def pats(lst):
         return "<br>".join(f"パターン{i + 1}：{e(x)}" for i, x in enumerate(lst)) if lst else "準備中"
@@ -831,7 +872,7 @@ def stub_body(full, st):
             + section(f"{full}の共通イベント", "")
             + section(f"{full}の自己紹介", "")
             + section(f"{full}の評価", "")
-            + section(f"{full}の選手能力", ""))
+            + section(f"{full}の選手能力", ability_html(c, kinds) if c else ""))
 
 
 def index_page(items, config, noindex):
@@ -916,7 +957,8 @@ def ranking_pages(items, config, chars, chars_path):
                 n += 1
                 img_id = pid or rid
                 icon = (f'<img src="../../img/chars/{img_id}.png" alt="" width="60" height="60" loading="lazy">' if c.get("_icon") else '<span class="rk-noicon"></span>')
-                label = (f'<small>[{e(c["二つ名"])}]</small>' if c.get("二つ名") else "") + f'<span{" class=lg" if len(c["苗字"] + (c["名前"] or "")) > 6 else ""}>{"".join(f"<b>{e(w)}</b>" for w in re.findall(r"[^・]+・?", c["苗字"] + (c["名前"] or "")))}</span>'
+                # 名前は「・」「=」の後でだけ折り返す（リムル=テンペスト など）
+                label = (f'<small>[{e(c["二つ名"])}]</small>' if c.get("二つ名") else "") + f'<span{" class=lg" if len(c["苗字"] + (c["名前"] or "")) > 6 else ""}>{"".join(f"<b>{e(w)}</b>" for w in re.findall(r"[^・=]+[・=]?", c["苗字"] + (c["名前"] or "")))}</span>'
                 why = x.get("理由", [])
                 href = f' href="../../chars/{pid}/"' if pid else ""   # アイコンを押すとそのキャラのページへ（ページがまだ無いキャラはリンクなし）
                 tag = "a" if href else "div"
@@ -924,20 +966,25 @@ def ranking_pages(items, config, chars, chars_path):
                 marks = ""
                 if r.get("学園") and c.get("所属高校") == r["学園"]:
                     marks += '<em class="rk-school">●高校キャラ</em>'
-                if any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in c.get("金特", {}).get("投手", [])):
-                    marks += '<em class="rk-supreme">☆至高金特</em>'
-                pit = c.get("金特", {}).get("投手", [])
-                pats = [p_.get("投手", []) for p_ in c.get("金特", {}).get("パターン", [])]
-                supreme = any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in pit)
+                if r.get("種別") == "野手":
+                    # 野手ランキング：野手の至高金特（球界の頭脳・至高の〇〇手）が取れたら☆至高金特。オリスト・オリ変は野手育成で取れないので付けない（管理人指示 2026-11-10）
+                    if any(k in config["種別の判定"]["野手系の金特"] for k in c.get("金特", {}).get("野手", [])):
+                        marks += '<em class="rk-supreme">☆至高金特</em>'
+                else:
+                    if any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in c.get("金特", {}).get("投手", [])):
+                        marks += '<em class="rk-supreme">☆至高金特</em>'
+                    pit = c.get("金特", {}).get("投手", [])
+                    pats = [p_.get("投手", []) for p_ in c.get("金特", {}).get("パターン", [])]
+                    supreme = any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in pit)
 
-                def with_supreme(match):
-                    # 至高金特を取れるキャラは、同じ獲得パターンで両立できる時だけ★を出す（両立できなければ☆至高金特を優先）
-                    return any(match(k) for k in pit) and (not supreme or any(
-                        any(match(k) for k in pt) and any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in pt) for pt in pats))
-                if with_supreme(lambda k: k == "オリジナルストレート"):
-                    marks += '<em class="rk-supreme">★オリスト</em>'
-                if with_supreme(lambda k: k.startswith("オリジナル変化球")):
-                    marks += '<em class="rk-supreme">★オリ変</em>'
+                    def with_supreme(match):
+                        # 至高金特を取れるキャラは、同じ獲得パターンで両立できる時だけ★を出す（両立できなければ☆至高金特を優先）
+                        return any(match(k) for k in pit) and (not supreme or any(
+                            any(match(k) for k in pt) and any(k in ("至高のスターター", "至高のリリーバー", "至高のクローザー") for k in pt) for pt in pats))
+                    if with_supreme(lambda k: k == "オリジナルストレート"):
+                        marks += '<em class="rk-supreme">★オリスト</em>'
+                    if with_supreme(lambda k: k.startswith("オリジナル変化球")):
+                        marks += '<em class="rk-supreme">★オリ変</em>'
                 icons += f'<{tag} class="rk-ic"{href}>{icon}{label}{marks}</{tag}>'
                 if why:
                     link = f'<a href="../../chars/{pid}/">{e(full)}</a>' if pid else e(full)
