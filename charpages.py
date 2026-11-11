@@ -421,16 +421,26 @@ def base_name(c):
     return f'{c["苗字"]}{c.get("名前") or ""}'
 
 
+def alias_names(c):
+    """二つ名なしの名前と、chars.json の「別表記」の名前（例：暗黒スバル→星井スバル。読みの（）は外す）。同じキャラとして扱う"""
+    names = [base_name(c)]
+    alt = re.sub(r"[(（].*?[)）]", "", c.get("別表記") or "").strip()
+    if alt and alt not in names:
+        names.append(alt)
+    return names
+
+
 def combos_of(c):
-    """そのキャラが入っているコンボ。別バージョン（二つ名違い）でも出る。コンボの「対象外」に書いたバージョンは出さない"""
-    return [x for x in _COMBOS if base_name(c) in x["キャラ"] and c["name"] not in x.get("対象外", [])]
+    """そのキャラが入っているコンボ。別バージョン（二つ名違い）や別表記（暗黒スバル＝星井スバル）でも出る。コンボの「対象外」に書いたバージョンは出さない"""
+    names = alias_names(c)
+    return [x for x in _COMBOS if any(n in x["キャラ"] for n in names) and c["name"] not in x.get("対象外", [])]
 
 
 def combo_html(x, root, me=None):
     """コンボイベント1つ分。見出し・コンボキャラ・イベント前後・表。me はそのキャラページの持ち主（太字にする）"""
     def who(n):
         t = e(n)
-        if n == me:
+        if n == me or (isinstance(me, (list, tuple)) and n in me):
             t = f"<b>{t}</b>"
         elif n in _BASE_PID:
             t = f'<a href="{root}chars/{_BASE_PID[n]}/">{t}</a>'
@@ -675,7 +685,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     ]
     cbs = combos_of(c)
     if cbs:
-        parts.append(section(f"{name}のコンボイベント", "".join(combo_html(x, root, base_name(c)) for x in cbs)))
+        parts.append(section(f"{name}のコンボイベント", "".join(combo_html(x, root, alias_names(c)) for x in cbs)))
     parts += [
         section(f"{name}の評価", ranking_eval_html(c["name"], root) + paras(text.get("評価", []))),
         section(f"{name}の使用デッキ例", deck_examples(c["name"], decks, root), "このキャラを使ったデッキは準備中です。"),
@@ -741,7 +751,8 @@ def generate(chars_path, src, decks, noindex=True):
     _BASE_PID.clear()
     for pid, nm in config["公開するキャラ"].items():
         if nm in chars:
-            _BASE_PID.setdefault(base_name(chars[nm]), pid)
+            for n in alias_names(chars[nm]):
+                _BASE_PID.setdefault(n, pid)
     pages, items = [], []
     pub = set(config.get("検索に出すページ", []))   # ここに書いた番号のページだけ検索に出す（サイトマップにも入る）
     for pid, name in config["公開するキャラ"].items():
