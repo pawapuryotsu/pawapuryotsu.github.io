@@ -41,7 +41,11 @@ for t, names in rows:
 MAXN = max(len(n) for _, n in rows)
 FW = min(151, (1720 - 138 - 20) // MAXN)
 # 行数が多いときは、行の高さ（962px ÷ 行数）に収まるようにアイコンを小さくする（名前2行ぶんの余白を残す）
-ICON, NM, SM = min(128, FW - 20, 962 // len(rows) - 92), round(26 * min(1, FW / 151), 1), round(18 * min(1, FW / 151), 1)
+# サブタイトル（"subtitle"、任意）があるときは、その分だけ表を下げる
+SUB = spec.get("subtitle", "")
+TOP = 150 if SUB else 108
+TH = 1070 - TOP
+ICON, NM, SM = min(128, FW - 20, TH // len(rows) - 92), round(26 * min(1, FW / 151), 1), round(18 * min(1, FW / 151), 1)
 
 out = []
 for t, names in rows:
@@ -49,8 +53,8 @@ for t, names in rows:
     for n in names:
         m = re.match(r"\[(.*?)\](.*)", n)
         small, name = (m.group(1), m.group(2)) if m else ("", n)
-        segs = name.split("・")
-        segs = [s + "・" for s in segs[:-1]] + segs[-1:]
+        # 「・」「=」の後ろで改行できるようにする
+        segs = re.split(r"(?<=[・=])", name)
         ln = ' class="ln"' if len(segs) > 1 or len(name) > 8 else ""
         nm = "".join(f"<b>{H.escape(s)}</b>" for s in segs)
         sm = f"<small>[{H.escape(small)}]</small>" if small else ""
@@ -59,8 +63,10 @@ for t, names in rows:
     fs = 42 if t == "高校キャラ" else 72
     out.append(f'<div class="row"><div class="tier tier-{CLS.get(t, t)}" style="width:138px;font-size:{fs}px;line-height:1.15;text-align:center;white-space:nowrap">{label}</div><div class="ics">{ics}</div></div>')
 
-body = (f'<div class="title">{H.escape(spec["title"])}</div>'
-        f'<div class="tt" style="left:100px;top:108px;width:1720px;height:962px;--icon:{ICON}px;--w:{FW}px;--nm:{NM}px;--sm:{SM}px;--pad:18px">'
+sub = (f'<div class="title" style="top:96px;height:44px;line-height:44px;font-size:32px;font-weight:700;color:#5a6577">{H.escape(SUB)}</div>'
+       if SUB else "")
+body = (f'<div class="title">{H.escape(spec["title"])}</div>{sub}'
+        f'<div class="tt" style="left:100px;top:{TOP}px;width:1720px;height:{TH}px;--icon:{ICON}px;--w:{FW}px;--nm:{NM}px;--sm:{SM}px;--pad:18px">'
         + "".join(out) + "</div>")
 doc = (f'<!doctype html><html lang="ja"><head><meta charset="utf-8">{src["FONT"]}<style>{src["CSS"]}{EXTRA}</style></head>'
        f'<body>{body}<script>window.fit=()=>{{}}</script></body></html>')
