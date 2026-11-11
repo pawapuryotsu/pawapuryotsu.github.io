@@ -623,7 +623,7 @@ def char_type(c, rules):
     return "投手用" if gp and not gf else ("野手用" if gf and not gp else "兼用")
 
 
-TIERS = ("SS", "S", "A", "B")
+TIERS = ("SS", "S", "A", "B", "C")
 _RANKING = {}   # generate() が src/ranking/ranking.json から読む
 
 
@@ -631,6 +631,8 @@ def rankings_of(name):
     """このキャラが載っているランキング［(ランキング, ランク, 理由)］。評価欄に出す"""
     out = []
     for r in _RANKING.get("ranking", {}).values():
+        if r.get("キャラページに出さない"):   # 記事用のランキング（次期環境の予想など）はキャラページの評価欄に出さない
+            continue
         for t in TIERS:
             for x in r.get("ランク", {}).get(t, []):
                 if x["name"] == name:
@@ -941,6 +943,57 @@ def guide_html(r):
     return out
 
 
+BASE_BONUS = ("筋力ボーナス", "敏捷ボーナス", "技術ボーナス", "変化球ボーナス", "精神ボーナス")
+
+
+def _shown_at(entry, rare, lv):
+    """chars.json の「表示」（Lvの値＋覚醒＋固有）で、指定Lv以下の一番高いLvの値（無ければ0）"""
+    best, val = -1, 0
+    for k, v in ((entry or {}).get("表示") or {}).get(rare, {}).items():
+        if best < int(k) <= lv:
+            best, val = int(k), v
+    return val
+
+
+def base_kotsu(c, rare, lv):
+    """（基礎合計, コツボナ）。基礎合計＝筋力・敏捷・技術・変化球・精神ボーナスの合計（Tier表メーカーと同じ）"""
+    b = c.get("bonus", {})
+    return sum(_shown_at(b.get(k), rare, lv) for k in BASE_BONUS), _shown_at(b.get("コツイベントボーナス"), rare, lv)
+
+
+def recommended_lv(c):
+    """基礎合計とコツボナが両方PSR50の値に届く一番低いLv。SRで届けば数字、SRでは届かずPSRで届けば「PSR40」など（管理人OK 2026-11-11）"""
+    top = base_kotsu(c, "PSR", 50)
+    for lv in (35, 37, 40, 45):
+        if base_kotsu(c, "SR", lv) == top:
+            return str(lv)
+    for lv in (40, 42, 45, 50):
+        if base_kotsu(c, "PSR", lv) == top:
+            return "50" if lv == 50 else f"PSR{lv}"
+    return "－"
+
+
+def bonus_table_html(r, chars):
+    """ランキングの「ボーナス表」：前後・基礎合計・コツボナ（PSR50＝覚醒すべて込み、Lv35＝PSR覚醒なし・SR覚醒あり）・推奨Lv（管理人指示 2026-11-11）"""
+    rows = ""
+    for t in TIERS:
+        for x in r["ランク"].get(t, []):
+            c = chars[x["name"]]
+            top, low = base_kotsu(c, "PSR", 50), base_kotsu(c, "SR", 35)
+            nick = f'<small>[{e(c["二つ名"])}]</small>' if c.get("二つ名") else ""
+            ev = (c.get("プロフィール") or {}).get("前後イベ") or "－"
+            rows += (f'<tr><td class="bt-t"><span class="tier tier-{t}">{t}</span></td><th>{nick}<span>{"".join(f"<b>{e(w)}</b>" for w in re.findall(r"[^・=]+[・=]?", c["苗字"] + (c["名前"] or "")))}</span></th>'
+                     f'<td>{e(ev)}</td><td class="bt-mx">{fmt(top[0])}</td><td>{fmt(low[0])}</td>'
+                     f'<td class="bt-mx">{fmt(top[1])}</td><td>{fmt(low[1])}</td><td>{e(recommended_lv(c))}</td></tr>')
+    return ('<section class="cp-sec"><h2>ボーナス一覧</h2><div class="bt-wrap"><table class="bt">'
+            '<thead><tr><th rowspan="2"></th><th rowspan="2">キャラ</th><th rowspan="2">前後</th><th colspan="2">基礎合計</th><th colspan="2">コツボナ</th><th rowspan="2">推奨Lv</th></tr>'
+            '<tr><th>PSR50</th><th>Lv35</th><th>PSR50</th><th>Lv35</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table></div>'
+            '<ul class="rk-list bt-note"><li>基礎合計：筋力・敏捷・技術・変化球・精神ボーナスの合計</li>'
+            '<li>PSR50：覚醒をすべて含む値。Lv35：SR覚醒は含み、PSR覚醒は含まない値</li>'
+            '<li>推奨Lv：基礎合計とコツボナが両方とも最大値になるLv</li></ul></section>')
+
+
 def ranking_pages(items, config, chars, chars_path):
     """ランキングページ（/ranking/〇〇/）。Tier表（顔アイコン）と、キャラごとの解説。
     キャラページがまだ無いキャラも載せられる（アイコンはリンクなし。ページができたら自動でリンクされる）"""
@@ -953,6 +1006,8 @@ def ranking_pages(items, config, chars, chars_path):
     for key, r in _RANKING.get("ranking", {}).items():
         rows, notes, n = "", "", 0
         for t in TIERS:
+            if t == "C" and not r["ランク"].get("C"):
+                continue   # Cランクは使うランキングだけに出す（ロマン・アンドロメダはSS〜Bの4段のまま）
             icons = ""
             for x in r["ランク"].get(t, []):
                 nm = x["name"]
@@ -1008,9 +1063,10 @@ def ranking_pages(items, config, chars, chars_path):
                 f'<p>{date_label(r)}</p></section>'
                 + (f'<div class="rk-intro">{intro}</div>' if intro else "")
                 + (f'<div class="tier-table">{rows}</div>' if n else '<p class="muted">準備中です。</p>')
+                + (bonus_table_html(r, chars) if r.get("ボーナス表") else "")
                 + guide_html(r))   # キャラごとの評価文章は、各キャラのページ（src/chars/texts/<名前>.json の「評価」）にだけ書く
         meta = "\n".join([f'title: {r["title"]}｜パワプロアプリ攻略ベース',
-                          f'description: パワプロアプリのイベキャラを、Tier表（SS・S・A・B）でランク付けしました。{r["title"]}の評価基準と、各キャラのランクをまとめています。',
+                          f'description: パワプロアプリのイベキャラを、Tier表（{"・".join(t for t in TIERS if r["ランク"].get(t))}）でランク付けしました。{r["title"]}の評価基準と、各キャラのランクをまとめています。',
                           f'path: {r["path"]}', "nav: none"] + ([] if r.get("公開") else ["noindex: yes"])) + "\n"
         pages.append(f"<!--\n{meta}-->\n{body}")
     return pages
