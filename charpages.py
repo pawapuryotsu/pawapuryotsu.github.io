@@ -254,6 +254,13 @@ def event_kinds(c, config, text, has_friend):
     if has_friend and "友情イベント" not in kinds and (c.get("分類") or "選手") == "選手":
         kinds.insert(kinds.index("共通イベント") + 1 if "共通イベント" in kinds else len(kinds), "友情イベント")
     # エピローグ：彼女・選手彼女・相棒は構成に含まれる。選手は、共通イベントの小イベントの1つとして texts に書く
+    # 構成に無い種類（例：選手のバレンタイン）が texts にあれば、texts で1つ前に書いた種類のすぐ後ろに足す
+    prev = None
+    for x in text.get("イベント", []):
+        k = x.get("種類")
+        if k and k not in kinds:
+            kinds.insert(kinds.index(prev) + 1 if prev in kinds else len(kinds), k)
+        prev = k or prev
     return kinds
 
 
