@@ -290,6 +290,7 @@ _FRIEND = [set()]  # このキャラの友情特殊能力の名前（イベン�
 def _kind_of(name):
     """特殊能力名の種類（赤特・緑特など）。skill_kinds.json に無ければ None"""
     _is_gold_kotsu("威圧感コツ")  # _KINDS を読み込む
+    name = name.replace("〇", "○")  # skill_kinds.json は「○」（記号）。入力の「〇」（漢数字のゼロ）でも同じに扱う
     for g in _KINDS.values():
         if name in g:
             return g[name]
