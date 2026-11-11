@@ -387,6 +387,18 @@ def side_html(t):
     return "、<wbr>".join(f'<span class="cp-nw">{e(p)}</span>' for p in t.split("、"))
 
 
+def move_epilogue(ev):
+    """共通イベントの中の「エピローグ」は、イベント欄の一番下に【エピローグ】（赤系の帯）として出す（管理人指示 2026-11-11）"""
+    com = ev.get("共通イベント") or {}
+    subs = com.get("小イベント") or []
+    epi = [x for x in subs if x.get("名前") == "エピローグ"]
+    if not epi or ev.get("エピローグ"):
+        return
+    com["小イベント"] = [x for x in subs if x.get("名前") != "エピローグ"]
+    ev.pop("エピローグ", None)
+    ev["エピローグ"] = {"種類": "エピローグ", "小イベント": [{k: v for k, v in x.items() if k != "名前"} for x in epi]}
+
+
 def event_detail(ev):
     """イベント詳細。金特イベント・共通イベント・自己紹介など全部をここに並べる。
     「小イベント」（名前＋表の行）があれば表で、無ければ従来の書き方（体力・やる気・コツ・選択肢・詳細）で出す。
@@ -688,6 +700,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     friend_ev = text.get("友情イベント") if (c["金特"].get("友情", {}).get("野手") or c["金特"].get("友情", {}).get("投手")) else None
     has_friend = bool(c["金特"].get("友情", {}).get("野手") or c["金特"].get("友情", {}).get("投手"))
     ev = events_of(text, event_kinds(c, config, text, has_friend))
+    move_epilogue(ev)
     parts = [
         section(f"{name}の基本情報", basic),
         section(f"{name}の重要ボーナス", imp),
