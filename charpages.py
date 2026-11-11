@@ -350,7 +350,7 @@ def _eff(i):
         return rich(i)
     if re.match(r"^(いいヤツ|世渡り上手|モテモテ|センス〇|ムード〇)", i):  # サクセス中のプラス効果＝青
         return f'<span class="tx-b">{e(i)}</span>'
-    m = re.match(r"^(.+?)になる", i)  # 「○○になる」：○○が緑特なら緑文字、赤特なら赤文字
+    m = re.match(r"^(.+?)(?:になる|取得)$", i) or re.match(r"^(.+?)になる", i)  # 「○○になる」「○○取得」：○○が緑特なら緑文字、赤特なら赤文字
     if m and _kind_of(m.group(1)) in ("赤特", "緑特"):
         return f'<span class="{"tx-r" if _kind_of(m.group(1)) == "赤特" else "tx-g"}">{e(i)}</span>'
     if i.startswith("センス×"):  # サクセス中のマイナス効果＝赤
