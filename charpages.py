@@ -973,7 +973,7 @@ def recommended_lv(c):
     return "－"
 
 
-def bonus_table_html(r, chars):
+def bonus_table_html(r, chars, icons=None):
     """ランキングの「ボーナス表」：前後・基礎合計・コツボナ（PSR50＝覚醒すべて込み、Lv35＝PSR覚醒なし・SR覚醒あり）・推奨Lv（管理人指示 2026-11-11）"""
     rows = ""
     for t in TIERS:
@@ -982,7 +982,7 @@ def bonus_table_html(r, chars):
             top, low = base_kotsu(c, "PSR", 50), base_kotsu(c, "SR", 35)
             nick = f'<small>[{e(c["二つ名"])}]</small>' if c.get("二つ名") else ""
             ev = (c.get("プロフィール") or {}).get("前後イベ") or "－"
-            rows += (f'<tr><td class="bt-t"><span class="tier tier-{t}">{t}</span></td><th>{nick}<span>{"".join(f"<b>{e(w)}</b>" for w in re.findall(r"[^・=]+[・=]?", c["苗字"] + (c["名前"] or "")))}</span></th>'
+            rows += (f'<tr><td class="bt-t"><span class="tier tier-{t}">{t}</span></td><th><div class="bt-nm">{icons.get(x["name"], "") if icons else ""}<div>{nick}<span>{"".join(f"<b>{e(w)}</b>" for w in re.findall(r"[^・=]+[・=]?", c["苗字"] + (c["名前"] or "")))}</span></div></div></th>'
                      f'<td>{e(ev)}</td><td class="bt-mx">{fmt(top[0])}</td><td>{fmt(low[0])}</td>'
                      f'<td class="bt-mx">{fmt(top[1])}</td><td>{fmt(low[1])}</td><td>{e(recommended_lv(c))}</td></tr>')
     return ('<section class="cp-sec"><h2>ボーナス一覧</h2><div class="bt-wrap"><table class="bt">'
@@ -1001,14 +1001,24 @@ def _autolink(h):
 
 def top_guide_html(r):
     """Tier表の上に出す解説（「上の解説欄」。見出し・文章・箇条書き）。書き方は「解説欄」と同じ"""
-    out = ""
+    out, need_x = "", False
     for g in r.get("上の解説欄", []):
         body = ""
-        if g.get("文章"):
-            body += "".join(f"<p>{_autolink(rich(t))}</p>" for t in g["文章"])
+        for t in g.get("文章", []):
+            m = re.fullmatch(r"https://(?:x|twitter)\.com/([A-Za-z0-9_]+)/status/(\d+)\S*", t.strip())
+            if m:
+                # 公式Xのポストは埋め込み表示（管理人指示 2026-11-11）。読み込めない時はリンクだけ出る
+                url = f"https://twitter.com/{m.group(1)}/status/{m.group(2)}"
+                body += (f'<div class="rk-xpost"><blockquote class="twitter-tweet" data-lang="ja" data-dnt="true">'
+                         f'<a href="{url}">{e(t.strip())}</a></blockquote></div>')
+                need_x = True
+            else:
+                body += f"<p>{_autolink(rich(t))}</p>"
         if g.get("箇条書き"):
             body += '<ul class="rk-list">' + "".join(f"<li>{_autolink(rich(x))}</li>" for x in g["箇条書き"]) + "</ul>"
         out += f'<section class="cp-sec"><h2>{e(g["見出し"])}</h2>{body}</section>'
+    if need_x:
+        out += '<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
     if r.get("動画"):   # 解説動画（YouTubeの動画ID）。サムネイル画像を押すとYouTubeが開く（埋め込みにしないのでページが重くならない）
         vid = e(r["動画"])
         out += (f'<section class="cp-sec"><h2>【解説動画】</h2><a class="rk-video" href="https://youtu.be/{vid}" target="_blank" rel="noopener">'
@@ -1027,6 +1037,7 @@ def ranking_pages(items, config, chars, chars_path):
     pages = []
     for key, r in _RANKING.get("ranking", {}).items():
         rows, notes, n = "", "", 0
+        bt_icons = {}   # ボーナス一覧の名前の左に出すアイコン（Tier表と同じ画像）
         for t in TIERS:
             if t == "C" and not r["ランク"].get("C"):
                 continue   # Cランクは使うランキングだけに出す（ロマン・アンドロメダはSS〜Bの4段のまま）
@@ -1074,6 +1085,7 @@ def ranking_pages(items, config, chars, chars_path):
                         marks += '<em class="rk-supreme">★オリスト</em>'
                     if with_supreme(lambda k: k.startswith("オリジナル変化球")):
                         marks += '<em class="rk-supreme">★オリ変</em>'
+                bt_icons[nm] = (f'<img src="../../img/chars/{img_id}.png" alt="" width="40" height="40" loading="lazy">' if c.get("_icon") else "")
                 icons += f'<{tag} class="rk-ic"{href}>{icon}{label}{marks}</{tag}>'
                 if why:
                     link = f'<a href="../../chars/{pid}/">{e(full)}</a>' if pid else e(full)
@@ -1086,7 +1098,7 @@ def ranking_pages(items, config, chars, chars_path):
                 + (f'<div class="rk-intro">{intro}</div>' if intro else "")
                 + top_guide_html(r)
                 + (f'<div class="tier-table">{rows}</div>' if n else '<p class="muted">準備中です。</p>')
-                + (bonus_table_html(r, chars) if r.get("ボーナス表") else "")
+                + (bonus_table_html(r, chars, bt_icons) if r.get("ボーナス表") else "")
                 + guide_html(r))   # キャラごとの評価文章は、各キャラのページ（src/chars/texts/<名前>.json の「評価」）にだけ書く
         meta = "\n".join([f'title: {r["title"]}｜パワプロアプリ攻略ベース',
                           f'description: パワプロアプリのイベキャラを、Tier表（{"・".join(t for t in TIERS if r["ランク"].get(t))}）でランク付けしました。{r["title"]}の評価基準と、各キャラのランクをまとめています。',
