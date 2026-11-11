@@ -342,13 +342,12 @@ _CELL_SKIP = ("選択肢", "効果", "正解", "その他")
 
 def _cell(x):
     """1行ぶんの「その他」欄。【投手】【野手】【三塁手】など見出しごとの項目と、見出し無しのその他を縦に並べる"""
-    out = ""
+    out = "".join(_item(i) for i in x.get("その他", []))  # 見出し無し（ランダムコツ等）は一番上。下だと最後の【野手】等だけの物に見えるため（管理人指示）
     order = _CELL_ORDER_BY_TYPE.get(_CTYPE[0], _CELL_ORDER)
     labs = [k for k in order if k in x] + [k for k in x if k not in order and k not in _CELL_SKIP]
     for lab in labs:
         if x.get(lab):
             out += f'<div class="cp-t-lab">【{lab}】</div>' + "".join(_item(i) for i in x[lab])
-    out += "".join(_item(i) for i in x.get("その他", []))
     return out
 
 
