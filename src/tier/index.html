@@ -139,6 +139,7 @@ body.selecting{padding-bottom:70px}
   <div id="log" class="log hidden">
     <h3>2026-11-11</h3>
     <ul>
+      <li>「画像に名前も入れる」をオフにして保存・共有するとき、アイコンの上下の隙間を詰めて出力するようにしました</li>
       <li>ボーナス検索に「基礎ボーナス合計」を追加しました（筋力・敏捷・技術・変化球・精神ボーナスの合計。「見る値」で選んだLvの値で計算します）</li>
     </ul>
     <h3>2026-11-10</h3>
@@ -480,13 +481,14 @@ async function makePng(){
   const Q = portrait
     ? {per:4, M:12, LW:96, CW:156, IC:148, PAD:6, TOP:sub ? 104 : 80, T1:40, T1y:54, T2:22, T2y:86, LV:30, LVy:31, NM:22, NMy1:62, NMy0:26, EL:38, EN:28, GAP:8, BOT:24}
     : {per:8, M:20, LW:150, CW:122, IC:112, PAD:8, TOP:sub ? 120 : 92, T1:46, T1y:62, T2:24, T2y:98, LV:22, LVy:23, NM:15, NMy1:42, NMy0:18, EL:28, EN:18, GAP:6, BOT:30};
-  const {per, M, LW, CW, IC, PAD, TOP, GAP} = Q, nm = $("pngname").checked;
+  const nm = $("pngname").checked, {per, M, LW, CW, IC, PAD, TOP} = Q;
+  const GAP = nm ? Q.GAP : 4, TAIL = nm ? 0 : -GAP;   // 名前なしのときは、段の間を4pxにし、Tierの下の余白も上と同じにする
   const W = 2 * M + LW + PAD * 2 + per * CW, NK = (LW - 10) / NAME_W;   // NK：Tier名の大きさの倍率（縦長はラベルが細いので縮める）
   const rows = S.tiers.map(t => Math.max(1, Math.ceil(t.cards.length / per)));
   const anyLv = S.tiers.some(t => t.cards.some(u => (S.cards[u].lv || "").trim() !== ""));   // 画像全体でLvなどの文字が1つも無いときは、その分の空白を詰める
   const hasLv = S.tiers.map(() => anyLv);
   const EXs = hasLv.map(h => (h ? Q.EL : 0) + (nm ? Q.EN : 0));
-  const RH = (r, i) => r * (IC + EXs[i] + GAP) + PAD;
+  const RH = (r, i) => r * (IC + EXs[i] + GAP) + PAD + TAIL;
   const H = TOP + rows.reduce((a, r, i) => a + RH(r, i), 0) + Q.BOT;
   const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
   const g = cv.getContext("2d");
