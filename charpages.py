@@ -838,7 +838,7 @@ def generate(chars_path, src, decks, noindex=True):
         else:
             meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
                     f"description: パワプロアプリ（サクセス・パワクエ共通）のイベキャラ {full}{yomi_paren(c)} のボーナス、金特、イベント選択肢、選手能力をまとめています。\n")
-        meta += f"path: {path}\nnav: none\n" + ("noindex: yes\n" if noindex and pid not in pub else "")
+        meta += f"path: {path}\nnav: none\ncrumb: {full}\n" + ("noindex: yes\n" if noindex and pid not in pub else "")
         body = (head_html(full, c, pid)
                 + build_page(c, text, config, decks, kinds))
         pages.append(f"<!--\n{meta}-->\n{body}")
@@ -852,7 +852,7 @@ def generate(chars_path, src, decks, noindex=True):
         items.append((pid, c, full))
         meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
                 f"description: パワプロアプリのイベキャラ {full}{yomi_paren(c)} のページです。データは準備中です。\n"
-                f"path: chars/{pid}/\nnav: none\n" + ("" if pid in pub else "noindex: yes\n"))
+                f"path: chars/{pid}/\nnav: none\ncrumb: {full}\n" + ("" if pid in pub else "noindex: yes\n"))
         body = (head_html(full, c, pid)
                 + stub_body(full, st, *stub_char(chars, st, kinds)))
         pages.append(f"<!--\n{meta}-->\n{body}")

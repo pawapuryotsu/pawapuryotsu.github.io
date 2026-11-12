@@ -468,3 +468,9 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 
 /* キャラページ「関連ページ」の同じランクのキャラ（横に並べて折り返す） */
 .cp-relchips{display:flex;flex-wrap:wrap;gap:6px 16px;list-style:none;padding-left:0;margin:6px 0 14px}
+
+/* パンくずリスト（ページ上部。トップ › イベキャラ一覧 › キャラ名） */
+.crumbs ol{list-style:none;display:flex;flex-wrap:wrap;padding:0;margin:12px 0 10px;font-size:12px;line-height:1.6;color:var(--muted)}
+.crumbs li{min-width:0;overflow-wrap:anywhere}
+.crumbs li+li::before{content:"›";margin:0 6px;color:var(--muted)}
+.crumbs a{color:var(--muted)}
