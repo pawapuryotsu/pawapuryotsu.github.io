@@ -70,4 +70,18 @@ ranking.json に無いTier表（過去の月のランキングの画像など）
 
 - ランクの色は上から 赤・橙・黄・緑・青（高校キャラ＝赤、C＝青を追加）。行が多いときはアイコンを自動で小さくする
 - アイコンは pawa-data の event-chars/icons（PSR、無ければSR）
-- 例：`tiers/sep2026.json`（9月のランキング※一部省略、2026-11-10 管理人依頼）
+- json に `"subtitle"` を書くと、タイトルの下に小さく出す（無ければ出さない）
+- 例：`tiers/sep2026.json`（9月のランキング※一部省略、2026-11-10 管理人依頼）、`tiers/next_batter.json`（次期野手環境で使えそうなキャラ、サブタイトル「独断と偏見」、2026-11-11 管理人依頼）
+
+---
+
+# ランク別の表スライド（基礎合計・コツボナ・推奨Lv）
+
+`tiers/<名前>.json` のTier表と同じ並びで、ランクごとに表を1枚ずつ作る（1枚に最大7人。多いランクは半分ずつ①②に分ける）。2026-11-11 管理人依頼。
+
+列：キャラ（アイコン＋[二つ名]名前）／前後（イベント前後）／基礎合計（PSR50・Lv35）／コツボナ（PSR50・Lv35）／推奨Lv
+- 基礎合計＝筋力・敏捷・技術・変化球・精神ボーナスの合計（Tier表メーカーと同じ）。コツボナ＝コツイベントボーナス
+- PSR50：覚醒をすべて含める（SR覚醒・PSR覚醒・固有）。Lv35：PSR覚醒は含めず、SR覚醒・固有は含める（chars.json の「表示」SRのLv35）
+- 推奨Lv：基礎合計とコツボナが両方PSR50の値に届く一番低いLv。SRで届けば数字、SRでは届かずPSRで届けば「PSR40」のように書く
+
+`python3 youtube-slides/table_slides.py youtube-slides/tiers/next_batter.json /mnt/project-files/youtube-slides/next_batter_table` → `01_SS.png …` と order.txt

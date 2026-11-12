@@ -254,6 +254,13 @@ def event_kinds(c, config, text, has_friend):
     if has_friend and "友情イベント" not in kinds and (c.get("分類") or "選手") == "選手":
         kinds.insert(kinds.index("共通イベント") + 1 if "共通イベント" in kinds else len(kinds), "友情イベント")
     # エピローグ：彼女・選手彼女・相棒は構成に含まれる。選手は、共通イベントの小イベントの1つとして texts に書く
+    # 構成に無い種類（例：選手のバレンタイン）が texts にあれば、texts で1つ前に書いた種類のすぐ後ろに足す
+    prev = None
+    for x in text.get("イベント", []):
+        k = x.get("種類")
+        if k and k not in kinds:
+            kinds.insert(kinds.index(prev) + 1 if prev in kinds else len(kinds), k)
+        prev = k or prev
     return kinds
 
 
@@ -290,6 +297,7 @@ _FRIEND = [set()]  # このキャラの友情特殊能力の名前（イベン�
 def _kind_of(name):
     """特殊能力名の種類（赤特・緑特など）。skill_kinds.json に無ければ None"""
     _is_gold_kotsu("威圧感コツ")  # _KINDS を読み込む
+    name = name.replace("〇", "○")  # skill_kinds.json は「○」（記号）。入力の「〇」（漢数字のゼロ）でも同じに扱う
     for g in _KINDS.values():
         if name in g:
             return g[name]
@@ -334,13 +342,12 @@ _CELL_SKIP = ("選択肢", "効果", "正解", "その他")
 
 def _cell(x):
     """1行ぶんの「その他」欄。【投手】【野手】【三塁手】など見出しごとの項目と、見出し無しのその他を縦に並べる"""
-    out = ""
+    out = "".join(_item(i) for i in x.get("その他", []))  # 見出し無し（ランダムコツ等）は一番上。下だと最後の【野手】等だけの物に見えるため（管理人指示）
     order = _CELL_ORDER_BY_TYPE.get(_CTYPE[0], _CELL_ORDER)
     labs = [k for k in order if k in x] + [k for k in x if k not in order and k not in _CELL_SKIP]
     for lab in labs:
         if x.get(lab):
             out += f'<div class="cp-t-lab">【{lab}】</div>' + "".join(_item(i) for i in x[lab])
-    out += "".join(_item(i) for i in x.get("その他", []))
     return out
 
 
@@ -350,7 +357,7 @@ def _eff(i):
         return rich(i)
     if re.match(r"^(いいヤツ|世渡り上手|モテモテ|センス〇|ムード〇)", i):  # サクセス中のプラス効果＝青
         return f'<span class="tx-b">{e(i)}</span>'
-    m = re.match(r"^(.+?)になる", i)  # 「○○になる」：○○が緑特なら緑文字、赤特なら赤文字
+    m = re.match(r"^(.+?)(?:になる|取得)$", i) or re.match(r"^(.+?)になる", i)  # 「○○になる」「○○取得」：○○が緑特なら緑文字、赤特なら赤文字
     if m and _kind_of(m.group(1)) in ("赤特", "緑特"):
         return f'<span class="{"tx-r" if _kind_of(m.group(1)) == "赤特" else "tx-g"}">{e(i)}</span>'
     if i.startswith("センス×"):  # サクセス中のマイナス効果＝赤
@@ -377,6 +384,18 @@ def sub_table(rows):
 def side_html(t):
     """見出し横の文。「、」で区切った1まとまりごとに折り返さない（「御／幸塾」のように名前の途中で折り返さないため）"""
     return "、<wbr>".join(f'<span class="cp-nw">{e(p)}</span>' for p in t.split("、"))
+
+
+def move_epilogue(ev):
+    """共通イベントの中の「エピローグ」は、イベント欄の一番下に【エピローグ】（赤系の帯）として出す（管理人指示 2026-11-11）"""
+    com = ev.get("共通イベント") or {}
+    subs = com.get("小イベント") or []
+    epi = [x for x in subs if x.get("名前") == "エピローグ"]
+    if not epi or ev.get("エピローグ"):
+        return
+    com["小イベント"] = [x for x in subs if x.get("名前") != "エピローグ"]
+    ev.pop("エピローグ", None)
+    ev["エピローグ"] = {"種類": "エピローグ", "小イベント": [{k: v for k, v in x.items() if k != "名前"} for x in epi]}
 
 
 def event_detail(ev):
@@ -408,7 +427,9 @@ def event_detail(ev):
             inner += "<ul class=cp-choices>" + "".join(
                 f'<li{" class=ok" if c.get("正解") else ""}>{"◎ " if c.get("正解") else ""}{e(c["文"])}'
                 + (f'<br><span class="muted">{e(c["結果"])}</span>' if c.get("結果") else "") + "</li>" for c in x["選択肢"]) + "</ul>"
-        cls = {"金特イベント": " cp-ev-gold", "共通イベント": " cp-ev-common", "友情イベント": " cp-ev-friend"}.get(k, "")
+        cls = {"金特イベント": " cp-ev-gold", "共通イベント": " cp-ev-common", "友情イベント": " cp-ev-friend", "エピローグ": " cp-ev-red"}.get(k, "")
+        if k in ("告白", "クリスマス", "初詣", "バレンタイン") or k.startswith("デート"):  # 告白・デート・クリスマス・初詣・バレンタインはピンク、エピローグは赤の帯（管理人指示）
+            cls = " cp-ev-pink"
         parts.append(f'<h3 class="cp-ev{cls}">{e(k)}' + (f'{"" if k == "友情イベント" else " "}<span class="cp-h3-side">{side_html(x["見出し横"])}</span>' if x.get("見出し横") else "") + "</h3>" + (inner or '<p class="muted">準備中です。</p>'))
     return "".join(parts)
 
@@ -421,16 +442,26 @@ def base_name(c):
     return f'{c["苗字"]}{c.get("名前") or ""}'
 
 
+def alias_names(c):
+    """二つ名なしの名前と、chars.json の「別表記」の名前（例：暗黒スバル→星井スバル。読みの（）は外す）。同じキャラとして扱う"""
+    names = [base_name(c)]
+    alt = re.sub(r"[(（].*?[)）]", "", c.get("別表記") or "").strip()
+    if alt and alt not in names:
+        names.append(alt)
+    return names
+
+
 def combos_of(c):
-    """そのキャラが入っているコンボ。別バージョン（二つ名違い）でも出る。コンボの「対象外」に書いたバージョンは出さない"""
-    return [x for x in _COMBOS if base_name(c) in x["キャラ"] and c["name"] not in x.get("対象外", [])]
+    """そのキャラが入っているコンボ。別バージョン（二つ名違い）や別表記（暗黒スバル＝星井スバル）でも出る。コンボの「対象外」に書いたバージョンは出さない"""
+    names = alias_names(c)
+    return [x for x in _COMBOS if any(n in x["キャラ"] for n in names) and c["name"] not in x.get("対象外", [])]
 
 
 def combo_html(x, root, me=None):
     """コンボイベント1つ分。見出し・コンボキャラ・イベント前後・表。me はそのキャラページの持ち主（太字にする）"""
     def who(n):
         t = e(n)
-        if n == me:
+        if n == me or (isinstance(me, (list, tuple)) and n in me):
             t = f"<b>{t}</b>"
         elif n in _BASE_PID:
             t = f'<a href="{root}chars/{_BASE_PID[n]}/">{t}</a>'
@@ -592,7 +623,7 @@ def char_type(c, rules):
     return "投手用" if gp and not gf else ("野手用" if gf and not gp else "兼用")
 
 
-TIERS = ("SS", "S", "A", "B")
+TIERS = ("SS", "S", "A", "B", "C")
 _RANKING = {}   # generate() が src/ranking/ranking.json から読む
 
 
@@ -600,6 +631,8 @@ def rankings_of(name):
     """このキャラが載っているランキング［(ランキング, ランク, 理由)］。評価欄に出す"""
     out = []
     for r in _RANKING.get("ranking", {}).values():
+        if r.get("キャラページに出さない"):   # 「キャラページに出さない」: true のランキングは評価欄に出さない（次期野手シナリオ予想は2026-11-11に表示へ変更）
+            continue
         for t in TIERS:
             for x in r.get("ランク", {}).get(t, []):
                 if x["name"] == name:
@@ -668,6 +701,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     friend_ev = text.get("友情イベント") if (c["金特"].get("友情", {}).get("野手") or c["金特"].get("友情", {}).get("投手")) else None
     has_friend = bool(c["金特"].get("友情", {}).get("野手") or c["金特"].get("友情", {}).get("投手"))
     ev = events_of(text, event_kinds(c, config, text, has_friend))
+    move_epilogue(ev)
     parts = [
         section(f"{name}の基本情報", basic),
         section(f"{name}の重要ボーナス", imp),
@@ -675,9 +709,11 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     ]
     cbs = combos_of(c)
     if cbs:
-        parts.append(section(f"{name}のコンボイベント", "".join(combo_html(x, root, base_name(c)) for x in cbs)))
+        parts.append(section(f"{name}のコンボイベント", "".join(combo_html(x, root, alias_names(c)) for x in cbs)))
     parts += [
-        section(f"{name}の評価", ranking_eval_html(c["name"], root) + paras(text.get("評価", []))),
+        section(f"{name}の評価", ranking_eval_html(c["name"], root)
+                + paras(text.get("評価", []))
+                + (f'<p class="cp-evdate"><span class="rk-date">【記入日{e(text["評価記入日"])}】</span></p>' if text.get("評価") and text.get("評価記入日") else "")),   # 評価文を書いた日。評価文の一番下に出す（管理人指示 2026-11-11）
         section(f"{name}の使用デッキ例", deck_examples(c["name"], decks, root), "このキャラを使ったデッキは準備中です。"),
         section(f"{name}の選手能力", ability),
     ]
@@ -741,7 +777,8 @@ def generate(chars_path, src, decks, noindex=True):
     _BASE_PID.clear()
     for pid, nm in config["公開するキャラ"].items():
         if nm in chars:
-            _BASE_PID.setdefault(base_name(chars[nm]), pid)
+            for n in alias_names(chars[nm]):
+                _BASE_PID.setdefault(n, pid)
     pages, items = [], []
     pub = set(config.get("検索に出すページ", []))   # ここに書いた番号のページだけ検索に出す（サイトマップにも入る）
     for pid, name in config["公開するキャラ"].items():
@@ -926,6 +963,89 @@ def video_html(r):
             'b.outerHTML=\'<div class="ytframe"><iframe src="https://www.youtube-nocookie.com/embed/\'+b.dataset.id+\'?autoplay=1" title="解説動画" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>\'})})();</script>')
 
 
+BASE_BONUS = ("筋力ボーナス", "敏捷ボーナス", "技術ボーナス", "変化球ボーナス", "精神ボーナス")
+
+
+def _shown_at(entry, rare, lv):
+    """chars.json の「表示」（Lvの値＋覚醒＋固有）で、指定Lv以下の一番高いLvの値（無ければ0）"""
+    best, val = -1, 0
+    for k, v in ((entry or {}).get("表示") or {}).get(rare, {}).items():
+        if best < int(k) <= lv:
+            best, val = int(k), v
+    return val
+
+
+def base_kotsu(c, rare, lv):
+    """（基礎合計, コツボナ）。基礎合計＝筋力・敏捷・技術・変化球・精神ボーナスの合計（Tier表メーカーと同じ）"""
+    b = c.get("bonus", {})
+    return sum(_shown_at(b.get(k), rare, lv) for k in BASE_BONUS), _shown_at(b.get("コツイベントボーナス"), rare, lv)
+
+
+def recommended_lv(c):
+    """基礎合計とコツボナが両方PSR50の値に届く一番低いLv。SRで届けば数字、SRでは届かずPSRで届けば「PSR40」など（管理人OK 2026-11-11）"""
+    top = base_kotsu(c, "PSR", 50)
+    for lv in (35, 37, 40, 45):
+        if base_kotsu(c, "SR", lv) == top:
+            return str(lv)
+    for lv in (40, 42, 45, 50):
+        if base_kotsu(c, "PSR", lv) == top:
+            return "50" if lv == 50 else f"PSR{lv}"
+    return "－"
+
+
+def bonus_table_html(r, chars, icons=None):
+    """ランキングの「ボーナス表」：前後・基礎合計・コツボナ（PSR50＝覚醒すべて込み、Lv35＝PSR覚醒なし・SR覚醒あり）・推奨Lv（管理人指示 2026-11-11）"""
+    rows = ""
+    for t in TIERS:
+        for x in r["ランク"].get(t, []):
+            c = chars[x["name"]]
+            top, low = base_kotsu(c, "PSR", 50), base_kotsu(c, "SR", 35)
+            nick = f'<small>[{e(c["二つ名"])}]</small>' if c.get("二つ名") else ""
+            ev = (c.get("プロフィール") or {}).get("前後イベ") or "－"
+            rows += (f'<tr><td class="bt-t"><span class="tier tier-{t}">{t}</span></td><th><div class="bt-nm">{icons.get(x["name"], "") if icons else ""}<div>{nick}<span>{"".join(f"<b>{e(w)}</b>" for w in re.findall(r"[^・=]+[・=]?", c["苗字"] + (c["名前"] or "")))}</span></div></div></th>'
+                     f'<td>{e(ev)}</td><td class="bt-mx">{fmt(top[0])}</td><td>{fmt(low[0])}</td>'
+                     f'<td class="bt-mx">{fmt(top[1])}</td><td>{fmt(low[1])}</td><td>{e(recommended_lv(c))}</td></tr>')
+    return ('<section class="cp-sec"><h2>ボーナス一覧</h2><div class="bt-wrap"><table class="bt">'
+            '<thead><tr><th rowspan="2"></th><th rowspan="2">キャラ</th><th rowspan="2">前後</th><th colspan="2">基礎合計</th><th colspan="2">コツボナ</th><th rowspan="2">推奨Lv</th></tr>'
+            '<tr><th>PSR50</th><th>Lv35</th><th>PSR50</th><th>Lv35</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table></div>'
+            '<ul class="rk-list bt-note"><li>基礎合計：筋力・敏捷・技術・変化球・精神ボーナスの合計</li>'
+            '<li>PSR50：覚醒をすべて含む値。Lv35：SR覚醒は含み、PSR覚醒は含まない値</li>'
+            '<li>推奨Lv：基礎合計とコツボナが両方とも最大値になるLv</li></ul></section>')
+
+
+def _autolink(h):
+    """文章の中の https://… をリンクにする（ランキングの「上の解説欄」用。公式Xのポストなど）"""
+    return re.sub(r"https?://[^\s<>\"]+", lambda m: f'<a href="{m.group(0)}" target="_blank" rel="noopener">{m.group(0)}</a>', h)
+
+
+def top_guide_html(r):
+    """Tier表の上に出す解説（「上の解説欄」。見出し・文章・箇条書き）。書き方は「解説欄」と同じ"""
+    out, need_x = "", False
+    for g in r.get("上の解説欄", []):
+        body = ""
+        for t in g.get("文章", []):
+            m = re.fullmatch(r"https://(?:x|twitter)\.com/([A-Za-z0-9_]+)/status/(\d+)\S*", t.strip())
+            if m:
+                # 公式Xのポストは埋め込み表示（管理人指示 2026-11-11）。読み込めない時はリンクだけ出る
+                url = f"https://twitter.com/{m.group(1)}/status/{m.group(2)}"
+                body += (f'<div class="rk-xpost"><blockquote class="twitter-tweet" data-lang="ja" data-dnt="true">'
+                         f'<a href="{url}">{e(t.strip())}</a></blockquote></div>')
+                need_x = True
+            else:
+                body += f"<p>{_autolink(rich(t))}</p>"
+        if g.get("箇条書き"):
+            body += '<ul class="rk-list">' + "".join(f"<li>{_autolink(rich(x))}</li>" for x in g["箇条書き"]) + "</ul>"
+        out += f'<section class="cp-sec"><h2>{e(g["見出し"])}</h2>{body}</section>'
+    if need_x:
+        out += '<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
+    if r.get("動画"):   # 解説動画（YouTubeの動画ID）。サムネイル画像を押すとYouTubeが開く（埋め込みにしないのでページが重くならない）
+        vid = e(r["動画"])
+        out += (f'<section class="cp-sec"><h2>【解説動画】</h2><a class="rk-video" href="https://youtu.be/{vid}" target="_blank" rel="noopener">'
+                f'<img src="https://i.ytimg.com/vi/{vid}/hqdefault.jpg" alt="解説動画（YouTube）" width="480" height="360" loading="lazy"></a></section>')
+    return out
+
+
 def ranking_pages(items, config, chars, chars_path):
     """ランキングページ（/ranking/〇〇/）。Tier表（顔アイコン）と、キャラごとの解説。
     キャラページがまだ無いキャラも載せられる（アイコンはリンクなし。ページができたら自動でリンクされる）"""
@@ -937,7 +1057,10 @@ def ranking_pages(items, config, chars, chars_path):
     pages = []
     for key, r in _RANKING.get("ranking", {}).items():
         rows, notes, n = "", "", 0
+        bt_icons = {}   # ボーナス一覧の名前の左に出すアイコン（Tier表と同じ画像）
         for t in TIERS:
+            if t == "C" and not r["ランク"].get("C"):
+                continue   # Cランクは使うランキングだけに出す（ロマン・アンドロメダはSS〜Bの4段のまま）
             icons = ""
             for x in r["ランク"].get(t, []):
                 nm = x["name"]
@@ -982,6 +1105,7 @@ def ranking_pages(items, config, chars, chars_path):
                         marks += '<em class="rk-supreme">★オリスト</em>'
                     if with_supreme(lambda k: k.startswith("オリジナル変化球")):
                         marks += '<em class="rk-supreme">★オリ変</em>'
+                bt_icons[nm] = (f'<img src="../../img/chars/{img_id}.png" alt="" width="40" height="40" loading="lazy">' if c.get("_icon") else "")
                 icons += f'<{tag} class="rk-ic"{href}>{icon}{label}{marks}</{tag}>'
                 if why:
                     link = f'<a href="../../chars/{pid}/">{e(full)}</a>' if pid else e(full)
@@ -992,10 +1116,12 @@ def ranking_pages(items, config, chars, chars_path):
         body = (f'<section class="phead"><p class="eyebrow">イベキャラランキング</p><h1>{h1_title}</h1>'
                 f'<p>{date_label(r)}</p></section>'
                 + (f'<div class="rk-intro">{intro}</div>' if intro else "")
+                + top_guide_html(r)
                 + (f'<div class="tier-table">{rows}</div>' if n else '<p class="muted">準備中です。</p>')
+                + (bonus_table_html(r, chars, bt_icons) if r.get("ボーナス表") else "")
                 + guide_html(r))   # キャラごとの評価文章は、各キャラのページ（src/chars/texts/<名前>.json の「評価」）にだけ書く
         meta = "\n".join([f'title: {r["title"]}｜パワプロアプリ攻略ベース',
-                          f'description: パワプロアプリのイベキャラを、Tier表（SS・S・A・B）でランク付けしました。{r["title"]}の評価基準と、各キャラのランクをまとめています。',
+                          f'description: パワプロアプリのイベキャラを、Tier表（{"・".join(t for t in TIERS if r["ランク"].get(t))}）でランク付けしました。{r["title"]}の評価基準と、各キャラのランクをまとめています。',
                           f'path: {r["path"]}', "nav: none"] + ([] if r.get("公開") else ["noindex: yes"])) + "\n"
         pages.append(f"<!--\n{meta}-->\n{body}")
     return pages

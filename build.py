@@ -87,7 +87,7 @@ if (src / "pawaque").exists():
             page.write_text(html.replace("</head>", ga_head() + "\n</head>", 1), encoding="utf-8")
 # 古いCSS/JSがスマホに残らないよう、ファイルの中身から作った番号を ?v= で付ける
 import hashlib
-ver = {f: hashlib.md5((out / "assets" / f).read_bytes()).hexdigest()[:8] for f in ("style.css", "deck.js", "decks.js")}
+ver = {f: hashlib.md5((out / "assets" / f).read_bytes()).hexdigest()[:8] for f in ("style.css", "deck.js", "decks.js", "gacha.js")}
 
 # サイトマップの lastmod は「本当に更新した日」だけ書く（毎回今日の日付だとGoogleに無視される）。
 # デッキページ＝そのシナリオのデッキの一番新しい育成日。それ以外のページは書かない。
@@ -129,10 +129,12 @@ layout = (src / "layout.html").read_text(encoding="utf-8")
 urls = []
 import charpages
 _char_pages = charpages.generate(chars, src, DECKS)  # キャラページ（評価を書くまでは noindex）
+import gachapages
+_gacha_pages, _gacha_cards = gachapages.generate(src)  # ガチャ記事（src/gacha/*.json）とトップの「ガチャ」欄のカード
 (out / "img" / "chars").mkdir(exist_ok=True)
 for _f, _dst in charpages.ICON_COPIES:                # 一覧に出すキャラのアイコン（130x130）
     shutil.copy(_f, out / _dst)
-for text in [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob("*.html"))] + _char_pages:
+for text in [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob("*.html"))] + _char_pages + _gacha_pages:
     meta_txt, body = re.match(r"<!--(.*?)-->\n(.*)", text, re.S).groups()
     meta = dict(re.findall(r"^(\w+):[ \t]*(.*)$", meta_txt, re.M))
     path = meta["path"]
@@ -144,7 +146,7 @@ for text in [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob(
     rep = {"title": meta["title"], "description": meta["description"], "canonical": f"{SITE_URL}/{path}",
            "robots": '<meta name="robots" content="noindex">' if noindex else "", "adsense_head": adsense_head(),
            "analytics_note": analytics_note(), "head_extra": ga_head() + '<meta name="google-site-verification" content="ZgxID967oum-2Mm1F5BCX9gvQE_vNl2ZDbXXWfyYP10" />', "nav": nav, "scripts": scripts, "operator": OPERATOR, "operator_intro": OPERATOR_INTRO,
-           "contact_block": contact_block(), "policy_date": POLICY_DATE, "ad": ad_block()}
+           "contact_block": contact_block(), "policy_date": POLICY_DATE, "ad": ad_block(), "gacha_cards": _gacha_cards}
     # トップのランキングカードの評価日は、ランキングページ（src/ranking/ranking.json）の評価日を自動で使う（管理人指示 2026-11-10）。{{rk_date_roman}} など
     for _k, _r in charpages._RANKING.get("ranking", {}).items():
         rep["rk_date_" + _k] = f'【評価日{_r["評価日"]}】' if _r.get("評価日") else ""
@@ -167,6 +169,20 @@ for text in [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob(
     dest.write_text(html, encoding="utf-8")
     if not noindex:
         urls.append((f"{SITE_URL}/{path}", deck_dates.get(meta.get("school"))))
+
+# URLを変えたページ：古いURLに「新しいURLへ自動で移動するページ」を置く（検索結果や過去のリンクから来た人のため）。
+# サイトのURLは「-」を使わず「_」で統一（2026-11-12 りょーつー指示）。古いURL → 新しいURL
+REDIRECTS = [("guide/how-to-read/", "guide/how_to_read/"), ("guide/cost-tool/", "guide/cost_tool/"), ("ranking/next-batter/", "ranking/next_batter/")]
+for _old, _new in REDIRECTS:
+    _to = f"{SITE_URL}/{_new}"
+    _d = out / _old
+    _d.mkdir(parents=True, exist_ok=True)
+    (_d / "index.html").write_text(
+        '<!doctype html>\n<html lang="ja">\n<head>\n<meta charset="utf-8">\n<meta name="color-scheme" content="light">\n'
+        f'<title>ページが移動しました｜パワプロアプリ攻略ベース</title>\n<link rel="canonical" href="{_to}">\n'
+        f'<meta http-equiv="refresh" content="0; url={_to}">\n'
+        f'<script>location.replace("/{_new}" + location.search + location.hash)</script>\n</head>\n'
+        f'<body style="background:#fff;color:#222">\n<p>このページは移動しました。自動で移動しない場合は <a href="{_to}">こちら</a> を開いてください。</p>\n</body>\n</html>\n', encoding="utf-8")
 
 if (out / "tier").exists():
     urls.append((f"{SITE_URL}/tier/", None))
