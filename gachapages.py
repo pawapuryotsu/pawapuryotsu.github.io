@@ -123,7 +123,7 @@ def _body(g, root_icon, src_dir):
         "選択ガチャ券は取っておき、引き終わってから、2人とも完成する確率が一番高くなるように2人に分けて使います（1人ずつの確率では、券を全部そのキャラに使います）。",
         f'{"、".join(f"{nm(ch)}の手持ちは{nm(ch)}だけに" for ch in chs)}使います。合成の順番は、それぞれ1人ずつのときと同じく一番成功率が高い順番です。'
         + "".join(f'{e(x["label"])}の{e(x["rarity"])}{x["n"]}枚は{nm(ch)}に使います。' for ch in chs for x in ch.get("extra", [])),
-        "ダイジョーブ博士像は使わない計算です（上で選んだ博士像の枚数は反映されません）。",
+        "ダイジョーブ博士像は使わない計算です（そのため博士像の枚数の欄は出しません）。",
         f'2人分の手持ちの組み合わせが多すぎて全パターンを計算できないため、ガチャを{g["both"]["mc"] // 10000}万回試しに引いた結果の割合です（誤差は0.3ポイントほど）。そのため100%にはせず「ほぼ100%」と表示します。' if both else "",
         "Lv40・SR Lv45・PSR Lv50は、それぞれ「2人ともその目標に届く」確率です。"] if both else []
     both_box = ('<div class="g-note" data-ch="both" hidden><p class="g-h">※「2人とも」の確率は、1人ずつのときと次の点が違います</p><ul>'
@@ -147,8 +147,8 @@ def _body(g, root_icon, src_dir):
 
   <h2 id="result">何周で完成する？</h2>
   {ch_btns}
-  <div class="g-dj"><p class="g-h">ダイジョーブ博士像を使う場合（枚数を選ぶ）</p><div class="g-djs">{dj}</div>
-  <p class="muted">選んだ枚数の博士像を使える前提で、下の確率とシミュレータの確率が変わります。PSR像はPSR Lv50の計算だけに使います。{only_both("「2人とも」は博士像なしの確率です。")}</p></div>
+  <div class="g-dj" data-nb><p class="g-h">ダイジョーブ博士像を使う場合（枚数を選ぶ）</p><div class="g-djs">{dj}</div>
+  <p class="muted">選んだ枚数の博士像を使える前提で、下の確率とシミュレータの確率が変わります。PSR像はPSR Lv50の計算だけに使います。</p></div>
   <div class="g-goal" role="group" aria-label="目標"><button type="button" data-goal="LV40">Lv40</button><button type="button" data-goal="SR45">SR Lv45</button><button type="button" data-goal="PSR50">PSR Lv50</button></div>
   <div class="g-stat"><div>50%で達成<b id="g-p50"></b><small id="g-p50s"></small></div><div>80%で達成<b id="g-p80"></b><small id="g-p80s"></small></div><div>90%で達成<b id="g-p90"></b><small id="g-p90s"></small></div></div>
   <h3>周回ごとの確率</h3>
