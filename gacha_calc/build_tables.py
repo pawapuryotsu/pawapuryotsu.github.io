@@ -1,7 +1,7 @@
 # ガチャ記事の「周回ごとの確率」を計算して、次のファイルを書く。
 #   src/gacha/<id>.tables.json        … 博士像なしの表（ページに埋め込む）
 #   src/assets/gacha_t/<id>.bin       … 博士像ありの表（像の枚数の全組み合わせ。ページが必要なときに読む）
-#   src/assets/gacha_v/sr.bin, pXYZ.bin … 「引いてみる」用の、手持ち→完成確率の表（ガチャによらず共通。X,Y,Z＝SR像・PR像・R像の枚数）
+#   src/assets/gacha_v/sr.bin, pX_Y_Z.bin … 「引いてみる」用の、手持ち→完成確率の表（ガチャによらず共通。X,Y,Z＝SR像・PR像・R像の枚数）
 # ガチャのデータ（src/gacha/<id>.json）を足したら、このスクリプトを1回実行してから build.py を実行する。
 #   python3 gacha_calc/build_tables.py
 # 計算のしかた：そのステップ数まで引き終わってから、手持ちの目当てキャラ（と博士像）を「一番成功率が高い順番」で
@@ -17,8 +17,9 @@ import numpy as np
 here = pathlib.Path(__file__).parent
 root = here.parent
 S, C, D = 24, 34, 60      # 表の大きさ（SR・PR・Rの枚数の上限。これ以上は同じ値として扱う＝少し控えめな値になる）。vtable.c と同じ値にする
-K = 5                     # 博士像を各レアリティ何枚まで選べるか
-CACHE = f"vpsr_S{S}C{C}D{D}_K{K}_u16.npz"
+KS = 5                    # PSR像・SR像を何枚まで選べるか
+KL = 10                   # PR像・R像を何枚まで選べるか
+CACHE = f"vpsr_S{S}C{C}D{D}_K{KS}_{KL}_u16.npz"
 CACHE_DIRS = [here / "cache", pathlib.Path("/mnt/project-files/gacha-calc")]
 
 
@@ -31,8 +32,8 @@ def build_exe():
 def sr_table(exe):
     """SR目標：[PR像][R像][あと何段階-1][PR][R] → 完成確率"""
     tmp = here / "sr.tmp"
-    subprocess.run([str(exe), "sr", str(tmp), str(K), str(K)], stdin=subprocess.DEVNULL, check=True)
-    v = np.fromfile(tmp).reshape(K + 1, K + 1, 5, C + 1, D + 1)
+    subprocess.run([str(exe), "sr", str(tmp), str(KL), str(KL)], stdin=subprocess.DEVNULL, check=True)
+    v = np.fromfile(tmp).reshape(KL + 1, KL + 1, 5, C + 1, D + 1)
     tmp.unlink()
     return v
 
@@ -47,13 +48,13 @@ def to_u16(v):
 
 def psr_table(exe):
     """PSR目標：[SR像][PR像][R像][あと何段階-1][SR][PR][R] → 完成確率"""
-    shape = (K + 1, K + 1, K + 1, 5, S + 1, C + 1, D + 1)
+    shape = (KS + 1, KL + 1, KL + 1, 5, S + 1, C + 1, D + 1)
     for d in CACHE_DIRS:
         if (d / CACHE).exists():
             return (np.load(d / CACHE)["v"].astype(np.float32) / 65535).reshape(shape)
-    print("PSR目標の表を計算します（約30分）…")
+    print("PSR目標の表を計算します（約1時間半）…")
     tmp = here / "psr.tmp"
-    subprocess.run([str(exe), "psr", str(tmp), str(K), str(K), str(K)], check=True)
+    subprocess.run([str(exe), "psr", str(tmp), str(KS), str(KL), str(KL)], check=True)
     u = to_u16(np.fromfile(tmp, dtype=np.float32))
     tmp.unlink()
     (here / "cache").mkdir(exist_ok=True)
@@ -75,10 +76,10 @@ def write_browser_tables(vs, vp):
         shutil.rmtree(out)
     out.mkdir(parents=True)
     (out / "sr.bin").write_bytes(u8(vs).tobytes())
-    for ks in range(K + 1):
-        for kp in range(K + 1):
-            for kr in range(K + 1):
-                (out / f"p{ks}{kp}{kr}.bin").write_bytes(u8(vp[ks, kp, kr]).tobytes())
+    for ks in range(KS + 1):
+        for kp in range(KL + 1):
+            for kr in range(KL + 1):
+                (out / f"p{ks}_{kp}_{kr}.bin").write_bytes(u8(vp[ks, kp, kr]).tobytes())
 
 
 def slot_probs(g, slot):
@@ -101,16 +102,20 @@ def shift(P, ax):
     return R
 
 
-def sr_goal(vs, W, N):
-    """W[e]＝「確定の+1がe回分ある」手持ちの確率（[PR][R]）。あとN段階のSR目標の達成確率を [SR像][PR像][R像] で返す"""
-    out = np.zeros((K + 1, K + 1, K + 1))
+def sr_goal(vs, W, N, fail=False):
+    """W[e]＝「確定の+1がe回分ある」手持ちの確率（[PR][R]）。あとN段階のSR目標の達成確率を [SR像][PR像][R像] で返す
+    fail=True（vs は「100%でない」印の表）のときは「失敗するかもしれない手持ち」の確率を返す（0なら本当に100%）"""
+    out = np.zeros((KS + 1, KL + 1, KL + 1))
     for e, w in enumerate(W):
         tot = w.sum()
         if tot == 0:
             continue
-        for ks in range(K + 1):
+        for ks in range(KS + 1):
             need = N - e - ks
-            out[ks] += tot if need <= 0 else np.tensordot(vs[:, :, need - 1], w, axes=([2, 3], [0, 1]))
+            if need > 0:
+                out[ks] += np.tensordot(vs[:, :, need - 1], w, axes=([2, 3], [0, 1]))
+            elif not fail:
+                out[ks] += tot
     return out
 
 
@@ -120,15 +125,24 @@ def main():
     vp = psr_table(exe)
     exe.unlink()
     write_browser_tables(vs, vp)
-    vpf = vp.reshape((K + 1) ** 3 * 5, -1)
+    vpf = vp.reshape((KS + 1) * (KL + 1) ** 2 * 5, -1)
+    # 「100%でない」印の表（キャッシュは 65535＝ちょうど100% のときだけなので、1.0 と比べてよい）
+    vsx = (vs < 1).astype(np.float64)
+    vpx = (vpf < 1).astype(np.float32)
     tdir = root / "src" / "assets" / "gacha_t"
     tdir.mkdir(exist_ok=True)
     files = sorted(p for p in (root / "src" / "gacha").glob("*.json") if not p.name.endswith(".tables.json"))
     for f in files:
         g = json.loads(f.read_text(encoding="utf-8"))
-        P = np.zeros((7, S + 1, C + 1, D + 1)); P[0, 0, 0, 0] = 1
+        P = np.zeros((7, S + 1, C + 1, D + 1))
+        start = [0, 0, 0, 0]   # ガチャ以外で手に入る分（イベント報酬など。json の "extra"）から始める
+        for x in g.get("extra", []):
+            start[AX[x["rarity"]]] += x["n"]
+        P[min(start[0], 6), min(start[1], S), min(start[2], C), min(start[3], D)] = 1
         got_sr, got_psr, sr45, lv40, psr50 = [], [], [], [], []
-        for st in range(90):
+        fails = {k: [] for k in ('gotSR', 'gotPSR', 'LV40', 'SR45', 'PSR50')}   # 失敗する可能性のある手持ちの確率（0なら本当に100%）
+        L = len(g["steps"])
+        for st in range(max(90, 40 * L)):   # 最大40周（または90ステップ）。十分な確率になったら周の終わりで止める
             step = g["steps"][st % len(g["steps"])] if g.get("loop") else g["steps"][min(st, len(g["steps"]) - 1)]
             for slot in step["slots"]:
                 pr = slot_probs(g, slot)
@@ -138,38 +152,47 @@ def main():
                         Q += p * shift(P, AX[k])
                     P = Q
             got_sr.append(P[:, 1:].sum())
+            fails['gotSR'].append(P[:, 0].sum())
+            fails['gotPSR'].append(P[0].sum())
             got_psr.append(P[1:].sum())
             # SR Lv45：ベースはSR。2枚目以降のSRとPSRは100%で+1 → e = PSRの枚数 + SRの枚数 - 1
             W = [sum(P[a, e + 1 - a] for a in range(7) if 1 <= e + 1 - a <= S) for e in range(5)]
             rest = sum(P[a, s].sum() for a in range(7) for s in range(1, S + 1) if a + s - 1 >= 5)
             sr45.append(sr_goal(vs, W, 5) + rest)
+            fails['SR45'].append(sr_goal(vsx, W, 5, True) + P[:, 0].sum())
             # Lv40：PSRが1枚でもあれば到達。無ければSRを+3に
             lv40.append(sr_goal(vs, [P[0, e + 1] for e in range(3)], 3) + P[0, 4:].sum() + P[1:].sum())
+            fails['LV40'].append(sr_goal(vsx, [P[0, e + 1] for e in range(3)], 3, True) + P[0, 0].sum())
             # PSR Lv50：ベースはPSR。2枚目以降のPSRとPSR像は100%で+1
-            dots = (vpf @ P[1:6].reshape(5, -1).astype(np.float32).T).reshape(K + 1, K + 1, K + 1, 5, 5)   # [SR像][PR像][R像][n-1][PSRの枚数-1]
-            t = np.zeros((K + 1, K + 1, K + 1, K + 1))
-            for kq in range(K + 1):
+            dots = (vpf @ P[1:6].reshape(5, -1).astype(np.float32).T).reshape(KS + 1, KL + 1, KL + 1, 5, 5)   # [SR像][PR像][R像][n-1][PSRの枚数-1]
+            dotx = (vpx @ P[1:6].reshape(5, -1).astype(np.float32).T).reshape(KS + 1, KL + 1, KL + 1, 5, 5)
+            t = np.zeros((KS + 1, KS + 1, KL + 1, KL + 1))
+            tx = np.full((KS + 1, KS + 1, KL + 1, KL + 1), P[0].sum())
+            for kq in range(KS + 1):
                 t[kq] += P[6].sum()
                 for a in range(1, 6):
                     need = 5 - (a - 1) - kq
                     t[kq] += P[a].sum() if need <= 0 else dots[:, :, :, need - 1, a - 1]
+                    if need > 0:
+                        tx[kq] += dotx[:, :, :, need - 1, a - 1]
             psr50.append(t)
-            if sr45[-1][0, 0, 0] >= .999 and psr50[-1][0, 0, 0, 0] >= .995 and (st + 1) % len(g["steps"]) == 0:
+            fails['PSR50'].append(tx)
+            if sr45[-1][0, 0, 0] >= .999 and psr50[-1][0, 0, 0, 0] >= .995 and (st + 1) % L == 0:
                 break
         # %で小数4桁まで。100 は「ちょうど100%」のときだけ（それ以外は 99.9999 まで）
-        pct = lambda xs: [100.0 if x >= 1 - 1e-12 else min(round(float(x) * 100, 4), 99.9999) for x in xs]
-        out = {"K": K, "gotSR": pct(got_sr), "gotPSR": pct(got_psr), "LV40": pct(x[0, 0, 0] for x in lv40),
-               "SR45": pct(x[0, 0, 0] for x in sr45), "PSR50": pct(x[0, 0, 0, 0] for x in psr50)}
+        # 計算の誤差で1に見えても、失敗する可能性のある手持ちが残っていれば100%にしない
+        pct = lambda xs, k: [100.0 if np.ravel(m)[0] == 0 else min(round(float(x) * 100, 4), 99.9999) for x, m in zip(xs, fails[k])]   # [0]＝博士像なし
+        out = {"KS": KS, "KL": KL, "gotSR": pct(got_sr, "gotSR"), "gotPSR": pct(got_psr, "gotPSR"), "LV40": pct([x[0, 0, 0] for x in lv40], "LV40"),
+               "SR45": pct([x[0, 0, 0] for x in sr45], "SR45"), "PSR50": pct([x[0, 0, 0, 0] for x in psr50], "PSR50")}
         (f.parent / (f.stem + ".tables.json")).write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
         # 博士像ありの表：[SR45][LV40][PSR50] の順、各 [像の組み合わせ][ステップ]、値は 確率×65535（uint16。0と65535はちょうど0%・100%のときだけ）
-        def u16(x):
+        def u16(x, k):
             v = np.moveaxis(np.array(x, dtype=float), 0, -1)
             r = np.clip(np.round(v * 65535), 1, 65534)
             r[v <= 0] = 0
-            r[v >= 1 - 1e-12] = 65535
+            r[np.moveaxis(np.array(fails[k], dtype=float), 0, -1) == 0] = 65535
             return r.astype("<u2").tobytes()
-        (tdir / (f.stem + ".bin")).write_bytes(u16(sr45) + u16(lv40) + u16(psr50))
-        L = len(g["steps"])
+        (tdir / (f.stem + ".bin")).write_bytes(u16(sr45, "SR45") + u16(lv40, "LV40") + u16(psr50, "PSR50"))
         print(f.stem, "ステップ数", len(sr45))
         for k in ("gotSR", "gotPSR", "LV40", "SR45", "PSR50"):
             print("  ", k, [round(v, 2) for v in out[k][L - 1::L][:12]])
