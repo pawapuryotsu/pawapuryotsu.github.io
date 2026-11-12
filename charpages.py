@@ -653,6 +653,38 @@ def ranking_eval_html(name, root):
     return out
 
 
+CHAR_PATHS = {}   # キャラ名（chars.json の name）→ "chars/番号/"。公開しているキャラだけ。デッキページのリンクにも使う（build.py）
+_GACHAS = []      # src/gacha/*.json。キャラページからガチャ記事へリンクするため
+
+
+def has_eval(c, text):
+    """評価が書いてあるキャラか（評価文 または ランキングに載っている）。title に「評価」を入れるかの判定"""
+    return bool(text.get("評価")) or bool(rankings_of(c["name"]))
+
+
+def gacha_links(name):
+    """このキャラが出現率アップのガチャ記事 [(パス, 表示名)]"""
+    out = []
+    for g in _GACHAS:
+        chs = g.get("charas") or [{"chara": g.get("chara")}]
+        if any(ch.get("chara") == name for ch in chs):
+            out.append((f'gacha/{g["id"]}/', f'{g["chara"]}のガチャは引くべき？'))
+    return out
+
+
+def related_html(name, root):
+    """キャラページの一番下の「関連ページ」：イベキャラ一覧・ガチャ記事・同じランキングで同じランクのキャラ（SEOの内部リンク。2026-11-12 管理人OK）"""
+    li = [f'<li><a href="{root}chars/">イベキャラ一覧</a></li>']
+    li += [f'<li><a href="{root}{e(path)}">{e(t)}</a></li>' for path, t in gacha_links(name)]
+    out = '<ul class="rk-list cp-rel">' + "".join(li) + "</ul>"
+    for r, t, _ in rankings_of(name):
+        others = [x["name"] for x in r.get("ランク", {}).get(t, []) if x["name"] != name and x["name"] in CHAR_PATHS]
+        if others:
+            out += (f'<h3>{e(r["短い名前"])}で同じ{t}ランクのキャラ</h3><ul class="cp-rel cp-relchips">'
+                    + "".join(f'<li><a href="{root}{CHAR_PATHS[n]}">{e(n)}</a></li>' for n in others) + "</ul>")
+    return out
+
+
 def build_page(c, text, config, decks, kinds, root="../../"):
     p = c.get("プロフィール", {})
     bonus = c["bonus"]
@@ -716,6 +748,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
                 + (f'<p class="cp-evdate"><span class="rk-date">【記入日{e(text["評価記入日"])}】</span></p>' if text.get("評価") and text.get("評価記入日") else "")),   # 評価文を書いた日。評価文の一番下に出す（管理人指示 2026-11-11）
         section(f"{name}の使用デッキ例", deck_examples(c["name"], decks, root), "このキャラを使ったデッキは準備中です。"),
         section(f"{name}の選手能力", ability),
+        section("関連ページ", related_html(c["name"], root)),
     ]
     # 『【名前】』の見出しの前に『名前』だけ（二つ名を除く）の表記もタイトルに入れる
     return "\n".join(parts)
@@ -774,6 +807,10 @@ def generate(chars_path, src, decks, noindex=True):
     global _COMBOS
     cf = src / "chars" / "combos.json"
     _COMBOS = json.loads(cf.read_text(encoding="utf-8")).get("コンボ", []) if cf.exists() else []
+    _GACHAS[:] = [json.loads(f.read_text(encoding="utf-8")) for f in sorted((src / "gacha").glob("*.json"))
+                  if not f.name.endswith(".tables.json")] if (src / "gacha").exists() else []
+    CHAR_PATHS.clear()
+    CHAR_PATHS.update({nm: f"chars/{pid}/" for pid, nm in config["公開するキャラ"].items() if nm in chars})
     _BASE_PID.clear()
     for pid, nm in config["公開するキャラ"].items():
         if nm in chars:
@@ -794,9 +831,14 @@ def generate(chars_path, src, decks, noindex=True):
         full = f'{c["二つ名"] and "[" + c["二つ名"] + "]" or ""}{c["苗字"]}{c["名前"] or ""}'
         c = dict(c, _icon=find_icon(chars_path, c, pid))
         items.append((pid, c, full))
-        meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
-                f"description: パワプロアプリ（サクセス・パワクエ共通）のイベキャラ {full}{yomi_paren(c)} のボーナス、金特、イベント選択肢、選手能力をまとめています。\n"
-                f"path: {path}\nnav: none\n" + ("noindex: yes\n" if noindex and pid not in pub else ""))
+        # 評価が書いてあるキャラは title に「評価」を入れる（検索で多い「キャラ名 評価」に合わせる。2026-11-12 管理人OK）
+        if has_eval(c, text):
+            meta = (f"title: {full}の評価とイベント・金特｜パワプロアプリ攻略ベース\n"
+                    f"description: パワプロアプリ（サクセス・パワクエ共通）のイベキャラ {full}{yomi_paren(c)} の評価（シナリオ別ランキング・長所と短所）、ボーナス、金特、イベント選択肢、選手能力をまとめています。\n")
+        else:
+            meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
+                    f"description: パワプロアプリ（サクセス・パワクエ共通）のイベキャラ {full}{yomi_paren(c)} のボーナス、金特、イベント選択肢、選手能力をまとめています。\n")
+        meta += f"path: {path}\nnav: none\n" + ("noindex: yes\n" if noindex and pid not in pub else "")
         body = (head_html(full, c, pid)
                 + build_page(c, text, config, decks, kinds))
         pages.append(f"<!--\n{meta}-->\n{body}")

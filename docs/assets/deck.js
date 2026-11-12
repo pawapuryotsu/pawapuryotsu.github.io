@@ -48,7 +48,9 @@ const shortForeign=x=>{const m=/^([ァ-ヶー]+)[・=＝]/.exec(x);return m?m[1]
 const shortName=n=>{const c=CHAR[n]; return c&&c.苗字?(c.名前?c.苗字+c.名前:shortForeign(c.苗字)):n.replace(/^\[[^\]]*\]/,"");};
 const nameHtml=n=>{const c=CHAR[n];
   const body=c&&c.苗字&&!c.名前?esc(shortForeign(c.苗字)).replace(/・/g,"・\u200b"):c&&c.苗字?[c.苗字,c.名前].filter(Boolean).map(x=>esc(x).replace(/・/g,"・\u200b")).join("\u200b"):esc(c?n.replace(/^\[[^\]]*\]/,""):n).replace(/・/g,"・\u200b");
-  return c&&c.二つ名?`<span class="nick">[${esc(c.二つ名)}]</span>${body}`:body;};
+  const h=c&&c.二つ名?`<span class="nick">[${esc(c.二つ名)}]</span>${body}`:body;
+  const pg=(window.CHAR_PAGES||{})[n];   // キャラページがあればリンクにする（build.py が CHAR_PAGES を入れる）
+  return pg?`<a class="cname" href="${ROOT}${pg}">${h}</a>`:h;};
 /* サポート表の基礎上限欄。投手は球速・コン・スタ、野手はミート・パワー・走力・肩力・守備力・捕球だけ表示 */
 const BASE_CAPS={roman:[["球速上限アップ","球速"],["コントロール上限アップ","コン"],["スタミナ上限アップ","スタ"]],
   andromeda:[["ミート上限アップ","ミート"],["パワー上限アップ","パワー"],["走力上限アップ","走力"],["肩力上限アップ","肩力"],["守備力上限アップ","守備力"],["捕球上限アップ","捕球"]]};
