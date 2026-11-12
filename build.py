@@ -108,12 +108,18 @@ DECKS = _json.loads(_dump)
 _e = _html.escape
 
 
+def char_link(n):
+    """デッキのキャラ名。キャラページがあればリンクにする（SEOの内部リンク。2026-11-12 管理人OK）"""
+    p = charpages.CHAR_PATHS.get(n)
+    return f'<a href="{{{{root}}}}{p}">{_e(n)}</a>' if p else _e(n)
+
+
 def static_decks(school):
     d = DECKS[school]
     parts = [f'<div class="static-decks"><p>{_e(d["title"])}（{_e(d["kind"])}）で実際に育成したデッキの一覧です。</p>']
     for i, k in enumerate(d["list"], 1):
-        mains = "、".join(f'{_e(n)}（{_e(r)} Lv{lv}）' for n, r, lv, *_ in k["main"])
-        subs = "、".join(f'{_e(n)}（{_e(r)} Lv{lv}）' for n, r, lv, *_ in k["sub"])
+        mains = "、".join(f'{char_link(n)}（{_e(r)} Lv{lv}）' for n, r, lv, *_ in k["main"])
+        subs = "、".join(f'{char_link(n)}（{_e(r)} Lv{lv}）' for n, r, lv, *_ in k["sub"])
         f2p = "・無課金" if k.get("f2p") else ""
         parts.append(f'<h2>デッキ{i}：{_e(k["pos"])}・選手ランク{k["rank"]}{f2p}・総経験点 {k["exp"]:,}</h2>'
                      f'<p>育成日：{_e(k["date"])}</p><p>メインデッキ：{mains}</p><p>サポートデッキ：{subs}</p>')
@@ -152,6 +158,8 @@ for text in [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob(
         rep["rk_date_" + _k] = f'【評価日{_r["評価日"]}】' if _r.get("評価日") else ""
     if meta.get("school") in DECKS:
         body = body.replace('<p class="muted">読み込み中…</p>', static_decks(meta["school"]))
+        # deck.js がキャラ名をキャラページへのリンクにするための表（キャラ名→ページ）
+        body += f'<script>window.CHAR_PAGES={_json.dumps(charpages.CHAR_PATHS, ensure_ascii=False)}</script>\n'
     html = layout.replace("{{content}}", body)
     for _ in range(2):  # 本文の中の {{root}} なども置き換える
         for k, v in rep.items():
