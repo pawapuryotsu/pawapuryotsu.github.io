@@ -5,7 +5,7 @@
   const root = document.body.dataset.root || "./";
   const $ = (id) => document.getElementById(id);
   const RS = ["PSR", "SR", "PR", "R"];
-  const L = G.steps.length, T = G.tables.SR45.length, K1 = G.tables.K + 1, K3 = K1 * K1 * K1;
+  const L = G.steps.length, T = G.tables.SR45.length, KS1 = G.tables.KS + 1, KL1 = G.tables.KL + 1, K3 = KS1 * KL1 * KL1;   // 博士像の枚数の上限（PSR・SR像と PR・R像）
   const SB = 24, CB = 34, DB = 60;   // 手持ち→達成確率の表の大きさ（build_tables.py の S, C, D と同じ値。超えた枚数は上限と同じ扱い）
   const DJ = { PSR: 0, SR: 0, PR: 0, R: 0 };   // 使う博士像の枚数
   const bin = (path, type, done) => fetch(root + "assets/" + path).then((r) => { if (!r.ok) throw 0; return r.arrayBuffer(); }).then((b) => done(new type(b)));
@@ -20,7 +20,7 @@
   // ---- 周回ごとの確率 ----
   let TB = null, tbReq = false, goal = "SR45";
   function table(g) {   // ステップごとの確率（%）。博士像ありの表がまだ読めていなければ null
-    const i3 = (DJ.SR * K1 + DJ.PR) * K1 + DJ.R;
+    const i3 = (DJ.SR * KL1 + DJ.PR) * KL1 + DJ.R;
     if (i3 === 0 && (g !== "PSR50" || DJ.PSR === 0)) return G.tables[g];
     if (!TB) {
       if (!tbReq) { tbReq = true; bin("gacha_t/" + G.id + ".bin", Uint16Array, (a) => { TB = a; renderTable(); }).catch(() => { tbReq = false; }); }
@@ -46,7 +46,7 @@
       if (i >= 3 * L && i % L === 0 && gs.every((t) => t[i - 1] >= 99.9)) break;
       if (!more2 && i >= MORE * L) { $("g-more2").hidden = false; break; }
       const name = G.loop ? `<span class="cp-nw">${Math.floor(i / L) + 1}周目</span> <span class="cp-nw">${stepOf(i).name}</span>` : stepOf(i).name;
-      h += `<tr class="g-s${(i % L) % 4 + 1}"><td class="g-l">${name}</td><td>${used(i + 1)[1]}個</td>${gs.map((t) => cell(t, i)).join("")}</tr>`;
+      h += `<tr${G.loop && i > 0 && i % L === 0 ? ' class="g-lp"' : ""}><td class="g-l">${name}</td><td>${used(i + 1)[1]}個</td>${gs.map((t) => `<td>${pct(t[i])}</td>`).join("")}</tr>`;
     }
     $("g-tbl2").innerHTML = h;
     const t = table(goal);
@@ -87,7 +87,7 @@
       if (!vsReq) { vsReq = true; bin("gacha_v/sr.bin", Uint8Array, (a) => { VS = a; draw(); }).catch(() => { vsReq = false; }); }
       return null;
     }
-    return VS[(((DJ.PR * K1 + DJ.R) * 5 + n - 1) * (CB + 1) + Math.min(h.PR, CB)) * (DB + 1) + Math.min(h.R, DB)];
+    return VS[(((DJ.PR * KL1 + DJ.R) * 5 + n - 1) * (CB + 1) + Math.min(h.PR, CB)) * (DB + 1) + Math.min(h.R, DB)];
   }
   const pSR45 = (h) => pS(h, 5, h.SR - 1 + h.PSR);
   const pLV40 = (h) => h.PSR > 0 ? 255 : pS(h, 3, h.SR - 1);
@@ -95,14 +95,19 @@
     if (h.PSR === 0) return 0;
     const n = 5 - (h.PSR - 1) - DJ.PSR;
     if (n <= 0) return 255;
-    const k = "" + DJ.SR + DJ.PR + DJ.R;
+    const k = DJ.SR + "_" + DJ.PR + "_" + DJ.R;
     if (!(k in VP)) { VP[k] = null; bin("gacha_v/p" + k + ".bin", Uint8Array, (a) => { VP[k] = a; draw(); }).catch(() => { delete VP[k]; }); }
     if (!VP[k]) return null;
     return VP[k][(((n - 1) * (SB + 1) + Math.min(h.SR, SB)) * (CB + 1) + Math.min(h.PR, CB)) * (DB + 1) + Math.min(h.R, DB)];
   }
 
   let H, st, log;
-  function reset() { H = { PSR: 0, SR: 0, PR: 0, R: 0 }; st = 0; log = []; draw(); }
+  const EX = G.extra || [];   // ガチャ以外で手に入る分（イベント報酬など）。最初から手持ちに入れる
+  function reset() {
+    H = { PSR: 0, SR: 0, PR: 0, R: 0 }; st = 0; log = [];
+    for (const x of EX) { H[x.rarity] += x.n; log.push(`${x.label}：` + Array(x.n).fill(`<span class="g-${x.rarity}">${x.rarity}</span>`).join(" ")); }
+    draw();
+  }
   function bar(id, v) {
     $(id).textContent = v === null ? "計算中…" : v === 0 ? "0%" : v === 255 ? "100%" : v < 3 ? "1%未満" : v > 252 ? "99%以上" : Math.round(v / 2.55) + "%";
     $(id + "b").style.width = (v || 0) / 2.55 + "%";

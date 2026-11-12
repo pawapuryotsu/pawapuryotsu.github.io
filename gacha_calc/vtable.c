@@ -57,7 +57,8 @@ static double VS(int n,int c0,int t,int d0,int u,int kp,int kr){
 /* ---------- PSR目標 ---------- */
 static float **LY;
 #define LSZ ((size_t)5*(S+1)*6*(C+1)*6*(D+1)*6)
-static inline int lid(int ks,int kp,int kr){ return (ks*(KP+1)+kp)*(KR+1)+kr; }
+/* 計算する順番：PR像 → R像 → SR像（SR像がいちばん内側）。保持する層を (R像+1)×(SR像+1) 枚にしてディスクを節約する */
+static inline int lid(int ks,int kp,int kr){ return (kp*(KR+1)+kr)*(KS+1)+ks; }
 static inline size_t pidx(int n,int s0,int ts,int c0,int tp,int d0,int u){
   return ((((((size_t)(n-1)*(S+1)+s0)*6+ts)*(C+1)+c0)*6+tp)*(D+1)+d0)*6+u;
 }
@@ -124,9 +125,10 @@ int main(int argc,char**argv){
     return 0;
   }
   KS=atoi(argv[3]); KP=atoi(argv[4]); KR=atoi(argv[5]);
-  int NL=(KS+1)*(KP+1)*(KR+1), keep=(KP+1)*(KR+1);
+  int NL=(KS+1)*(KP+1)*(KR+1), keep=(KR+1)*(KS+1);
+  const size_t OUT=(size_t)5*(S+1)*(C+1)*(D+1);   /* 1層ぶんの出力の個数。出力は [SR像][PR像][R像] の順に並べる */
   LY=calloc(NL,sizeof(float*));
-  for(int ks=0;ks<=KS;ks++)for(int kp=0;kp<=KP;kp++)for(int kr=0;kr<=KR;kr++){
+  for(int kp=0;kp<=KP;kp++)for(int kr=0;kr<=KR;kr++)for(int ks=0;ks<=KS;ks++){
     int id=lid(ks,kp,kr);
     if(id-keep-1>=0 && LY[id-keep-1]){ LY[id]=LY[id-keep-1]; LY[id-keep-1]=NULL; }   /* もう使わない層の領域を再利用 */
     else {   /* 一時ファイルに割り付ける（メモリが足りないときはディスクに逃がせるように） */
@@ -140,6 +142,7 @@ int main(int argc,char**argv){
     float *M=LY[id]; for(size_t i=0;i<LSZ;i++) M[i]=-1;
     for(int n=1;n<=5;n++)for(int s0=0;s0<=S;s0++)for(int ts=0;ts<6;ts++)for(int c0=0;c0<=C;c0++)for(int tp=0;tp<6;tp++)for(int d0=0;d0<=D;d0++)for(int u=0;u<6;u++)
       VP(n,s0,ts,c0,tp,d0,u,ks,kp,kr);
+    fseeko(f,(off_t)(((size_t)ks*(KP+1)+kp)*(KR+1)+kr)*OUT*4,SEEK_SET);
     for(int n=1;n<=5;n++)for(int s=0;s<=S;s++)for(int c=0;c<=C;c++)for(int d=0;d<=D;d++){
       float v=M[pidx(n,s,0,c,0,d,0)]; fwrite(&v,4,1,f);
     }

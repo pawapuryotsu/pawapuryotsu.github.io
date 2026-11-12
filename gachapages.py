@@ -60,13 +60,16 @@ def _eval_html(g, src_dir):
 def _body(g, root_icon, src_dir):
     c = e(g["chara"])
     data = {k: g[k] for k in ("id", "chara", "loop", "share", "steps")}
+    data["extra"] = g.get("extra", [])
+    ex = "・".join(f'{e(x["label"])}の{e(x["rarity"])}{x["n"]}枚' for x in data["extra"])   # 例：イベント報酬のPR1枚
+    used_txt = f"今回のガチャで出た{c}と、{ex}" if ex else f"今回のガチャで出た{c}だけ"
     data["tables"] = g["tables"]
     loop_note = (f'1周＝{"〜".join([g["steps"][0]["name"], g["steps"][-1]["name"]])}'
                  f'（{sum(s["pulls"] for s in g["steps"])}連・パワストーン{sum(s["cost"] for s in g["steps"])}個）。') if g.get("loop") else ""
     comment = _eval_html(g, src_dir)
-    kmax = g["tables"]["K"]
+    kmax = {"PSR": g["tables"]["KS"], "SR": g["tables"]["KS"], "PR": g["tables"]["KL"], "R": g["tables"]["KL"]}
     dj = "".join(f'<label><span class="g-{r}">{r}像</span><select data-dj="{r}" autocomplete="off" aria-label="{r}ダイジョーブ博士像の枚数">'
-                 + "".join(f'<option value="{i}">{i}枚</option>' for i in range(kmax + 1)) + "</select></label>" for r in RS)
+                 + "".join(f'<option value="{i}">{i}枚</option>' for i in range(kmax[r] + 1)) + "</select></label>" for r in RS)
     # g["sources"]（公式ページのURL）は記録用。ゲーム内のページなので記事にはリンクを載せない（2026-11-12 管理人）
     return f'''<section class="phead"><p class="eyebrow">ガチャ</p><h1><span class="mk"><i>{c}のガチャは</i> <i>引くべき？</i></span></h1><p>{e(g["title"])}で、{c}のSR Lv45・PSR Lv50を作るのに何周必要かを<span class="cp-nw">計算しました。</span>引くべきか迷っている人は、下の確率と<span class="cp-nw">石の数を目安にしてください。</span></p></section>
 <div class="prose">
@@ -79,14 +82,14 @@ def _body(g, root_icon, src_dir):
   <div class="g-stat"><div>50%で達成<b id="g-p50"></b><small id="g-p50s"></small></div><div>80%で達成<b id="g-p80"></b><small id="g-p80s"></small></div><div>90%で達成<b id="g-p90"></b><small id="g-p90s"></small></div></div>
   <h3>周回ごとの確率</h3>
   <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">周回</th><th scope="col">Lv40</th><th scope="col">SR<br>Lv45</th><th scope="col">PSR<br>Lv50</th></tr></thead><tbody id="g-tbl"></tbody></table></div>
-  <p>{loop_note}今回のガチャで出た{c}だけを使い、引き終わってから合成した場合の確率です。Lv40は「PSRが1枚以上出る」か「SRを+3まで上限開放できる」確率です。<b>SR Lv45は、出たPSRもSRに合成する前提の確率です。</b>（くわしくは下の「計算のしかた」）</p>
+  <p>{loop_note}{used_txt}を使い、引き終わってから合成した場合の確率です。Lv40は「PSRが1枚以上出る」か「SRを+3まで上限開放できる」確率です。<b>SR Lv45は、出たPSRもSRに合成する前提の確率です。</b>（くわしくは下の「計算のしかた」）</p>
   <h3>SR・PSRが引ける確率</h3>
   <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">ステップ</th><th scope="col">石</th><th scope="col">SRが<span class="cp-nw">1枚以上</span></th><th scope="col">PSRが<span class="cp-nw">1枚以上</span></th></tr></thead><tbody id="g-tbl2"></tbody></table></div>
   <p class="g-more"><button type="button" id="g-more2" hidden>もっと見る</button></p>
   <p>そのステップまで引いたときに、SR・PSRの{c}が1枚以上出ている確率です。石は1周目ステップ1からの合計です。</p>
   {comment}
   <h2 id="sim">引いてみる（シミュレータ）</h2>
-  <p>ボタンを押すと、公式の提供割合どおりの確率で{c}が出ます。「達成できる確率」は、今の手持ち（と上で選んだ博士像）を一番成功率が高い順番で合成した場合のおおよその確率です。</p>
+  <p>ボタンを押すと、公式の提供割合どおりの確率で{c}が出ます。{f"手持ちは{ex}が入った状態から始まります。" if ex else ""}「達成できる確率」は、今の手持ち（と上で選んだ博士像）を一番成功率が高い順番で合成した場合のおおよその確率です。</p>
   <div class="g-sim">
     <div class="g-btns"><button type="button" data-pull="1">1ステップ</button><button type="button" data-pull="{len(g["steps"])}">1周</button><button type="button" data-pull="{10 * len(g["steps"])}" class="ghost">10周</button></div>
     <p class="g-next">次は <b id="g-next"></b> <button type="button" id="g-reset">リセット</button></p>
@@ -112,7 +115,7 @@ def _body(g, root_icon, src_dir):
     <li><b>合成の順番は、手持ちのPSR・SR・PR・Rの{c}を見て、完成する確率が一番高くなる順番を全パターン調べて選んでいます</b>。1枚ずつそのまま合成するか、素材を育ててから合成するかは、手持ちの枚数とあと何段階で完成かによって変わるため、決まった順番はありません。</li>
     <li>引き終わってから、まとめて合成した場合の確率です。</li>
     <li>上限開放済みのカードは、同じレアリティで同時に1枚だけ育てる前提です。この前提のため、本当に一番良い手順の確率より、わずかに低く出ることがあります（ほとんどの場合0.1ポイント未満）。</li>
-    <li>このガチャで出た{c}だけで計算しています（すでに持っている分は入れていません）。</li>
+    <li>{used_txt}で計算しています（それ以外にすでに持っている分は入れていません）。</li>
     <li>Lv40は、PSRが1枚以上出る（PSRは上限開放なしでLv40）か、SRを+3まで上限開放できる確率です。</li>
     <li><b>SR Lv45の確率は、出たPSRもSRに合成する前提の確率です</b>（PSRを合成するとSRが必ず+1）。PSRを素材にしない場合は、これより低くなります。</li>
     <li>Lv40・SR Lv45・PSR Lv50の確率は、それぞれ「手持ちを全部その目標に使った場合」の確率です。3つを同時に達成できる確率ではありません。</li>
