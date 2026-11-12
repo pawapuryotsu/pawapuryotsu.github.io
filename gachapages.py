@@ -60,8 +60,7 @@ def _body(g, root_icon):
   <p>{loop_note}今回のガチャで出た{c}だけを使い、引き終わってから合成した場合の確率です。Lv40は「PSRが1枚以上出る」か「SRを+3まで上限開放できる」確率です。<b>SR Lv45は、出たPSRもSRに合成する前提の確率です。</b>（くわしくは下の「計算のしかた」）</p>
   <h3>SR・PSRが引ける確率</h3>
   <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">ステップ</th><th scope="col">石</th><th scope="col">SRが<span class="cp-nw">1枚以上</span></th><th scope="col">PSRが<span class="cp-nw">1枚以上</span></th></tr></thead><tbody id="g-tbl2"></tbody></table></div>
-  <p class="g-more"><button type="button" id="g-more2" hidden>もっと見る</button></p>
-  <p>そのステップまで引いたときに、SR・PSRの{c}が1枚以上出ている確率です。石は1周目ステップ1からの合計です。</p>
+  <p>そのステップまで引いたときに、SR・PSRの{c}が1枚以上出ている確率です。石は1周目ステップ1からの合計です。表は、SRがほぼ100%になるステップまで載せています。</p>
   {comment}
   <h2 id="sim">引いてみる（シミュレータ）</h2>
   <p>ボタンを押すと、公式の提供割合どおりの確率で{c}が出ます。「達成できる確率」は、今の手持ち（と上で選んだ博士像）を一番成功率が高い順番で合成した場合のおおよその確率です。</p>
