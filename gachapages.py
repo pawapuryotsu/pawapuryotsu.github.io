@@ -157,7 +157,6 @@ def _body(g, root_icon, src_dir):
   {both_box}
   <h3>SR・PSRが引ける確率</h3>
   <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">ステップ</th><th scope="col">石</th><th scope="col">SRが<span class="cp-nw">1枚以上</span></th><th scope="col">PSRが<span class="cp-nw">1枚以上</span></th></tr></thead><tbody id="g-tbl2"></tbody></table></div>
-  <p class="g-more"><button type="button" id="g-more2" hidden>もっと見る</button></p>
   <p>そのステップまで引いたときに、{per(lambda ch: "2人ともSR・PSRが1枚以上ある確率です（選択ガチャ券は足りない方に使う前提）" if ch.get("both") else f"SR・PSRの{e(ch['chara'])}が1枚以上出ている確率です")}。石は1周目ステップ1からの合計です。</p>
   <h2 id="sim">引いてみる（シミュレータ）</h2>
   {only_both('<p class="g-note">シミュレータは1人ずつです。上のボタンで' + "・".join(e(ch["chara"]) for ch in chs) + 'を選ぶと使えます。</p>')}
