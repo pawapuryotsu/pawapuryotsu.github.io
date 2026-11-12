@@ -464,6 +464,12 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .g-dj{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:var(--surface);margin:8px 0}.g-dj .g-h{margin:0 0 6px}.g-dj .muted{margin:8px 0 0;font-size:13px}
 .g-djs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.g-djs label{display:flex;flex-direction:column;gap:2px;font-size:12px;font-weight:700;text-align:center}
 .g-djs select{font:inherit;font-size:16px;padding:6px 2px;border:1px solid var(--line);border-radius:6px;background:#fff;color:#14233a;width:100%;min-width:0}
+.g-oldt{width:100%;border-collapse:collapse;table-layout:fixed}.g-oldt th{font-size:12px;font-weight:700;text-align:center;padding:2px 0}.g-oldt th:first-child{width:38px}.g-oldt td{padding:2px}
+.g-oldt input{font:inherit;font-size:16px;text-align:center;padding:6px 0;border:1px solid var(--line);border-radius:6px;background:#fff;color:#14233a;width:100%;min-width:0;box-sizing:border-box;-moz-appearance:textfield;appearance:textfield}
+.g-oldt input::-webkit-outer-spin-button,.g-oldt input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.g-oldb{display:flex;gap:8px;margin:8px 0 0}.g-oldb button{flex:1;padding:9px 4px;font:inherit;font-size:14px;font-weight:700;border:0;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
+.g-oldb button.ghost{flex:0 0 auto;padding:9px 14px;background:#fff;color:var(--accent);border:1px solid var(--accent)}
+.g-olds{margin:8px 0 0;font-size:13px;font-weight:700}.g-olds:empty{display:none}.g-olds.g-err{color:#b3261e}
 .g-more{text-align:center;margin:6px 0}.g-more button{font:inherit;font-size:14px;font-weight:700;padding:8px 20px;border:1px solid var(--accent);border-radius:6px;background:#fff;color:var(--accent);cursor:pointer}
 
 /* キャラページ「関連ページ」の同じランクのキャラ（横に並べて折り返す） */
