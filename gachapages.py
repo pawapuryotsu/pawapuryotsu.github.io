@@ -46,7 +46,7 @@ def _body(g, root_icon):
     dj = "".join(f'<label><span class="g-{r}">{r}像</span><select data-dj="{r}" autocomplete="off" aria-label="{r}ダイジョーブ博士像の枚数">'
                  + "".join(f'<option value="{i}">{i}枚</option>' for i in range(kmax + 1)) + "</select></label>" for r in RS)
     # g["sources"]（公式ページのURL）は記録用。ゲーム内のページなので記事にはリンクを載せない（2026-11-12 管理人）
-    return f'''<section class="phead"><p class="eyebrow">ガチャ</p><h1><span class="mk"><i>{c}のガチャは</i> <i>何周で完成する？</i></span></h1><p>{e(g["title"])}で、{c}のSR Lv45・PSR Lv50を作るのに何周必要かを<span class="cp-nw">計算しました。</span></p></section>
+    return f'''<section class="phead"><p class="eyebrow">ガチャ</p><h1><span class="mk"><i>{c}のガチャは</i> <i>引くべき？</i></span></h1><p>{e(g["title"])}で、{c}のSR Lv45・PSR Lv50を作るのに何周必要かを<span class="cp-nw">計算しました。</span>引くべきか迷っている人は、下の確率と<span class="cp-nw">石の数を目安にしてください。</span></p></section>
 <div class="prose">
   <p class="g-meta"><img src="{{{{root}}}}{e(g["icon"])}" alt="" width="44" height="44"><span>開催期間：{e(g["period"])}<br><a href="{{{{root}}}}{e(g["char_page"])}">{c}の<span class="cp-nw">データ・イベントはこちら</span></a></span></p>
 
@@ -113,11 +113,11 @@ def generate(src):
             raise SystemExit(f"{tf.name} がありません。先に python3 gacha_calc/build_tables.py を実行してください")
         g["tables"] = json.loads(tf.read_text(encoding="utf-8"))
         path = f'gacha/{g["id"]}/'
-        meta = (f'title: {g["chara"]}のガチャは何周で完成？SR Lv45・PSR Lv50の確率｜パワプロアプリ攻略ベース\n'
-                f'description: {g["title"]}で{g["chara"]}のSR Lv45・PSR Lv50を作るのに何周必要かを計算。SR・PSRが引ける確率、Lv40に届く確率、ダイジョーブ博士像を使う場合の確率と、実際に引いて試せるシミュレータつき。\n'
+        meta = (f'title: {g["chara"]}のガチャは引くべき？何周で完成するか計算（SR Lv45・PSR Lv50）｜パワプロアプリ攻略ベース\n'
+                f'description: {g["chara"]}のガチャは引くべき？{g["title"]}で{g["chara"]}のSR Lv45・PSR Lv50を作るのに何周必要かを計算。SR・PSRが引ける確率、Lv40に届く確率、ダイジョーブ博士像を使う場合の確率と、実際に引いて試せるシミュレータつき。\n'
                 f"path: {path}\nnav: home\nscripts: gacha\n")
         pages.append(f"<!--\n{meta}-->\n" + _body(g, ""))
-        cards.append((g["id"], f'<a class="scard" href="{{{{root}}}}{path}"><span class="tag p">{e(g["chara"])}</span><h3>{e(g["chara"])}のガチャは何周で完成？</h3>'
+        cards.append((g["id"], f'<a class="scard" href="{{{{root}}}}{path}"><span class="tag p">{e(g["chara"])}</span><h3>{e(g["chara"])}のガチャは引くべき？</h3>'
                                f'<p>SR Lv45・PSR Lv50の完成確率と<span class="cp-nw">シミュレータ。</span></p><span class="go" aria-hidden="true">→</span></a>'))
     cards.sort(key=lambda x: x[0], reverse=True)   # 新しいガチャを上に
     return pages, "\n  ".join(c for _, c in cards)
