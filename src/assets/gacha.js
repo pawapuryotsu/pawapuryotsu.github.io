@@ -1,9 +1,14 @@
-// ガチャ記事の「周回ごとの完成確率」の切り替えと「引いてみる」シミュレータ。データはページ内の #gdata（JSON）。
+// ガチャ記事の「周回ごとの確率」の表と「引いてみる」シミュレータ。データはページ内の #gdata（JSON）。
+// 博士像ありの表は assets/gacha_t/<id>.bin、手持ち→達成確率の表は assets/gacha_v/*.bin（gacha_calc/build_tables.py が作る）。
 (function () {
   const G = JSON.parse(document.getElementById("gdata").textContent);
   const root = document.body.dataset.root || "./";
   const $ = (id) => document.getElementById(id);
-  const L = G.steps.length;
+  const RS = ["PSR", "SR", "PR", "R"];
+  const L = G.steps.length, T = G.tables.SR45.length, K1 = G.tables.K + 1, K3 = K1 * K1 * K1;
+  const SB = 24, CB = 34, DB = 60;   // 手持ち→達成確率の表の大きさ（build_tables.py の S, C, D と同じ値。超えた枚数は上限と同じ扱い）
+  const DJ = { PSR: 0, SR: 0, PR: 0, R: 0 };   // 使う博士像の枚数
+  const bin = (path, type, done) => fetch(root + "assets/" + path).then((r) => { if (!r.ok) throw 0; return r.arrayBuffer(); }).then((b) => done(new type(b)));
   const stepOf = (i) => G.steps[G.loop ? i % L : Math.min(i, L - 1)];
   function used(st) { let p = 0, s = 0; for (let i = 0; i < st; i++) { p += stepOf(i).pulls; s += stepOf(i).cost; } return [p, s]; }
   function label(st) {
@@ -12,33 +17,49 @@
     return (l ? '<span class="cp-nw">' + l + "周</span>" : "") + (r ? (l ? "＋" : "") + '<span class="cp-nw">' + r + "ステップ</span>" : "");
   }
 
-  // ---- 周回ごとの完成確率 ----
-  function renderTable(goal) {
-    const t = G.tables[goal];
+  // ---- 周回ごとの確率 ----
+  let TB = null, tbReq = false, goal = "SR45";
+  function table(g) {   // ステップごとの確率（%）。博士像ありの表がまだ読めていなければ null
+    const i3 = (DJ.SR * K1 + DJ.PR) * K1 + DJ.R;
+    if (i3 === 0 && (g !== "PSR50" || DJ.PSR === 0)) return G.tables[g];
+    if (!TB) {
+      if (!tbReq) { tbReq = true; bin("gacha_t/" + G.id + ".bin", Uint16Array, (a) => { TB = a; renderTable(); }).catch(() => { tbReq = false; }); }
+      return null;
+    }
+    const off = (g === "SR45" ? i3 : g === "LV40" ? K3 + i3 : 2 * K3 + DJ.PSR * K3 + i3) * T;
+    return Array.from(TB.subarray(off, off + T), (v) => v / 100);
+  }
+  const pct = (v) => v >= 100 ? "100%" : v >= 99.95 ? "ほぼ100%" : v.toFixed(1) + "%";
+  const cell = (t, i) => t ? `<td class="${t[i] >= 50 ? "g-hit" : ""}">${pct(t[i])}</td>` : "<td>…</td>";
+  function renderTable() {
+    const ts = ["LV40", "SR45", "PSR50"].map(table);
     let h = "";
-    for (let n = 1; n * L <= t.length; n++) {
-      const v = t[n * L - 1];
-      if (n > 3 && t[(n - 1) * L - 1] >= 99.9) break;
+    for (let n = 1; n * L <= T; n++) {
+      if (n > 3 && ts.every((t) => t && t[(n - 1) * L - 1] >= 99.9)) break;
       const [p, s] = used(n * L);
-      h += `<tr><td>${n}周</td><td>${p}連</td><td>${s}個</td><td class="${v >= 50 ? "g-hit" : ""}">${v >= 99.95 ? "ほぼ100" : v.toFixed(1)}%</td></tr>`;
+      h += `<tr><td>${n}周<br><small><span class="cp-nw">${p}連</span>・<span class="cp-nw">石${s}個</span></small></td>${ts.map((t) => cell(t, n * L - 1)).join("")}</tr>`;
     }
     $("g-tbl").innerHTML = h;
+    const gs = [G.tables.gotSR, G.tables.gotPSR];
+    h = "";
+    for (let n = 1; n * L <= T; n++) {
+      if (n > 3 && gs.every((t) => t[(n - 1) * L - 1] >= 99.9)) break;
+      h += `<tr><td>${n}周</td>${gs.map((t) => cell(t, n * L - 1)).join("")}</tr>`;
+    }
+    $("g-tbl2").innerHTML = h;
+    const t = table(goal);
     for (const x of [50, 80, 90]) {
-      const st = t.findIndex((v) => v >= x) + 1;
-      const el = $("g-p" + x);
-      if (!el) continue;
-      if (st === 0) { el.innerHTML = "—"; $("g-p" + x + "s").textContent = ""; continue; }
+      const st = t ? t.findIndex((v) => v >= x) + 1 : 0;
+      if (st === 0) { $("g-p" + x).innerHTML = t ? "—" : "…"; $("g-p" + x + "s").textContent = ""; continue; }
       const [p, s] = used(st);
-      el.innerHTML = label(st);
-      $("g-p" + x + "s").textContent = `${p}連・石${s}個`;
+      $("g-p" + x).innerHTML = label(st);
+      $("g-p" + x + "s").innerHTML = `<span class="cp-nw">${p}連</span> <span class="cp-nw">石${s}個</span>`;
     }
     document.querySelectorAll("[data-goal]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.goal === goal));
   }
-  document.querySelectorAll("[data-goal]").forEach((b) => (b.onclick = () => renderTable(b.dataset.goal)));
-  renderTable("SR45");
+  document.querySelectorAll("[data-goal]").forEach((b) => (b.onclick = () => { goal = b.dataset.goal; renderTable(); }));
 
   // ---- 引いてみる ----
-  const RS = ["PSR", "SR", "PR", "R"];
   function pullSlot(slot) {
     let u = Math.random() * 100, c = 0;
     for (const r of RS) {
@@ -50,53 +71,47 @@
   }
   function pullStep(i) { const out = []; for (const s of stepOf(i).slots) for (let k = 0; k < s.n; k++) { const r = pullSlot(s); if (r) out.push(r); } return out; }
 
-  // SR Lv45：手持ちを一番成功率が高い順番で合成したときの完成確率（全パターン）
-  const LOW = [0.3, 0.33, 0.36, 0.39, 0.42], memo = new Map();
-  function V(n, c0, t, d0, u) {
-    if (n <= 0) return 1;
-    const key = n + "," + c0 + "," + t + "," + d0 + "," + u;
-    if (memo.has(key)) return memo.get(key);
-    let b = 0;
-    const lf = (lv, c, tt, d, uu) => lv === 5 ? 0.45 * V(n - 2, c, tt, d, uu) + 0.55 * V(n - 1, c, tt, d, uu) : LOW[lv] * V(n - 1, c, tt, d, uu) + (1 - LOW[lv]) * V(n, c, tt, d, uu);
-    if (c0 > 0) b = Math.max(b, lf(0, c0 - 1, t, d0, u));
-    if (t > 0) b = Math.max(b, lf(t, c0, 0, d0, u));
-    if (c0 > 0 && t > 0 && t < 5) b = Math.max(b, V(n, c0 - 1, t + 1, d0, u));
-    if (c0 > 1 && t === 0) b = Math.max(b, V(n, c0 - 2, 1, d0, u));
-    const r2 = (lv, c0n, d0n, un) => {
-      let base, cc;
-      if (t > 0) { base = t; cc = c0n; } else if (c0n > 0) { base = 0; cc = c0n - 1; } else return 0;
-      const res = (g) => base + g > 0 ? V(n, cc, Math.min(5, base + g), d0n, un) : V(n, cc + 1, 0, d0n, un);
-      return lv === 5 ? 0.45 * res(2) + 0.55 * res(1) : LOW[lv] * res(1) + (1 - LOW[lv]) * res(0);
-    };
-    if (t < 5) { if (d0 > 0) b = Math.max(b, r2(0, c0, d0 - 1, u)); if (u > 0) b = Math.max(b, r2(u, c0, d0, 0)); }
-    if (d0 > 0 && u > 0 && u < 5) b = Math.max(b, V(n, c0, t, d0 - 1, u + 1));
-    if (d0 > 1 && u === 0) b = Math.max(b, V(n, c0, t, d0 - 2, 1));
-    memo.set(key, b);
-    return b;
+  // 手持ち→達成確率（一番成功率が高い順番で合成したとき。事前に全パターンを計算した表を読む。0〜255）
+  let VS = null, vsReq = false;
+  const VP = {};
+  function pS(h, N, free) {   // SRをあとN段階。free＝確定で+1できる枚数（2枚目以降のSRなど）
+    if (h.SR === 0) return 0;
+    const n = N - free - DJ.SR;
+    if (n <= 0) return 255;
+    if (!VS) {
+      if (!vsReq) { vsReq = true; bin("gacha_v/sr.bin", Uint8Array, (a) => { VS = a; draw(); }).catch(() => { vsReq = false; }); }
+      return null;
+    }
+    return VS[(((DJ.PR * K1 + DJ.R) * 5 + n - 1) * (CB + 1) + Math.min(h.PR, CB)) * (DB + 1) + Math.min(h.R, DB)];
   }
-  const pSR = (h) => h.SR === 0 ? 0 : V(5 - (h.SR + h.PSR - 1), Math.min(h.PR, 34), 0, Math.min(h.R, 60), 0);
-  // PSR Lv50：事前に全パターンを計算した表（assets/gacha_vpsr.bin）
-  let VP = null;
-  fetch(root + "assets/gacha_vpsr.bin").then((r) => r.arrayBuffer()).then((b) => { VP = new Uint8Array(b); draw(); }).catch(() => {});
-  function pPSR(h) {
+  const pSR45 = (h) => pS(h, 5, h.SR - 1 + h.PSR);
+  const pLV40 = (h) => h.PSR > 0 ? 255 : pS(h, 3, h.SR - 1);
+  function pPSR50(h) {
     if (h.PSR === 0) return 0;
-    const n = 5 - (h.PSR - 1);
-    if (n <= 0) return 1;
-    if (!VP) return null;
-    return VP[(((n - 1) * 25 + Math.min(h.SR, 24)) * 35 + Math.min(h.PR, 34)) * 61 + Math.min(h.R, 60)] / 255;
+    const n = 5 - (h.PSR - 1) - DJ.PSR;
+    if (n <= 0) return 255;
+    const k = "" + DJ.SR + DJ.PR + DJ.R;
+    if (!(k in VP)) { VP[k] = null; bin("gacha_v/p" + k + ".bin", Uint8Array, (a) => { VP[k] = a; draw(); }).catch(() => { delete VP[k]; }); }
+    if (!VP[k]) return null;
+    return VP[k][(((n - 1) * (SB + 1) + Math.min(h.SR, SB)) * (CB + 1) + Math.min(h.PR, CB)) * (DB + 1) + Math.min(h.R, DB)];
   }
 
   let H, st, log;
   function reset() { H = { PSR: 0, SR: 0, PR: 0, R: 0 }; st = 0; log = []; draw(); }
-  function bar(id, v) { $(id).textContent = v === null ? "計算中…" : (v * 100).toFixed(1) + "%"; $(id + "b").style.width = (v || 0) * 100 + "%"; }
+  function bar(id, v) {
+    $(id).textContent = v === null ? "計算中…" : v === 0 ? "0%" : v === 255 ? "100%" : v < 3 ? "1%未満" : v > 252 ? "99%以上" : Math.round(v / 2.55) + "%";
+    $(id + "b").style.width = (v || 0) / 2.55 + "%";
+  }
   function draw() {
+    if (!H) return;
     const [p, s] = used(st);
     $("g-pulls").textContent = p + "連";
     $("g-stones").textContent = s + "個";
     $("g-next").textContent = G.loop ? `${Math.floor(st / L) + 1}周目 ${stepOf(st).name}` : stepOf(st).name;
     for (const r of RS) $("g-c" + r).textContent = H[r];
-    bar("g-vsr", pSR(H));
-    bar("g-vpsr", pPSR(H));
+    bar("g-vlv", pLV40(H));
+    bar("g-vsr", pSR45(H));
+    bar("g-vpsr", pPSR50(H));
     $("g-log").innerHTML = log.slice(-60).reverse().join("<br>");
   }
   document.querySelectorAll("[data-pull]").forEach((b) => (b.onclick = () => {
@@ -109,5 +124,10 @@
     draw();
   }));
   $("g-reset").onclick = reset;
+  // 博士像の枚数は、画面の選択欄の値をそのまま使う（ブラウザの「戻る」で選択欄だけ復元されてもずれないように）
+  function syncDJ() { document.querySelectorAll("[data-dj]").forEach((el) => { DJ[el.dataset.dj] = +el.value || 0; }); renderTable(); draw(); }
+  document.querySelectorAll("[data-dj]").forEach((el) => (el.onchange = syncDJ));
+  window.addEventListener("pageshow", syncDJ);
   reset();
+  syncDJ();
 })();

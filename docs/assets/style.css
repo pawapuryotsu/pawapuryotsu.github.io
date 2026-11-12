@@ -459,3 +459,6 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .g-log{max-height:200px;overflow:auto;font-size:13px;border-top:1px solid var(--line);margin-top:10px;padding-top:6px}
 @media (max-width:340px){.bt.g-t th,.bt.g-t td{padding:5px 2px}}
 .bt.g-t tr.g-s1 td{background:#eaf3ff}.bt.g-t tr.g-s2 td{background:#edf7e6}.bt.g-t tr.g-s3 td{background:#fff0e6}.bt.g-t tr.g-s4 td{background:#f5ecfb}
+.g-dj{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:var(--surface);margin:8px 0}.g-dj .g-h{margin:0 0 6px}.g-dj .muted{margin:8px 0 0;font-size:13px}
+.g-djs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.g-djs label{display:flex;flex-direction:column;gap:2px;font-size:12px;font-weight:700;text-align:center}
+.g-djs select{font:inherit;font-size:16px;padding:6px 2px;border:1px solid var(--line);border-radius:6px;background:#fff;color:#14233a;width:100%;min-width:0}

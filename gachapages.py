@@ -37,32 +37,41 @@ def _rate_table(g):
 
 def _body(g, root_icon):
     c = e(g["chara"])
-    data = {k: g[k] for k in ("chara", "loop", "share", "steps")}
+    data = {k: g[k] for k in ("id", "chara", "loop", "share", "steps")}
     data["tables"] = g["tables"]
     loop_note = (f'1周＝{"〜".join([g["steps"][0]["name"], g["steps"][-1]["name"]])}'
                  f'（{sum(s["pulls"] for s in g["steps"])}連・パワストーン{sum(s["cost"] for s in g["steps"])}個）。') if g.get("loop") else ""
     comment = f'<h2 id="comment">管理人のひとこと</h2><p>{g["comment"]}</p>' if g.get("comment") else ""
+    kmax = g["tables"]["K"]
+    dj = "".join(f'<label><span class="g-{r}">{r}像</span><select data-dj="{r}" autocomplete="off" aria-label="{r}ダイジョーブ博士像の枚数">'
+                 + "".join(f'<option value="{i}">{i}枚</option>' for i in range(kmax + 1)) + "</select></label>" for r in RS)
     src = "".join(f'<li><a href="{e(s["url"])}" target="_blank" rel="noopener">{e(s["label"])}（公式）</a></li>' for s in g["sources"])
     return f'''<section class="phead"><p class="eyebrow">ガチャ</p><h1><span class="mk"><i>{c}のガチャは何周で完成する？</i></span></h1><p>{e(g["title"])}で、{c}のSR Lv45・PSR Lv50を作るのに何周必要かを<span class="cp-nw">計算しました。</span></p></section>
 <div class="prose">
   <p class="g-meta"><img src="{{{{root}}}}{e(g["icon"])}" alt="" width="44" height="44"><span>開催期間：{e(g["period"])}<br><a href="{{{{root}}}}{e(g["char_page"])}">{c}の<span class="cp-nw">データ・イベントはこちら</span></a></span></p>
 
   <h2 id="result">結論：何周で完成する？</h2>
-  <div class="g-goal" role="group" aria-label="目標"><button type="button" data-goal="SR45">SR Lv45（SR+5）</button><button type="button" data-goal="PSR50">PSR Lv50（PSR+5）</button></div>
-  <div class="g-stat"><div>50%で完成<b id="g-p50"></b><small id="g-p50s"></small></div><div>80%で完成<b id="g-p80"></b><small id="g-p80s"></small></div><div>90%で完成<b id="g-p90"></b><small id="g-p90s"></small></div></div>
-  <h3>周回ごとの完成確率</h3>
-  <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">周回</th><th scope="col">連数</th><th scope="col">石</th><th scope="col">完成確率</th></tr></thead><tbody id="g-tbl"></tbody></table></div>
-  <p>{loop_note}今回のガチャで出た{c}だけを使い、引き終わってから合成した場合の確率です（くわしくは下の「計算のしかた」）。</p>
+  <div class="g-dj"><p class="g-h">ダイジョーブ博士像を使う場合（枚数を選ぶ）</p><div class="g-djs">{dj}</div>
+  <p class="muted">選んだ枚数の博士像を使える前提で、下の確率とシミュレータの確率が変わります。PSR像はPSR Lv50の計算だけに使います。</p></div>
+  <div class="g-goal" role="group" aria-label="目標"><button type="button" data-goal="LV40">Lv40</button><button type="button" data-goal="SR45">SR Lv45</button><button type="button" data-goal="PSR50">PSR Lv50</button></div>
+  <div class="g-stat"><div>50%で達成<b id="g-p50"></b><small id="g-p50s"></small></div><div>80%で達成<b id="g-p80"></b><small id="g-p80s"></small></div><div>90%で達成<b id="g-p90"></b><small id="g-p90s"></small></div></div>
+  <h3>周回ごとの確率</h3>
+  <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">周回</th><th scope="col">Lv40</th><th scope="col">SR<br>Lv45</th><th scope="col">PSR<br>Lv50</th></tr></thead><tbody id="g-tbl"></tbody></table></div>
+  <p>{loop_note}今回のガチャで出た{c}だけを使い、引き終わってから合成した場合の確率です。Lv40は「PSRが1枚以上出る」か「SRを+3まで上限開放できる」確率です（くわしくは下の「計算のしかた」）。</p>
+  <h3>SR・PSRが引ける確率</h3>
+  <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">周回</th><th scope="col">SRが<span class="cp-nw">1枚以上</span></th><th scope="col">PSRが<span class="cp-nw">1枚以上</span></th></tr></thead><tbody id="g-tbl2"></tbody></table></div>
+  <p>その周回までに、SR・PSRの{c}が1枚以上出る確率です。</p>
   {comment}
   <h2 id="sim">引いてみる（シミュレータ）</h2>
-  <p>ボタンを押すと、公式の提供割合どおりの確率で{c}が出ます。「完成する確率」は、今の手持ちを一番成功率が高い順番で合成した場合の確率です。</p>
+  <p>ボタンを押すと、公式の提供割合どおりの確率で{c}が出ます。「達成できる確率」は、今の手持ち（と上で選んだ博士像）を一番成功率が高い順番で合成した場合のおおよその確率です。</p>
   <div class="g-sim">
     <div class="g-btns"><button type="button" data-pull="1">1ステップ</button><button type="button" data-pull="{len(g["steps"])}">1周</button><button type="button" data-pull="{10 * len(g["steps"])}" class="ghost">10周</button></div>
     <p class="g-next">次は <b id="g-next"></b> <button type="button" id="g-reset">リセット</button></p>
     <div class="g-stat g-stat2"><div>引いた回数<b id="g-pulls">0連</b></div><div>使った石<b id="g-stones">0個</b></div></div>
     <p class="g-h">手持ちの{c}</p>
     <div class="g-cnt">{"".join(f'<div class="g-{r}">{r}<b id="g-c{r}">0</b></div>' for r in RS)}</div>
-    <p class="g-h">今の手持ちで完成する確率</p>
+    <p class="g-h">今の手持ちで達成できる確率</p>
+    <p class="g-v">Lv40：<b id="g-vlv">0%</b></p><div class="g-bar"><i id="g-vlvb"></i></div>
     <p class="g-v">SR Lv45：<b id="g-vsr">0%</b></p><div class="g-bar"><i id="g-vsrb"></i></div>
     <p class="g-v">PSR Lv50：<b id="g-vpsr">0%</b></p><div class="g-bar"><i id="g-vpsrb"></i></div>
     <div class="g-log" id="g-log" aria-live="polite"></div>
@@ -80,13 +89,17 @@ def _body(g, root_icon):
     <li>上限開放の合成ルールは<a href="{{{{root}}}}guide/limit_break/">上限開放のルール</a>のとおりです。</li>
     <li><b>合成の順番は、手持ちのPSR・SR・PR・Rの{c}を見て、完成する確率が一番高くなる順番を全パターン調べて選んでいます</b>。1枚ずつそのまま合成するか、素材を育ててから合成するかは、手持ちの枚数とあと何段階で完成かによって変わるため、決まった順番はありません。</li>
     <li>引き終わってから、まとめて合成した場合の確率です。</li>
-    <li>上限開放済みのカードは、同じレアリティで同時に1枚だけ育てる前提です。</li>
+    <li>上限開放済みのカードは、同じレアリティで同時に1枚だけ育てる前提です。この前提のため、本当に一番良い手順の確率より、わずかに低く出ることがあります（ほとんどの場合0.1ポイント未満）。</li>
     <li>このガチャで出た{c}だけで計算しています（すでに持っている分は入れていません）。</li>
+    <li>Lv40は、PSRが1枚以上出る（PSRは上限開放なしでLv40）か、SRを+3まで上限開放できる確率です。</li>
+    <li><b>SR Lv45の確率は、出たPSRもSRの素材にする場合の確率です</b>（PSRを素材にするとSRが必ず+1）。PSRを素材にしない場合は、これより低くなります。</li>
+    <li>Lv40・SR Lv45・PSR Lv50の確率は、それぞれ「手持ちを全部その目標に使った場合」の確率です。3つを同時に達成できる確率ではありません。</li>
+    <li>ダイジョーブ博士像は、同じレアリティのカードの上限開放を必ず+1するアイテムとして計算しています（PSR像はPSRだけ、SR像はSRだけ、PR像はPRだけ、R像はRだけに使えます）。どのカードに、どのタイミングで使うかも、確率が一番高くなるように選んでいます。SR Lv45とLv40の計算では、PSR像は使いません。</li>
     <li>1ランク下の+5を素材にしたときの「45%で+2」は推測値です（ゲーム内で確認できないため、運営者の過去の調査によるおおよその値）。</li>
     <li>結果は確率なので、表の周回数を引いても完成しないことがあります。</li>
   </ul>
 </div>
-<script type="application/json" id="gdata">{json.dumps(data, ensure_ascii=False)}</script>'''
+<script type="application/json" id="gdata">{json.dumps(data, ensure_ascii=False).replace("</", "<\\/")}</script>'''
 
 
 def generate(src):
@@ -101,7 +114,7 @@ def generate(src):
         g["tables"] = json.loads(tf.read_text(encoding="utf-8"))
         path = f'gacha/{g["id"]}/'
         meta = (f'title: {g["chara"]}のガチャは何周で完成？SR Lv45・PSR Lv50の確率｜パワプロアプリ攻略ベース\n'
-                f'description: {g["title"]}で{g["chara"]}のSR Lv45・PSR Lv50を作るのに何周必要かを計算。周回ごとの完成確率と、実際に引いて試せるシミュレータつき。\n'
+                f'description: {g["title"]}で{g["chara"]}のSR Lv45・PSR Lv50を作るのに何周必要かを計算。SR・PSRが引ける確率、Lv40に届く確率、ダイジョーブ博士像を使う場合の確率と、実際に引いて試せるシミュレータつき。\n'
                 f"path: {path}\nnav: home\nscripts: gacha\n")
         pages.append(f"<!--\n{meta}-->\n" + _body(g, ""))
         cards.append((g["id"], f'<a class="scard" href="{{{{root}}}}{path}"><span class="tag p">{e(g["chara"])}</span><h3>{e(g["chara"])}のガチャは何周で完成？</h3>'
