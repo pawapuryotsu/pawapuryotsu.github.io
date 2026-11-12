@@ -833,7 +833,8 @@ def generate(chars_path, src, decks, noindex=True):
         items.append((pid, c, full))
         # 評価が書いてあるキャラは title に「評価」を入れる（検索で多い「キャラ名 評価」に合わせる。2026-11-12 管理人OK）
         if has_eval(c, text):
-            meta = (f"title: {full}の評価とイベント・金特｜パワプロアプリ攻略ベース\n"
+            alias = config.get("タイトルに入れる別の呼び方", {}).get(name)   # 例 早乙女乱馬 → らんま（検索は「らんま」が多い。Search Console 2026-11-12）
+            meta = (f"title: {full}{'（' + alias + '）' if alias else ''}の評価とイベント・金特｜パワプロアプリ攻略ベース\n"
                     f"description: パワプロアプリ（サクセス・パワクエ共通）のイベキャラ {full}{yomi_paren(c)} の評価（シナリオ別ランキング・長所と短所）、ボーナス、金特、イベント選択肢、選手能力をまとめています。\n")
         else:
             meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
@@ -952,7 +953,7 @@ def index_page(items, config, noindex):
                    f'<span class="cl-tag">{e(kind)}</span></a></li>')
     kinds_ = sorted({char_type(c, config["種別の判定"]) for _, c, _ in items if not c.get("_準備中")}) if items else []
     chips = "".join(f'<button type="button" class="cl-chip" data-t="{e(k)}">{e(k)}</button>' for k in kinds_)
-    meta = ("title: イベキャラ一覧｜パワプロアプリ攻略ベース\n"
+    meta = ("title: イベキャラ一覧（評価・イベント・金特）｜パワプロアプリ攻略ベース\ncrumb: イベキャラ一覧\n"
             "description: パワプロアプリのイベキャラのボーナス・金特・イベントをまとめたページの一覧です。名前や読みで検索できます。\n"
             "path: chars/\nnav: none\n" + ("noindex: yes\n" if noindex else ""))
     body = (f'''<section class="phead"><p class="eyebrow">イベキャラ</p><h1>イベキャラ一覧</h1></section>
@@ -1164,7 +1165,8 @@ def ranking_pages(items, config, chars, chars_path):
                 + (f'<div class="tier-table">{rows}</div>' if n else '<p class="muted">準備中です。</p>')
                 + (bonus_table_html(r, chars, bt_icons) if r.get("ボーナス表") else "")
                 + guide_html(r))   # キャラごとの評価文章は、各キャラのページ（src/chars/texts/<名前>.json の「評価」）にだけ書く
-        meta = "\n".join([f'title: {r["title"]}｜パワプロアプリ攻略ベース',
+        # 「検索用タイトル」があれば <title> だけそれにする（見出し・パンくず・SNS画像は title のまま。2026-11-12 管理人OK）
+        meta = "\n".join([f'title: {r.get("検索用タイトル") or r["title"]}｜パワプロアプリ攻略ベース', f'crumb: {r["title"]}', f'og_title: {r["title"]}',
                           f'description: パワプロアプリのイベキャラを、Tier表（{"・".join(t for t in TIERS if r["ランク"].get(t))}）でランク付けしました。{r["title"]}の評価基準と、各キャラのランクをまとめています。',
                           f'path: {r["path"]}', "nav: none"] + ([] if r.get("公開") else ["noindex: yes"])) + "\n"
         pages.append(f"<!--\n{meta}-->\n{body}")

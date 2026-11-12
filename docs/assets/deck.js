@@ -133,13 +133,14 @@ function renderList(){
   const open=new Set([...document.querySelectorAll("details.deck[open]")].map(e=>e.dataset.id));
   document.getElementById("count").textContent=`${decks.length}件 / 全${s.list.length}件`;
   const ts=terms();
-  document.getElementById("list").innerHTML=decks.length?decks.map(d=>{
+  document.getElementById("list").innerHTML=decks.length?decks.map((d,i)=>{
+    const lz=i<2?"":` loading="lazy"`;   // 上の2件以外の画像は、画面に近づいてから読み込む（表示を速くする）
     const id=d.d; const lbl=`${SCHOOL_NAME[state.school]} ${d.pos}デッキ（選手ランク${d.rank}）`; const hits=[...new Set([...d.main,...d.sub].map(x=>x[0]).filter(n=>ts.some(t=>matchesTerm(n,t))))];
     return `<details class="deck" data-id="${id}" ${open.has(id)?"open":""}>
       <summary>
-        <div class="top"><div class="lft"><img src="${IMG[d.r]}" alt="ポジション${d.pos}・選手ランク${d.rank}・総経験点${fmt(d.exp)}">${d.f2p?`<span class="f2ptag">無課金</span>`:""}</div><span class="chev" aria-hidden="true">▾</span></div>
+        <div class="top"><div class="lft"><img src="${IMG[d.r]}"${lz} alt="ポジション${d.pos}・選手ランク${d.rank}・総経験点${fmt(d.exp)}">${d.f2p?`<span class="f2ptag">無課金</span>`:""}</div><span class="chev" aria-hidden="true">▾</span></div>
         ${hits.length?`<div class="hit">検索に一致：${hits.map(h=>`<mark>${esc(h)}</mark>`).join(" ")}</div>`:""}
-        <img class="deckimg" src="${IMG[d.d]}" alt="${esc(lbl)}のメインデッキ">
+        <img class="deckimg" src="${IMG[d.d]}"${lz} alt="${esc(lbl)}のメインデッキ">
       </summary>
       ${d.s?`<img class="subdeck" src="${IMG[d.s]}" alt="${esc(lbl)}のサポートデッキ" loading="lazy">`:`<div class="subimg">サポートデッキのスクショ</div>`}
       ${d.u?`<img class="baseimg${state.school==="roman"?" half":""}" src="${IMG[d.u]}" alt="${esc(lbl)}の基礎上限" loading="lazy">`:`<div class="subimg">基礎上限のスクショ</div>`}
