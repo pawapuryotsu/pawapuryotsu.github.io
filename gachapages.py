@@ -104,6 +104,28 @@ def _body(g, root_icon, src_dir):
     used_txt = per(lambda ch: f'今回のガチャで出た{e(ch["chara"])}と、{exf(ch)}' if exf(ch) else f'今回のガチャで出た{e(ch["chara"])}だけ')
     sim_ex = per(lambda ch: f"手持ちは{exf(ch)}が入った状態から始まります。" if exf(ch) and not ch.get("both") else "")
     data["tables"] = chs[0]["tables"]
+    # 旧バージョンの手持ちの入力欄（json の "old_ver": true のガチャだけ。計算は assets/gacha_old.js がブラウザでする）
+    old_box = old_notes = ""
+    if g.get("old_ver"):
+        import hashlib
+        data["old_v"] = hashlib.md5(b"".join((src_dir / "assets" / f).read_bytes() for f in ("gacha_old.js", "gacha_old.wasm"))).hexdigest()[:8]
+        rows = "".join(f'<tr><th scope="row" class="g-{r}">{r}</th>' + "".join(
+            f'<td><input type="number" inputmode="numeric" min="0" max="9" data-old="{3 - i}_{l}" autocomplete="off" aria-label="旧バージョンの{r}+{l}の枚数"></td>' for l in range(6))
+            + "</tr>" for i, r in enumerate(RS))
+        old_box = (f'<div class="g-dj g-old" data-nb><p class="g-h">旧バージョンの{c}を持っている場合（枚数を入れる）</p>'
+                   '<table class="g-oldt"><thead><tr><th></th>' + "".join(f'<th scope="col">+{l}</th>' for l in range(6)) + f'</tr></thead><tbody>{rows}</tbody></table>'
+                   '<p class="g-oldb"><button type="button" id="g-oldgo">計算する</button><button type="button" id="g-oldclr" class="ghost">クリア</button></p>'
+                   '<p class="g-olds" id="g-olds" aria-live="polite"></p>'
+                   '<p class="muted">+0〜+5は上限開放の段階です。持っている旧バージョンのカードを素材として使う前提で、下の確率とシミュレータの確率が変わります'
+                   '（完成させるのは今回のバージョンです）。旧バージョンが2種類以上あるときは、まとめて入れてください。<br>'
+                   '<b><span class="cp-nw">旧バージョン込みの確率は、</span><span class="cp-nw">実際より少し低めに</span><span class="cp-nw">出ることがあります</span></b><span class="cp-nw">（くわしくは下の</span><span class="cp-nw">「計算のしかた」）。</span></p></div>')
+        old_notes = "".join("\n    <li>" + x + "</li>" for x in [
+            "<b>旧バージョンの手持ちを入れたとき</b>：旧バージョンのカードは素材として使います（完成させるのは今回のバージョンのカードです）。旧バージョンが2種類以上あっても、まとめて1つの旧バージョンとして計算します。",
+            "旧バージョンを同じレアリティに合成するときの確率（+0で50%〜+4で100%、+5は75%で+3・25%で+2）のうち、<b>+5素材の「75%で+3」は推測値です</b>（ゲーム内で確認できないため、運営者の過去の調査によるおおよその値）。",
+            "<b>上限開放済みの旧バージョンのPSRは、今回のバージョンのSRには合成しない前提です</b>（上のランクの素材が上限開放済みのときの確率は未検証のため。+0の旧PSRは、SRに合成すると必ず+1として計算します）。",
+            "旧バージョン同士を先に合成して育ててから素材にする手順（同じバージョン同士は100%で+1）や、上限開放が途中の旧バージョンのカードに今回のバージョンのカードを合成して育てる手順も、計算に入れています。",
+            "<b>旧バージョン込みの確率は、合成の順番を全パターン調べた値ではありません</b>（組み合わせが多すぎて、その場では計算できないため）。「旧バージョンのカードを先に使い、残りを今までどおり一番成功率が高い順番で合成する」方法の中で一番良い手順の確率なので、本当に一番良い手順の確率より少し低く出ることがあります（時間をかけた計算と比べた範囲では、周回ごとの確率で最大1ポイントほど）。そのため1%きざみで表示しています。",
+            "旧バージョン込みの計算では、ダイジョーブ博士像は旧バージョンのカードには使いません（今回のバージョンのカードに使います）。"])
     picks = [(s["name"], x) for s in g["steps"] for x in s["slots"] if x["target"] == "pick"]
     pick_note = ("・".join(f'{e(n)}の{e(x["label"].replace("おまけ：", ""))}' for n, x in picks)
                  + ("は毎周もらえ、" if g.get("loop") else "は、") + "すべて" + ("表示中のキャラ" if multi else c) + "を選ぶ前提で計算しています。") if picks else ""
@@ -149,6 +171,7 @@ def _body(g, root_icon, src_dir):
   {ch_btns}
   <div class="g-dj" data-nb><p class="g-h">ダイジョーブ博士像を使う場合（枚数を選ぶ）</p><div class="g-djs">{dj}</div>
   <p class="muted">選んだ枚数の博士像を使える前提で、下の確率とシミュレータの確率が変わります。PSR像はPSR Lv50の計算だけに使います。</p></div>
+  {old_box}
   <div class="g-goal" role="group" aria-label="目標"><button type="button" data-goal="LV40">Lv40</button><button type="button" data-goal="SR45">SR Lv45</button><button type="button" data-goal="PSR50">PSR Lv50</button></div>
   <div class="g-stat"><div>50%で達成<b id="g-p50"></b><small id="g-p50s"></small></div><div>80%で達成<b id="g-p80"></b><small id="g-p80s"></small></div><div>90%で達成<b id="g-p90"></b><small id="g-p90s"></small></div></div>
   <h3>周回ごとの確率</h3>
@@ -193,7 +216,7 @@ def _body(g, root_icon, src_dir):
     <li><b>SR Lv45の確率は、出たPSRもSRに合成する前提の確率です</b>（PSRを合成するとSRが必ず+1）。PSRを素材にしない場合は、これより低くなります。</li>
     <li>Lv40・SR Lv45・PSR Lv50の確率は、それぞれ「手持ちを全部その目標に使った場合」の確率です。3つを同時に達成できる確率ではありません。</li>
     <li>ダイジョーブ博士像は、同じレアリティのカードの上限開放を必ず+1するアイテムとして計算しています（PSR像はPSRだけ、SR像はSRだけ、PR像はPRだけ、R像はRだけに使えます）。どのカードに、どのタイミングで使うかも、確率が一番高くなるように選んでいます。SR Lv45とLv40の計算では、PSR像は使いません。</li>
-    <li>1ランク下の+5を素材にしたときの「45%で+2」は推測値です（ゲーム内で確認できないため、運営者の過去の調査によるおおよその値）。</li>
+    <li>1ランク下の+5を素材にしたときの「45%で+2」は推測値です（ゲーム内で確認できないため、運営者の過去の調査によるおおよその値）。</li>{old_notes}
     <li>結果は確率なので、表の周回数を引いても完成しないことがあります。</li>
   </ul>
 </div>
