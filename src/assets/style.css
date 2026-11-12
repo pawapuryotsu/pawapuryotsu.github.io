@@ -440,3 +440,21 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .rk-xpost .twitter-tweet{margin:0 auto!important}
 .rk-xpost blockquote.twitter-tweet{padding:12px;border:1px solid var(--line);border-radius:8px;overflow-wrap:anywhere}
 .cp-evdate{margin:12px 0 0;text-align:right}
+/* ===== ガチャ記事（/gacha/<id>/、gachapages.py・gacha.js） ===== */
+.g-meta{display:flex;gap:10px;align-items:center;font-size:14px}.g-meta img{flex:none;border-radius:6px}
+.g-goal{display:flex;gap:8px;margin:8px 0}.g-goal button{flex:1;padding:9px 4px;font:inherit;font-size:14px;font-weight:700;border:1px solid var(--accent);border-radius:6px;background:#fff;color:var(--accent);cursor:pointer}
+.g-goal button[aria-pressed=true]{background:var(--accent);color:#fff}
+.g-stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}.g-stat div{background:var(--accent-soft);border-radius:6px;padding:8px 4px;text-align:center;font-size:13px}
+.g-stat b{display:block;font-size:clamp(15px,4.6vw,20px);line-height:1.35;margin:2px 0}.g-stat small{display:block;color:var(--muted);font-size:11px}
+.g-stat2{grid-template-columns:repeat(2,1fr)}
+.bt.g-t{font-size:clamp(12px,3.6vw,15px)}.bt.g-t td.g-l{text-align:left;white-space:normal;font-weight:400}.bt.g-t small{color:var(--muted);font-size:.85em}.bt.g-t td.g-hit{background:#e3f3e8;font-weight:700}
+.g-sim{border:1px solid var(--line);border-radius:6px;padding:12px;background:var(--surface)}
+.g-btns{display:flex;gap:8px}.g-btns button{flex:1;padding:10px 4px;font:inherit;font-weight:700;border:0;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
+.g-btns button.ghost{background:#fff;color:var(--accent);border:1px solid var(--accent)}
+.g-next{font-size:13px;margin:8px 0}.g-next button{font:inherit;font-size:12px;margin-left:6px}
+.g-h{font-weight:700;margin:12px 0 4px}
+.g-cnt{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.g-cnt div{border:1px solid var(--line);border-radius:6px;padding:4px 2px;text-align:center;font-size:12px}.g-cnt b{display:block;font-size:18px}
+.g-PSR{color:#b8860b}.g-SR{color:#8a3fb8}.g-PR{color:#1d6fb8}.g-R{color:#5b6474}
+.g-v{margin:6px 0 2px}.g-bar{height:10px;background:#e6e9e3;border-radius:5px;overflow:hidden}.g-bar i{display:block;height:100%;width:0;background:var(--accent)}
+.g-log{max-height:200px;overflow:auto;font-size:13px;border-top:1px solid var(--line);margin-top:10px;padding-top:6px}
+@media (max-width:340px){.bt.g-t th,.bt.g-t td{padding:5px 2px}}

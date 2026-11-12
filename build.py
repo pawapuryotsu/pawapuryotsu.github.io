@@ -87,7 +87,7 @@ if (src / "pawaque").exists():
             page.write_text(html.replace("</head>", ga_head() + "\n</head>", 1), encoding="utf-8")
 # 古いCSS/JSがスマホに残らないよう、ファイルの中身から作った番号を ?v= で付ける
 import hashlib
-ver = {f: hashlib.md5((out / "assets" / f).read_bytes()).hexdigest()[:8] for f in ("style.css", "deck.js", "decks.js")}
+ver = {f: hashlib.md5((out / "assets" / f).read_bytes()).hexdigest()[:8] for f in ("style.css", "deck.js", "decks.js", "gacha.js")}
 
 # サイトマップの lastmod は「本当に更新した日」だけ書く（毎回今日の日付だとGoogleに無視される）。
 # デッキページ＝そのシナリオのデッキの一番新しい育成日。それ以外のページは書かない。
@@ -129,10 +129,12 @@ layout = (src / "layout.html").read_text(encoding="utf-8")
 urls = []
 import charpages
 _char_pages = charpages.generate(chars, src, DECKS)  # キャラページ（評価を書くまでは noindex）
+import gachapages
+_gacha_pages, _gacha_cards = gachapages.generate(src)  # ガチャ記事（src/gacha/*.json）とトップの「ガチャ」欄のカード
 (out / "img" / "chars").mkdir(exist_ok=True)
 for _f, _dst in charpages.ICON_COPIES:                # 一覧に出すキャラのアイコン（130x130）
     shutil.copy(_f, out / _dst)
-for text in [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob("*.html"))] + _char_pages:
+for text in [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob("*.html"))] + _char_pages + _gacha_pages:
     meta_txt, body = re.match(r"<!--(.*?)-->\n(.*)", text, re.S).groups()
     meta = dict(re.findall(r"^(\w+):[ \t]*(.*)$", meta_txt, re.M))
     path = meta["path"]
@@ -144,7 +146,7 @@ for text in [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob(
     rep = {"title": meta["title"], "description": meta["description"], "canonical": f"{SITE_URL}/{path}",
            "robots": '<meta name="robots" content="noindex">' if noindex else "", "adsense_head": adsense_head(),
            "analytics_note": analytics_note(), "head_extra": ga_head() + '<meta name="google-site-verification" content="ZgxID967oum-2Mm1F5BCX9gvQE_vNl2ZDbXXWfyYP10" />', "nav": nav, "scripts": scripts, "operator": OPERATOR, "operator_intro": OPERATOR_INTRO,
-           "contact_block": contact_block(), "policy_date": POLICY_DATE, "ad": ad_block()}
+           "contact_block": contact_block(), "policy_date": POLICY_DATE, "ad": ad_block(), "gacha_cards": _gacha_cards}
     # トップのランキングカードの評価日は、ランキングページ（src/ranking/ranking.json）の評価日を自動で使う（管理人指示 2026-11-10）。{{rk_date_roman}} など
     for _k, _r in charpages._RANKING.get("ranking", {}).items():
         rep["rk_date_" + _k] = f'【評価日{_r["評価日"]}】' if _r.get("評価日") else ""

@@ -1,0 +1,30 @@
+{
+  "id": "2026_1111_shampoo",
+  "title": "ループガチャ TVアニメ「らんま1/2」コラボ記念 第2弾",
+  "chara": "シャンプー",
+  "char_page": "chars/0042/",
+  "icon": "img/chars/0042.png",
+  "period": "2026年11月11日(水)14:00〜11月26日(木)8:59",
+  "checked": "2026-11-12",
+  "sources": [
+    {"label": "ガチャのお知らせ", "url": "https://asc.s.konaminet.jp/asc/pawasma/webpage/news/event_gacha/2026_1111_Gacha_XcDfy4-ny.php?set_user_id=0"},
+    {"label": "提供割合", "url": "https://asc.s.konaminet.jp/asc/pawasma/webpage/news/gacha_probs/event_6582_8S197B1R.php?set_user_id=0"}
+  ],
+  "loop": true,
+  "share": {"PSR": 23.27, "SR": 23.27, "PR": 16.03, "R": 18.2},
+  "steps": [
+    {"name": "ステップ1", "pulls": 6, "cost": 25, "slots": [
+      {"n": 1, "label": "「SR」以上1枚確定枠", "rarity": {"PSR": 0.5, "SR": 99.5}, "target": "share"},
+      {"n": 5, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ2", "pulls": 10, "cost": 40, "slots": [
+      {"n": 1, "label": "「PR」以上の「シャンプー」1枚確定枠", "rarity": {"PSR": 0.5, "SR": 3, "PR": 96.5}, "target": "only"},
+      {"n": 9, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ3", "pulls": 10, "cost": 50, "slots": [
+      {"n": 1, "label": "「シャンプー」1枚確定枠（PSR20%・SR80%）", "rarity": {"PSR": 20, "SR": 80}, "target": "only"},
+      {"n": 9, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]}
+  ],
+  "comment": ""
+}
