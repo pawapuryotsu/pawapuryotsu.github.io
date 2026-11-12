@@ -942,7 +942,25 @@ def guide_html(r):
             body += '<ul class="rk-list">' + "".join(f"<li>{rich(x)}</li>" for x in g["箇条書き"]) + "</ul>"
         body += paras(g.get("文章", []))
         out += f'<section class="cp-sec"><h2>{e(g["見出し"])}</h2>{body}</section>'
-    return out
+    return out + video_html(r)
+
+
+def video_html(r):
+    """ランキングの解説動画（「動画」にYouTubeのIDを書く）。解説欄の下に出す。デッキページと同じ動き：
+    スマホは普通のリンク（タップでYouTubeアプリが開く）、PCはサムネを押すとその場で再生・リンクは別タブ"""
+    vid = r.get("動画", "")
+    if not vid or r.get("上の解説欄"):   # 「上の解説欄」がある記事型は top_guide_html がTier表の上に出す
+        return ""
+    if not re.fullmatch(r"[\w-]{11}", vid):
+        raise SystemExit(f"ランキング {r['title']} の「動画」がYouTubeのIDの形ではありません：{vid}")
+    url = f"https://www.youtube.com/watch?v={vid}"
+    return (f'<section class="cp-sec"><h2>{e(r.get("動画見出し", "【解説動画】"))}</h2>'
+            f'<a class="yt" href="{url}" data-id="{vid}" aria-label="動画を再生"><img src="https://i.ytimg.com/vi/{vid}/hqdefault.jpg" alt="動画のサムネイル" loading="lazy" onerror="this.parentNode.style.display=\'none\'"><span class="play">▶</span></a>'
+            f'<a class="video" href="{url}">YouTubeで見る</a></section>'
+            '<script>(function(){if(matchMedia("(hover: none) and (pointer: coarse)").matches)return;'
+            '[].forEach.call(document.querySelectorAll(".cp-sec a.yt,.cp-sec a.video"),function(a){a.target="_blank";a.rel="noopener"});'
+            'document.addEventListener("click",function(ev){var b=ev.target.closest(".yt[data-id]");if(!b)return;ev.preventDefault();'
+            'b.outerHTML=\'<div class="ytframe"><iframe src="https://www.youtube-nocookie.com/embed/\'+b.dataset.id+\'?autoplay=1" title="解説動画" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>\'})})();</script>')
 
 
 BASE_BONUS = ("筋力ボーナス", "敏捷ボーナス", "技術ボーナス", "変化球ボーナス", "精神ボーナス")
@@ -1021,7 +1039,7 @@ def top_guide_html(r):
         out += f'<section class="cp-sec"><h2>{e(g["見出し"])}</h2>{body}</section>'
     if need_x:
         out += '<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
-    if r.get("動画"):   # 解説動画（YouTubeの動画ID）。サムネイル画像を押すとYouTubeが開く（埋め込みにしないのでページが重くならない）
+    if r.get("動画") and r.get("上の解説欄"):   # 解説動画（YouTubeの動画ID）。「上の解説欄」がある記事型のランキングだけ、ここ（Tier表の上）に出す。それ以外は video_html で解説欄の下に出す
         vid = e(r["動画"])
         out += (f'<section class="cp-sec"><h2>【解説動画】</h2><a class="rk-video" href="https://youtu.be/{vid}" target="_blank" rel="noopener">'
                 f'<img src="https://i.ytimg.com/vi/{vid}/hqdefault.jpg" alt="解説動画（YouTube）" width="480" height="360" loading="lazy"></a></section>')
