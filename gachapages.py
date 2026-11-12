@@ -125,7 +125,6 @@ def _body(g, root_icon, src_dir):
   <div class="g-info">{metas}</div>
   {comment}
 
-  {comment}
   <h2 id="result">何周で完成する？</h2>
   {ch_btns}
   <div class="g-dj"><p class="g-h">ダイジョーブ博士像を使う場合（枚数を選ぶ）</p><div class="g-djs">{dj}</div>
