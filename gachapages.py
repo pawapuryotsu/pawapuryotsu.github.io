@@ -14,21 +14,21 @@ def _pct(v):
 
 def _steps_table(g):
     rows = []
-    for s in g["steps"]:
+    for i, s in enumerate(g["steps"]):
         fixed = "<br>".join(e(x["label"]) for x in s["slots"] if x["n"] == 1 and x["label"] != "上記以外") or "なし"
-        rows.append(f'<tr><td>{e(s["name"])}</td><td>{s["pulls"]}連</td><td>{s["cost"]}個</td><td class="g-l">{fixed}</td></tr>')
+        rows.append(f'<tr class="g-s{i % 4 + 1}"><td>{e(s["name"])}</td><td>{s["pulls"]}連</td><td>{s["cost"]}個</td><td class="g-l">{fixed}</td></tr>')
     return ('<div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">ステップ</th><th scope="col">連数</th>'
             '<th scope="col">石</th><th scope="col">確定枠</th></tr></thead><tbody>' + "".join(rows) + "</tbody></table></div>")
 
 
 def _rate_table(g):
     rows = []
-    for s in g["steps"]:
+    for i, s in enumerate(g["steps"]):
         for x in s["slots"]:
             cells = "".join(f'<td>{_pct(x["rarity"][r]) if r in x["rarity"] else "—"}</td>' for r in RS)
             kind = "確定枠" if x["label"] != "上記以外" else "通常枠"
             who = f'<span class="cp-nw">・{e(g["chara"])}のみ</span>' if x["target"] == "only" else ""
-            rows.append(f'<tr><td class="g-l">{e(s["name"])}<br><small>{kind}{x["n"]}枚{who}</small></td>{cells}</tr>')
+            rows.append(f'<tr class="g-s{i % 4 + 1}"><td class="g-l">{e(s["name"])}<br><small><span class="cp-nw">{kind}{x["n"]}枚</span>{who}</small></td>{cells}</tr>')
     share = "・".join(f'<span class="cp-nw">{r} {_pct(g["share"][r])}</span>' for r in RS if r in g["share"])
     return ('<div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">枠</th>' + "".join(f'<th scope="col">{r}</th>' for r in RS)
             + "</tr></thead><tbody>" + "".join(rows) + "</tbody></table></div>"
