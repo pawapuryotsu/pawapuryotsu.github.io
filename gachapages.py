@@ -75,6 +75,7 @@ def _body(g, root_icon, src_dir):
 <div class="prose">
   <p class="g-meta"><img src="{{{{root}}}}{e(g["icon"])}" alt="" width="44" height="44"><span>開催期間：{e(g["period"])}<br><a href="{{{{root}}}}{e(g["char_page"])}">{c}の<span class="cp-nw">データ・イベントはこちら</span></a></span></p>
 
+  {comment}
   <h2 id="result">何周で完成する？</h2>
   <div class="g-dj"><p class="g-h">ダイジョーブ博士像を使う場合（枚数を選ぶ）</p><div class="g-djs">{dj}</div>
   <p class="muted">選んだ枚数の博士像を使える前提で、下の確率とシミュレータの確率が変わります。PSR像はPSR Lv50の計算だけに使います。</p></div>
@@ -87,7 +88,6 @@ def _body(g, root_icon, src_dir):
   <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">ステップ</th><th scope="col">石</th><th scope="col">SRが<span class="cp-nw">1枚以上</span></th><th scope="col">PSRが<span class="cp-nw">1枚以上</span></th></tr></thead><tbody id="g-tbl2"></tbody></table></div>
   <p class="g-more"><button type="button" id="g-more2" hidden>もっと見る</button></p>
   <p>そのステップまで引いたときに、SR・PSRの{c}が1枚以上出ている確率です。石は1周目ステップ1からの合計です。</p>
-  {comment}
   <h2 id="sim">引いてみる（シミュレータ）</h2>
   <p>ボタンを押すと、公式の提供割合どおりの確率で{c}が出ます。{f"手持ちは{ex}が入った状態から始まります。" if ex else ""}「達成できる確率」は、今の手持ち（と上で選んだ博士像）を一番成功率が高い順番で合成した場合のおおよその確率です。</p>
   <div class="g-sim">
