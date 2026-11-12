@@ -449,7 +449,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .g-stat2{grid-template-columns:repeat(2,1fr)}
 .bt.g-t{font-size:clamp(12px,3.6vw,15px)}.bt.g-t td.g-l{text-align:left;white-space:normal;font-weight:400}.bt.g-t small{color:var(--muted);font-size:.85em}.bt.g-t td.g-hit{background:#e3f3e8;font-weight:700}
 .g-sim{border:1px solid var(--line);border-radius:6px;padding:12px;background:var(--surface)}
-.g-btns{display:flex;gap:8px}.g-btns button{flex:1;padding:10px 4px;font:inherit;font-weight:700;border:0;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
+.g-btns{display:flex;gap:8px}.g-btns button{flex:1;padding:10px 4px;white-space:nowrap;font:inherit;font-weight:700;border:0;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
 .g-btns button.ghost{background:#fff;color:var(--accent);border:1px solid var(--accent)}
 .g-next{font-size:13px;margin:8px 0}.g-next button{font:inherit;font-size:12px;margin-left:6px}
 .g-h{font-weight:700;margin:12px 0 4px}
@@ -462,3 +462,4 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .g-dj{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:var(--surface);margin:8px 0}.g-dj .g-h{margin:0 0 6px}.g-dj .muted{margin:8px 0 0;font-size:13px}
 .g-djs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.g-djs label{display:flex;flex-direction:column;gap:2px;font-size:12px;font-weight:700;text-align:center}
 .g-djs select{font:inherit;font-size:16px;padding:6px 2px;border:1px solid var(--line);border-radius:6px;background:#fff;color:#14233a;width:100%;min-width:0}
+.g-more{text-align:center;margin:6px 0}.g-more button{font:inherit;font-size:14px;font-weight:700;padding:8px 20px;border:1px solid var(--accent);border-radius:6px;background:#fff;color:var(--accent);cursor:pointer}
