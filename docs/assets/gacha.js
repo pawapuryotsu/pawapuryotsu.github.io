@@ -50,9 +50,12 @@
     $("g-tbl").innerHTML = h;
     const gs = [G.tables.gotSR, G.tables.gotPSR];
     h = "";
-    for (let i = 0; i < T; i++) {   // ステップごと
-      if (i >= 3 * L && i % L === 0 && gs.every((t) => t[i - 1] >= 99.9)) break;
-      if (!more2 && i >= MORE * L) { $("g-more2").hidden = false; break; }
+    // ステップごと。PSRが1枚以上＝100%（確定）になった行まで。100%にならなければ90%以上になった行まで（管理人 2026-11-12）
+    const gp = G.tables.gotPSR;
+    let last = gp.findIndex((v) => v >= 100);
+    if (last < 0) last = gp.findIndex((v) => v >= 90);
+    if (last < 0) last = T - 1;
+    for (let i = 0; i <= last; i++) {
       const name = G.loop ? `<span class="cp-nw">${Math.floor(i / L) + 1}周目</span> <span class="cp-nw">${stepOf(i).name}</span>` : stepOf(i).name;
       h += `<tr${G.loop && i > 0 && i % L === 0 ? ' class="g-lp"' : ""}><td class="g-l">${name}</td><td>${used(i + 1)[1]}個</td>${gs.map((t) => `<td>${pct(t[i])}</td>`).join("")}</tr>`;
     }
@@ -67,9 +70,6 @@
     }
     document.querySelectorAll("[data-goal]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.goal === goal));
   }
-  const MORE = 5;   // 「SR・PSRが引ける確率」は最初は5周分だけ出す
-  let more2 = false;
-  $("g-more2").onclick = () => { more2 = true; $("g-more2").hidden = true; renderTable(); };
   document.querySelectorAll("[data-goal]").forEach((b) => (b.onclick = () => { goal = b.dataset.goal; renderTable(); }));
 
   // ---- 引いてみる ----

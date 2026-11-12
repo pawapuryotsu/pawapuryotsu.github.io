@@ -39,6 +39,7 @@ def both_tables(g, vs, vp, S, C, D, N=200000, seed=20261112):
         for x in ch.get("extra", []):
             cnt[ci, RS.index(x["rarity"])] += x["n"]
     tick = {"SR": 0, "PSR": 0}
+    sure = {"SR": [], "PSR": []}   # その時点までにもらえる選択券の枚数
     out = {k: [] for k in F}
     L = len(g["steps"])
     for st in range(40 * L):
@@ -59,6 +60,7 @@ def both_tables(g, vs, vp, S, C, D, N=200000, seed=20261112):
                 cnt[0, ri] += m[:, 2 * ri]
                 cnt[1, ri] += m[:, 2 * ri + 1]
         nS, nP = tick["SR"], tick["PSR"]
+        sure["SR"].append(nS); sure["PSR"].append(nP)
         for k, f in F.items():
             best = np.zeros(N)
             for a in range(nS + 1):        # 乱馬（1人目）に使うSR券の枚数
@@ -69,4 +71,10 @@ def both_tables(g, vs, vp, S, C, D, N=200000, seed=20261112):
         if out["PSR50"][-1] >= .995 and (st + 1) % L == 0:
             break
     # %で小数2桁まで。試しに引いた結果なので「ちょうど100%」とは言えない → 最大 99.99（ページでは「ほぼ100%」）
-    return {"KS": 0, "KL": 0, "mc": N, **{k: [min(round(float(x) * 100, 2), 99.99) for x in v] for k, v in out.items()}}
+    # ただし「SR・PSRが1枚以上」は、選択券とイベント報酬だけで2人とも必ず持てるときは本当に100%（その時点の券の枚数で判定）
+    res = {"KS": 0, "KL": 0, "mc": N, **{k: [min(round(float(x) * 100, 2), 99.99) for x in v] for k, v in out.items()}}
+    for k, r in (("gotSR", "SR"), ("gotPSR", "PSR")):
+        for i, n in enumerate(sure[r]):
+            if n >= sum(1 for ch in g["charas"] if not any(x["rarity"] == r for x in ch.get("extra", []))):
+                res[k][i] = 100.0
+    return res
