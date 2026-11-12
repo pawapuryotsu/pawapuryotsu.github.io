@@ -2,6 +2,7 @@
 # 新しいガチャを足すとき：src/gacha/<id>.json を作る → python3 gacha_calc/build_tables.py → python3 build.py
 # id は「開始日_キャラ」（例 2026_1111_shampoo）。URLに「-」は使わない。
 import html as _h, json
+import charpages   # ランキングでの評価・文字の色指定を、キャラページと同じ形で出すため（build.py で charpages.generate() の後に呼ぶ）
 from pathlib import Path
 
 e = _h.escape
@@ -35,13 +36,34 @@ def _rate_table(g):
             + f'<p>{e(g["chara"])}のみの枠以外で、そのレアリティが出たときに{e(g["chara"])}になる割合：{share}</p>')
 
 
-def _body(g, root_icon):
+def _eval_html(g, src_dir):
+    """「管理人の評価」。comment＝管理人の考え（文字の色指定 {太:…} などはキャラページと同じ）、
+    イベキャラの評価（ランキングでの位置づけ・キャラページの評価文）があれば一緒に出す"""
+    com = g.get("comment") or []
+    if isinstance(com, str):
+        com = [com] if com else []
+    name = g["chara"]
+    tf = src_dir / "chars" / "texts" / f"{name}.json"
+    text = json.loads(tf.read_text(encoding="utf-8")) if tf.exists() else {}
+    chara_eval = charpages.ranking_eval_html(name, "{{root}}") + charpages.paras(text.get("評価", []))
+    if not com and not chara_eval:
+        return ""
+    out = '<h2 id="eval">管理人の評価</h2>' + charpages.paras(com)
+    if com and g.get("comment_date"):
+        out += f'<p class="cp-evdate"><span class="rk-date">【記入日{e(g["comment_date"])}】</span></p>'
+    if chara_eval:
+        out += (f'<h3>イベキャラとしての評価</h3>{chara_eval}'
+                f'<p><a href="{{{{root}}}}{e(g["char_page"])}">{e(name)}の<span class="cp-nw">ページを見る</span></a></p>')
+    return out
+
+
+def _body(g, root_icon, src_dir):
     c = e(g["chara"])
     data = {k: g[k] for k in ("id", "chara", "loop", "share", "steps")}
     data["tables"] = g["tables"]
     loop_note = (f'1周＝{"〜".join([g["steps"][0]["name"], g["steps"][-1]["name"]])}'
                  f'（{sum(s["pulls"] for s in g["steps"])}連・パワストーン{sum(s["cost"] for s in g["steps"])}個）。') if g.get("loop") else ""
-    comment = f'<h2 id="comment">管理人のひとこと</h2><p>{g["comment"]}</p>' if g.get("comment") else ""
+    comment = _eval_html(g, src_dir)
     kmax = g["tables"]["K"]
     dj = "".join(f'<label><span class="g-{r}">{r}像</span><select data-dj="{r}" autocomplete="off" aria-label="{r}ダイジョーブ博士像の枚数">'
                  + "".join(f'<option value="{i}">{i}枚</option>' for i in range(kmax + 1)) + "</select></label>" for r in RS)
@@ -116,7 +138,7 @@ def generate(src):
         meta = (f'title: {g["chara"]}のガチャは引くべき？何周で完成するか計算（SR Lv45・PSR Lv50）｜パワプロアプリ攻略ベース\n'
                 f'description: {g["chara"]}のガチャは引くべき？{g["title"]}で{g["chara"]}のSR Lv45・PSR Lv50を作るのに何周必要かを計算。SR・PSRが引ける確率、Lv40に届く確率、ダイジョーブ博士像を使う場合の確率と、実際に引いて試せるシミュレータつき。\n'
                 f"path: {path}\nnav: home\nscripts: gacha\n")
-        pages.append(f"<!--\n{meta}-->\n" + _body(g, ""))
+        pages.append(f"<!--\n{meta}-->\n" + _body(g, "", src))
         cards.append((g["id"], f'<a class="scard" href="{{{{root}}}}{path}"><span class="tag p">{e(g["chara"])}</span><h3>{e(g["chara"])}のガチャは引くべき？</h3>'
                                f'<p>SR Lv45・PSR Lv50の完成確率と<span class="cp-nw">シミュレータ。</span></p><span class="go" aria-hidden="true">→</span></a>'))
     cards.sort(key=lambda x: x[0], reverse=True)   # 新しいガチャを上に
