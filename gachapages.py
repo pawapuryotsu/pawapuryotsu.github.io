@@ -27,7 +27,7 @@ def _rate_table(g):
         for x in s["slots"]:
             cells = "".join(f'<td>{_pct(x["rarity"][r]) if r in x["rarity"] else "—"}</td>' for r in RS)
             kind = "確定枠" if x["label"] != "上記以外" else "通常枠"
-            who = f'<span class="cp-nw">・{e(g["chara"])}のみ</span>' if x["target"] == "only" else ""
+            who = f'<wbr><span class="cp-nw">（{e(g["chara"])}のみ）</span>' if x["target"] == "only" else ""
             rows.append(f'<tr class="g-s{i % 4 + 1}"><td class="g-l">{e(s["name"])}<br><small><span class="cp-nw">{kind}{x["n"]}枚</span>{who}</small></td>{cells}</tr>')
     share = "・".join(f'<span class="cp-nw">{r} {_pct(g["share"][r])}</span>' for r in RS if r in g["share"])
     return ('<div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">枠</th>' + "".join(f'<th scope="col">{r}</th>' for r in RS)
