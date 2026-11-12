@@ -60,6 +60,15 @@ def contact_block():
     return ""
 
 
+# サイトマップの lastmod 用：作り直す前の各ページの中身と更新日を覚えておく（中身が変わったページだけ今日の日付にする）
+_VER_RE = re.compile(r"\?v=[0-9a-f]{8}")
+def _norm(html):
+    return _VER_RE.sub("", html)
+_old_lastmod, _old_html = {}, {}
+if (out / "sitemap.xml").exists():
+    _old_lastmod = dict(re.findall(r"<loc>(.*?)</loc><lastmod>(.*?)</lastmod>", (out / "sitemap.xml").read_text(encoding="utf-8")))
+    for _f in out.rglob("index.html"):
+        _old_html[_f.relative_to(out).as_posix()] = _norm(_f.read_text(encoding="utf-8"))
 if out.exists():
     shutil.rmtree(out)
 shutil.copytree(src / "assets", out / "assets")
@@ -140,10 +149,39 @@ _gacha_pages, _gacha_cards = gachapages.generate(src)  # ガチャ記事（src/g
 (out / "img" / "chars").mkdir(exist_ok=True)
 for _f, _dst in charpages.ICON_COPIES:                # 一覧に出すキャラのアイコン（130x130）
     shutil.copy(_f, out / _dst)
-for text in [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob("*.html"))] + _char_pages + _gacha_pages:
+_all_pages = [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob("*.html"))] + _char_pages + _gacha_pages
+_parsed = []
+for text in _all_pages:
     meta_txt, body = re.match(r"<!--(.*?)-->\n(.*)", text, re.S).groups()
-    meta = dict(re.findall(r"^(\w+):[ \t]*(.*)$", meta_txt, re.M))
+    _parsed.append((dict(re.findall(r"^(\w+):[ \t]*(.*)$", meta_txt, re.M)), body))
+# パンくずリスト：ページの名前（meta の crumb、無ければ title の「｜」より前）。上の階層のページがあればそこを通る（無い階層は飛ばす）
+CRUMB = {m["path"]: m.get("crumb") or m["title"].split("｜")[0] for m, _ in _parsed}
+
+
+def crumbs(path):
+    if path in ("", "404.html"):
+        return []
+    parts = path.strip("/").split("/")
+    chain = [("", "トップ")] + [(p, CRUMB[p]) for p in ("/".join(parts[:i]) + "/" for i in range(1, len(parts))) if p in CRUMB]
+    return chain + [(path, CRUMB[path])]
+
+
+def crumb_html(chain):
+    _e2 = _html.escape
+    li = "".join(f'<li><a href="{{{{root}}}}{p}">{_e2(n)}</a></li>' for p, n in chain[:-1]) + f'<li aria-current="page">{_e2(chain[-1][1])}</li>'
+    return f'<nav class="crumbs" aria-label="パンくずリスト"><ol>{li}</ol></nav>\n'
+
+
+def crumb_ld(chain):
+    return json.dumps({"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+        {"@type": "ListItem", "position": i, "name": n, "item": f"{SITE_URL}/{p}"} for i, (p, n) in enumerate(chain, 1)]}, ensure_ascii=False)
+
+
+for meta, body in _parsed:
     path = meta["path"]
+    _chain = crumbs(path)
+    if _chain:
+        body = crumb_html(_chain) + body
     root = "/" if path == "404.html" else ("../" * path.count("/") or "./")
     cur = ' aria-current="page"'
     nav = "\n".join(f'    <a href="{root}{p}"{cur if k == meta.get("nav") else ""}>{label}</a>' for k, p, label in NAV)
@@ -169,6 +207,8 @@ for text in [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob(
         html = html.replace(f'assets/{f}"', f'assets/{f}?v={v}"')
     if meta.get("school"):
         html = html.replace('<body data-root=', f'<body data-school="{meta["school"]}" data-root=', 1)
+    if _chain:
+        html = html.replace("</head>", f'<script type="application/ld+json">{crumb_ld(_chain)}</script>\n</head>', 1)
     if path == "":
         site = {"@context": "https://schema.org", "@type": "WebSite", "name": "パワプロアプリ攻略ベース", "url": SITE_URL + "/"}
         html = html.replace("</head>", f'<script type="application/ld+json">{json.dumps(site, ensure_ascii=False)}</script>\n</head>', 1)
@@ -176,7 +216,17 @@ for text in [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob(
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(html, encoding="utf-8")
     if not noindex:
-        urls.append((f"{SITE_URL}/{path}", deck_dates.get(meta.get("school"))))
+        # lastmod：中身が前回と同じなら前回の日付のまま、変わっていたら今日（デッキページは育成日の方が新しければそちら）
+        _u = f"{SITE_URL}/{path}"
+        _rel = dest.relative_to(out).as_posix()
+        _lm = _old_lastmod.get(_u) if _old_html.get(_rel) == _norm(html) else date.today().isoformat()
+        if not _lm:   # 中身は同じだが前回の日付が無い → そのページを最後にコミットした日
+            import subprocess as _sp
+            _lm = _sp.run(["git", "log", "-1", "--format=%cs", "--", f"docs/{_rel}"], cwd=here, capture_output=True, text=True).stdout.strip() or None
+        _dd = deck_dates.get(meta.get("school"))
+        if _dd and (not _lm or _dd > _lm):
+            _lm = _dd
+        urls.append((_u, _lm))
 
 # URLを変えたページ：古いURLに「新しいURLへ自動で移動するページ」を置く（検索結果や過去のリンクから来た人のため）。
 # サイトのURLは「-」を使わず「_」で統一（2026-11-12 りょーつー指示）。古いURL → 新しいURL
