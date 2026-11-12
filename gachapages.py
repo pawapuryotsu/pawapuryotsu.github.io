@@ -46,7 +46,7 @@ def _body(g, root_icon):
     dj = "".join(f'<label><span class="g-{r}">{r}像</span><select data-dj="{r}" autocomplete="off" aria-label="{r}ダイジョーブ博士像の枚数">'
                  + "".join(f'<option value="{i}">{i}枚</option>' for i in range(kmax + 1)) + "</select></label>" for r in RS)
     # g["sources"]（公式ページのURL）は記録用。ゲーム内のページなので記事にはリンクを載せない（2026-11-12 管理人）
-    return f'''<section class="phead"><p class="eyebrow">ガチャ</p><h1><span class="mk"><i>{c}のガチャは何周で完成する？</i></span></h1><p>{e(g["title"])}で、{c}のSR Lv45・PSR Lv50を作るのに何周必要かを<span class="cp-nw">計算しました。</span></p></section>
+    return f'''<section class="phead"><p class="eyebrow">ガチャ</p><h1><span class="mk"><i>{c}のガチャは</i> <i>何周で完成する？</i></span></h1><p>{e(g["title"])}で、{c}のSR Lv45・PSR Lv50を作るのに何周必要かを<span class="cp-nw">計算しました。</span></p></section>
 <div class="prose">
   <p class="g-meta"><img src="{{{{root}}}}{e(g["icon"])}" alt="" width="44" height="44"><span>開催期間：{e(g["period"])}<br><a href="{{{{root}}}}{e(g["char_page"])}">{c}の<span class="cp-nw">データ・イベントはこちら</span></a></span></p>
 
@@ -59,8 +59,9 @@ def _body(g, root_icon):
   <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">周回</th><th scope="col">Lv40</th><th scope="col">SR<br>Lv45</th><th scope="col">PSR<br>Lv50</th></tr></thead><tbody id="g-tbl"></tbody></table></div>
   <p>{loop_note}今回のガチャで出た{c}だけを使い、引き終わってから合成した場合の確率です。Lv40は「PSRが1枚以上出る」か「SRを+3まで上限開放できる」確率です。<b>SR Lv45は、出たPSRもSRに合成する前提の確率です。</b>（くわしくは下の「計算のしかた」）</p>
   <h3>SR・PSRが引ける確率</h3>
-  <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">周回</th><th scope="col">SRが<span class="cp-nw">1枚以上</span></th><th scope="col">PSRが<span class="cp-nw">1枚以上</span></th></tr></thead><tbody id="g-tbl2"></tbody></table></div>
-  <p>その周回までに、SR・PSRの{c}が1枚以上出る確率です。</p>
+  <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">ステップ</th><th scope="col">石</th><th scope="col">SRが<span class="cp-nw">1枚以上</span></th><th scope="col">PSRが<span class="cp-nw">1枚以上</span></th></tr></thead><tbody id="g-tbl2"></tbody></table></div>
+  <p class="g-more"><button type="button" id="g-more2" hidden>もっと見る</button></p>
+  <p>そのステップまで引いたときに、SR・PSRの{c}が1枚以上出ている確率です。石は1周目ステップ1からの合計です。</p>
   {comment}
   <h2 id="sim">引いてみる（シミュレータ）</h2>
   <p>ボタンを押すと、公式の提供割合どおりの確率で{c}が出ます。「達成できる確率」は、今の手持ち（と上で選んだ博士像）を一番成功率が高い順番で合成した場合のおおよその確率です。</p>
