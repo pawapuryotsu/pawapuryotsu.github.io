@@ -27,9 +27,9 @@
       return null;
     }
     const off = (g === "SR45" ? i3 : g === "LV40" ? K3 + i3 : 2 * K3 + DJ.PSR * K3 + i3) * T;
-    return Array.from(TB.subarray(off, off + T), (v) => v / 100);
+    return Array.from(TB.subarray(off, off + T), (v) => v / 655.35);
   }
-  const pct = (v) => v >= 100 ? "100%" : v >= 99.95 ? "ほぼ100%" : v.toFixed(1) + "%";
+  const pct = (v) => v >= 100 ? "100%" : v >= 99.95 ? "ほぼ100%" : (Math.round(v * 10) / 10).toFixed(1) + "%";
   const cell = (t, i) => t ? `<td class="${t[i] >= 50 ? "g-hit" : ""}">${pct(t[i])}</td>` : "<td>…</td>";
   function renderTable() {
     const ts = ["LV40", "SR45", "PSR50"].map(table);

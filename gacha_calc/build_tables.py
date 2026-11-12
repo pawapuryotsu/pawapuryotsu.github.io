@@ -156,19 +156,23 @@ def main():
             psr50.append(t)
             if sr45[-1][0, 0, 0] >= .999 and psr50[-1][0, 0, 0, 0] >= .995 and (st + 1) % len(g["steps"]) == 0:
                 break
-        # 丸めは切り捨て（「◯%で達成」を実際より早く出さないため）。10000 はちょうど100%のときだけ
-        q = lambda x: np.floor(np.clip(np.asarray(x, dtype=float), 0, 1) * 10000 + 1e-7)
-        pct = lambda xs: [float(q(x)) / 100 for x in xs]
+        # %で小数4桁まで。100 は「ちょうど100%」のときだけ（それ以外は 99.9999 まで）
+        pct = lambda xs: [100.0 if x >= 1 - 1e-12 else min(round(float(x) * 100, 4), 99.9999) for x in xs]
         out = {"K": K, "gotSR": pct(got_sr), "gotPSR": pct(got_psr), "LV40": pct(x[0, 0, 0] for x in lv40),
                "SR45": pct(x[0, 0, 0] for x in sr45), "PSR50": pct(x[0, 0, 0, 0] for x in psr50)}
         (f.parent / (f.stem + ".tables.json")).write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
-        # 博士像ありの表：[SR45][LV40][PSR50] の順、各 [像の組み合わせ][ステップ]、値は 確率×10000（uint16）
-        u16 = lambda x: q(np.moveaxis(np.array(x), 0, -1)).astype("<u2").tobytes()
+        # 博士像ありの表：[SR45][LV40][PSR50] の順、各 [像の組み合わせ][ステップ]、値は 確率×65535（uint16。0と65535はちょうど0%・100%のときだけ）
+        def u16(x):
+            v = np.moveaxis(np.array(x, dtype=float), 0, -1)
+            r = np.clip(np.round(v * 65535), 1, 65534)
+            r[v <= 0] = 0
+            r[v >= 1 - 1e-12] = 65535
+            return r.astype("<u2").tobytes()
         (tdir / (f.stem + ".bin")).write_bytes(u16(sr45) + u16(lv40) + u16(psr50))
         L = len(g["steps"])
         print(f.stem, "ステップ数", len(sr45))
         for k in ("gotSR", "gotPSR", "LV40", "SR45", "PSR50"):
-            print("  ", k, out[k][L - 1::L][:12])
+            print("  ", k, [round(v, 2) for v in out[k][L - 1::L][:12]])
 
 
 main()
