@@ -81,25 +81,34 @@ def _body(g, root_icon, src_dir):
     chs = _chars(g)
     multi = len(chs) > 1
 
+    # 「2人とも」（gacha_calc/both.py の表があるとき）。切り替えボタンの最後に足す
+    both = {"key": "both", "chara": g["chara"], "label": "2人とも", "both": True, "tables": g["both"],
+            "extra": [dict(x, label=f'{x["label"]}（{ch["chara"]}）') for ch in chs for x in ch.get("extra", [])]} if g.get("both") else None
+    views = chs + ([both] if both else [])
+
     def per(fn):
         """キャラによって変わる文。複数キャラのときはキャラごとに書いて、選んでいるキャラの分だけ見せる（gacha.js）"""
         if not multi:
             return fn(chs[0])
-        return "".join(f'<span data-ch="{ch["key"]}"{" hidden" if i else ""}>{fn(ch)}</span>' for i, ch in enumerate(chs))
+        return "".join(f'<span data-ch="{ch["key"]}"{" hidden" if i else ""}>{fn(ch)}</span>' for i, ch in enumerate(views) if fn(ch) != "")
+
+    def only_both(t):
+        """「2人とも」を選んでいるときだけ見せる"""
+        return f'<span data-ch="both" hidden>{t}</span>' if both else ""
 
     c = per(lambda ch: e(ch["chara"]))
     data = {k: g[k] for k in ("id", "chara", "loop", "share", "steps")}
-    data["charas"] = [{"key": ch["key"], "chara": ch["chara"], "extra": ch.get("extra", []), "tables": ch["tables"]} for ch in chs]
+    data["charas"] = [{"key": ch["key"], "chara": ch["chara"], "extra": ch.get("extra", []), "tables": ch["tables"], "both": ch.get("both", False)} for ch in views]
     data["extra"] = chs[0].get("extra", [])
     exf = lambda ch: "・".join(f'{e(x["label"])}の{e(x["rarity"])}{x["n"]}枚' for x in ch.get("extra", []))   # 例：イベント報酬のPR1枚
     used_txt = per(lambda ch: f'今回のガチャで出た{e(ch["chara"])}と、{exf(ch)}' if exf(ch) else f'今回のガチャで出た{e(ch["chara"])}だけ')
-    sim_ex = per(lambda ch: f"手持ちは{exf(ch)}が入った状態から始まります。" if exf(ch) else "")
+    sim_ex = per(lambda ch: f"手持ちは{exf(ch)}が入った状態から始まります。" if exf(ch) and not ch.get("both") else "")
     data["tables"] = chs[0]["tables"]
     picks = [(s["name"], x) for s in g["steps"] for x in s["slots"] if x["target"] == "pick"]
     pick_note = ("・".join(f'{e(n)}の{e(x["label"].replace("おまけ：", ""))}' for n, x in picks)
                  + ("は毎周もらえ、" if g.get("loop") else "は、") + "すべて" + ("表示中のキャラ" if multi else c) + "を選ぶ前提で計算しています。") if picks else ""
     ch_btns = ('<div class="g-goal g-chs" role="group" aria-label="キャラ">'
-               + "".join(f'<button type="button" data-chb="{ch["key"]}">{e(ch["chara"])}</button>' for ch in chs)
+               + "".join(f'<button type="button" data-chb="{ch["key"]}">{e(ch.get("label", ch["chara"]))}</button>' for ch in views)
                + '</div><p class="muted">キャラを切り替えると、下の確率とシミュレータが切り替わります。</p>') if multi else ""
     metas = "".join(f'<p class="g-meta"><img src="{{{{root}}}}{e(ch["icon"])}" alt="" width="44" height="44"><span>'
                     + (f'開催期間：{_period(g["period"])}<br>' if not multi else "")
@@ -109,10 +118,21 @@ def _body(g, root_icon, src_dir):
     # 見出し：キャラ名の途中で改行しないように、名前ごとに区切る
     h1 = ("".join(f'<i>{e(ch["chara"])}{"・" if i < len(chs) - 1 else "の"}</i>' for i, ch in enumerate(chs)) + " <i>ガチャは</i> <i>引くべき？</i>"
           if multi else f'<i>{e(g["chara"])}のガチャは</i> <i>引くべき？</i>')
+    nm = lambda ch: e(ch.get("short", ch["chara"]))
+    both_notes = [
+        "選択ガチャ券は取っておき、引き終わってから、2人とも完成する確率が一番高くなるように2人に分けて使います（1人ずつの確率では、券を全部そのキャラに使います）。",
+        f'{"、".join(f"{nm(ch)}の手持ちは{nm(ch)}だけに" for ch in chs)}使います。合成の順番は、それぞれ1人ずつのときと同じく一番成功率が高い順番です。'
+        + "".join(f'{e(x["label"])}の{e(x["rarity"])}{x["n"]}枚は{nm(ch)}に使います。' for ch in chs for x in ch.get("extra", [])),
+        "ダイジョーブ博士像は使わない計算です（上で選んだ博士像の枚数は反映されません）。",
+        f'2人分の手持ちの組み合わせが多すぎて全パターンを計算できないため、ガチャを{g["both"]["mc"] // 10000}万回試しに引いた結果の割合です（誤差は0.3ポイントほど）。そのため100%にはせず「ほぼ100%」と表示します。' if both else "",
+        "Lv40・SR Lv45・PSR Lv50は、それぞれ「2人ともその目標に届く」確率です。"] if both else []
+    both_box = ('<div class="g-note" data-ch="both" hidden><p class="g-h">※「2人とも」の確率は、1人ずつのときと次の点が違います</p><ul>'
+                + "".join(f"<li>{x}</li>" for x in both_notes) + "</ul></div>") if both else ""
     more_notes = "".join("\n    <li>" + x + "</li>" for x in [
         pick_note,
         f'出現率アップの割合は{e(g["chara"])}の{len(chs)}人合計なので、1人あたりはその{len(chs)}分の1で計算しています（公式の「各レアリティ内の各イベキャラの出現割合は均一」による）。「{e(g["chara"]).replace("・", "」または「")}」の確定枠も{len(chs)}人で等分です。' if multi else "",
-        "キャラごとに、手持ちを全部そのキャラに使った場合の確率です。2人とも育てる場合は、選択ガチャ券を分けるぶん確率が下がります。" if multi and picks else ""] if x)
+        "キャラごとの確率は、手持ちを全部そのキャラに使った場合の確率です。2人とも育てる場合は、選択ガチャ券を分けるぶん確率が下がります" + ("（「2人とも」を選ぶと、2人とも完成する確率を表示します）。" if both else "。") if multi and picks else "",
+        ("「2人とも」の確率は、1人ずつのときと計算のしかたが違います：" + "".join(both_notes)) if both else ""] if x)
     loop_note = (f'1周＝{"〜".join([g["steps"][0]["name"], g["steps"][-1]["name"]])}'
                  f'（{sum(s["pulls"] for s in g["steps"])}連・パワストーン{sum(s["cost"] for s in g["steps"])}個）。') if g.get("loop") else ""
     comment = _eval_html(g, src_dir)
@@ -128,17 +148,20 @@ def _body(g, root_icon, src_dir):
   <h2 id="result">何周で完成する？</h2>
   {ch_btns}
   <div class="g-dj"><p class="g-h">ダイジョーブ博士像を使う場合（枚数を選ぶ）</p><div class="g-djs">{dj}</div>
-  <p class="muted">選んだ枚数の博士像を使える前提で、下の確率とシミュレータの確率が変わります。PSR像はPSR Lv50の計算だけに使います。</p></div>
+  <p class="muted">選んだ枚数の博士像を使える前提で、下の確率とシミュレータの確率が変わります。PSR像はPSR Lv50の計算だけに使います。{only_both("「2人とも」は博士像なしの確率です。")}</p></div>
   <div class="g-goal" role="group" aria-label="目標"><button type="button" data-goal="LV40">Lv40</button><button type="button" data-goal="SR45">SR Lv45</button><button type="button" data-goal="PSR50">PSR Lv50</button></div>
   <div class="g-stat"><div>50%で達成<b id="g-p50"></b><small id="g-p50s"></small></div><div>80%で達成<b id="g-p80"></b><small id="g-p80s"></small></div><div>90%で達成<b id="g-p90"></b><small id="g-p90s"></small></div></div>
   <h3>周回ごとの確率</h3>
   <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">周回</th><th scope="col">Lv40</th><th scope="col">SR<br>Lv45</th><th scope="col">PSR<br>Lv50</th></tr></thead><tbody id="g-tbl"></tbody></table></div>
   <p>{loop_note}{used_txt}を使い、引き終わってから合成した場合の確率です。Lv40は「PSRが1枚以上出る」か「SRを+3まで上限開放できる」確率です。<b>SR Lv45は、出たPSRもSRに合成する前提の確率です。</b>（くわしくは下の「計算のしかた」）</p>
+  {both_box}
   <h3>SR・PSRが引ける確率</h3>
   <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">ステップ</th><th scope="col">石</th><th scope="col">SRが<span class="cp-nw">1枚以上</span></th><th scope="col">PSRが<span class="cp-nw">1枚以上</span></th></tr></thead><tbody id="g-tbl2"></tbody></table></div>
   <p class="g-more"><button type="button" id="g-more2" hidden>もっと見る</button></p>
-  <p>そのステップまで引いたときに、SR・PSRの{c}が1枚以上出ている確率です。石は1周目ステップ1からの合計です。</p>
+  <p>そのステップまで引いたときに、{per(lambda ch: "2人ともSR・PSRが1枚以上ある確率です（選択ガチャ券は足りない方に使う前提）" if ch.get("both") else f"SR・PSRの{e(ch['chara'])}が1枚以上出ている確率です")}。石は1周目ステップ1からの合計です。</p>
   <h2 id="sim">引いてみる（シミュレータ）</h2>
+  {only_both('<p class="g-note">シミュレータは1人ずつです。上のボタンで' + "・".join(e(ch["chara"]) for ch in chs) + 'を選ぶと使えます。</p>')}
+  <div data-nb>
   <p>ボタンを押すと、公式の提供割合どおりの確率で{c}が出ます。{sim_ex}「達成できる確率」は、今の手持ち（と上で選んだ博士像）を一番成功率が高い順番で合成した場合のおおよその確率です。</p>
   <div class="g-sim">
     <div class="g-btns"><button type="button" data-pull="1">1ステップ</button><button type="button" data-pull="{len(g["steps"])}">1周</button><button type="button" data-pull="{10 * len(g["steps"])}" class="ghost">10周</button></div>
@@ -151,6 +174,7 @@ def _body(g, root_icon, src_dir):
     <p class="g-v">SR Lv45（PSRもSRに合成）：<b id="g-vsr">0%</b></p><div class="g-bar"><i id="g-vsrb"></i></div>
     <p class="g-v">PSR Lv50：<b id="g-vpsr">0%</b></p><div class="g-bar"><i id="g-vpsrb"></i></div>
     <div class="g-log" id="g-log" aria-live="polite"></div>
+  </div>
   </div>
 
   <h2 id="gacha">ガチャの内容</h2>
@@ -192,6 +216,8 @@ def generate(src):
             for ch in g["charas"]:
                 ch["tables"] = load(f"{f.stem}_{ch['key']}")
             g["tables"] = g["charas"][0]["tables"]
+            if (f.parent / (f.stem + "_both.tables.json")).exists():   # 2人とも（gacha_calc/both.py）
+                g["both"] = load(f.stem + "_both")
         else:
             g["tables"] = load(f.stem)
         path = f'gacha/{g["id"]}/'

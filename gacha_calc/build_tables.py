@@ -144,6 +144,13 @@ def main():
     tdir = root / "src" / "assets" / "gacha_t"
     tdir.mkdir(exist_ok=True)
     files = sorted(p for p in (root / "src" / "gacha").glob("*.json") if not p.name.endswith(".tables.json"))
+    for f in files:   # 出現率アップキャラが2人のガチャは「2人とも」の表も作る（gacha_calc/both.py）
+        g = json.loads(f.read_text(encoding="utf-8"))
+        if len(g.get("charas") or []) == 2:
+            from both import both_tables
+            bt = both_tables(g, vs[0, 0], vpf.reshape(KS + 1, KL + 1, KL + 1, 5, S + 1, C + 1, D + 1)[0, 0, 0], S, C, D)
+            (f.parent / (f.stem + "_both.tables.json")).write_text(json.dumps(bt, ensure_ascii=False), encoding="utf-8")
+            print(f.stem, "2人とも", {k: bt[k][len(g["steps"]) - 1::len(g["steps"])] for k in ("LV40", "SR45", "PSR50")})
     for f, g in (v for f in files for v in variants(f, json.loads(f.read_text(encoding="utf-8")))):
         P = np.zeros((7, S + 1, C + 1, D + 1))
         start = [0, 0, 0, 0]   # ガチャ以外で手に入る分（イベント報酬など。json の "extra"）から始める
