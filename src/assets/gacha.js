@@ -24,6 +24,7 @@
   let TB = null, tbReq = false, goal = "SR45";
   function table(g) {   // ステップごとの確率（%）。博士像ありの表がまだ読めていなければ null
     const i3 = (DJ.SR * KL1 + DJ.PR) * KL1 + DJ.R;
+    if (CH.both) return G.tables[g];   // 「2人とも」は博士像なしの表だけ
     if (i3 === 0 && (g !== "PSR50" || DJ.PSR === 0)) return G.tables[g];
     if (!TB) {
       if (!tbReq) {
@@ -149,6 +150,7 @@
     CH = G.charas.find((c) => c.key === k) || G.charas[0];
     G.tables = CH.tables; T = G.tables.SR45.length; TB = null; tbReq = false;
     document.querySelectorAll("[data-ch]").forEach((el) => { el.hidden = el.dataset.ch !== CH.key; });
+    document.querySelectorAll("[data-nb]").forEach((el) => { el.hidden = !!CH.both; });   // シミュレータは1人ずつ
     document.querySelectorAll("[data-chb]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.chb === CH.key));
     renderTable();
     reset();
