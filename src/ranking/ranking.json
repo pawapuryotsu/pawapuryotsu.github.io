@@ -353,7 +353,7 @@
       ]
     },
     "next_batter": {
-      "path": "ranking/next-batter/",
+      "path": "ranking/next_batter/",
       "title": "次期野手シナリオ 有能キャラ予想",
       "短い名前": "次期野手シナリオ有能キャラ予想",
       "公開": true,

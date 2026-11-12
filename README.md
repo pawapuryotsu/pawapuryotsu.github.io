@@ -113,3 +113,7 @@
 - `src/chars/skill_kinds.json` … 特殊能力の種類（青・金・赤・緑・虹）。pawa-data の `event-chars/特殊能力/skills.json` から作った写し。skills.json を更新したら作り直す（手動）
 - **新キャラを足したら、トップの「最新情報」欄も更新する**：`src/pages/home.html` の `<ul class="news">` に1行足す（`<li><a href="{{root}}chars/ページ番号4桁/">○○のデータ・イベントはこちら</a></li>`）。赤文字は CSS（`.news a`）で付く。新しい順に上へ足し、古いものは管理人と相談して外す。キャラページが noindex でもリンクは貼る。足したら `python3 build.py <chars.json>` でビルドし直してPR。
 - デッキを `decks.js` に足してサイトをビルドし直すと、使用デッキ例も自動で更新される
+
+## URLの付け方（2026-11-12 りょーつー指示）
+- サイトのURLに「-」は使わない。区切りは「_」で統一する（例：`guide/limit_break/`）。「-」と「_」の見分けが付きにくいため。
+- 公開済みページのURLを変えるときは、`build.py` の `REDIRECTS` に「古いURL → 新しいURL」を足す（古いURLに、自動で新しいURLへ移動するページが作られる）。

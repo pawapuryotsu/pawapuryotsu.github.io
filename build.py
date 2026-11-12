@@ -168,6 +168,20 @@ for text in [p.read_text(encoding="utf-8") for p in sorted((src / "pages").glob(
     if not noindex:
         urls.append((f"{SITE_URL}/{path}", deck_dates.get(meta.get("school"))))
 
+# URLを変えたページ：古いURLに「新しいURLへ自動で移動するページ」を置く（検索結果や過去のリンクから来た人のため）。
+# サイトのURLは「-」を使わず「_」で統一（2026-11-12 りょーつー指示）。古いURL → 新しいURL
+REDIRECTS = [("guide/how-to-read/", "guide/how_to_read/"), ("guide/cost-tool/", "guide/cost_tool/"), ("ranking/next-batter/", "ranking/next_batter/")]
+for _old, _new in REDIRECTS:
+    _to = f"{SITE_URL}/{_new}"
+    _d = out / _old
+    _d.mkdir(parents=True, exist_ok=True)
+    (_d / "index.html").write_text(
+        '<!doctype html>\n<html lang="ja">\n<head>\n<meta charset="utf-8">\n<meta name="color-scheme" content="light">\n'
+        f'<title>ページが移動しました｜パワプロアプリ攻略ベース</title>\n<link rel="canonical" href="{_to}">\n'
+        f'<meta http-equiv="refresh" content="0; url={_to}">\n'
+        f'<script>location.replace("/{_new}" + location.search + location.hash)</script>\n</head>\n'
+        f'<body style="background:#fff;color:#222">\n<p>このページは移動しました。自動で移動しない場合は <a href="{_to}">こちら</a> を開いてください。</p>\n</body>\n</html>\n', encoding="utf-8")
+
 if (out / "tier").exists():
     urls.append((f"{SITE_URL}/tier/", None))
 if (out / "pawaque").exists():
