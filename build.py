@@ -177,6 +177,29 @@ def crumb_ld(chain):
         {"@type": "ListItem", "position": i, "name": n, "item": f"{SITE_URL}/{p}"} for i, (p, n) in enumerate(chain, 1)]}, ensure_ascii=False)
 
 
+# SNSで共有したときの画像（og:image）。ページごとに docs/img/og/ に自動で作る（2026-11-12 管理人OK）
+import ogimage
+OG_LABEL = [("chars/", "イベキャラ"), ("gacha/", "ガチャ"), ("ranking/", "ランキング"), ("decks/", "デッキまとめ"),
+            ("deckbuild/", "デッキの組み方"), ("guide/", "ガイド")]
+
+
+def og_image(meta, path):
+    if path == "404.html":
+        return ""
+    slug = path.strip("/").replace("/", "_") or "top"
+    if path == "":
+        title, label = "パワプロアプリ ガチ勢による最先端攻略サイト", ""
+    else:
+        title = meta.get("og_title") or meta["title"].split("｜")[0]
+        label = next((l for pre, l in OG_LABEL if path.startswith(pre)), "")
+    icon = meta.get("og_icon") or (f"img/chars/{path.split('/')[1]}.png" if re.fullmatch(r"chars/\d{4}/", path) else None)
+    icon = out / icon if icon and (out / icon).exists() else None
+    ogimage.make(out / "img" / "og" / f"{slug}.png", title, label, icon)
+    u = f"{SITE_URL}/img/og/{slug}.png"
+    return (f'<meta property="og:image" content="{u}">\n<meta property="og:image:width" content="1200">\n'
+            f'<meta property="og:image:height" content="630">\n<meta name="twitter:image" content="{u}">')
+
+
 for meta, body in _parsed:
     path = meta["path"]
     _chain = crumbs(path)
@@ -190,7 +213,8 @@ for meta, body in _parsed:
     rep = {"title": meta["title"], "description": meta["description"], "canonical": f"{SITE_URL}/{path}",
            "robots": '<meta name="robots" content="noindex">' if noindex else "", "adsense_head": adsense_head(),
            "analytics_note": analytics_note(), "head_extra": ga_head() + '<meta name="google-site-verification" content="ZgxID967oum-2Mm1F5BCX9gvQE_vNl2ZDbXXWfyYP10" />', "nav": nav, "scripts": scripts, "operator": OPERATOR, "operator_intro": OPERATOR_INTRO,
-           "contact_block": contact_block(), "policy_date": POLICY_DATE, "ad": ad_block(), "gacha_cards": _gacha_cards}
+           "contact_block": contact_block(), "policy_date": POLICY_DATE, "ad": ad_block(), "gacha_cards": _gacha_cards,
+           "og_image": og_image(meta, path)}
     # トップのランキングカードの評価日は、ランキングページ（src/ranking/ranking.json）の評価日を自動で使う（管理人指示 2026-11-10）。{{rk_date_roman}} など
     for _k, _r in charpages._RANKING.get("ranking", {}).items():
         rep["rk_date_" + _k] = f'【評価日{_r["評価日"]}】' if _r.get("評価日") else ""
