@@ -228,12 +228,20 @@ HOME_N = int(_hu.get("出す件数", 8))
 _page_info = []   # (path, 名前, 更新日, 公開日, 種類, アイコン)
 
 
+def _nice_break(name):
+    """「…のガチャは引くべき？」「…のイベント・評価」の後ろ半分は途中で折り返さない（スマホで「あか／ねの」のように切れないように）"""
+    m = re.match(r"(.*)(の(?:ガチャは引くべき？|イベント・評価|イベント))$", name)
+    if not m:
+        return _html.escape(name)
+    return f'{_html.escape(m.group(1))}<wbr><span class="cp-nw">{_html.escape(m.group(2))}</span>'
+
+
 def recent_html():
     items = sorted((x for x in _page_info if x[0] not in HOME_SKIP), key=lambda x: (x[2] or "", x[3] or "", x[0]), reverse=True)[:HOME_N]
     li = []
     for path, name, lm, pub, label, icon in items:
         img = f'<img class="news-icon" src="{{{{root}}}}{icon}" alt="" width="44" height="44" loading="lazy">' if icon else ""
-        li.append(f'<li{"" if icon else " class=rc-noimg"}><a href="{{{{root}}}}{path}">{img}<span><small class="rc-meta">{ymd(lm)} 更新{"・" + _html.escape(label) if label else ""}</small><b>{_html.escape(name)}</b></span></a></li>')
+        li.append(f'<li{"" if icon else " class=rc-noimg"}><a href="{{{{root}}}}{path}">{img}<span><small class="rc-meta">{ymd(lm)} 更新{"・" + _html.escape(label) if label else ""}</small><b>{_nice_break(name)}</b></span></a></li>')
     return "<!--recent-->" + '<ul class="news recent">' + "".join(li) + "</ul><!--/recent-->"
 
 
@@ -293,7 +301,7 @@ for meta, body in _parsed:
         _pub = first_published(path)   # 「最近の更新」で更新日が同じページは公開日が新しい順
         if _lm:
             _icon = meta.get("og_icon") or (f"img/chars/{path.split('/')[1]}.png" if re.fullmatch(r"chars/\d{4}/", path) else None)
-            _page_info.append((path, CRUMB.get(path, path), _lm, _pub, next((l for pre, l in OG_LABEL if path.startswith(pre)), ""),
+            _page_info.append((path, meta.get("recent_title") or CRUMB.get(path, path), _lm, _pub, next((l for pre, l in OG_LABEL if path.startswith(pre)), ""),
                                _icon if _icon and (out / _icon).exists() else None))
         if path.startswith(DATED) and _lm:
             _pub = min(_pub, _lm)

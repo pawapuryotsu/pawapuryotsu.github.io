@@ -838,6 +838,8 @@ def generate(chars_path, src, decks, noindex=True):
         else:
             meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
                     f"description: パワプロアプリ（サクセス・パワクエ共通）のイベキャラ {full}{yomi_paren(c)} のボーナス、金特、イベント選択肢、選手能力をまとめています。\n")
+        # トップ「最近の更新」での名前（管理人指示 2026-11-12）
+        meta += f"recent_title: {full}のイベント{'・評価' if has_eval(c, text) else ''}\n"
         meta += f"path: {path}\nnav: none\ncrumb: {full}\n" + ("noindex: yes\n" if noindex and pid not in pub else "")
         body = (head_html(full, c, pid, has_eval(c, text))   # 評価があるキャラは大見出しも「評価・イベントまとめ」（2026-11-12 管理人 案A）
                 + build_page(c, text, config, decks, kinds))
