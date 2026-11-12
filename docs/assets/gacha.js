@@ -43,9 +43,10 @@
     const gs = [G.tables.gotSR, G.tables.gotPSR];
     h = "";
     for (let i = 0; i < T; i++) {   // ステップごと
+      if (i >= 3 * L && i % L === 0 && gs.every((t) => t[i - 1] >= 99.9)) break;
+      if (!more2 && i >= MORE * L) { $("g-more2").hidden = false; break; }
       const name = G.loop ? `<span class="cp-nw">${Math.floor(i / L) + 1}周目</span> <span class="cp-nw">${stepOf(i).name}</span>` : stepOf(i).name;
       h += `<tr class="g-s${(i % L) % 4 + 1}"><td class="g-l">${name}</td><td>${used(i + 1)[1]}個</td>${gs.map((t) => cell(t, i)).join("")}</tr>`;
-      if (G.tables.gotSR[i] >= 99.95) break;   // SRがほぼ100%になったステップまで出す（管理人の希望）
     }
     $("g-tbl2").innerHTML = h;
     const t = table(goal);
@@ -58,6 +59,9 @@
     }
     document.querySelectorAll("[data-goal]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.goal === goal));
   }
+  const MORE = 5;   // 「SR・PSRが引ける確率」は最初は5周分だけ出す
+  let more2 = false;
+  $("g-more2").onclick = () => { more2 = true; $("g-more2").hidden = true; renderTable(); };
   document.querySelectorAll("[data-goal]").forEach((b) => (b.onclick = () => { goal = b.dataset.goal; renderTable(); }));
 
   // ---- 引いてみる ----
