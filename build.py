@@ -96,6 +96,22 @@ if (src / "pawaque").exists():
         html = page.read_text(encoding="utf-8")
         if "googletagmanager" not in html:
             page.write_text(html.replace("</head>", ga_head() + "\n</head>", 1), encoding="utf-8")
+    # 契約書シミュレータを軽くする（2026-11-12 管理人OK）：厳密計算の部品（HiGHS、約1.8MB）を highs.js に分けて、
+    # 厳密計算を始めたときだけ読み込む。最初に開くときはこの分を読まない（見た目・計算結果は同じ）
+    import hashlib
+    sim = out / "pawaque" / "contract_simulator" / "index.html"
+    if sim.exists():
+        html = sim.read_text(encoding="utf-8")
+        m = re.search(r"<script>(const HIGHS_SRC = .*?)</script>\n?", html, re.S)
+        hook = "    ready = (async () => {\n"
+        if m and html.count(hook) == 1:
+            js = m.group(1)
+            (sim.parent / "highs.js").write_text(js, encoding="utf-8")
+            v = hashlib.md5(js.encode()).hexdigest()[:8]
+            load = (f'      if (typeof HIGHS_SRC === "undefined") await new Promise((ok, ng) => {{ const sc = document.createElement("script"); '
+                    f'sc.src = "highs.js?v={v}"; sc.onload = ok; sc.onerror = () => ng(new Error("厳密計算の部品を読み込めませんでした")); document.head.appendChild(sc); }});\n')
+            html = (html[:m.start()] + html[m.end():]).replace(hook, hook + load, 1)
+            sim.write_text(html, encoding="utf-8")
 # 古いCSS/JSがスマホに残らないよう、ファイルの中身から作った番号を ?v= で付ける
 import hashlib
 ver = {f: hashlib.md5((out / "assets" / f).read_bytes()).hexdigest()[:8] for f in ("style.css", "deck.js", "decks.js", "gacha.js")}
