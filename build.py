@@ -62,8 +62,10 @@ def contact_block():
 
 # サイトマップの lastmod 用：作り直す前の各ページの中身と更新日を覚えておく（中身が変わったページだけ今日の日付にする）
 _VER_RE = re.compile(r"\?v=[0-9a-f]{8}")
+_DATE_RE = re.compile(r'<p class="pubdate">.*?</p>\n?|<script type="application/ld\+json">\{"@context": "https://schema.org", "@type": "Article".*?</script>\n?|<!--recent-->.*?<!--/recent-->', re.S)
 def _norm(html):
-    return _VER_RE.sub("", html)
+    """前回と中身を比べるとき、?v= の番号・公開日/更新日の行・トップの「最近の更新」欄は除いて比べる"""
+    return _DATE_RE.sub("", _VER_RE.sub("", html))
 _old_lastmod, _old_html = {}, {}
 if (out / "sitemap.xml").exists():
     _old_lastmod = dict(re.findall(r"<loc>(.*?)</loc><lastmod>(.*?)</lastmod>", (out / "sitemap.xml").read_text(encoding="utf-8")))
@@ -200,8 +202,46 @@ def og_image(meta, path):
             f'<meta property="og:image:height" content="630">\n<meta name="twitter:image" content="{u}">')
 
 
+import subprocess as _sp
+REDIRECT_FROM = {"guide/how_to_read/": "guide/how-to-read/", "guide/cost_tool/": "guide/cost-tool/", "ranking/next_batter/": "ranking/next-batter/"}
+
+
+def first_published(path):
+    """公開日＝そのページ（URLを変えたページは古いURLも）を最初にコミットした日。まだコミットしていない新しいページは今日"""
+    ds = []
+    for p in filter(None, (path, REDIRECT_FROM.get(path))):
+        r = _sp.run(["git", "log", "--diff-filter=A", "--format=%cs", "--", f"docs/{p}index.html"], cwd=here, capture_output=True, text=True).stdout.split()
+        ds += r
+    return min(ds) if ds else date.today().isoformat()
+
+
+def ymd(d):
+    return d.replace("-", "/")
+
+
+# 公開日・更新日を出す記事（ページの見出しの下に表示＋Article の構造化データ。2026-11-12 管理人OK）
+DATED = ("gacha/", "ranking/")
+# トップの「最近の更新」欄（2026-11-12 管理人OK）。src/home_updates.json の「トップに出さないページ」に書いたページは出さない
+_hu = json.loads((src / "home_updates.json").read_text(encoding="utf-8")) if (src / "home_updates.json").exists() else {}
+HOME_SKIP = set(_hu.get("トップに出さないページ", [])) | {"", "404.html", "about/", "privacy/", "contact/"}
+HOME_N = int(_hu.get("出す件数", 8))
+_page_info = []   # (path, 名前, 更新日, 公開日, 種類, アイコン)
+
+
+def recent_html():
+    items = sorted((x for x in _page_info if x[0] not in HOME_SKIP), key=lambda x: (x[2] or "", x[3] or "", x[0]), reverse=True)[:HOME_N]
+    li = []
+    for path, name, lm, pub, label, icon in items:
+        img = f'<img class="news-icon" src="{{{{root}}}}{icon}" alt="" width="44" height="44" loading="lazy">' if icon else ""
+        li.append(f'<li{"" if icon else " class=rc-noimg"}><a href="{{{{root}}}}{path}">{img}<span><small class="rc-meta">{ymd(lm)} 更新{"・" + _html.escape(label) if label else ""}</small><b>{_html.escape(name)}</b></span></a></li>')
+    return "<!--recent-->" + '<ul class="news recent">' + "".join(li) + "</ul><!--/recent-->"
+
+
+_parsed.sort(key=lambda mb: mb[0]["path"] == "")   # トップは最後に作る（ほかのページの更新日を使うため）
 for meta, body in _parsed:
     path = meta["path"]
+    if path == "":
+        body = body.replace("{{recent_updates}}", recent_html())
     _chain = crumbs(path)
     if _chain:
         body = crumb_html(_chain) + body
@@ -238,19 +278,31 @@ for meta, body in _parsed:
         html = html.replace("</head>", f'<script type="application/ld+json">{json.dumps(site, ensure_ascii=False)}</script>\n</head>', 1)
     dest = out / (path if path.endswith(".html") else path + "index.html")
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(html, encoding="utf-8")
+    _rel = dest.relative_to(out).as_posix()
+    _lm = None
     if not noindex:
         # lastmod：中身が前回と同じなら前回の日付のまま、変わっていたら今日（デッキページは育成日の方が新しければそちら）
         _u = f"{SITE_URL}/{path}"
-        _rel = dest.relative_to(out).as_posix()
         _lm = _old_lastmod.get(_u) if _old_html.get(_rel) == _norm(html) else date.today().isoformat()
         if not _lm:   # 中身は同じだが前回の日付が無い → そのページを最後にコミットした日
-            import subprocess as _sp
             _lm = _sp.run(["git", "log", "-1", "--format=%cs", "--", f"docs/{_rel}"], cwd=here, capture_output=True, text=True).stdout.strip() or None
         _dd = deck_dates.get(meta.get("school"))
         if _dd and (not _lm or _dd > _lm):
             _lm = _dd
         urls.append((_u, _lm))
+        _pub = first_published(path)   # 「最近の更新」で更新日が同じページは公開日が新しい順
+        if _lm:
+            _icon = meta.get("og_icon") or (f"img/chars/{path.split('/')[1]}.png" if re.fullmatch(r"chars/\d{4}/", path) else None)
+            _page_info.append((path, CRUMB.get(path, path), _lm, _pub, next((l for pre, l in OG_LABEL if path.startswith(pre)), ""),
+                               _icon if _icon and (out / _icon).exists() else None))
+        if path.startswith(DATED) and _lm:
+            _pub = min(_pub, _lm)
+            html = html.replace("</h1>", f'</h1><p class="pubdate">公開日 <time datetime="{_pub}">{ymd(_pub)}</time>・更新日 <time datetime="{_lm}">{ymd(_lm)}</time></p>', 1)
+            art = {"@context": "https://schema.org", "@type": "Article", "headline": meta["title"].split("｜")[0],
+                   "datePublished": _pub, "dateModified": _lm, "image": f"{SITE_URL}/img/og/{path.strip('/').replace('/', '_')}.png",
+                   "author": {"@type": "Person", "name": OPERATOR, "url": f"{SITE_URL}/about/"}}
+            html = html.replace("</head>", f'<script type="application/ld+json">{json.dumps(art, ensure_ascii=False)}</script>\n</head>', 1)
+    dest.write_text(html, encoding="utf-8")
 
 # URLを変えたページ：古いURLに「新しいURLへ自動で移動するページ」を置く（検索結果や過去のリンクから来た人のため）。
 # サイトのURLは「-」を使わず「_」で統一（2026-11-12 りょーつー指示）。古いURL → 新しいURL
