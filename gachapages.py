@@ -223,7 +223,7 @@ def generate(src):
         meta = (f'title: {g["chara"]}のガチャは引くべき？何周で完成するか計算（SR Lv45・PSR Lv50）｜パワプロアプリ攻略ベース\n'
                 f'description: {g["chara"]}のガチャは引くべき？{g["title"]}で{g["chara"]}のSR Lv45・PSR Lv50を作るのに何周必要かを計算。SR・PSRが引ける確率、Lv40に届く確率、ダイジョーブ博士像を使う場合の確率と、実際に引いて試せるシミュレータつき。\n'
                 f"path: {path}\nnav: home\nscripts: gacha\ncrumb: {g['chara']}のガチャ\n"
-                f"og_title: {g['chara']}のガチャは引くべき？\nog_icon: {(g.get('charas') or [g])[0]['icon']}\n")
+                f"og_title: {g['chara']}のガチャは引くべき？\nrecent_title: {g['chara']}のガチャは引くべき？\nog_icon: {(g.get('charas') or [g])[0]['icon']}\n")
         pages.append(f"<!--\n{meta}-->\n" + _body(g, "", src))
         cards.append((g["id"], f'<a class="scard" href="{{{{root}}}}{path}"><span class="tag p">{e(g["chara"])}</span><h3>{e(g["chara"])}のガチャは引くべき？</h3>'
                                f'<p>SR Lv45・PSR Lv50の完成確率と<span class="cp-nw">シミュレータ。</span></p><span class="go" aria-hidden="true">→</span></a>'))

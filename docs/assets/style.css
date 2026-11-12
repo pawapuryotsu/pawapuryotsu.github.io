@@ -480,5 +480,5 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 /* トップ「最近の更新」の日付・種類 */
 .news .rc-meta{display:block;font-size:11px;color:var(--muted);font-weight:500;line-height:1.4}
 .news li.rc-noimg{grid-template-columns:1fr}
-.news.recent a{color:var(--accent);text-decoration:none}
+.news.recent a{text-decoration:none}   /* 文字色は .news a の赤（管理人指示 2026-11-12） */
 .news.recent a b{display:inline}
