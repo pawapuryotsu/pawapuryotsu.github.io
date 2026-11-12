@@ -9,6 +9,12 @@ e = _h.escape
 RS = ["PSR", "SR", "PR", "R"]
 
 
+def _period(t):
+    """開催期間。日付（と時刻）の途中で改行しないようにする"""
+    import re
+    return re.sub(r"(?:\d+年)?\d+月\d+日\(.\)(?:\d+:\d+)?", lambda m: f'<span class="cp-nw">{m.group(0)}</span>', e(t))
+
+
 def _pct(v):
     return f"{v:g}%"
 
@@ -96,10 +102,10 @@ def _body(g, root_icon, src_dir):
                + "".join(f'<button type="button" data-chb="{ch["key"]}">{e(ch["chara"])}</button>' for ch in chs)
                + '</div><p class="muted">キャラを切り替えると、下の確率とシミュレータが切り替わります。</p>') if multi else ""
     metas = "".join(f'<p class="g-meta"><img src="{{{{root}}}}{e(ch["icon"])}" alt="" width="44" height="44"><span>'
-                    + (f'開催期間：{e(g["period"])}<br>' if not multi else "")
+                    + (f'開催期間：{_period(g["period"])}<br>' if not multi else "")
                     + f'<a href="{{{{root}}}}{e(ch["char_page"])}">{e(ch["chara"])}の<span class="cp-nw">データ・イベントはこちら</span></a></span></p>' for ch in chs)
     if multi:
-        metas = f'<p>開催期間：{e(g["period"])}</p>' + metas
+        metas = f'<p>開催期間：{_period(g["period"])}</p>' + metas
     # 見出し：キャラ名の途中で改行しないように、名前ごとに区切る
     h1 = ("".join(f'<i>{e(ch["chara"])}{"・" if i < len(chs) - 1 else "の"}</i>' for i, ch in enumerate(chs)) + " <i>ガチャは</i> <i>引くべき？</i>"
           if multi else f'<i>{e(g["chara"])}のガチャは</i> <i>引くべき？</i>')
@@ -116,8 +122,8 @@ def _body(g, root_icon, src_dir):
     # g["sources"]（公式ページのURL）は記録用。ゲーム内のページなので記事にはリンクを載せない（2026-11-12 管理人）
     return f'''<section class="phead"><p class="eyebrow">ガチャ</p><h1><span class="mk">{h1}</span></h1><p>{e(g["title"])}で、{e(g["chara"])}のSR Lv45・PSR Lv50を作るのに何周必要かを<span class="cp-nw">計算しました。</span>引くべきか迷っている人は、下の確率と<span class="cp-nw">石の数を目安にしてください。</span></p></section>
 <div class="prose">
+  <div class="g-info">{metas}</div>
   {comment}
-  {metas}
 
   <h2 id="result">何周で完成する？</h2>
   {ch_btns}

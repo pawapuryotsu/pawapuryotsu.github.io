@@ -441,6 +441,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .rk-xpost blockquote.twitter-tweet{padding:12px;border:1px solid var(--line);border-radius:8px;overflow-wrap:anywhere}
 .cp-evdate{margin:12px 0 0;text-align:right}
 /* ===== ガチャ記事（/gacha/<id>/、gachapages.py・gacha.js） ===== */
+.g-info{background:var(--accent-soft);border:1px solid var(--line);border-radius:6px;padding:10px 14px;margin:0 0 20px}.g-info>p{margin:6px 0}
 .g-meta{display:flex;gap:10px;align-items:center;font-size:14px}.g-meta img{flex:none;border-radius:6px}
 .g-goal{display:flex;gap:8px;margin:8px 0}.g-goal button{flex:1;padding:9px 4px;font:inherit;font-size:14px;font-weight:700;border:1px solid var(--accent);border-radius:6px;background:#fff;color:var(--accent);cursor:pointer}
 .g-goal button[aria-pressed=true]{background:var(--accent);color:#fff}
