@@ -37,15 +37,15 @@ def _rate_table(g):
 
 
 def _eval_html(g, src_dir):
-    """「管理人の評価」。comment＝管理人の考え（文字の色指定 {太:…} などはキャラページと同じ）、
-    イベキャラの評価（ランキングでの位置づけ・キャラページの評価文）があれば一緒に出す"""
+    """「管理人の評価」。comment＝管理人の考え（文字の色指定 {太:…} などはキャラページと同じ）。
+    イベキャラとしての評価は、ランキングでのランクだけ出す（評価文は長くなるので載せない。管理人 2026-11-12）"""
     com = g.get("comment") or []
     if isinstance(com, str):
         com = [com] if com else []
     name = g["chara"]
-    tf = src_dir / "chars" / "texts" / f"{name}.json"
-    text = json.loads(tf.read_text(encoding="utf-8")) if tf.exists() else {}
-    chara_eval = charpages.ranking_eval_html(name, "{{root}}") + charpages.paras(text.get("評価", []))
+    chara_eval = "".join(f'<div class="rk-box"><div class="rk-head"><span class="tier tier-{t}">{t}</span>'
+                         f'<a href="{{{{root}}}}{r["path"]}">{e(r["短い名前"])}</a>{charpages.date_label(r)}</div></div>'
+                         for r, t, _ in charpages.rankings_of(name))
     if not com and not chara_eval:
         return ""
     out = '<h2 id="eval">管理人の評価</h2>' + charpages.paras(com)
