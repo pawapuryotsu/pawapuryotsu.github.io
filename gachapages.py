@@ -57,7 +57,7 @@ def _body(g, root_icon):
   <div class="g-stat"><div>50%で達成<b id="g-p50"></b><small id="g-p50s"></small></div><div>80%で達成<b id="g-p80"></b><small id="g-p80s"></small></div><div>90%で達成<b id="g-p90"></b><small id="g-p90s"></small></div></div>
   <h3>周回ごとの確率</h3>
   <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">周回</th><th scope="col">Lv40</th><th scope="col">SR<br>Lv45</th><th scope="col">PSR<br>Lv50</th></tr></thead><tbody id="g-tbl"></tbody></table></div>
-  <p>{loop_note}今回のガチャで出た{c}だけを使い、引き終わってから合成した場合の確率です。Lv40は「PSRが1枚以上出る」か「SRを+3まで上限開放できる」確率です（くわしくは下の「計算のしかた」）。</p>
+  <p>{loop_note}今回のガチャで出た{c}だけを使い、引き終わってから合成した場合の確率です。Lv40は「PSRが1枚以上出る」か「SRを+3まで上限開放できる」確率です。<b>SR Lv45は、出たPSRもSRに合成する前提の確率です。</b>（くわしくは下の「計算のしかた」）</p>
   <h3>SR・PSRが引ける確率</h3>
   <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">周回</th><th scope="col">SRが<span class="cp-nw">1枚以上</span></th><th scope="col">PSRが<span class="cp-nw">1枚以上</span></th></tr></thead><tbody id="g-tbl2"></tbody></table></div>
   <p>その周回までに、SR・PSRの{c}が1枚以上出る確率です。</p>
@@ -72,7 +72,7 @@ def _body(g, root_icon):
     <div class="g-cnt">{"".join(f'<div class="g-{r}">{r}<b id="g-c{r}">0</b></div>' for r in RS)}</div>
     <p class="g-h">今の手持ちで達成できる確率</p>
     <p class="g-v">Lv40：<b id="g-vlv">0%</b></p><div class="g-bar"><i id="g-vlvb"></i></div>
-    <p class="g-v">SR Lv45：<b id="g-vsr">0%</b></p><div class="g-bar"><i id="g-vsrb"></i></div>
+    <p class="g-v">SR Lv45（PSRもSRに合成）：<b id="g-vsr">0%</b></p><div class="g-bar"><i id="g-vsrb"></i></div>
     <p class="g-v">PSR Lv50：<b id="g-vpsr">0%</b></p><div class="g-bar"><i id="g-vpsrb"></i></div>
     <div class="g-log" id="g-log" aria-live="polite"></div>
   </div>
@@ -92,7 +92,7 @@ def _body(g, root_icon):
     <li>上限開放済みのカードは、同じレアリティで同時に1枚だけ育てる前提です。この前提のため、本当に一番良い手順の確率より、わずかに低く出ることがあります（ほとんどの場合0.1ポイント未満）。</li>
     <li>このガチャで出た{c}だけで計算しています（すでに持っている分は入れていません）。</li>
     <li>Lv40は、PSRが1枚以上出る（PSRは上限開放なしでLv40）か、SRを+3まで上限開放できる確率です。</li>
-    <li><b>SR Lv45の確率は、出たPSRもSRの素材にする場合の確率です</b>（PSRを素材にするとSRが必ず+1）。PSRを素材にしない場合は、これより低くなります。</li>
+    <li><b>SR Lv45の確率は、出たPSRもSRに合成する前提の確率です</b>（PSRを合成するとSRが必ず+1）。PSRを素材にしない場合は、これより低くなります。</li>
     <li>Lv40・SR Lv45・PSR Lv50の確率は、それぞれ「手持ちを全部その目標に使った場合」の確率です。3つを同時に達成できる確率ではありません。</li>
     <li>ダイジョーブ博士像は、同じレアリティのカードの上限開放を必ず+1するアイテムとして計算しています（PSR像はPSRだけ、SR像はSRだけ、PR像はPRだけ、R像はRだけに使えます）。どのカードに、どのタイミングで使うかも、確率が一番高くなるように選んでいます。SR Lv45とLv40の計算では、PSR像は使いません。</li>
     <li>1ランク下の+5を素材にしたときの「45%で+2」は推測値です（ゲーム内で確認できないため、運営者の過去の調査によるおおよその値）。</li>
