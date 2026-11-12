@@ -101,7 +101,7 @@ def _body(g, root_icon, src_dir):
     if multi:
         metas = f'<p>開催期間：{e(g["period"])}</p>' + metas
     # 見出し：キャラ名の途中で改行しないように、名前ごとに区切る
-    h1 = (" ".join(f'<i>{e(ch["chara"])}{"・" if i < len(chs) - 1 else "の"}</i>' for i, ch in enumerate(chs)) + " <i>ガチャは</i> <i>引くべき？</i>"
+    h1 = ("".join(f'<i>{e(ch["chara"])}{"・" if i < len(chs) - 1 else "の"}</i>' for i, ch in enumerate(chs)) + " <i>ガチャは</i> <i>引くべき？</i>"
           if multi else f'<i>{e(g["chara"])}のガチャは</i> <i>引くべき？</i>')
     more_notes = "".join("\n    <li>" + x + "</li>" for x in [
         pick_note,
@@ -116,6 +116,7 @@ def _body(g, root_icon, src_dir):
     # g["sources"]（公式ページのURL）は記録用。ゲーム内のページなので記事にはリンクを載せない（2026-11-12 管理人）
     return f'''<section class="phead"><p class="eyebrow">ガチャ</p><h1><span class="mk">{h1}</span></h1><p>{e(g["title"])}で、{e(g["chara"])}のSR Lv45・PSR Lv50を作るのに何周必要かを<span class="cp-nw">計算しました。</span>引くべきか迷っている人は、下の確率と<span class="cp-nw">石の数を目安にしてください。</span></p></section>
 <div class="prose">
+  {comment}
   {metas}
 
   <h2 id="result">何周で完成する？</h2>
@@ -131,7 +132,6 @@ def _body(g, root_icon, src_dir):
   <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">ステップ</th><th scope="col">石</th><th scope="col">SRが<span class="cp-nw">1枚以上</span></th><th scope="col">PSRが<span class="cp-nw">1枚以上</span></th></tr></thead><tbody id="g-tbl2"></tbody></table></div>
   <p class="g-more"><button type="button" id="g-more2" hidden>もっと見る</button></p>
   <p>そのステップまで引いたときに、SR・PSRの{c}が1枚以上出ている確率です。石は1周目ステップ1からの合計です。</p>
-  {comment}
   <h2 id="sim">引いてみる（シミュレータ）</h2>
   <p>ボタンを押すと、公式の提供割合どおりの確率で{c}が出ます。{sim_ex}「達成できる確率」は、今の手持ち（と上で選んだ博士像）を一番成功率が高い順番で合成した場合のおおよその確率です。</p>
   <div class="g-sim">
