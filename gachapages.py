@@ -134,7 +134,7 @@ def _body(g, root_icon, src_dir):
         "キャラごとの確率は、手持ちを全部そのキャラに使った場合の確率です。2人とも育てる場合は、選択ガチャ券を分けるぶん確率が下がります" + ("（「2人とも」を選ぶと、2人とも完成する確率を表示します）。" if both else "。") if multi and picks else "",
         ("「2人とも」の確率は、1人ずつのときと計算のしかたが違います：" + "".join(both_notes)) if both else ""] if x)
     loop_note = (f'1周＝{"〜".join([g["steps"][0]["name"], g["steps"][-1]["name"]])}'
-                 f'（{sum(s["pulls"] for s in g["steps"])}連・パワストーン{sum(s["cost"] for s in g["steps"])}個）。') if g.get("loop") else ""
+                 f'（{sum(s["pulls"] for s in g["steps"])}連・<span class="cp-nw">パワストーン{sum(s["cost"] for s in g["steps"])}個</span>）。<br>') if g.get("loop") else ""
     comment = _eval_html(g, src_dir)
     kmax = {"PSR": g["tables"]["KS"], "SR": g["tables"]["KS"], "PR": g["tables"]["KL"], "R": g["tables"]["KL"]}
     dj = "".join(f'<label><span class="g-{r}">{r}像</span><select data-dj="{r}" autocomplete="off" aria-label="{r}ダイジョーブ博士像の枚数">'
@@ -153,7 +153,7 @@ def _body(g, root_icon, src_dir):
   <div class="g-stat"><div>50%で達成<b id="g-p50"></b><small id="g-p50s"></small></div><div>80%で達成<b id="g-p80"></b><small id="g-p80s"></small></div><div>90%で達成<b id="g-p90"></b><small id="g-p90s"></small></div></div>
   <h3>周回ごとの確率</h3>
   <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">周回</th><th scope="col">Lv40</th><th scope="col">SR<br>Lv45</th><th scope="col">PSR<br>Lv50</th></tr></thead><tbody id="g-tbl"></tbody></table></div>
-  <p>{loop_note}{used_txt}を使い、引き終わってから合成した場合の確率です。Lv40は「PSRが1枚以上出る」か「SRを+3まで上限開放できる」確率です。<b>SR Lv45は、出たPSRもSRに合成する前提の確率です。</b>（くわしくは下の「計算のしかた」）</p>
+  <p>{loop_note}{used_txt}を使い、引き終わってから<span class="cp-nw">合成した場合の</span><span class="cp-nw">確率です。</span><br>Lv40は「PSRが1枚以上出る」か<span class="cp-nw">「SRを+3まで</span><span class="cp-nw">上限開放できる」</span><span class="cp-nw">確率です。</span><br><b>SR Lv45は、出たPSRもSRに<span class="cp-nw">合成する</span><span class="cp-nw">前提の確率です。</span></b><br>（くわしくは下の<span class="cp-nw">「計算のしかた」）</span></p>
   {both_box}
   <h3>SR・PSRが引ける確率</h3>
   <div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">ステップ</th><th scope="col">石</th><th scope="col">SRが<span class="cp-nw">1枚以上</span></th><th scope="col">PSRが<span class="cp-nw">1枚以上</span></th></tr></thead><tbody id="g-tbl2"></tbody></table></div>
