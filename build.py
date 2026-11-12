@@ -192,7 +192,7 @@ def og_image(meta, path):
     if path == "":
         title, label = "パワプロアプリ ガチ勢による最先端攻略サイト", ""
     else:
-        title = meta.get("og_title") or meta["title"].split("｜")[0]
+        title = meta.get("og_title") or (meta.get("crumb") if "{{" in meta["title"] else None) or meta["title"].split("｜")[0]
         label = next((l for pre, l in OG_LABEL if path.startswith(pre)), "")
     icon = meta.get("og_icon") or (f"img/chars/{path.split('/')[1]}.png" if re.fullmatch(r"chars/\d{4}/", path) else None)
     icon = out / icon if icon and (out / icon).exists() else None
@@ -264,6 +264,8 @@ for meta, body in _parsed:
            "contact_block": contact_block(), "policy_date": POLICY_DATE, "ad": ad_block(), "gacha_cards": _gacha_cards,
            "og_image": og_image(meta, path)}
     # トップのランキングカードの評価日は、ランキングページ（src/ranking/ranking.json）の評価日を自動で使う（管理人指示 2026-11-10）。{{rk_date_roman}} など
+    for _k, _d in DECKS.items():   # デッキページの title の「○選」（デッキの数。自動）
+        rep["deck_count_" + _k] = str(len(_d["list"]))
     for _k, _r in charpages._RANKING.get("ranking", {}).items():
         rep["rk_date_" + _k] = f'【評価日{_r["評価日"]}】' if _r.get("評価日") else ""
     if meta.get("school") in DECKS:
