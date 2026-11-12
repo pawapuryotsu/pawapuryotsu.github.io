@@ -5,7 +5,10 @@
   const root = document.body.dataset.root || "./";
   const $ = (id) => document.getElementById(id);
   const RS = ["PSR", "SR", "PR", "R"];
-  const L = G.steps.length, T = G.tables.SR45.length, KS1 = G.tables.KS + 1, KL1 = G.tables.KL + 1, K3 = KS1 * KL1 * KL1;   // 博士像の枚数の上限（PSR・SR像と PR・R像）
+  const NCH = G.charas.length;   // 出現率アップキャラの人数（only・share の枠は人数で等分。pick＝選択券は必ず目当てキャラ）
+  let CH = G.charas[0];          // 表示中のキャラ（複数キャラのガチャはボタンで切り替え）
+  let T = G.tables.SR45.length;
+  const L = G.steps.length, KS1 = G.tables.KS + 1, KL1 = G.tables.KL + 1, K3 = KS1 * KL1 * KL1;   // 博士像の枚数の上限（PSR・SR像と PR・R像）
   const SB = 24, CB = 34, DB = 60;   // 手持ち→達成確率の表の大きさ（build_tables.py の S, C, D と同じ値。超えた枚数は上限と同じ扱い）
   const DJ = { PSR: 0, SR: 0, PR: 0, R: 0 };   // 使う博士像の枚数
   const bin = (path, type, done) => fetch(root + "assets/" + path).then((r) => { if (!r.ok) throw 0; return r.arrayBuffer(); }).then((b) => done(new type(b)));
@@ -23,7 +26,11 @@
     const i3 = (DJ.SR * KL1 + DJ.PR) * KL1 + DJ.R;
     if (i3 === 0 && (g !== "PSR50" || DJ.PSR === 0)) return G.tables[g];
     if (!TB) {
-      if (!tbReq) { tbReq = true; bin("gacha_t/" + G.id + ".bin", Uint16Array, (a) => { TB = a; renderTable(); }).catch(() => { tbReq = false; }); }
+      if (!tbReq) {
+        tbReq = true;
+        const want = CH;
+        bin("gacha_t/" + G.id + (want.key ? "_" + want.key : "") + ".bin", Uint16Array, (a) => { if (CH !== want) return; TB = a; renderTable(); }).catch(() => { if (CH === want) tbReq = false; });
+      }
       return null;
     }
     const off = (g === "SR45" ? i3 : g === "LV40" ? K3 + i3 : 2 * K3 + DJ.PSR * K3 + i3) * T;
@@ -70,7 +77,10 @@
     for (const r of RS) {
       if (!(r in slot.rarity)) continue;
       c += slot.rarity[r];
-      if (u < c) return slot.target === "only" || Math.random() * 100 < G.share[r] ? r : null;
+      if (u < c) {
+        if (slot.target === "pick") return r;
+        return Math.random() * NCH < 1 && (slot.target === "only" || Math.random() * 100 < G.share[r]) ? r : null;
+      }
     }
     return null;
   }
@@ -102,8 +112,8 @@
   }
 
   let H, st, log;
-  const EX = G.extra || [];   // ガチャ以外で手に入る分（イベント報酬など）。最初から手持ちに入れる
   function reset() {
+    const EX = CH.extra || [];   // ガチャ以外で手に入る分（イベント報酬など）。最初から手持ちに入れる
     H = { PSR: 0, SR: 0, PR: 0, R: 0 }; st = 0; log = [];
     for (const x of EX) { H[x.rarity] += x.n; log.push(`${x.label}：` + Array(x.n).fill(`<span class="g-${x.rarity}">${x.rarity}</span>`).join(" ")); }
     draw();
@@ -128,12 +138,23 @@
     for (let i = 0; i < +b.dataset.pull; i++) {
       const r = pullStep(st);
       r.forEach((k) => H[k]++);
-      log.push(`${G.loop ? Math.floor(st / L) + 1 + "周目 " : ""}${stepOf(st).name}：` + (r.length ? r.map((k) => `<span class="g-${k}">${k}</span>`).join(" ") : `${G.chara}なし`));
+      log.push(`${G.loop ? Math.floor(st / L) + 1 + "周目 " : ""}${stepOf(st).name}：` + (r.length ? r.map((k) => `<span class="g-${k}">${k}</span>`).join(" ") : `${CH.chara}なし`));
       st++;
     }
     draw();
   }));
   $("g-reset").onclick = reset;
+  // キャラの切り替え（複数キャラのガチャ）。表・文・シミュレータをそのキャラの分にする
+  function setChara(k) {
+    CH = G.charas.find((c) => c.key === k) || G.charas[0];
+    G.tables = CH.tables; T = G.tables.SR45.length; TB = null; tbReq = false;
+    document.querySelectorAll("[data-ch]").forEach((el) => { el.hidden = el.dataset.ch !== CH.key; });
+    document.querySelectorAll("[data-chb]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.chb === CH.key));
+    renderTable();
+    reset();
+  }
+  document.querySelectorAll("[data-chb]").forEach((b) => (b.onclick = () => setChara(b.dataset.chb)));
+  document.querySelectorAll("[data-chb]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.chb === CH.key));
   // 博士像の枚数は、画面の選択欄の値をそのまま使う（ブラウザの「戻る」で選択欄だけ復元されてもずれないように）
   function syncDJ() { document.querySelectorAll("[data-dj]").forEach((el) => { DJ[el.dataset.dj] = +el.value || 0; }); renderTable(); draw(); }
   document.querySelectorAll("[data-dj]").forEach((el) => (el.onchange = syncDJ));

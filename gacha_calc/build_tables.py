@@ -83,11 +83,23 @@ def write_browser_tables(vs, vp):
 
 
 def slot_probs(g, slot):
-    """1枠で目当てキャラが各レアリティで出る確率"""
+    """1枠で目当てキャラが各レアリティで出る確率。
+    target：only＝出現率アップキャラのみの枠、share＝そのレアリティが出たとき share の割合で出現率アップキャラ、
+    pick＝選択ガチャ券など、目当てキャラを必ず選べる枠。
+    出現率アップキャラが複数（json の "charas"）のときは、only・share の確率を人数で等分する（公式「各イベキャラの出現割合は均一」）"""
+    nch = len(g.get("charas") or [None])
     out = {}
     for r, p in slot["rarity"].items():
-        out[r] = p / 100 * (1 if slot["target"] == "only" else g["share"][r] / 100)
+        t = slot["target"]
+        out[r] = p / 100 * (1 if t == "pick" else (1 if t == "only" else g["share"][r] / 100) / nch)
     return out
+
+
+def variants(f, g):
+    """計算する目当てキャラごとに（表のファイル名, そのキャラのデータ）。1キャラのガチャはそのまま1つ"""
+    if not g.get("charas"):
+        return [(f.stem, g)]
+    return [(f"{f.stem}_{c['key']}", dict(g, extra=c.get("extra", []))) for c in g["charas"]]
 
 
 AX = {"PSR": 0, "SR": 1, "PR": 2, "R": 3}
@@ -132,8 +144,7 @@ def main():
     tdir = root / "src" / "assets" / "gacha_t"
     tdir.mkdir(exist_ok=True)
     files = sorted(p for p in (root / "src" / "gacha").glob("*.json") if not p.name.endswith(".tables.json"))
-    for f in files:
-        g = json.loads(f.read_text(encoding="utf-8"))
+    for f, g in (v for f in files for v in variants(f, json.loads(f.read_text(encoding="utf-8")))):
         P = np.zeros((7, S + 1, C + 1, D + 1))
         start = [0, 0, 0, 0]   # ガチャ以外で手に入る分（イベント報酬など。json の "extra"）から始める
         for x in g.get("extra", []):
@@ -184,7 +195,7 @@ def main():
         pct = lambda xs, k: [100.0 if np.ravel(m)[0] == 0 else min(round(float(x) * 100, 4), 99.9999) for x, m in zip(xs, fails[k])]   # [0]＝博士像なし
         out = {"KS": KS, "KL": KL, "gotSR": pct(got_sr, "gotSR"), "gotPSR": pct(got_psr, "gotPSR"), "LV40": pct([x[0, 0, 0] for x in lv40], "LV40"),
                "SR45": pct([x[0, 0, 0] for x in sr45], "SR45"), "PSR50": pct([x[0, 0, 0, 0] for x in psr50], "PSR50")}
-        (f.parent / (f.stem + ".tables.json")).write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
+        (root / "src" / "gacha" / (f + ".tables.json")).write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
         # 博士像ありの表：[SR45][LV40][PSR50] の順、各 [像の組み合わせ][ステップ]、値は 確率×65535（uint16。0と65535はちょうど0%・100%のときだけ）
         def u16(x, k):
             v = np.moveaxis(np.array(x, dtype=float), 0, -1)
@@ -192,8 +203,8 @@ def main():
             r[v <= 0] = 0
             r[np.moveaxis(np.array(fails[k], dtype=float), 0, -1) == 0] = 65535
             return r.astype("<u2").tobytes()
-        (tdir / (f.stem + ".bin")).write_bytes(u16(sr45, "SR45") + u16(lv40, "LV40") + u16(psr50, "PSR50"))
-        print(f.stem, "ステップ数", len(sr45))
+        (tdir / (f + ".bin")).write_bytes(u16(sr45, "SR45") + u16(lv40, "LV40") + u16(psr50, "PSR50"))
+        print(f, "ステップ数", len(sr45))
         for k in ("gotSR", "gotPSR", "LV40", "SR45", "PSR50"):
             print("  ", k, [round(v, 2) for v in out[k][L - 1::L][:12]])
 

@@ -1,0 +1,48 @@
+{
+  "id": "2026_1104_ranma_akane",
+  "title": "ループガチャ TVアニメ「らんま1/2」コラボ記念",
+  "chara": "早乙女乱馬・天道あかね",
+  "charas": [
+    {"key": "ranma", "chara": "早乙女乱馬", "short": "乱馬", "char_page": "chars/0002/", "icon": "img/chars/0002.png",
+     "extra": [{"rarity": "PR", "n": 1, "label": "イベント報酬"}]},
+    {"key": "akane", "chara": "天道あかね", "short": "あかね", "char_page": "chars/0003/", "icon": "img/chars/0003.png", "extra": []}
+  ],
+  "period": "2026年11月4日(水)メンテナンス終了後〜11月26日(木)8:59",
+  "checked": "2026-11-12",
+  "sources": [
+    {"label": "ガチャのお知らせ", "url": "https://asc.s.konaminet.jp/asc/pawasma/webpage/news/event_gacha/2026_1104_Gacha_Kc-38x6Wu.php?set_user_id=0"},
+    {"label": "提供割合", "url": "https://asc.s.konaminet.jp/asc/pawasma/webpage/news/gacha_probs/event_6575_4g31AQ2x.php?set_user_id=0"}
+  ],
+  "loop": true,
+  "share": {"PSR": 23.27, "SR": 23.27, "PR": 16.08, "R": 18.14},
+  "steps": [
+    {"name": "ステップ1", "pulls": 6, "cost": 25, "slots": [
+      {"n": 1, "label": "「PR」以上の「早乙女乱馬」または「天道あかね」1枚確定枠", "rarity": {"PSR": 0.5, "SR": 3, "PR": 96.5}, "target": "only"},
+      {"n": 5, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ2", "pulls": 10, "cost": 40, "slots": [
+      {"n": 2, "label": "「SR」以上2枚確定枠", "rarity": {"PSR": 0.5, "SR": 99.5}, "target": "share"},
+      {"n": 8, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ3", "pulls": 10, "cost": 50, "slots": [
+      {"n": 10, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"},
+      {"n": 1, "label": "おまけ：「SR」選択ガチャ券", "rarity": {"SR": 100}, "target": "pick"}
+    ]},
+    {"name": "ステップ4", "pulls": 10, "cost": 50, "slots": [
+      {"n": 10, "label": "「早乙女乱馬」「天道あかね」のみ出現", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "only"}
+    ]},
+    {"name": "ステップ5", "pulls": 10, "cost": 50, "slots": [
+      {"n": 1, "label": "「SR」以上の「早乙女乱馬」または「天道あかね」1枚確定枠", "rarity": {"PSR": 0.5, "SR": 99.5}, "target": "only"},
+      {"n": 9, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ6", "pulls": 10, "cost": 50, "slots": [
+      {"n": 1, "label": "「SR」以上の「早乙女乱馬」または「天道あかね」1枚確定枠", "rarity": {"PSR": 0.5, "SR": 99.5}, "target": "only"},
+      {"n": 9, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ7", "pulls": 10, "cost": 50, "slots": [
+      {"n": 10, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"},
+      {"n": 1, "label": "おまけ：「PSR」選択ガチャ券", "rarity": {"PSR": 100}, "target": "pick"}
+    ]}
+  ],
+  "comment": []
+}
