@@ -786,11 +786,11 @@ def yomi_paren(c):
     return f"（{y}）" if y else ""
 
 
-def head_html(full, c, pid=None):
+def head_html(full, c, pid=None, evaluated=False):
     y = yomi_of(c)
     icon = (f'<img class="cp-icon" src="../../img/chars/{pid}.png" alt="{e(full)}のアイコン" width="72" height="72" decoding="async">'
             if pid and c.get("_icon") else "")
-    text = (f'<p class="eyebrow">イベキャラ データ</p><h1><span class="cp-h1">{e(full)}</span> <span class="cp-h1">データ・イベントまとめ</span></h1>'
+    text = (f'<p class="eyebrow">イベキャラ データ</p><h1><span class="cp-h1">{e(full)}</span> <span class="cp-h1">{"評価・イベントまとめ" if evaluated else "データ・イベントまとめ"}</span></h1>'
             + (f'<p class="cp-yomi">読み：{e(y)}</p>' if y else ""))
     if not icon:
         return f'<section class="phead">{text}</section>\n'
@@ -839,7 +839,7 @@ def generate(chars_path, src, decks, noindex=True):
             meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
                     f"description: パワプロアプリ（サクセス・パワクエ共通）のイベキャラ {full}{yomi_paren(c)} のボーナス、金特、イベント選択肢、選手能力をまとめています。\n")
         meta += f"path: {path}\nnav: none\ncrumb: {full}\n" + ("noindex: yes\n" if noindex and pid not in pub else "")
-        body = (head_html(full, c, pid)
+        body = (head_html(full, c, pid, has_eval(c, text))   # 評価があるキャラは大見出しも「評価・イベントまとめ」（2026-11-12 管理人 案A）
                 + build_page(c, text, config, decks, kinds))
         pages.append(f"<!--\n{meta}-->\n{body}")
     # データ未入力のキャラ（名前と読みだけ決まっている）。ページは「準備中」で、検索には出さない
