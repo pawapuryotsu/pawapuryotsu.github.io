@@ -112,6 +112,24 @@ if (src / "pawaque").exists():
                     f'sc.src = "highs.js?v={v}"; sc.onload = ok; sc.onerror = () => ng(new Error("厳密計算の部品を読み込めませんでした")); document.head.appendChild(sc); }});\n')
             html = (html[:m.start()] + html[m.end():]).replace(hook, hook + load, 1)
             sim.write_text(html, encoding="utf-8")
+        # 見た目をサイトに合わせる（2026-11-13 管理人指示）：ほかのページと同じヘッダー・メニュー・フッターを付ける。
+        # style.css をそのまま読むとシミュレータの表やボタンの見た目とぶつかるので、ヘッダー・フッター・パンくずの指定だけ取り出して入れる
+        if '<header class="site">' not in html:
+            _lay = (src / "layout.html").read_text(encoding="utf-8")
+            _css = (src / "assets" / "style.css").read_text(encoding="utf-8")
+            _root = "../../"
+            _nav = "\n".join(f'    <a href="{_root}{p}"{' aria-current="page"' if k == "pawaque" else ""}>{label}</a>' for k, p, label in NAV)
+            _top = _lay[_lay.index('<svg width="0"'):_lay.index("</div></header>") + len("</div></header>")].replace("{{nav}}", _nav).replace("{{root}}", _root)
+            _foot = _lay[_lay.index('<footer class="site">'):_lay.index("</footer>") + len("</footer>")].replace("{{root}}", _root)
+            _vars = re.search(r":root\{.*?\}", _css, re.S).group(0)
+            _keep = ("header.site", ".hrow", ".brand", ".sns", "nav.gnav", "footer", ".crumbs", "body::before", ".wrap")
+            _rules = [r for r in re.findall(r"[^{}]+\{[^{}]*\}", re.sub(r"/\*.*?\*/", "", _css, flags=re.S)) if r.strip().startswith(_keep)]
+            _head = (_lay[_lay.index('<link rel="preconnect"'):_lay.index('<link rel="stylesheet" href="{{root}}assets/style.css">')]
+                     + f'<link rel="icon" href="{_root}assets/favicon.svg" type="image/svg+xml">\n<meta name="theme-color" content="#1d5e43">\n'
+                     + "<style>\n" + _vars + "\n" + "\n".join(r.strip() for r in _rules)
+                     + "\nmain{max-width:860px;padding:8px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}\n</style>\n")
+            html = html.replace("</head>", _head + "</head>", 1).replace("<main>", _top + "\n<main>", 1).replace("</main>", "</main>\n" + _foot, 1)
+            sim.write_text(html, encoding="utf-8")
 # 古いCSS/JSがスマホに残らないよう、ファイルの中身から作った番号を ?v= で付ける
 import hashlib
 ver = {f: hashlib.md5((out / "assets" / f).read_bytes()).hexdigest()[:8] for f in ("style.css", "deck.js", "decks.js", "gacha.js")}
