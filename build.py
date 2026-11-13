@@ -365,8 +365,9 @@ for _old, _new in REDIRECTS:
 if (out / "tier").exists():
     urls.append((f"{SITE_URL}/tier/", None))
 if (out / "pawaque").exists():
-    for page in sorted((out / "pawaque").rglob("index.html")):
-        urls.append((f"{SITE_URL}/{page.parent.relative_to(out).as_posix()}/", None))
+    # src/pawaque/ から写した単体ページだけ足す（src/pages/ で作るパワクエの記事は、ほかの記事と同じ所でサイトマップに入る）
+    for page in sorted((src / "pawaque").rglob("index.html")):
+        urls.append((f"{SITE_URL}/{page.parent.relative_to(src).as_posix()}/", None))
 urls.append((f"{SITE_URL}/roman_costchecker/", None))  # コスト計算ツール（別リポジトリ roman_costchecker。同じドメインの下で公開）
 (out / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                  + "".join(f"  <url><loc>{u}</loc>" + (f"<lastmod>{m}</lastmod>" if m else "") + "</url>\n" for u, m in urls) + "</urlset>\n", encoding="utf-8")
