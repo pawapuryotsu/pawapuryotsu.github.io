@@ -507,3 +507,26 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .news li.rc-noimg{grid-template-columns:1fr}
 .news.recent a{text-decoration:none}   /* 文字色は .news a の赤（管理人指示 2026-11-12） */
 .news.recent a b{display:inline}
+/* パワクエ ミッション報酬まとめ */
+.pm-note{font-size:13px;color:var(--muted);margin:6px 0 0}
+.bt.pm-t th,.bt.pm-t td{white-space:normal;padding:6px 4px}
+.bt.pm-t tbody th{min-width:0}
+.pm-t .pm-l{text-align:left;font-weight:500}
+.pm-t td.pm-df{background:#e3eeff;color:#1a5fd0}
+.pm-t thead th{white-space:normal;line-height:1.3}
+.pm-t{table-layout:fixed;font-size:clamp(12px,3.4vw,15px)}
+.pm-cmp th:nth-child(1){width:27%}.pm-cmp th:nth-child(2){width:13%}.pm-cmp th:nth-child(3){width:17%}
+.pm-sum th:nth-child(1){width:36%}
+.pm-t th,.pm-t td{overflow-wrap:anywhere}
+.pm-nb{display:inline-block}
+.pm-full{display:none}
+@media (min-width:600px){.pm-full{display:inline}.pm-abbr{display:none}}
+.pm-m{table-layout:fixed}.pm-m th:nth-child(1){width:46%}.pm-m th:nth-child(2){width:4em}.bt.pm-m thead th:nth-child(2){white-space:nowrap;padding-left:0;padding-right:0}
+.pm-m td:nth-child(2){white-space:nowrap}
+.pm-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.pm-tabs button{flex:1 1 40%;font:inherit;font-size:14px;font-weight:700;padding:9px 4px;border:1.5px solid var(--line);border-radius:6px;background:#fff;color:#222;cursor:pointer}
+.pm-tabs button.on{background:#33415c;border-color:#33415c;color:#fff}
+.pm-h{margin:16px 0 0!important;font-size:16px!important}
+.pm-c{margin:14px 0 4px;font-size:14px;font-weight:900}
+@media (min-width:760px){.pm-tabs button{flex:1 1 0}}
+@media (max-width:340px){.pm-t{font-size:11px}.bt.pm-t th,.bt.pm-t td{padding:5px 3px}.pm-w{margin:0 -10px}}
