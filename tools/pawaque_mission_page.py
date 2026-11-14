@@ -48,13 +48,17 @@ def nbc(cond):
     return spans(re.split(r"(?<=[がでをに])(?=.{3,}$)|(?<=以上)(?=スカウト)", cond))
 
 
+# ミッション一覧で青文字にする報酬（管理人の指定）。そのストーリーだけの報酬も青文字になる
+BLUE = {"PSRガチャ券", "SRガチャ券", "野手の極意", "投手の極意", "マネージャーの極意", "PRダイジョーブ博士像"}
+
+
 def rew_item(x, comma, only):
     """報酬1つ分。2つ以上並ぶときは、報酬と報酬の間でだけ折り返す"""
     parts = [p for p in re.split(r"(?=博士像|のパワター|の極意)|(?<=%)(?=ガチャ券)", x) if p]
     if comma:
         parts[-1] += "、"
     body = "".join(f'<span class="pm-nb">{e(p)}</span>' for p in parts)
-    return f'<span class="em-blue">{body}</span>' if re.sub(r"×\d+$", "", x) in only else body
+    return f'<span class="em-blue">{body}</span>' if re.sub(r"×\d+$", "", x) in only or re.sub(r"×\d+$", "", x) in BLUE else body
 
 
 def head(name):
