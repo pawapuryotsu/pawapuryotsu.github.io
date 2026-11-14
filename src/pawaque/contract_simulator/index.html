@@ -1676,11 +1676,16 @@ $("crun").onclick = async () => {
 };
 // ---- 実装済み契約書 ----
 const clOpen = new Set();
+// 名前順＝読み仮名（五十音）順。読みが複数あるときは最初の読み。バージョン付きは本名の読みで並べ、
+// 同じキャラの中では「バージョンなし」→ バージョン名の読み順
+const clCol = new Intl.Collator("ja");
+const clKana = (s) => (s || "").split("、")[0].replace(/う゛/g, "ゔ").replace(/[・\s　]/g, "");
+const clYomi = (a, b) => { const A = CH[a.idx], B = CH[b.idx]; return clCol.compare(clKana(A.読み), clKana(B.読み)) || (A.二つ名 ? 1 : 0) - (B.二つ名 ? 1 : 0) || clCol.compare(clKana((A.二つ名読み || [])[0]), clKana((B.二つ名読み || [])[0])) || clCol.compare(a.表示, b.表示); };
 function showContracts() {
   const noLim = $("clNoLim").checked;
   const list = contracts.filter((c) => c.idx !== undefined && !(noLim && c.限定));
   $("clCount").textContent = list.length;
-  const cmp = { cost: (a, b) => (b.cost ?? -1) - (a.cost ?? -1) || a.表示.localeCompare(b.表示, "ja"), lv: (a, b) => (b.limit ?? -1) - (a.limit ?? -1) || a.表示.localeCompare(b.表示, "ja"), name: (a, b) => a.表示.localeCompare(b.表示, "ja") }[$("clSort").value];
+  const cmp = { cost: (a, b) => (b.cost ?? -1) - (a.cost ?? -1) || clYomi(a, b), lv: (a, b) => (b.limit ?? -1) - (a.limit ?? -1) || clYomi(a, b), name: clYomi }[$("clSort").value];
   $("clOut").innerHTML = [...CPOS, "投"].map((p) => {
     const rows = list.filter((c) => CH[c.idx].ポジション === p).sort(cmp);
     if (!rows.length) return "";
