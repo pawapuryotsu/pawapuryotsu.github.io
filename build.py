@@ -216,7 +216,7 @@ def crumb_ld(chain):
 # SNSで共有したときの画像（og:image）。ページごとに docs/img/og/ に自動で作る（2026-11-12 管理人OK）
 import ogimage
 OG_LABEL = [("chars/", "イベキャラ"), ("gacha/", "ガチャ"), ("ranking/", "ランキング"), ("decks/", "デッキまとめ"),
-            ("deckbuild/", "デッキの組み方"), ("guide/", "ガイド")]
+            ("deckbuild/", "デッキの組み方"), ("guide/", "ガイド"), ("pawaque/", "パワクエ")]
 
 
 def og_image(meta, path):
