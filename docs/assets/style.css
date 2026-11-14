@@ -530,3 +530,4 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .pm-c{margin:14px 0 4px;font-size:14px;font-weight:900}
 @media (min-width:760px){.pm-tabs button{flex:1 1 0}}
 @media (max-width:340px){.pm-t{font-size:11px}.bt.pm-t th,.bt.pm-t td{padding:5px 3px}.pm-w{margin:0 -10px}}
+.bt.pm-t td.pm-soon{color:var(--muted);font-weight:500}

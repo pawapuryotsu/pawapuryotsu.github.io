@@ -9,6 +9,8 @@ from pathlib import Path
 here = Path(__file__).resolve().parent.parent
 D = json.loads((here / "src/pawaque_data/mission.json").read_text(encoding="utf-8"))
 AS_OF = "2026/11/14"
+# まだ配信前で、名前だけ先に載せるストーリー（名前, 予定）。配信されたら mission.json に足して、ここから消す
+COMING = [("西球記", "2026/11/16 14時 配信予定")]
 e = html.escape
 CATS = ["クエストクリア", "プレイ回数", "ベストチームのランク", "チーム総合力の累計", "チームの能力", "スカウト人数", "ボス戦の勝利数", "その他"]
 
@@ -100,7 +102,7 @@ crumb: ミッション報酬まとめ
   </nav>
   <p>ミッションをクリアすると、パワストーンをはじめとする報酬をかなり貰えます。<span class="em-blue">イベキャラ覚醒に必要となる野手の極意・投手の極意・マネージャーの極意を貰える</span>ので、アプリ始めたばかりの人にとって非常に嬉しい内容と<span class="cp-nw">なっています。</span></p>
   <p>報酬のほかに<span class="em-blue">アイテムコストの上限が増えます。</span>アイテムコストが増えるほど、強いアイテムをたくさん持ち込めるように<span class="cp-nw">なります。</span></p>
-  <p class="pm-note">{AS_OF} 時点の内容です。</p>
+  <p class="pm-note">{AS_OF} 時点の内容です。{"".join(f"<br>新ストーリー<span class=cp-nw>「{e(n)}」</span>は{e(w)}です。配信されたら<span class=cp-nw>追加します。</span>" for n, w in COMING)}</p>
 
   <h2 id="compare">ストーリーごとの違い</h2>
   <div class="bt-wrap pm-w"><table class="bt pm-t pm-cmp">
@@ -109,6 +111,8 @@ crumb: ミッション報酬まとめ
 for s in stories:
     only = "<br>".join(nb(k) for k in s["only"]) or "なし"
     out.append(f'      <tr><th scope="row">{nb(s["name"])}</th><td>{len(s["rows"])}</td><td>+{s["cost"]}</td><td class="pm-l">{only}</td></tr>')
+for name, when in COMING:
+    out.append(f'      <tr><th scope="row">{nb(name)}</th><td colspan="3" class="pm-soon">{e(when)}</td></tr>')
 out.append("""    </tbody>
   </table></div>
 
