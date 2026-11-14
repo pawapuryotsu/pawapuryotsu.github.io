@@ -99,7 +99,8 @@ noindex: yes
     <li><a href="#list">ミッション一覧</a></li>
   </ol>
   </nav>
-  <p>ミッションをクリアすると、報酬のほかに<span class="em-blue">アイテムコストの上限が増えます。</span>アイテムコストが増えるほど、強いアイテムをたくさん持ち込めるように<span class="cp-nw">なります。</span></p>
+  <p>ミッションをクリアすると、パワストーンをはじめとする報酬をかなり貰えます。<span class="em-blue">イベキャラ覚醒に必要となる野手の極意・投手の極意・マネージャーの極意を貰える</span>ので、アプリ始めたばかりの人にとって非常に嬉しい内容と<span class="cp-nw">なっている。</span></p>
+  <p>報酬のほかに<span class="em-blue">アイテムコストの上限が増えます。</span>アイテムコストが増えるほど、強いアイテムをたくさん持ち込めるように<span class="cp-nw">なります。</span></p>
   <p class="pm-note">{AS_OF} 時点の内容です。</p>
 
   <h2 id="compare">ストーリーごとの違い</h2>
