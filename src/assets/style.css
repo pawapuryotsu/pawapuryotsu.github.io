@@ -249,6 +249,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .pq-cmp-b figcaption{background:#e3eeff}
 .pq-cmp-b figcaption strong,.pq-cmp-b figcaption small{color:#1a5fd0}
 @media (min-width:760px){.pq-cmp{grid-template-columns:1fr 1fr;max-width:760px}}
+.pq-p{margin:10px 0 0}
 .pq-cap{margin:6px 0 0;max-width:420px;font-size:13px;color:var(--muted)}
 .pq-img{display:block;margin:8px 0 0;max-width:min(100%,420px);height:auto;border:1px solid var(--line);border-radius:4px}
 
