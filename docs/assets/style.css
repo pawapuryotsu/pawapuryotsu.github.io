@@ -539,3 +539,4 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .pq-more a{color:var(--accent);font-weight:700}
 .more-link{margin:8px 0 0;text-align:right;font-size:14px}
 .more-link a{color:var(--accent);font-weight:700}
+.pq-cap-top{margin:12px 0 -2px;font-size:15px}
