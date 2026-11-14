@@ -177,6 +177,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--sub);font-weight:70
 <li>金特を取るとその下位の青特は伝授できない。元から持っている青特・金特は上乗せに数えない（下位込みで重複しない）。</li>
 <li>優先度：伝授する特殊能力の査定を最大にしてから、特訓値の査定が最大になるデッキを選びます。</li>
 <li>金特・威圧感を取る育成選手のメインデッキは、前イベ・後イベのどちらかが6枚にならないようにし、5枚になるのもできるだけ避けます（5枚は減点50）。</li>
+<li>査定の合計と特訓値が変わらない範囲で、1人目から順に、査定の高い金特・威圧感を集めます（コーチ+4用に育てた選手を、コーチ+3の別の契約書にも使い回しやすくするため）。伝授する青特も、査定の高いものから順に1人目から3個ずつ書いています（威圧感を取る選手は2個）。</li>
 <li>元から同じグループの特能（例：対ピンチ○・△・赤特の対ピンチ×）を持っているキャラには、その青特（対ピンチ◎など）はコーチで伝授できません（上位の金特は伝授できます）。</li>
 <li>理論値ランキングの守備位置別には、サブポジのキャラも載せています。扱いは、ランキングの画面の「サブポジの扱い」に書いています。</li>
 <li>両立して獲得できない特能（片方を持っていると、もう片方は伝授できない。伝授する中でも両方は選べない。金特の下位の青特も含む。元から片方を持っているキャラでも、反対側の金特は伝授できるが、元の系統の査定は失う）：広角打法系統とプルヒッター系統／対ストレート系統と対変化球系統／ポーカーフェイス系統と闘志系統（投手）／インコース系統とアウトコース系統／ハイボールヒッター系統とローボールヒッター系統。</li>
@@ -911,6 +912,17 @@ const DATA = {"chars":[{"name":"[エアギター]志藤玲美","苗字":"志藤"
     if (bestAll.scenPer) plan.forEach((pl, p) => bestAll.scenPer[p].forEach((g) => { pl.items.push({ name: g, from: null, scenario: SCENARIO_OF[g] }); pl.golds++; }));
     // 1人の育成選手が取れるシナリオ金特は、同じシナリオのものだけ
     else plan.forEach((pl) => { let sc = null; for (let k = 0; k < scen.length && pl.golds < 2;) { const g = scen[k]; if (sc && SCENARIO_OF[g] !== sc) { k++; continue; } sc = SCENARIO_OF[g]; scen.splice(k, 1); pl.items.push({ name: g, from: null, scenario: sc }); pl.golds++; } });
+    // 並べ方：査定の高い金特・威圧感を持つ育成選手から順に1人目・2人目…とし、青特は査定の高いものから1人目に入れる（1人3個まで。威圧感は青特の枠を1つ使う）
+    const S0 = setup(data, ch), ownV0 = valueOf(S0, mode, S0.own);
+    const gainOf = (n) => { const s = new Set(S0.own); clos(S0.book, S0.key, n, S0.pos, s); return valueOf(S0, mode, s) - ownV0; };
+    plan.forEach((pl) => { pl.items.forEach((x) => (x.value = gainOf(x.name))); pl.items.sort((a, b) => b.value - a.value); pl.value = pl.items.reduce((a, x) => a + x.value, 0); });
+    const ord = plan.map((_, p) => p).sort((a, b) => plan[b].value - plan[a].value || a - b);
+    const re = (arr) => ord.map((p) => arr[p]);
+    const plan2 = re(plan); plan.length = 0; plan2.forEach((x) => plan.push(x));
+    bestAll.decks = re(bestAll.decks); bestAll.per = re(bestAll.per);
+    const bl = sk.blues.map((n) => ({ name: n, value: gainOf(n) })).sort((a, b) => b.value - a.value);
+    plan.forEach((pl) => { const room = 3 - pl.items.filter((x) => x.isou).length; pl.blues = bl.splice(0, room).map((x) => x.name); });
+    if (bl.length) plan[plan.length - 1].blues.push(...bl.map((x) => x.name));
     const baseNoTrain = E.baseValue(data.base, ch, lv, {}, mode === "main" ? "main" : "sub");
     return {
       skills: sk, decks: bestAll.decks, required: bestAll.per, train: bestAll.fin.train,
@@ -963,7 +975,7 @@ const DATA = {"chars":[{"name":"[エアギター]志藤玲美","苗字":"志藤"
 <script>// 厳密な最適化（整数計画）：金特・青特の伝授とデッキ編成を、取りこぼしなく最大にする
 // 使い方: await SimExact.optimizeExact(data, ch, lv, mode, N, opts, solve)
 //   solve(lpText, {timeLimit}) → Promise<{status, values:{変数名:値}, obj}>   （HiGHSなどのソルバーを渡す）
-// 手順: ①伝授する技能の査定を最大 → ②その値を保ったまま特訓値(基礎能力の査定)を最大 → ③同点なら基礎上限の合計が高いデッキ
+// 手順: ①伝授する技能の査定を最大 → ②その値を保ったまま特訓値(基礎能力の査定)を最大 → ③1人目から順に査定の高い金特・威圧感を集める → ④同点なら基礎上限の合計が高いデッキ
 (function (root) {
   const E = root.SimEngine || null;
   const O = root.SimOpt || null;
@@ -1134,8 +1146,18 @@ const DATA = {"chars":[{"name":"[エアギター]志藤玲美","苗字":"志藤"
     const r2 = await solve(toLP(trainTerms.concat(evTerms), [skillCon]), { timeLimit: tl });
     if (!r2) return { error: "デッキが組めませんでした" };
     const o2 = r2.obj;
-    // ③ 同点のときは基礎上限の合計が高いほう
-    const r3 = opts.noTieBreak ? r2 : await solve(toLP(rawTerms, [skillCon, " ct: " + lin(trainTerms.concat(evTerms)) + " >= " + (o2 - 0.25)]), { timeLimit: tl });
+    const keep = [skillCon, " ct: " + lin(trainTerms.concat(evTerms)) + " >= " + (o2 - 0.25)];
+    // ③ ①②を保ったまま、1人目から順に、査定の高い金特・威圧感を集める（育成した選手を、コーチの人数が少ない別の契約書に使い回しやすくする）
+    const itemVal = (it) => it.cover.reduce((a, e) => a + (elemVal[e] || 0), 0);
+    if (!opts.noTieBreak) for (let d = 0; d < N - 1; d++) {
+      const terms = itemsU.map((it, i) => (it.type !== "blue" ? [itemVal(it) || 1, av(d, i)] : null)).filter(Boolean);
+      if (!terms.length) break;
+      const ro = await solve(toLP(terms, keep), { timeLimit: tl });
+      if (!ro || !ro.values || ro.obj == null) break;
+      keep.push(" co" + d + ": " + lin(terms) + " >= " + (ro.obj - 0.5));
+    }
+    // ④ 同点のときは基礎上限の合計が高いほう
+    const r3 = opts.noTieBreak ? r2 : await solve(toLP(rawTerms, keep), { timeLimit: tl });
     const rr = r3 && r3.values ? r3 : r2;
     const val = (v) => (rr.values[v] || 0) > 0.5;
 
@@ -1399,10 +1421,11 @@ function renderResult(ch, lv, mode, N, r) {
     const rows = d.main.map((j) => row(j, "メイン")).join("") + d.sup.map((j) => row(j, "サポ")).join("");
     const srcRows = pl.items.map((x) => `<tr><td>${x.name}</td><td style="text-align:left">${x.from ? withIco(x.from, `${x.from}（${x.together}）`, "sm") : `シナリオ：${x.scenario}`}</td></tr>`).join("");
     return `<div class="card deck"><h2>育成選手${i + 1}人目</h2>
-      <table><tr><th>金特・威圧感</th><th style="text-align:left">取得元</th></tr>${srcRows}</table>
+      <div style="overflow-x:auto"><table><tr><th>金特・威圧感</th><th style="text-align:left">取得元</th></tr>${srcRows}</table></div>
+      <div class="note" style="margin-top:6px">伝授する青特：${(pl.blues || []).length ? pl.blues.map((n) => `<span class="pill blue">${n}</span>`).join("") : "なし"}</div>
       <div style="overflow-x:auto;margin-top:8px"><table><tr><th>区分</th><th style="text-align:left">キャラ（基礎上限）</th>${head}</tr>${rows}
       <tr><td></td><td style="text-align:left"><b>このデッキの合計</b></td>${CAPS.map((s) => `<td><b>${sum[s]}</b></td>`).join("")}</tr></table></div>
-      ${pl.items.length ? `<div class="note">メインの前後イベ：前${d.main.filter((j) => CH[j].前後 === "前").length}・後${d.main.filter((j) => CH[j].前後 === "後").length}（金特・威圧感を取るデッキは、同じ側が6枚にならず、できるだけ5枚も避ける）</div>` : ""}${r.noExpPt[i] ? '<div class="warn">※獲得経験点上限無し</div>' : ""}</div>`;
+      ${pl.items.length ? `<div class="note">メインの前後イベ：前${d.main.filter((j) => CH[j].前後 === "前").length}・後${d.main.filter((j) => CH[j].前後 === "後").length}</div>` : ""}${r.noExpPt[i] ? '<div class="warn">※獲得経験点上限無し</div>' : ""}</div>`;
   }).join("");
   const capRow = `<div class="card"><h2>特訓値（全デッキの合計${r.jukuren ? "＋熟練" : ""}、各+50まで）</h2><div style="overflow-x:auto"><table><tr><th></th>${head}</tr><tr><td style="text-align:left">合計</td>${CAPS.map((s) => `<td>${tot[s]}</td>`).join("")}</tr>${r.jukuren ? `<tr><td style="text-align:left">${r.jukuren}</td>${CAPS.map((s) => `<td>${SimEngine.jukurenOf(r.jukuren)[s] ? "+" + SimEngine.jukurenOf(r.jukuren)[s] : ""}</td>`).join("")}</tr>` : ""}<tr><td style="text-align:left">特訓値</td>${CAPS.map((s) => `<td><b>${r.train[s] || 0}</b></td>`).join("")}</tr></table></div></div>`;
   const trainTxt = Object.entries(r.train).filter(([k, v]) => v && (isP || !["球速", "コントロール", "スタミナ"].includes(k))).map(([k, v]) => `${k}+${v}`).join("　");
