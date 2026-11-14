@@ -117,7 +117,11 @@ for s in stories:
     for k in s["items"]:
         if k not in order:
             order.append(k)
-order = [k for k in order if k in common] + [k for k in order if k not in common]
+# 合計の表の並び順（管理人の指定）。ここに無い報酬は、その下に出てきた順で並ぶ
+SUM_ORDER = ["パワストーン", "PSRガチャ券", "PRガチャ券", "SRガチャ券", "SR10%ガチャ券", "SR20%ガチャ券", "SR30%ガチャ券",
+             "PRダイジョーブ博士像", "Rダイジョーブ博士像", "野手の極意", "投手の極意", "マネージャーの極意", "覚醒のカギ",
+             "金のきらめき", "銀のきらめき", "天才の入部届", "まねき猫", "カロリーバー"]
+order = [k for k in SUM_ORDER if k in order] + [k for k in order if k in common and k not in SUM_ORDER] + [k for k in order if k not in common and k not in SUM_ORDER]
 for k in order:
     vals = [s["items"].get(k, 0) for s in stories]
     diff = len(set(vals)) > 1
