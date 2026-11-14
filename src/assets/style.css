@@ -531,3 +531,11 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 @media (min-width:760px){.pm-tabs button{flex:1 1 0}}
 @media (max-width:340px){.pm-t{font-size:11px}.bt.pm-t th,.bt.pm-t td{padding:5px 3px}.pm-w{margin:0 -10px}}
 .bt.pm-t td.pm-soon{color:var(--muted);font-weight:500}
+/* パワクエの各ページの下の「パワクエのほかのページ」欄（build.py の pq_more が自動で入れる） */
+.pq-more{margin:32px 0 0;border:1px solid var(--line);border-radius:4px;padding:12px 16px;background:var(--surface);font-size:15px;line-height:1.6}
+.pq-more .pq-more-h{margin:0 0 4px;font-weight:900}
+.pq-more ul{margin:0;padding-left:1.3em}
+.pq-more li{margin:4px 0}
+.pq-more a{color:var(--accent);font-weight:700}
+.more-link{margin:8px 0 0;text-align:right;font-size:14px}
+.more-link a{color:var(--accent);font-weight:700}
