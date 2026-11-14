@@ -16,7 +16,7 @@ GA_ID = "G-F98XGNW3LS"                                    # Googleアナリテ�
 POLICY_DATE = "2026年10月"                    # プライバシーポリシーの制定日
 
 NAV = [("home", "", "トップ"), ("roman", "decks/roman/", "ロマン開花學園<small>投手</small>"),
-       ("andromeda", "decks/andromeda/", "アンドロメダ学園<small>野手</small>"), ("pawaque", "pawaque/contract_simulator/", "パワクエ"), ("about", "about/", "このサイトについて")]
+       ("andromeda", "decks/andromeda/", "アンドロメダ学園<small>野手</small>"), ("pawaque", "pawaque/", "パワクエ"), ("about", "about/", "このサイトについて")]
 
 here = pathlib.Path(__file__).parent
 src, out = here / "src", here / "docs"
@@ -62,9 +62,10 @@ def contact_block():
 
 # サイトマップの lastmod 用：作り直す前の各ページの中身と更新日を覚えておく（中身が変わったページだけ今日の日付にする）
 _VER_RE = re.compile(r"\?v=[0-9a-f]{8}")
-_DATE_RE = re.compile(r'<p class="pubdate">.*?</p>\n?|<script type="application/ld\+json">\{"@context": "https://schema.org", "@type": "Article".*?</script>\n?|<!--recent-->.*?<!--/recent-->', re.S)
+_DATE_RE = re.compile(r'<p class="pubdate">.*?</p>\n?|<script type="application/ld\+json">\{"@context": "https://schema.org", "@type": "Article".*?</script>\n?|<!--recent-->.*?<!--/recent-->'
+                      r'|<nav class="gnav".*?</nav>', re.S)   # メニュー（全ページ共通）を変えただけで全ページの更新日が変わらないように
 def _norm(html):
-    """前回と中身を比べるとき、?v= の番号・公開日/更新日の行・トップの「最近の更新」欄は除いて比べる"""
+    """前回と中身を比べるとき、?v= の番号・公開日/更新日の行・トップの「最近の更新」欄・メニューは除いて比べる"""
     return _DATE_RE.sub("", _VER_RE.sub("", html))
 _old_lastmod, _old_html = {}, {}
 if (out / "sitemap.xml").exists():
@@ -122,7 +123,7 @@ if (src / "pawaque").exists():
             _top = _lay[_lay.index('<svg width="0"'):_lay.index("</div></header>") + len("</div></header>")].replace("{{nav}}", _nav).replace("{{root}}", _root)
             _foot = _lay[_lay.index('<footer class="site">'):_lay.index("</footer>") + len("</footer>")].replace("{{root}}", _root)
             _vars = re.search(r":root\{.*?\}", _css, re.S).group(0)
-            _keep = ("header.site", ".hrow", ".brand", ".sns", "nav.gnav", "footer", ".crumbs", "body::before", ".wrap")
+            _keep = ("header.site", ".hrow", ".brand", ".sns", "nav.gnav", "footer", ".crumbs", "body::before", ".wrap", ".pq-more")
             _rules = [r for r in re.findall(r"[^{}]+\{[^{}]*\}", re.sub(r"/\*.*?\*/", "", _css, flags=re.S)) if r.strip().startswith(_keep)]
             _head = (_lay[_lay.index('<link rel="preconnect"'):_lay.index('<link rel="stylesheet" href="{{root}}assets/style.css">')]
                      + f'<link rel="icon" href="{_root}assets/favicon.svg" type="image/svg+xml">\n<meta name="theme-color" content="#1d5e43">\n'
@@ -192,6 +193,30 @@ for text in _all_pages:
     _parsed.append((dict(re.findall(r"^(\w+):[ \t]*(.*)$", meta_txt, re.M)), body))
 # パンくずリスト：ページの名前（meta の crumb、無ければ title の「｜」より前）。上の階層のページがあればそこを通る（無い階層は飛ばす）
 CRUMB = {m["path"]: m.get("crumb") or m["title"].split("｜")[0] for m, _ in _parsed}
+
+
+# パワクエのページ一覧（2026-11-14 管理人OK）。入口ページ /pawaque/ とトップの「パワクエ」欄のカード（{{pawaque_cards}}）、
+# パワクエの各ページの下の「パワクエのほかのページ」欄に自動で出す。src/pages/ のパワクエ記事は meta の card（カードの説明文）と
+# pq_order（並び順。小さいほど先）で並ぶ。新しいパワクエのページを足せば、全部の所に自動で増える（noindex のページは出さない）
+PQ_SIM = ("pawaque/contract_simulator/", "契約書シミュレータ", "契約書キャラの査定を、コーチ育成の最適な状態で計算。ランキング・比較・査定表つき。", 30)
+
+
+def pq_pages():
+    pages = [(m["path"], m.get("card_title") or CRUMB[m["path"]], m.get("card", ""), int(m.get("pq_order", 50)))
+             for m, _ in _parsed if m["path"].startswith("pawaque/") and m["path"] != "pawaque/" and m.get("noindex") != "yes"]
+    if (src / PQ_SIM[0] / "index.html").exists():
+        pages.append(PQ_SIM)
+    return sorted(pages, key=lambda x: (x[3], x[0]))
+
+
+def pq_cards():
+    return "\n".join(f'  <a class="scard" href="{{{{root}}}}{p}"><span class="tag p">パワクエ</span><h3>{n}</h3><p>{c}</p><span class="go" aria-hidden="true">→</span></a>'
+                     for p, n, c, _ in pq_pages())
+
+
+def pq_more(cur, root):
+    li = [f'<li><a href="{root}pawaque/">パワクエ攻略まとめ（入口）</a></li>'] + [f'<li><a href="{root}{p}">{n}</a></li>' for p, n, _, _ in pq_pages() if p != cur]
+    return f'<nav class="pq-more" aria-label="パワクエのほかのページ"><p class="pq-more-h">パワクエのほかのページ</p><ul>{"".join(li)}</ul></nav>\n'
 
 
 def crumbs(path):
@@ -284,6 +309,8 @@ for meta, body in _parsed:
     path = meta["path"]
     if path == "":
         body = body.replace("{{recent_updates}}", recent_html())
+    if path.startswith("pawaque/") and path != "pawaque/":
+        body += pq_more(path, "{{root}}")
     _chain = crumbs(path)
     if _chain:
         body = crumb_html(_chain) + body
@@ -295,7 +322,7 @@ for meta, body in _parsed:
     rep = {"title": meta["title"], "description": meta["description"], "canonical": f"{SITE_URL}/{path}",
            "robots": '<meta name="robots" content="noindex">' if noindex else "", "adsense_head": adsense_head(),
            "analytics_note": analytics_note(), "head_extra": ga_head() + '<meta name="google-site-verification" content="ZgxID967oum-2Mm1F5BCX9gvQE_vNl2ZDbXXWfyYP10" />', "nav": nav, "scripts": scripts, "operator": OPERATOR, "operator_intro": OPERATOR_INTRO,
-           "contact_block": contact_block(), "policy_date": POLICY_DATE, "ad": ad_block(), "gacha_cards": _gacha_cards,
+           "contact_block": contact_block(), "policy_date": POLICY_DATE, "ad": ad_block(), "gacha_cards": _gacha_cards, "pawaque_cards": pq_cards(),
            "og_image": og_image(meta, path)}
     # トップのランキングカードの評価日は、ランキングページ（src/ranking/ranking.json）の評価日を自動で使う（管理人指示 2026-11-10）。{{rk_date_roman}} など
     for _k, _d in DECKS.items():   # デッキページの title の「○選」（デッキの数。自動）
@@ -367,7 +394,18 @@ if (out / "tier").exists():
 if (out / "pawaque").exists():
     # src/pawaque/ から写した単体ページだけ足す（src/pages/ で作るパワクエの記事は、ほかの記事と同じ所でサイトマップに入る）
     for page in sorted((src / "pawaque").rglob("index.html")):
-        urls.append((f"{SITE_URL}/{page.parent.relative_to(src).as_posix()}/", None))
+        _p = page.parent.relative_to(src).as_posix() + "/"
+        _d = out / _p / "index.html"
+        _h = _d.read_text(encoding="utf-8")
+        if "</main>" in _h and 'class="pq-more"' not in _h:   # 下に「パワクエのほかのページ」欄
+            _h = _h.replace("</main>", pq_more(_p, "../" * _p.count("/")) + "</main>", 1)
+            _d.write_text(_h, encoding="utf-8")
+        # lastmod：中身が前回と同じなら前回の日付、変わっていたら今日（無ければ元ファイルを最後にコミットした日）
+        _u = f"{SITE_URL}/{_p}"
+        _lm = _old_lastmod.get(_u) if _old_html.get(_p + "index.html") == _norm(_h) else date.today().isoformat()
+        if not _lm:
+            _lm = _sp.run(["git", "log", "-1", "--format=%cs", "--", f"src/{_p}index.html"], cwd=here, capture_output=True, text=True).stdout.strip() or None
+        urls.append((_u, _lm))
 urls.append((f"{SITE_URL}/roman_costchecker/", None))  # コスト計算ツール（別リポジトリ roman_costchecker。同じドメインの下で公開）
 (out / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                  + "".join(f"  <url><loc>{u}</loc>" + (f"<lastmod>{m}</lastmod>" if m else "") + "</url>\n" for u, m in urls) + "</urlset>\n", encoding="utf-8")
