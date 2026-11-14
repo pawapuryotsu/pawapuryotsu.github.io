@@ -21,6 +21,7 @@
 main{max-width:980px;margin:0 auto;padding:16px}
 .phead{margin:8px 0 4px}.phead .eyebrow{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--clay);margin:0}
 h1{font-family:var(--head);font-weight:900;font-size:clamp(23px,6.4vw,30px);line-height:1.3;margin:2px 0 6px;text-wrap:balance}
+.scn{background:linear-gradient(transparent 55%,var(--marker) 55%,var(--marker) 92%,transparent 92%);-webkit-box-decoration-break:clone;box-decoration-break:clone}
 h1 .mk{padding:0 .3em;background:linear-gradient(transparent 55%,var(--marker) 55%,var(--marker) 92%,transparent 92%);-webkit-box-decoration-break:clone;box-decoration-break:clone}h1 .mk>i{display:inline-block;font-style:normal;transform:skewX(-8deg)}
 h2{font-family:var(--head);font-weight:900;font-size:16px;line-height:1.4;margin:0 0 8px;padding-left:8px;border-left:4px solid var(--acc)}
 .note{color:var(--sub);font-size:13px}
@@ -1419,7 +1420,7 @@ function renderResult(ch, lv, mode, N, r) {
       return `<tr><td>${kind}</td><td style="text-align:left">${withIco(c.name, `${nameHtml(c.name)}${tagOf(c) ? `<span class="note">${tagOf(c)}</span>` : ""}${c.前後 ? `<span class="note"> ${c.前後}</span>` : ""}${c.経験点上限 > 0 ? ' <span class="pill">経験点上限</span>' : ""}${mark}`)}</td>${CAPS.map((s) => `<td>${c.上限[s] || ""}</td>`).join("")}</tr>`;
     };
     const rows = d.main.map((j) => row(j, "メイン")).join("") + d.sup.map((j) => row(j, "サポ")).join("");
-    const srcRows = pl.items.map((x) => `<tr><td>${x.name}</td><td style="text-align:left">${x.from ? withIco(x.from, `${x.from}（${x.together}）`, "sm") : `シナリオ：${x.scenario}`}</td></tr>`).join("");
+    const srcRows = pl.items.map((x) => `<tr><td>${x.name}</td><td style="text-align:left">${x.from ? withIco(x.from, `${x.from}（${x.together}）`, "sm") : `<span class="scn">シナリオ：${x.scenario}</span>`}</td></tr>`).join("");
     return `<div class="card deck"><h2>育成選手${i + 1}人目</h2>
       <div style="overflow-x:auto"><table><tr><th>金特・威圧感</th><th style="text-align:left">取得元</th></tr>${srcRows}</table></div>
       <div class="note" style="margin-top:6px">伝授する青特：${(pl.blues || []).length ? pl.blues.map((n) => `<span class="pill blue">${n}</span>`).join("") : "なし"}</div>
