@@ -554,8 +554,9 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .qc-d dt:first-child{margin-top:0}
 .qc-d dd{margin:0}
 .qc-soon{color:#8a93a0}
-@media (min-width:760px){.qc-list{grid-template-columns:1fr 1fr}}
 .prose .qc-d{display:block}
 .prose .qc-d dt{display:block;width:auto;margin:6px 0 0;padding:0}
 .prose .qc-d dt:first-child{margin-top:0}
 .prose .qc-d dd{display:block;margin:0;padding:0}
+.qc-img{display:block;margin:8px 0 0;max-width:min(100%,420px);height:auto;border:1px solid var(--line);border-radius:4px}
+.qc-cap{margin:4px 0 0;font-size:13px;color:#5b6676}

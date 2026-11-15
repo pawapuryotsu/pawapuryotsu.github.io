@@ -23,8 +23,10 @@ for q in D["クエスト"]:
     named = re.fullmatch(r"[①-⑳]", no) is not None
     head = f'{e(no)}{e(title)}' if named else (f'{e(no)}<span class="qc-sub">{e(title)}</span>' if title else e(no))
     rows = [("ドロップしやすいアイテム", txt(q["ドロップしやすいアイテム"])), ("ボスドロップ", txt(q["ボスドロップ"]))]
-    if q["管理人メモ"]:
-        rows.append(("管理人メモ", txt(q["管理人メモ"])))
+    imgs = "".join(f'<img class="qc-img" src="{{{{root}}}}img/{e(g["file"])}" alt="{e(g.get("説明") or no + "の画像")}" loading="lazy">'
+                   + (f'<p class="qc-cap">{e(g["説明"])}</p>' if g.get("説明") else "") for g in q.get("画像", []))
+    if q["管理人メモ"] or imgs:
+        rows.append(("管理人メモ", (txt(q["管理人メモ"]) if q["管理人メモ"] else "") + imgs))
     if named and not title:
         head = f'{e(no)}<span class="qc-sub qc-soon">（配信後に追加）</span>'
     out.append(f'  <section class="qc" id="q{D["クエスト"].index(q) + 1}">')
