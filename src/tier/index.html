@@ -50,6 +50,7 @@ main{max-width:1100px;margin:0 auto;padding:16px}
 .sf{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:8px;font-size:13px}.sf label{display:flex;align-items:center;gap:4px}.sf input[type=number]{width:70px;background:#232326;color:var(--text);border:1px solid #444;border-radius:6px;padding:5px}
 .hidden{display:none!important}
 .notice{background:#2b2417;border:1px solid #6b5a2a;color:#f0d98a;border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:12px}
+.notice .nl{display:inline-block}
 .tabs{display:flex;gap:4px;margin-top:18px}
 .tabs button{border-radius:6px 6px 0 0}
 .tabs button.on{background:var(--accent);border-color:var(--accent)}
@@ -105,7 +106,7 @@ body.selecting{padding-bottom:70px}
   </div>
 
   <div id="poolwrap">
-    <div class="notice">※一部キャラクターは実装されていません</div>
+    <div class="notice"><span class="nl">※一部キャラクターは</span><span class="nl">実装されていません。</span><span class="nl">また、一部キャラクターは</span><span class="nl">イベキャラボーナスの</span><span class="nl">データが入っていません。</span><span class="nl">ご了承下さい。</span></div>
     <div id="poolbar">
       <strong>キャラ一覧（未配置）</strong>
       <button id="selall" title="いま表示されている未配置キャラをすべて選ぶ">表示中を全選択</button>
@@ -137,6 +138,10 @@ body.selecting{padding-bottom:70px}
     ・タイトル・サブタイトル・Tier名・アイコン下の文字に不適切な言葉が含まれていると、画像(PNG)で保存できません。
   </p></div>
   <div id="log" class="log hidden">
+    <h3>2026-11-15</h3>
+    <ul>
+      <li>注意書きに「一部キャラクターはイベキャラボーナスのデータが入っていません」を追加しました</li>
+    </ul>
     <h3>2026-11-11</h3>
     <ul>
       <li>「画像に名前も入れる」をオフにして保存・共有するとき、アイコンの上下の隙間を詰めて出力するようにしました</li>
