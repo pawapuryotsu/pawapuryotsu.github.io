@@ -568,6 +568,8 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .sk-c:hover .sk-l{text-decoration:underline}
 .sk-th{display:flex;align-items:center;justify-content:center;width:100%;max-width:200px;aspect-ratio:16/9;border:1px dashed var(--line);border-radius:4px;color:#8a93a0;font-size:12px;font-weight:500;line-height:1.4}
 .sk-th img{display:block;width:100%;height:100%;object-fit:cover;border-radius:4px}
+.sk-img{border:0}
+.sk-img img{object-fit:contain}
 .sk-soon{color:#8a93a0}
 .sk-s{font-size:12px;font-weight:500}
 @media (min-width:760px){.sk-grid{grid-template-columns:repeat(4,1fr)}}
