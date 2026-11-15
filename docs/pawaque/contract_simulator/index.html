@@ -146,7 +146,7 @@ main{max-width:860px;padding:8px max(16px,env(safe-area-inset-right,0px)) 48px m
 <div class="phead"><p class="eyebrow">パワクエ</p>
 <h1><span class="mk"><i>パワクエ</i> <i>契約書シミュレータ</i></span></h1>
 <p class="note">りょーつーが調べた査定表（2026-11-01）と、イベキャラのデータから計算します。計算結果は目安で、実際のチームランクと数点ずれることがあります。</p></div>
-<div class="tabs row"><button id="tb1" class="on">1人を調べる</button><button id="tb5">契約書を比べる</button><button id="tb4">理論値ランキング</button><button id="tb6">実装済み契約書</button><button id="tb7">査定表</button><button id="tb3">前提・注意</button></div>
+<div class="tabs row"><button id="tb1" class="on">1人を調べる</button><button id="tb5">契約書を比べる</button><button id="tb4">理論値ランキング</button><button id="tb6">実装済み契約書</button><button id="tb7">査定表</button><button id="tb3">前提・注意</button><button id="tb8">更新情報</button></div>
 
 <details id="exWrap" class="card"><summary><b>持っていないイベキャラを除外</b><span style="white-space:nowrap">（<span id="exCount">0</span>人）</span></summary>
   <p class="note">デッキ（特訓値・金特・威圧感の取得元）に使えないキャラを選びます。選んだキャラは、このブラウザに保存されます。</p>
@@ -274,6 +274,10 @@ main{max-width:860px;padding:8px max(16px,env(safe-area-inset-right,0px)) 48px m
 <li>コーチ+N＝育成選手N人、上限アップはN人分の合計、という理解で計算しています。</li>
 <li>熟練の○○の特訓値は、コーチ分に足してから+50で止める（コーチ分だけで+50を超える分は増えない）として計算しています。</li>
 </ul>
+</div>
+</section>
+<section id="p8" style="display:none">
+<div class="card">
 <h2>アップデート情報</h2>
 <ul>
 <li><b>2026-11-06</b>　ゲームのアップデートで伝授できるようになった特殊能力の査定を追加しました（査定表・理論値ランキングに反映）。
@@ -296,27 +300,29 @@ main{max-width:860px;padding:8px max(16px,env(safe-area-inset-right,0px)) 48px m
 <li><b>2026-11-03</b>　覚醒が「PSRのみ」の14項目が「共通」に戻っていたのを直しました。</li>
 </ul>
 </div>
-<details class="card"><summary><b>更新履歴</b></summary>
-<h2 style="margin-top:8px">2026-11-15 能力データ・限界Lvを追加（24人）</h2>
+<div class="card">
+<h2>更新履歴</h2>
+<p class="note" style="margin:0 0 6px">契約書データを入れた日ごとに、追加したキャラをポジション別に書いています。</p>
+<h3 style="margin:10px 0 4px;font-size:15px">2026-11-15 能力データ・限界Lvを追加（24人）</h3>
 <ul class="note" style="margin:4px 0 10px;padding-left:20px"><li>投手（4人）：オクタヴィア、堂江竜河、北斗八雲、太刀川広巳</li><li>捕手（3人）：水鳥忍、六道聖、二宮瑞穂</li><li>一塁手（6人）：一条一輝、沖野海里、内藤明瑠、三本松一、神宮寺光、マキシマム</li><li>二塁手（3人）：黒衛隆富、納見新造、館橋水奈都</li><li>遊撃手（5人）：東雲翔也、灰塚朔夜、小嵐リョウ、中之島幸宏、夏野向日葵</li><li>外野手（3人）：柳生鞘花、荒方紀礼、天音姫恋</li></ul>
 <p class="note" style="margin:0 0 10px">※この24人は能力データと限界Lvがそろったので、計算に使えるようになりました。</p>
-<h2 style="margin-top:14px">2026-11-15 能力データを追加（32人）</h2>
+<h3 style="margin:14px 0 4px;font-size:15px">2026-11-15 能力データを追加（32人）</h3>
 <ul class="note" style="margin:4px 0 10px;padding-left:20px"><li>投手（8人）：阿畑やすし、天城隼、木場嵐士、パピヨン、久方怜、橘みずき、山口賢、神高龍</li><li>捕手（4人）：猪狩進、桜ノ宮総司、美園千花、有村佐治</li><li>一塁手（4人）：滝本太郎、宇渡幹久、閃道極、川星ほむら</li><li>二塁手（2人）：浦賀有也、小平陽向</li><li>三塁手（1人）：祝井幸吉</li><li>遊撃手（4人）：小山雅、小田切巧、駒坂瞬、大越清亮</li><li>外野手（9人）：美藤千尋、志藤玲美、猛田慶次、大鐘餅太郎、城井伯斎、掘杉等、八嶋中、三森左京、七井=アレフト</li></ul>
 <p class="note" style="margin:0 0 10px">※この32人は能力データが入ったので、計算に使えるようになりました。</p>
-<h2 style="margin-top:14px">2026-11-14 限界Lvを追加（11人）</h2>
+<h3 style="margin:14px 0 4px;font-size:15px">2026-11-14 限界Lvを追加（11人）</h3>
 <ul class="note" style="margin:4px 0 10px;padding-left:20px"><li>投手（2人）：神高龍、白瀬芙喜子</li><li>捕手（1人）：日向らら</li><li>一塁手（2人）：ガジェット落合、閃道極</li><li>二塁手（2人）：黒衛隆富、ワーちゃん</li><li>三塁手（1人）：往田真威人</li><li>遊撃手（1人）：ジャベリン五十嵐</li><li>外野手（2人）：美藤千尋、天音姫恋</li></ul>
 <p class="note" style="margin:0 0 10px">※ガジェット落合以外は能力データが未入力のため、まだ計算には使えません。</p>
-<h2 style="margin-top:14px">2026-11-14 限界Lvを追加（44人）</h2>
+<h3 style="margin:14px 0 4px;font-size:15px">2026-11-14 限界Lvを追加（44人）</h3>
 <ul class="note" style="margin:4px 0 10px;padding-left:20px"><li>投手（10人）：阿畑やすし、天城隼、木場嵐士、蒼鳥つばさ、塚見巴、堂江竜河、パピヨン、久方怜、橘みずき、山口賢</li><li>捕手（4人）：猪狩進、桜ノ宮総司、美園千花、有村佐治</li><li>一塁手（6人）：一条一輝、滝本太郎、宇渡幹久、神宮寺光、マキシマム、川星ほむら</li><li>二塁手（4人）：浦賀有也、小平陽向、能見新造、館橋水奈都</li><li>三塁手（3人）：社長、番堂長児、祝井幸吉</li><li>遊撃手（5人）：小山雅、小田切巧、駒坂瞬、大越清亮、小嵐リョウ</li><li>外野手（12人）：セティーヌ、時任幽平、志藤玲美、郡司知将、猛田慶次、竹内脅人、大鐘餅太郎、城井伯斎、掘杉等、八嶋中、三森左京、七井=アレフト</li></ul>
 <p class="note" style="margin:0 0 10px">※蒼鳥つばさ以外は能力データが未入力のため、まだ計算には使えません。</p>
-<h2 style="margin-top:14px">2026-11-13 見た目を変更</h2>
+<h3 style="margin:14px 0 4px;font-size:15px">2026-11-13 見た目を変更</h3>
 <ul class="note" style="margin:4px 0 10px;padding-left:20px"><li>色・文字・見出しを、パワプロアプリ攻略ベースのほかのページと同じデザインにしました。</li><li>イベキャラの名前の左にアイコンを表示するようにしました（デッキ・ランキング・検索・実装済み契約書など）。</li><li>計算の結果は変わりません。</li></ul>
-<h2 style="margin-top:14px">2026-11-13 限界Lvを追加（3人）</h2>
+<h3 style="margin:14px 0 4px;font-size:15px">2026-11-13 限界Lvを追加（3人）</h3>
 <ul class="note" style="margin:4px 0 10px;padding-left:20px"><li>一塁手（1人）：本場あんこ</li><li>遊撃手（1人）：東優</li><li>外野手（1人）：瀧上輝汐</li></ul>
 <p class="note" style="margin:0 0 10px">※本場あんこ・東優は能力データが未入力のため、まだ計算には使えません。</p>
-<h2 style="margin-top:14px">2026-11-13 契約書を追加（90人）</h2>
+<h3 style="margin:14px 0 4px;font-size:15px">2026-11-13 契約書を追加（90人）</h3>
 <ul class="note" style="margin:4px 0 10px;padding-left:20px"><li>投手（37人）：史門泰司、白霧凍子、白浜浅海、涼風希望、須藤零人、銭形乱蔵、樽本有太、蝶野半四郎、鶴屋勝、バーリス・ロセオ、鋼毅、深見和仁、凡田大介、真黒綱寛、盛本雄飛、テキート・ヤールゼン、休森遊、闇野栄剛、レッド、ゼンザイ、美多村知秋、阿麻央真、青葉春人、アンヌ、猪狩守、泉谷未来、犬河和音、伊貫大和、伊能麗示、江暦輝、大西=ハリソン=筋金、尾根瑛人、梶増人、久遠ヒカル、楠糸律、ケヒャール、ゼルヴィー・ハイゼンベルク</li><li>捕手（7人）：ナヌーク、伍歩倫人、梶杏嘉、小鷹美麗、木崎彰、尾上亜月、久留米美加</li><li>一塁手（4人）：土門季音、ヌウビス、[バレンタイン？]本場あんこ、怪しいもの屋の店主</li><li>二塁手（11人）：黒珠真、物茂渡、須々木清吾、茶来元気、蛇島桐人、ミンミン、四条賢二、峰本遊児、千代姫、冴木創、[プライベート]館橋</li><li>三塁手（9人）：塚見リフター、兼倉洋平、少豪月剛、望戸紅、大空美代子、[フランケン]往田真威人、鮫島粂太郎、千賀篤志、才賀侑人</li><li>遊撃手（6人）：田中山太郎、六本木優希、十六夜満、ギャネンドラ、宇佐崎詠子、ピンク</li><li>外野手（16人）：鏡空也、宮田良哉、真開伊瑠花、清江留萌、九十九宇宙、ミッキー・バーミリオン、矢部田亜希子、DJB-K、火野勇太郎、天宮果也乃、矢部明雄、金原いずる、[帝王実業]猛田慶次、[マジカルプレイヤー]魔近ルウ、渋谷秀喜、男・矢部明雄</li></ul>
-</details>
+</div>
 </section>
 <nav class="pq-more" aria-label="パワクエのほかのページ"><p class="pq-more-h">パワクエのほかのページ</p><ul><li><a href="../../pawaque/">パワクエ攻略まとめ（入口）</a></li><li><a href="../../pawaque/basics/">パワクエ超基本まとめ</a></li><li><a href="../../pawaque/mission/">ミッション報酬まとめ</a></li><li><a href="../../pawaque/coach/">コーチ専用選手の作り方</a></li></ul></nav>
 </main>
@@ -1834,9 +1840,9 @@ function showSatei() {
 }
 $("stSel").onchange = () => { stModes(); showSatei(); }; $("stQ").oninput = showSatei; stModes(); showSatei();
 // タブ
-["1", "3", "4", "5", "6", "7"].forEach((k) => ($("tb" + k).onclick = () => {
-  $("exWrap").hidden = k === "3" || k === "4" || k === "6" || k === "7";
-  ["1", "3", "4", "5", "6", "7"].forEach((j) => { (j === "7" ? $("pst") : $("p" + j)).style.display = j === k ? "" : "none"; $("tb" + j).className = j === k ? "on" : ""; });
+["1", "3", "4", "5", "6", "7", "8"].forEach((k) => ($("tb" + k).onclick = () => {
+  $("exWrap").hidden = k === "3" || k === "4" || k === "6" || k === "7" || k === "8";
+  ["1", "3", "4", "5", "6", "7", "8"].forEach((j) => { (j === "7" ? $("pst") : $("p" + j)).style.display = j === k ? "" : "none"; $("tb" + j).className = j === k ? "on" : ""; });
 }));
 </script>
 </body>
