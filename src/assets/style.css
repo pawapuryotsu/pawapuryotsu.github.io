@@ -539,3 +539,23 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .pq-more a{color:var(--accent);font-weight:700}
 .more-link{margin:8px 0 0;text-align:right;font-size:14px}
 .more-link a{color:var(--accent);font-weight:700}
+/* パワクエ西球記：クエスト一覧（tools/pawaque_quest_list.py） */
+.qc-list{display:grid;gap:10px;margin:12px 0 0}
+.qc{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fff;color:#222}
+.prose .qc-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0;padding:8px 12px;background:#33415c;color:#fff;font-size:16px;line-height:1.4;border:0}
+.qc-h::before,.qc-h::after{display:none}
+.qc-t{font-weight:900;min-width:0}
+.qc-sub{font-weight:700;margin-left:6px}
+.qc-h .qc-soon{color:#c9d1dd;font-weight:500;font-size:13px;margin-left:4px}
+.qc-a{flex:none;font-size:12px;font-weight:700;background:#fff;color:#33415c;border-radius:999px;padding:1px 10px;white-space:nowrap}
+.qc-a b{font-size:15px;margin-left:6px}
+.qc-d{margin:0;padding:8px 12px 10px;display:grid;grid-template-columns:1fr;gap:2px;font-size:14px;line-height:1.6}
+.qc-d dt{font-size:12px;font-weight:900;color:#5b6676;margin-top:4px}
+.qc-d dt:first-child{margin-top:0}
+.qc-d dd{margin:0}
+.qc-soon{color:#8a93a0}
+@media (min-width:760px){.qc-list{grid-template-columns:1fr 1fr}}
+.prose .qc-d{display:block}
+.prose .qc-d dt{display:block;width:auto;margin:6px 0 0;padding:0}
+.prose .qc-d dt:first-child{margin-top:0}
+.prose .qc-d dd{display:block;margin:0;padding:0}
