@@ -1,4 +1,4 @@
-"""パワクエ西球記ページ（src/pages/pawaque-saikyuki.html）の「クエスト一覧」を作る。
+"""パワクエ西球記のクエスト一覧ページ（src/pages/pawaque-saikyuki-quest.html）の「クエスト一覧」を作る。
 データは src/pawaque_data/saikyuki_quests.json（管理人が送ったゲーム画面のとおりに入れる。推測で入れない）。
 使い方： python3 tools/pawaque_quest_list.py → python3 build.py
 ページの <!-- QUESTS:START --> と <!-- QUESTS:END --> の間を書き換える。"""
@@ -7,7 +7,7 @@ from pathlib import Path
 
 here = Path(__file__).resolve().parent.parent
 D = json.loads((here / "src/pawaque_data/saikyuki_quests.json").read_text(encoding="utf-8"))
-page = here / "src/pages/pawaque-saikyuki.html"
+page = here / "src/pages/pawaque-saikyuki-quest.html"
 e = html.escape
 SOON = '<span class="qc-soon">配信後に追加します</span>'
 
