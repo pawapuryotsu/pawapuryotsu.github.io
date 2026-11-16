@@ -573,4 +573,4 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .sk-img img{object-fit:contain}
 .sk-soon{color:#8a93a0}
 .sk-s{font-size:12px;font-weight:500}
-@media (min-width:760px){.sk-grid{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:760px){.sk-grid{grid-template-columns:repeat(4,1fr)}}
