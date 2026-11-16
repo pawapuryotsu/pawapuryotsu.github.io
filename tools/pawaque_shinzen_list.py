@@ -44,3 +44,6 @@ assert "<!-- SHINZEN:START -->" in s and "<!-- SHINZEN:END -->" in s, "SHINZEN �
 s = re.sub(r"(<!-- SHINZEN:START -->).*?(<!-- SHINZEN:END -->)", lambda m: m.group(1) + "\n" + block + "\n  " + m.group(2), s, flags=re.S)
 page.write_text(s, encoding="utf-8")
 print("ok", len(D["対戦相手"]), "件")
+
+import subprocess, sys
+subprocess.run([sys.executable, str(here / "tools/pawaque_saikyuki_top.py")], check=True)
