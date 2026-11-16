@@ -13,8 +13,12 @@ SOON = '<span class="qc-soon">あとで追加します</span>'
 
 
 def item(x):
+    # 「の契約書」は途中で折り返さない（幅320pxで「契約|書」と割れたため）
+    t = e(x)
+    if t.endswith("の契約書"):
+        t = t[:-4] + '<span class="cp-nw">の契約書</span>'
     # ［○○］の二つ名が付いた契約書は青の太字（管理人 2026-11-16）
-    return f'<span class="em-blue">{e(x)}</span>' if x.startswith("［") and "契約書" in x else e(x)
+    return f'<span class="em-blue">{t}</span>' if x.startswith("［") and "契約書" in x else t
 
 
 def lst(v):
