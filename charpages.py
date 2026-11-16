@@ -479,6 +479,16 @@ def combo_html(x, root, me=None):
     return f'<div class="cp-combo"><h3 class="cp-ev cp-ev-combo">{e(x["名前"])}</h3>{basic}{subs}</div>'
 
 
+def events_wip(body):
+    """キャラページの「イベント詳細」欄にイベント内容が1つも書かれていなければ True（そのページは noindex にする）。
+    ボーナス・評価が入っていても、イベント内容が無ければ noindex。イベント内容が書かれていれば外す（2026-11-17 管理人）"""
+    m = re.search(r'のイベント詳細</span></h2>(.*?)</section>', body, re.S)
+    if not m:
+        return True
+    rest = re.sub(r'<h3.*?</h3>|<p class="?muted"?>準備中です。</p>', "", m.group(1), flags=re.S)
+    return not re.sub(r"<[^>]+>|\s", "", rest)
+
+
 def section(title, inner, empty="準備中です。"):
     # 見出しの最後の「の○○」（の評価・の基本情報…）は折り返さない（「価」だけ次の行になる等を防ぐ）
     head, sep, tail = title.rpartition("の")
@@ -818,6 +828,8 @@ def generate(chars_path, src, decks, noindex=True):
                 _BASE_PID.setdefault(n, pid)
     pages, items = [], []
     # noindex は管理人が指定したページだけ（2026-11-16 管理人「調査中しか書いてないページ以外は全部noindex付けないで。指定したもの以外は付けるな」）
+    # ＋イベント内容が1つも書かれていないキャラは検索に出さない（ボーナスや評価が入っていても）。イベント内容を書けば自動で外れる
+    #   （2026-11-17 管理人「イベント内容が記載されてないものはnoindexを付ける。記載されているならnoindexを外す」）
     hide = set(config.get("検索に出さないページ", []))
     for pid, name in config["公開するキャラ"].items():
         if not re.fullmatch(r"\d{4}", pid):
@@ -842,9 +854,9 @@ def generate(chars_path, src, decks, noindex=True):
                     f"description: パワプロアプリ（サクセス・パワクエ共通）のイベキャラ {full}{yomi_paren(c)} のボーナス、金特、イベント選択肢、選手能力をまとめています。\n")
         # トップ「最近の更新」での名前（管理人指示 2026-11-12）
         meta += f"recent_title: {full}のイベント{'・評価' if has_eval(c, text) else ''}\n"
-        meta += f"path: {path}\nnav: none\ncrumb: {full}\n" + ("noindex: yes\n" if pid in hide else "")
         body = (head_html(full, c, pid, has_eval(c, text))   # 評価があるキャラは大見出しも「評価・イベントまとめ」（2026-11-12 管理人 案A）
                 + build_page(c, text, config, decks, kinds))
+        meta += f"path: {path}\nnav: none\ncrumb: {full}\n" + ("noindex: yes\n" if pid in hide or events_wip(body) else "")
         pages.append(f"<!--\n{meta}-->\n{body}")
     # データ未入力のキャラ（名前と読みだけ決まっている）。ページは「準備中」で、検索には出さない
     for pid, st in config.get("準備中のキャラ", {}).items():
