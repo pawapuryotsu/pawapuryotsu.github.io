@@ -4,7 +4,7 @@
 使い方： python3 tools/pawaque_saikyuki_top.py → python3 build.py
 （tools/pawaque_quest_list.py と tools/pawaque_shinzen_list.py の最後でも自動で呼ばれる）
 ページの <!-- SKTOP:START --> と <!-- SKTOP:END --> の間を書き換える。
-中身がまだのページは READY を False にすると「準備中」と表示する。"""
+中身がまだのページは READY を False にすると「準備中」と表示し、リンクにしない（そのページには noindex: yes も書く）。原稿を入れたら True にして noindex を消す。"""
 import html, json, re
 from pathlib import Path
 
@@ -37,8 +37,10 @@ def memo(t):
 
 def card(href, img, alt, w, h, label, sub, ready=True):
     sub_html = f'<span class="sk-s">{sub}</span>' if ready else '<span class="sk-s sk-wait">準備中</span>'
-    return (f'    <a class="sk-c" href="{{{{root}}}}{href}"><span class="sk-th sk-img"><img src="{{{{root}}}}img/pawaque/{img}" '
-            f'alt="{e(alt)}" width="{w}" height="{h}"></span><span class="sk-l">{label}</span>{sub_html}</a>')
+    # 準備中のページはリンクにしない（noindex で検索にも出さない。2026-11-17 管理人「準備中のものは公開しない」）
+    tag, attr = ("a", f' href="{{{{root}}}}{href}"') if ready else ("div", "")
+    return (f'    <{tag} class="sk-c{"" if ready else " sk-off"}"{attr}><span class="sk-th sk-img"><img src="{{{{root}}}}img/pawaque/{img}" '
+            f'alt="{e(alt)}" width="{w}" height="{h}"></span><span class="sk-l">{label}</span>{sub_html}</{tag}>')
 
 
 out = ['  <section class="sk-nav" aria-label="西球記の関連ページ">',

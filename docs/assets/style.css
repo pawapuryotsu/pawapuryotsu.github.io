@@ -600,3 +600,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .prose .sk-list li{margin-bottom:6px}
 /* パワクエ入口：最新シナリオのカード（ロゴ画像つき） */
 .scard.pq-latest img{display:block;width:100%;max-width:320px;height:auto;margin:0 auto 4px}
+/* 西球記トップ：準備中のページのカード（リンクにしない） */
+.sk-c.sk-off{color:#8a93a0;cursor:default}
+.sk-c.sk-off:hover .sk-l{text-decoration:none}
+.sk-c.sk-off img{opacity:.55}
