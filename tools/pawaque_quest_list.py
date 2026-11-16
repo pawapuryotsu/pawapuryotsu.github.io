@@ -17,8 +17,13 @@ def emtxt(s):
     return "<br>".join("".join(f'<span class="cp-nw">{e(p)}</span>' for p in x.split("|")) if "|" in x else e(x) for x in s.split("\n"))
 
 
+def item(x):
+    # ［○○］の二つ名が付いた契約書は青の太字（管理人 2026-11-16）
+    return f'<span class="em-blue">{e(x)}</span>' if x.startswith("［") and "契約書" in x else e(x)
+
+
 def txt(s):
-    return "<br>".join(e(x) for x in s.split("\n")) if s else SOON
+    return "<br>".join(item(x) for x in s.split("\n")) if s else SOON
 
 
 out = ['<div class="qc-list">']
