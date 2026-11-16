@@ -4,7 +4,7 @@
 使い方： python3 tools/pawaque_saikyuki_top.py → python3 build.py
 （tools/pawaque_quest_list.py と tools/pawaque_shinzen_list.py の最後でも自動で呼ばれる）
 ページの <!-- SKTOP:START --> と <!-- SKTOP:END --> の間を書き換える。
-中身がまだのページは READY を False にすると「準備中」と表示し、リンクにしない（そのページには noindex: yes も書く）。原稿を入れたら True にして noindex を消す。"""
+中身がまだのページは READY を False にするとカードごと出さない（そのページには noindex: yes も書く）。原稿を入れたら True にして noindex を消す。"""
 import html, json, re
 from pathlib import Path
 
@@ -36,11 +36,11 @@ def memo(t):
 
 
 def card(href, img, alt, w, h, label, sub, ready=True):
-    sub_html = f'<span class="sk-s">{sub}</span>' if ready else '<span class="sk-s sk-wait">準備中</span>'
-    # 準備中のページはリンクにしない（noindex で検索にも出さない。2026-11-17 管理人「準備中のものは公開しない」）
-    tag, attr = ("a", f' href="{{{{root}}}}{href}"') if ready else ("div", "")
-    return (f'    <{tag} class="sk-c{"" if ready else " sk-off"}"{attr}><span class="sk-th sk-img"><img src="{{{{root}}}}img/pawaque/{img}" '
-            f'alt="{e(alt)}" width="{w}" height="{h}"></span><span class="sk-l">{label}</span>{sub_html}</{tag}>')
+    # 準備中のページはカードごと出さない（2026-11-17 管理人「カードごと消す」）。原稿が入ったら READY を True に
+    if not ready:
+        return None
+    return (f'    <a class="sk-c" href="{{{{root}}}}{href}"><span class="sk-th sk-img"><img src="{{{{root}}}}img/pawaque/{img}" '
+            f'alt="{e(alt)}" width="{w}" height="{h}"></span><span class="sk-l">{label}</span><span class="sk-s">{sub}</span></a>')
 
 
 out = ['  <section class="sk-nav" aria-label="西球記の関連ページ">',
@@ -105,6 +105,10 @@ for q in done:
 if rows:
     out += ['  <h2 id="boss-contract">契約書がボスドロップするクエスト</h2>', '  <ul class="sk-list">'] + rows + ['  </ul>', '']
 
+out = [x for x in out if x is not None]   # 準備中で出さないカードを除く
+_n = sum(1 for x in out if x.startswith('    <a class="sk-c"'))
+if _n % 3 and _n % 2 == 0:   # PC（3列）で空きマスが出る枚数（4枚など）は、PCを2列ではなく枚数に合わせた列にする
+    out = [x.replace('<div class="sk-grid">', f'<div class="sk-grid sk-g{_n if _n <= 4 else 2}">') for x in out]
 block = "\n".join(out)
 s = page.read_text(encoding="utf-8")
 assert "<!-- SKTOP:START -->" in s and "<!-- SKTOP:END -->" in s, "SKTOP の目印が見つからない"
