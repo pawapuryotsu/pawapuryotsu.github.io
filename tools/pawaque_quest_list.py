@@ -9,7 +9,7 @@ here = Path(__file__).resolve().parent.parent
 D = json.loads((here / "src/pawaque_data/saikyuki_quests.json").read_text(encoding="utf-8"))
 page = here / "src/pages/pawaque-saikyuki-quest.html"
 e = html.escape
-SOON = '<span class="qc-soon">配信後に追加します</span>'
+SOON = '<span class="qc-soon">あとで追加します</span>'
 
 
 def txt(s):
@@ -28,7 +28,7 @@ for q in D["クエスト"]:
     if q["管理人メモ"] or imgs:
         rows.append(("管理人メモ", (txt(q["管理人メモ"]) if q["管理人メモ"] else "") + imgs))
     if named and not title:
-        head = f'{e(no)}<span class="qc-sub qc-soon">（配信後に追加）</span>'
+        head = f'{e(no)}<span class="qc-sub qc-soon">（あとで追加）</span>'
     out.append(f'  <section class="qc" id="q{D["クエスト"].index(q) + 1}">')
     out.append(f'    <h3 class="qc-h"><span class="qc-t">{head}</span><span class="qc-a">エリア数<b>{area if area is not None else "－"}</b></span></h3>')
     out.append('    <dl class="qc-d">' + "".join(f"<dt>{k}</dt><dd>{v}</dd>" for k, v in rows) + "</dl>")
