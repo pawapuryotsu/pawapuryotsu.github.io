@@ -1684,7 +1684,7 @@ function theoryDetail(x) {
     const adj = d.bd["サブポジ調整"] ? `<tr><td>サブポジ調整（×${f}）</td><td></td><td></td><td>${fmt(d.bd["サブポジ調整"][2])}</td></tr>` : "";
     const sk = skillsCard(ch, isP ? x.mode : x.mode, isP, { skills: d.sk });
     return `<div class="card"><div class="big" style="font-size:20px">査定合計 ${fmt(x.total)}</div><div class="note">基礎能力 ${fmt(x.base + x.train)} ＋ 特殊能力 ${fmt(x.skill)}</div></div>
-    <div class="card"><h2>基礎能力（Lv${x.lv}・特訓値込み）</h2><div style="overflow-x:auto"><table class="bt"><tr><th style="text-align:left">能力</th><th>Lv時</th><th>合計</th><th>査定</th></tr>${rows}${adj}</table></div></div>${sk}`;
+    <div class="card"><h2>基礎能力（Lv${x.lv}・特訓値込み）</h2><div style="overflow-x:auto"><table class="bt"><tr><th style="text-align:left">能力</th><th>最大<br>Lv時</th><th>特訓値<br>最大</th><th>査定</th></tr>${rows}${adj}</table></div></div>${sk}`;
   } finally { SimEngine.opts.subF = old; }
 }
 function nameHtml(n) { const m = /^(\[[^\]]*\])(.+)$/.exec(n); return m ? `<span class="nk">${m[1]}</span><span class="nm">${m[2]}</span>` : `<span class="nm">${n}</span>`; }
@@ -1881,7 +1881,7 @@ function showSatei() {
     const T = DATA.skills[v], pitchSide = v === "投手";
     const rows = Object.entries(T).filter(([n, e]) => e.種類 === stS.kind && !STHIDE.has(n) && !stShared(v, n, e) && !(e.種類 === "赤特" && !OWNED.has(n)) && (!q || norm(n).includes(q))).map(([n, e]) => { const a = main ? e.st : e.bn, tot = main ? e.main : e.sub; return [n, tot, ...a]; });
     const nt = { 投手: "投手キャラの投手特能です。", 投手の野手特能: "投手キャラが持つ野手特能です（野手スタメンの打撃・機動・守備の1/5、投手力0）。鉄人・精神的支柱など投手も普通に取れる特能は「特殊能力：投手キャラ」の表に載せています。", 野手の投手特能: "野手キャラが持つ投手特能です（推定。投手の打撃・機動・守備の5倍、投手力0）。鉄人・精神的支柱など野手も普通に取れる特能は「特殊能力：野手キャラ」の表に載せています。", 野手: "野手キャラの野手特能です。" }[v];
-    out.innerHTML = (stS.kind === "金特" ? stGoldFull(v, T, main, q, nt, tbl) : "") + tbl(["特殊能力", "査定合計", "打撃力", "機動力", "守備力", "投手力"], rows, `${stS.kind === "金特" ? "<b>単独値の表</b>　" : ""}${rows.length}件。${nt}金特・◎の値は、下位の特能を含まない単独値です。` + (v === "野手" && stS.kind === "赤特" ? "赤特はすべて0です。" : ""));
+    out.innerHTML = (stS.kind === "金特" ? stGoldFull(v, T, main, q, nt, tbl) : "") + tbl(["特殊能力", "査定合計", "打撃力", "機動力", "守備力", "投手力"], rows, `${stS.kind === "金特" ? "<b>単独値の表</b>　" : ""}${rows.length}件。${nt}${{ 青特: "◎の値は、下位の特能を含まない単独値です。", 金特: "下位の特能を含まない単独値です。" }[stS.kind] || ""}` + (v === "野手" && stS.kind === "赤特" ? "赤特はすべて0です。" : ""));
   }
 }
 // 「投手キャラの野手特能」「野手キャラの投手特能」の表には、自分の側の表にも同じ名前・同じ下位で載っている特能（鉄人・精神的支柱・ケガしにくさ・人気者など、野手も投手も普通に取れるもの）は出さない。
