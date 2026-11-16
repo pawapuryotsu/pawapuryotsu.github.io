@@ -827,7 +827,7 @@ def generate(chars_path, src, decks, noindex=True):
         if nm in chars:
             for n in alias_names(chars[nm]):
                 _BASE_PID.setdefault(n, pid)
-    pages, items = [], []
+    pages, items, unlisted = [], [], set()
     # noindex は管理人が指定したページだけ（2026-11-16 管理人「調査中しか書いてないページ以外は全部noindex付けないで。指定したもの以外は付けるな」）
     # ＋イベント内容が1つも書かれていないキャラは検索に出さない（ボーナスや評価が入っていても）。イベント内容を書けば自動で外れる
     #   （2026-11-17 管理人「イベント内容が記載されてないものはnoindexを付ける。記載されているならnoindexを外す」）
@@ -857,7 +857,10 @@ def generate(chars_path, src, decks, noindex=True):
         meta += f"recent_title: {full}のイベント{'・評価' if has_eval(c, text) else ''}\n"
         body = (head_html(full, c, pid, has_eval(c, text))   # 評価があるキャラは大見出しも「評価・イベントまとめ」（2026-11-12 管理人 案A）
                 + build_page(c, text, config, decks, kinds))
-        meta += f"path: {path}\nnav: none\ncrumb: {full}\n" + ("noindex: yes\n" if pid in hide or events_wip(body) else "")
+        hidden = pid in hide or events_wip(body)
+        if hidden:
+            unlisted.add(pid)   # 検索に出さないキャラはイベキャラ一覧にも出さない（2026-11-17 管理人。イベントを書けば自動で戻る）
+        meta += f"path: {path}\nnav: none\ncrumb: {full}\n" + ("noindex: yes\n" if hidden else "")
         pages.append(f"<!--\n{meta}-->\n{body}")
     # データ未入力のキャラ（名前と読みだけ決まっている）。ページは「準備中」で、検索には出さない
     for pid, st in config.get("準備中のキャラ", {}).items():
@@ -877,7 +880,7 @@ def generate(chars_path, src, decks, noindex=True):
     pages += ranking_pages(items, config, chars, chars_path)
     if _COMBOS:
         pages.append(combo_page())
-    pages.append(index_page(items, config, False))
+    pages.append(index_page([t for t in items if t[0] not in unlisted and not t[1].get("_準備中")], config, False))
     return pages
 
 
@@ -971,7 +974,6 @@ def index_page(items, config, noindex):
             "description: パワプロアプリのイベキャラのボーナス・金特・イベントをまとめたページの一覧です。名前や読みで検索できます。\n"
             "path: chars/\nnav: none\n" + ("noindex: yes\n" if noindex else ""))
     body = (f'''<section class="phead"><p class="eyebrow">イベキャラ</p><h1>イベキャラ一覧</h1></section>
-<p class="cl-notice"><span>※過去に登場したキャラクターの大半は</span><span>まだ情報入っていませんので</span><span>ご了承ください。</span><br><span>随時更新していきますので</span><span>よろしくお願いします。</span></p>
 <div class="cl">
 <input type="search" id="cl-q" class="cl-q" placeholder="名前・読み・二つ名で検索" aria-label="イベキャラを検索">
 <div class="cl-chips">{chips}</div>
