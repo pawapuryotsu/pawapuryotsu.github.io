@@ -12,8 +12,18 @@ e = html.escape
 SOON = '<span class="qc-soon">あとで追加します</span>'
 
 
+def emtxt(s):
+    # 赤メモ・青メモ：「|」で区切ると、その区切りでだけ改行する（言葉の途中で切れないように）
+    return "<br>".join("".join(f'<span class="cp-nw">{e(p)}</span>' for p in x.split("|")) if "|" in x else e(x) for x in s.split("\n"))
+
+
+def item(x):
+    # ［○○］の二つ名が付いた契約書は青の太字（管理人 2026-11-16）
+    return f'<span class="em-blue">{e(x)}</span>' if x.startswith("［") and "契約書" in x else e(x)
+
+
 def txt(s):
-    return "<br>".join(e(x) for x in s.split("\n")) if s else SOON
+    return "<br>".join(item(x) for x in s.split("\n")) if s else SOON
 
 
 out = ['<div class="qc-list">']
@@ -25,8 +35,11 @@ for q in D["クエスト"]:
     rows = [("ドロップしやすいアイテム", txt(q["ドロップしやすいアイテム"])), ("ボスドロップ", txt(q["ボスドロップ"]))]
     imgs = "".join(f'<img class="qc-img" src="{{{{root}}}}img/{e(g["file"])}" alt="{e(g.get("説明") or no + "の画像")}" loading="lazy">'
                    + (f'<p class="qc-cap">{e(g["説明"])}</p>' if g.get("説明") else "") for g in q.get("画像", []))
-    if q["管理人メモ"] or imgs:
-        rows.append(("管理人メモ", (txt(q["管理人メモ"]) if q["管理人メモ"] else "") + imgs))
+    red = f'<span class="em-red">{emtxt(q["赤メモ"])}</span>' if q.get("赤メモ") else ""
+    blue = f'<span class="em-blue">{emtxt(q["青メモ"])}</span>' if q.get("青メモ") else ""
+    memo = "<br>".join(x for x in (blue, red, txt(q["管理人メモ"]) if q["管理人メモ"] else "") if x)
+    if memo or imgs:
+        rows.append(("管理人メモ", memo + imgs))
     if named and not title:
         head = f'{e(no)}<span class="qc-sub qc-soon">（あとで追加）</span>'
     out.append(f'  <section class="qc" id="q{D["クエスト"].index(q) + 1}">')
