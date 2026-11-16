@@ -598,3 +598,5 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .sk-c .sk-s{color:#5b6676}
 .sk-c .sk-wait{display:inline-block;padding:1px 8px;border:1px solid #c9d1dd;border-radius:10px;color:#8a93a0;background:#f4f5f7}
 .prose .sk-list li{margin-bottom:6px}
+/* パワクエ入口：最新シナリオのカード（ロゴ画像つき） */
+.scard.pq-latest img{display:block;width:100%;max-width:320px;height:auto;margin:0 auto 4px}
