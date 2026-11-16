@@ -201,18 +201,20 @@ CRUMB = {m["path"]: m.get("crumb") or m["title"].split("｜")[0] for m, _ in _pa
 PQ_SIM = ("pawaque/contract_simulator/", "契約書シミュレータ", "契約書キャラの査定を、コーチ育成の最適な状態で計算。ランキング・比較・査定表つき。", 30)
 
 
-def pq_pages():
+def pq_pages(skip_latest=False):
+    # skip_latest：パワクエ入口の「お役立ち情報」欄では、「最新シナリオ」欄に出すページ（meta の pq_latest: yes）を出さない（2026-11-17 管理人）
     pages = [(m["path"], m.get("card_title") or CRUMB[m["path"]], m.get("card", ""), int(m.get("pq_order", 50)))
              for m, _ in _parsed if m["path"].startswith("pawaque/") and m["path"] != "pawaque/" and m.get("noindex") != "yes"
+             and not (skip_latest and m.get("pq_latest") == "yes")
              and m["path"].count("/") == 2]   # 西球記の下のページ（pawaque/saikyuki/feature/ など）は出さない。西球記トップから行く（2026-11-16 管理人）
     if (src / PQ_SIM[0] / "index.html").exists():
         pages.append(PQ_SIM)
     return sorted(pages, key=lambda x: (x[3], x[0]))
 
 
-def pq_cards():
+def pq_cards(skip_latest=False):
     return "\n".join(f'  <a class="scard" href="{{{{root}}}}{p}"><span class="tag p">パワクエ</span><h3>{n}</h3><p>{c}</p><span class="go" aria-hidden="true">→</span></a>'
-                     for p, n, c, _ in pq_pages())
+                     for p, n, c, _ in pq_pages(skip_latest))
 
 
 def pq_more(cur, root):
@@ -334,7 +336,7 @@ for meta, body in _parsed:
     rep = {"title": meta["title"], "description": meta["description"], "canonical": f"{SITE_URL}/{path}",
            "robots": '<meta name="robots" content="noindex">' if noindex else "", "adsense_head": adsense_head(),
            "analytics_note": analytics_note(), "head_extra": ga_head() + '<meta name="google-site-verification" content="ZgxID967oum-2Mm1F5BCX9gvQE_vNl2ZDbXXWfyYP10" />', "nav": nav, "scripts": scripts, "operator": OPERATOR, "operator_intro": OPERATOR_INTRO,
-           "contact_block": contact_block(), "policy_date": POLICY_DATE, "ad": ad_block(), "gacha_cards": _gacha_cards, "pawaque_cards": pq_cards(),
+           "contact_block": contact_block(), "policy_date": POLICY_DATE, "ad": ad_block(), "gacha_cards": _gacha_cards, "pawaque_cards": pq_cards(), "pawaque_tips_cards": pq_cards(True),
            "og_image": og_image(meta, path)}
     # トップのランキングカードの評価日は、ランキングページ（src/ranking/ranking.json）の評価日を自動で使う（管理人指示 2026-11-10）。{{rk_date_roman}} など
     for _k, _d in DECKS.items():   # デッキページの title の「○選」（デッキの数。自動）
