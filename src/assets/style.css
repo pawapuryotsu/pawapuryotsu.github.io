@@ -586,3 +586,6 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .bt.sen-t tbody th{min-width:0}
 .sen-t td.sen-f{text-align:left}
 .bt.sen-t tr.sen-cat th{background:#eef0f2;color:#222;text-align:left;font-size:.92em}
+/* 神前試合まとめの対戦相手カード（画像は管理人の見本と同じ 722x342） */
+.sz-b{padding:10px 12px 0}
+.qc .sz-img{max-width:100%;width:100%;margin:0}

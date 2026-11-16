@@ -1,0 +1,17 @@
+{
+ "_説明": "西球記の神前試合の対戦相手一覧。値はゲーム画面のとおり（推測で入れない）。画像は src/img/ からのパスで、722x342（管理人の見本と同じ切り方。/mnt/project-files/powaque/saikyuki_shinzen/tools/crop_shinzen.py）。空の欄は「あとで追加」と表示。使い方：python3 tools/pawaque_shinzen_list.py → python3 build.py",
+ "対戦相手": [
+  {
+   "対戦相手": "乱馬チーム",
+   "画像": "pawaque/saikyuki_shinzen_ranma.jpg",
+   "進化対象": ["真・変幻自在", "真・電光石火"],
+   "固有スカウト選手候補": ["早乙女　乱馬の契約書", "天道　あかねの契約書"]
+  },
+  {
+   "対戦相手": "覇堂野球流",
+   "画像": "pawaque/saikyuki_shinzen_hado.jpg",
+   "進化対象": ["真・怪物球威", "真・鉄腕"],
+   "固有スカウト選手候補": ["金原　いずるの契約書", "木場　嵐士の契約書", "土門　季音の契約書", "水鳥　忍の契約書"]
+  }
+ ]
+}
