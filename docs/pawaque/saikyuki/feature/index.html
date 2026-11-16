@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+1p:wght@900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Saira+Condensed:wght@600;700&display=swap">
-<link rel="stylesheet" href="../../../assets/style.css?v=2f7e8408">
+<link rel="stylesheet" href="../../../assets/style.css?v=2a836a74">
 <meta name="google-adsense-account" content="ca-pub-8546020269968696">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8546020269968696" crossorigin="anonymous"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F98XGNW3LS"></script>
@@ -65,11 +65,52 @@
   <nav class="toc" aria-label="このページの目次">
   <b>もくじ</b>
   <ol>
+    <li><a href="#sennjutsu">西球記専用ギミック「仙術」</a></li>
     <li><a href="#square">西球記専用マス</a></li>
     <li><a href="#item">西球記専用アイテム</a></li>
     <li><a href="#skill">西球記専用スキル</a></li>
   </ol>
   </nav>
+
+  <h2 id="sennjutsu">西球記専用ギミック「仙術」</h2>
+  <!-- 仙術の章は管理人の指示で、公式「遊び方」の内容をClaudeが短くまとめた（2026-11-16。公式ページを3回読み、回復の術の「確率で」の有無は原文の引用で確認）。公式へのリンクは載せない -->
+  <p>仙術は、西球記だけで使える特別な技です。<span class="em-blue">クエスト③から使えるようになり、エリアの開始時に自動で発動します。</span>クエスト④から出てくる「桃マス」に止まると、その場でもう一度仙術を<span class="cp-nw">使えます。</span></p>
+  <p>自動発動の仙術は、一度発動すればそのクエストの間ずっと効果が続きます。発動中の仙術は、マップ画面の左上のボタンで確認できます。仙術によっては、使える回数に限りが<span class="cp-nw">あります。</span></p>
+
+  <h3 id="sennjutsu_list">仙術の種類</h3>
+  <div class="bt-wrap"><table class="bt sen-t">
+    <thead><tr><th scope="col">仙術</th><th scope="col">効果</th><th scope="col">必要な書</th></tr></thead>
+    <tbody>
+      <tr class="sen-cat"><th colspan="3" scope="rowgroup">マップ変動</th></tr>
+      <tr><th scope="row">袋変換の術</th><td class="sen-f">ゴールマスのアイテム袋の<span class="cp-nw">レア度が上がる</span></td><td>袋ノ書</td></tr>
+      <tr><th scope="row">錬金の術</th><td class="sen-f">今いるマスの周り2マスを金マスに変える</td><td>－</td></tr>
+      <tr><th scope="row">空白変換の術</th><td class="sen-f">周り2マスの空白マスを、野手特訓マスか投手特訓マスに変える（どちらになるかはランダム）</td><td>空白ノ書</td></tr>
+      <tr class="sen-cat"><th colspan="3" scope="rowgroup">自動発動</th></tr>
+      <tr><th scope="row">回復の術 野訓</th><td class="sen-f">野手特訓マスに止まると、確率で<span class="cp-nw">1ターン回復</span></td><td>野訓ノ書</td></tr>
+      <tr><th scope="row">回復の術 投訓</th><td class="sen-f">投手特訓マスに止まると、確率で<span class="cp-nw">1ターン回復</span></td><td>投訓ノ書</td></tr>
+      <tr><th scope="row">回復の術 総練</th><td class="sen-f">総合練習マスに止まると、確率で<span class="cp-nw">2ターン回復</span></td><td>－</td></tr>
+      <tr><th scope="row">回復の術 縁</th><td class="sen-f">イベントマスに止まると、<span class="cp-nw">1ターン回復</span></td><td>－</td></tr>
+      <tr><th scope="row">回復の術 金</th><td class="sen-f">金マスに止まると、<span class="cp-nw">2ターン回復</span></td><td>金ノ書</td></tr>
+      <tr><th scope="row">回復の術 空白</th><td class="sen-f">空白マスに止まると、確率で<span class="cp-nw">1ターン回復</span></td><td>－</td></tr>
+      <tr><th scope="row">回復の術 戦</th><td class="sen-f">神前試合マスに止まると、<span class="cp-nw">2ターン回復</span></td><td>－</td></tr>
+      <tr class="sen-cat"><th colspan="3" scope="rowgroup">能力アップ</th></tr>
+      <tr><th scope="row">修練の術 特能</th><td class="sen-f">特殊能力マスの効果を<span class="cp-nw">その場で発動</span></td><td>特能ノ書</td></tr>
+      <tr><th scope="row">修練の術 野手</th><td class="sen-f">野手特訓マスの効果を<span class="cp-nw">その場で発動</span></td><td>－</td></tr>
+      <tr><th scope="row">修練の術 投手</th><td class="sen-f">投手特訓マスの効果を<span class="cp-nw">その場で発動</span></td><td>－</td></tr>
+      <tr><th scope="row">修練の術 総合</th><td class="sen-f">総合練習マスの効果を<span class="cp-nw">その場で発動</span></td><td>－</td></tr>
+      <tr><th scope="row">呼応の術</th><td class="sen-f">スカウトマスの効果を<span class="cp-nw">その場で発動</span></td><td>呼応ノ書</td></tr>
+      <tr class="sen-cat"><th colspan="3" scope="rowgroup">移動</th></tr>
+      <tr><th scope="row">郷雲の法</th><td class="sen-f">ボス戦マスのとなりのマスへ移動（ボス戦マスが2つ以上ある時はランダム）</td><td>－</td></tr>
+      <tr><th scope="row">星雲の法</th><td class="sen-f">スタートマスへ移動</td><td>－</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="pq-steps" style="padding-left:1.3em;margin-top:10px">
+    <li>錬金の術で金マスに変わるのは、総合練習・野手特訓・投手特訓・特殊能力・スカウト・イベント・ミラクルの各マスです。それぞれ対応する金マスに<span class="cp-nw">なります。</span></li>
+    <li>郷雲の法と星雲の法は、ターンを使わずに移動できます。移動した先で突発イベントが起こることも<span class="cp-nw">あります。</span></li>
+  </ul>
+
+  <h3 id="sennjutsu_book">仙術指南ノ書</h3>
+  <p>表の「必要な書」にある仙術は、そのままでは使えません。西球記でだけ手に入る専用アイテム<span class="cp-nw">「仙術指南ノ書」</span>を持っていくと、書についているスキルで対応する仙術が使えるように<span class="cp-nw">なります。</span></p>
 
   <h2 id="square">西球記専用マス</h2>
   <p>【本文：管理人の原稿】</p>

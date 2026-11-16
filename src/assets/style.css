@@ -578,3 +578,11 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .pm-sum thead .pm-nb{white-space:nowrap}
 @media (max-width:340px){.bt.pm-sum thead th{font-size:10px!important;padding-left:0;padding-right:0}}
 @media (max-width:420px){.bt.pm-sum thead th{font-size:11px;padding-left:1px;padding-right:1px;letter-spacing:0}}
+/* 西球記の特徴：仙術の表 */
+.bt.sen-t{table-layout:fixed;font-size:clamp(12px,3.4vw,15px)}
+.sen-t th:nth-child(1){width:30%}.sen-t th:nth-child(3){width:5.4em}
+.bt.sen-t td:nth-child(3){white-space:nowrap;padding-left:2px;padding-right:2px}
+.bt.sen-t th,.bt.sen-t td{white-space:normal;line-height:1.45;padding:6px 6px}
+.bt.sen-t tbody th{min-width:0}
+.sen-t td.sen-f{text-align:left}
+.bt.sen-t tr.sen-cat th{background:#eef0f2;color:#222;text-align:left;font-size:.92em}
