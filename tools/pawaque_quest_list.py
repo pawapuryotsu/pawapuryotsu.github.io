@@ -31,7 +31,8 @@ for q in D["クエスト"]:
     no, title = q["番号"], q["タイトル"]
     area = q["エリア数"]
     named = re.fullmatch(r"[①-⑳]", no) is not None
-    head = f'{e(no)}{e(title)}' if named else (f'{e(no)}<span class="qc-sub">{e(title)}</span>' if title else e(no))
+    # タイトルも「|」で区切ると、その区切りでだけ改行する（スマホで言葉の途中で切れないように）
+    head = f'{e(no)}{emtxt(title)}' if named else (f'{e(no)}<span class="qc-sub">{emtxt(title)}</span>' if title else e(no))
     rows = [("ドロップしやすいアイテム", txt(q["ドロップしやすいアイテム"])), ("ボスドロップ", txt(q["ボスドロップ"]))]
     imgs = "".join(f'<img class="qc-img" src="{{{{root}}}}img/{e(g["file"])}" alt="{e(g.get("説明") or no + "の画像")}" loading="lazy">'
                    + (f'<p class="qc-cap">{e(g["説明"])}</p>' if g.get("説明") else "") for g in q.get("画像", []))

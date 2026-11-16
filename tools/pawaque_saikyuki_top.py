@@ -82,7 +82,7 @@ for q in done:
     for k, cls in (("青メモ", "em-blue"), ("赤メモ", "em-red"), ("管理人メモ", "")):
         if q.get(k):
             t = memo(q[k])
-            memos.append(f'    <li><a href="{{{{root}}}}pawaque/saikyuki/quest/#{qid(q)}">{e(q["番号"] + q["タイトル"])}</a>：'
+            memos.append(f'    <li><a href="{{{{root}}}}pawaque/saikyuki/quest/#{qid(q)}">{e(q["番号"] + q["タイトル"].replace("|", ""))}</a>：'
                          + (f'<span class="{cls}">{t}</span>' if cls else t) + '</li>')
 if memos:
     out += ['  <h2 id="memo">クエストのポイント</h2>', '  <ul>'] + memos + ['  </ul>', '']
@@ -93,7 +93,7 @@ for q in done:
     cs = [x for x in q.get("ボスドロップ", "").split("\n") if "契約書" in x]
     if cs:
         items = "、".join(f'<span class="em-blue">{e(x)}</span>' if x.startswith("［") else e(x) for x in cs)
-        rows.append(f'    <li><a href="{{{{root}}}}pawaque/saikyuki/quest/#{qid(q)}">{e(q["番号"] + q["タイトル"])}</a>：{items}</li>')
+        rows.append(f'    <li><a href="{{{{root}}}}pawaque/saikyuki/quest/#{qid(q)}">{e(q["番号"] + q["タイトル"].replace("|", ""))}</a>：{items}</li>')
 if rows:
     out += ['  <h2 id="boss-contract">契約書がボスドロップするクエスト</h2>', '  <ul class="sk-list">'] + rows + ['  </ul>', '']
 
