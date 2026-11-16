@@ -1,0 +1,43 @@
+{
+  "id": "2026_1116_shido_remi",
+  "title": "ループガチャ [エアギター]志藤玲美（復刻）",
+  "chara": "[エアギター]志藤玲美",
+  "char_page": "chars/0010/",
+  "icon": "img/chars/0010.png",
+  "period": "2026年11月16日(月)14:00〜12月4日(金)13:59",
+  "checked": "2026-11-16",
+  "sources": [
+    {"label": "ガチャのお知らせ", "url": "https://asc.s.konaminet.jp/asc/pawasma/webpage/news/event_gacha/2026_1116_Gacha_SynYW5-A5.php?set_user_id=0"},
+    {"label": "提供割合", "url": "https://asc.s.konaminet.jp/asc/pawasma/webpage/news/gacha_probs/event_6589_5QfxAqBm.php?set_user_id=0"}
+  ],
+  "loop": true,
+  "old_ver": true,
+  "old_name": "志藤玲美（[エアギター]以外）",
+  "share": {"PSR": 23.27, "SR": 23.27, "PR": 16.03, "R": 18.2},
+  "steps": [
+    {"name": "ステップ1", "pulls": 6, "cost": 25, "slots": [
+      {"n": 1, "label": "「SR」以上1枚確定枠", "rarity": {"PSR": 0.5, "SR": 99.5}, "target": "share"},
+      {"n": 5, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ2", "pulls": 10, "cost": 40, "slots": [
+      {"n": 1, "label": "「PR」以上の「[エアギター]志藤玲美」1枚確定枠", "rarity": {"PSR": 0.5, "SR": 3, "PR": 96.5}, "target": "only"},
+      {"n": 9, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ3", "pulls": 10, "cost": 50, "slots": [
+      {"n": 8, "label": "「R」以上の「[エアギター]志藤玲美」8枚確定枠", "rarity": {"PSR": 0.5, "SR": 3, "PR": 20.95, "R": 75.55}, "target": "only"},
+      {"n": 2, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ4", "pulls": 10, "cost": 50, "slots": [
+      {"n": 1, "label": "「SR」以上の「[エアギター]志藤玲美」1枚確定枠", "rarity": {"PSR": 0.5, "SR": 99.5}, "target": "only"},
+      {"n": 9, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ5", "pulls": 10, "cost": 50, "slots": [
+      {"n": 2, "label": "「PR」以上の「[エアギター]志藤玲美」2枚確定枠", "rarity": {"PSR": 0.5, "SR": 3, "PR": 96.5}, "target": "only"},
+      {"n": 8, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ6", "pulls": 10, "cost": 50, "slots": [
+      {"n": 1, "label": "「PSR」の「[エアギター]志藤玲美」1枚確定枠", "rarity": {"PSR": 100}, "target": "only"},
+      {"n": 9, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]}
+  ]
+}

@@ -112,7 +112,7 @@ def _body(g, root_icon, src_dir):
         rows = "".join(f'<tr><th scope="row" class="g-{r}">{r}</th>' + "".join(
             f'<td><input type="number" inputmode="numeric" min="0" max="9" data-old="{3 - i}_{l}" autocomplete="off" aria-label="旧バージョンの{r}+{l}の枚数"></td>' for l in range(6))
             + "</tr>" for i, r in enumerate(RS))
-        old_box = (f'<div class="g-dj g-old" data-nb><p class="g-h">旧バージョンの{c}を持っている場合（枚数を入れる）</p>'
+        old_box = (f'<div class="g-dj g-old" data-nb><p class="g-h">旧バージョンの{e(g.get("old_name") or c)}を持っている場合（枚数を入れる）</p>'
                    '<table class="g-oldt"><thead><tr><th></th>' + "".join(f'<th scope="col">+{l}</th>' for l in range(6)) + f'</tr></thead><tbody>{rows}</tbody></table>'
                    '<p class="g-oldb"><button type="button" id="g-oldgo">計算する</button><button type="button" id="g-oldclr" class="ghost">クリア</button></p>'
                    '<p class="g-olds" id="g-olds" aria-live="polite"></p>'
