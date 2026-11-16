@@ -197,11 +197,20 @@ def main():
             fails['PSR50'].append(tx)
             if sr45[-1][0, 0, 0] >= .999 and psr50[-1][0, 0, 0, 0] >= .995 and (st + 1) % L == 0:
                 break
+        if g.get("mix"):   # 別バージョン（通常版など）も同じガチャから出る：その分も素材に使う確率にする（gacha_calc/mix.py。初回は数十分）
+            import mix
+            vp7 = vpf.reshape(KS + 1, KL + 1, KL + 1, 5, S + 1, C + 1, D + 1)
+            ms, ml, mp = mix.mix_tables(dict(g, id=f), len(sr45), vs, vp7, S, C, D, KS, KL)
+            sr45 = [np.maximum(a, b) for a, b in zip(sr45, ms)]
+            lv40 = [np.maximum(a, b) for a, b in zip(lv40, ml)]
+            psr50 = [np.maximum(a, b) for a, b in zip(psr50, mp)]
         # %で小数4桁まで。100 は「ちょうど100%」のときだけ（それ以外は 99.9999 まで）
         # 計算の誤差で1に見えても、失敗する可能性のある手持ちが残っていれば100%にしない
         pct = lambda xs, k: [100.0 if np.ravel(m)[0] == 0 else min(round(float(x) * 100, 4), 99.9999) for x, m in zip(xs, fails[k])]   # [0]＝博士像なし
         out = {"KS": KS, "KL": KL, "gotSR": pct(got_sr, "gotSR"), "gotPSR": pct(got_psr, "gotPSR"), "LV40": pct([x[0, 0, 0] for x in lv40], "LV40"),
                "SR45": pct([x[0, 0, 0] for x in sr45], "SR45"), "PSR50": pct([x[0, 0, 0, 0] for x in psr50], "PSR50")}
+        if g.get("mix"):
+            out["mixcap"] = list(mix.CAP)
         (root / "src" / "gacha" / (f + ".tables.json")).write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
         # 博士像ありの表：[SR45][LV40][PSR50] の順、各 [像の組み合わせ][ステップ]、値は 確率×65535（uint16。0と65535はちょうど0%・100%のときだけ）
         def u16(x, k):

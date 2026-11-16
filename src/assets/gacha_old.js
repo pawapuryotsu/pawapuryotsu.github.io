@@ -161,6 +161,7 @@
     }
     return null;
   }
+  // job.sim＝true のときは、手持ち→完成確率の表（Ws・Wp）だけ返す（周回ごとの確率は作らない）
   // job：{ steps, loop, share, nch, extra, old:[{r,l,n}], dj:{PSR,SR,PR,R}, KL }。get(path)＝assets/ 以下のファイルを ArrayBuffer で返す
   async function run(job, get, progress) {
     const old = [];
@@ -195,6 +196,7 @@
     }
     const termP = term, Wp = solve(wasm, stP, term, dims, aux).out;
     progress && progress(3);
+    if (job.sim) return { sim: true, Ws, Wp };   // シミュレータ用（手持ち→完成確率の表だけ。ガチャで出た別バージョンのカードを足したとき）
     // ガチャを1枠ずつ引いて、ステップごとの確率を出す（gacha_calc/build_tables.py と同じ）
     const ex = wasm.exports;
     ex.reset();

@@ -111,9 +111,28 @@ def _body(g, root_icon, src_dir):
     data["tables"] = chs[0]["tables"]
     # 旧バージョンの手持ちの入力欄（json の "old_ver": true のガチャだけ。計算は assets/gacha_old.js がブラウザでする）
     old_box = old_notes = ""
-    if g.get("old_ver"):
+    mix = g.get("mix")   # 別バージョン（通常版など）も同じガチャから出る（計算は gacha_calc/mix.py。シミュレータは assets/gacha_old.js）
+    mix_sim = mix_cnt = mix_note = ""
+    if g.get("old_ver") or mix:
         import hashlib
         data["old_v"] = hashlib.md5(b"".join((src_dir / "assets" / f).read_bytes() for f in ("gacha_old.js", "gacha_old.wasm"))).hexdigest()[:8]
+    if mix:
+        assert not multi, "mix は出現率アップキャラが1人のガチャだけ"
+        mn, ms = e(mix["name"]), e(mix["short"])
+        cap = g["tables"]["mixcap"]   # 計算に入れた枚数の上限（R, PR, SR, PSR。gacha_calc/mix.py の CAP）
+        used_txt = f'今回のガチャで出た{c}と{ms}の{mn}' + (f'、{exf(chs[0])}' if exf(chs[0]) else "")   # 表の下・計算のしかたの「何を使うか」
+        data["mix"] = {"n": mix["n"], "short": mix["short"]}
+        mix_sim = f'このガチャでは{ms}の{mn}も出ます（上限開放の素材に使えます）。'
+        mix_cnt = (f'<p class="g-v">ガチャで出た{ms}の{mn}（素材）：<b id="g-mixc">なし</b></p>'
+                   f'<p class="muted" id="g-mixn" hidden>{ms}のカードが多すぎるため、{ms}を使わない場合の確率を表示しています。</p>')
+        mix_note = "".join("\n    <li>" + x + "</li>" for x in [
+            f'<b>このガチャでは{ms}の{mn}も出現し、上限開放の素材に使えます。上の確率は、ガチャで出た{ms}も素材に使う前提です</b>'
+            f'（{ms}は、出現率アップではない{mix["n"]}人の中に入っています。公式の「それぞれの各イベキャラの出現割合は均一」により、そのレアリティが出たときの残りの割合を{mix["n"]}人で等分して計算しています）。',
+            f'{ms}は「別バージョンの素材」です。同じレアリティに合成すると50%で+1（今回のバージョン同士なら100%）、1ランク下の素材として使うときは今回のバージョンと同じ確率です。'
+            f'{ms}の使い方は、旧バージョンの手持ちを入れたときと同じ方法で調べています（合成の順番を全部は調べていないので、本当に一番良い手順の確率より、わずかに低く出ることがあります）。',
+            f'{ms}は、R{cap[0]}枚・PR{cap[1]}枚・SR{cap[2]}枚・PSR{cap[3]}枚までを計算に入れています（それより多く出た分は使わない計算です。確率への影響はごくわずかです）。'
+            f'博士像は{ms}のカードには使わない計算です。'])
+    if g.get("old_ver"):
         rows = "".join(f'<tr><th scope="row" class="g-{r}">{r}</th>' + "".join(
             f'<td><input type="number" inputmode="numeric" min="0" max="9" data-old="{3 - i}_{l}" autocomplete="off" aria-label="旧バージョンの{r}+{l}の枚数"></td>' for l in range(6))
             + "</tr>" for i, r in enumerate(RS))
@@ -190,14 +209,14 @@ def _body(g, root_icon, src_dir):
   <h2 id="sim">引いてみる（シミュレータ）</h2>
   {only_both('<p class="g-note">シミュレータは1人ずつです。上のボタンで' + "・".join(e(ch["chara"]) for ch in chs) + 'を選ぶと使えます。</p>')}
   <div data-nb>
-  <p>ボタンを押すと、公式の提供割合どおりの確率で{c}が出ます。{sim_ex}「達成できる確率」は、今の手持ち（と上で選んだ博士像）を一番成功率が高い順番で合成した場合のおおよその確率です。</p>
+  <p>ボタンを押すと、公式の提供割合どおりの確率で{c}が出ます。{mix_sim}{sim_ex}「達成できる確率」は、今の手持ち（と上で選んだ博士像）を一番成功率が高い順番で合成した場合のおおよその確率です。</p>
   <div class="g-sim">
     <div class="g-btns"><button type="button" data-pull="1">1ステップ</button><button type="button" data-pull="{len(g["steps"])}">1周</button><button type="button" data-pull="{10 * len(g["steps"])}" class="ghost">10周</button></div>
     <p class="g-next">次は <b id="g-next"></b> <button type="button" id="g-reset">リセット</button></p>
     <div class="g-stat g-stat2"><div>引いた回数<b id="g-pulls">0連</b></div><div>使った石<b id="g-stones">0個</b></div></div>
     <p class="g-h">手持ちの{c}</p>
     <div class="g-cnt">{"".join(f'<div class="g-{r}">{r}<b id="g-c{r}">0</b></div>' for r in RS)}</div>
-    <p class="g-h">今の手持ちで達成できる確率</p>
+    {mix_cnt}<p class="g-h">今の手持ちで達成できる確率</p>
     <p class="g-v">Lv40：<b id="g-vlv">0%</b></p><div class="g-bar"><i id="g-vlvb"></i></div>
     <p class="g-v">SR Lv45（PSRもSRに合成）：<b id="g-vsr">0%</b></p><div class="g-bar"><i id="g-vsrb"></i></div>
     <p class="g-v">PSR Lv50：<b id="g-vpsr">0%</b></p><div class="g-bar"><i id="g-vpsrb"></i></div>
@@ -217,7 +236,7 @@ def _body(g, root_icon, src_dir):
     <li><b>合成の順番は、手持ちのPSR・SR・PR・Rの{c}を見て、完成する確率が一番高くなる順番を全パターン調べて選んでいます</b>。1枚ずつそのまま合成するか、素材を育ててから合成するかは、手持ちの枚数とあと何段階で完成かによって変わるため、決まった順番はありません。</li>
     <li>引き終わってから、まとめて合成した場合の確率です。</li>
     <li>上限開放済みのカードは、同じレアリティで同時に1枚だけ育てる前提です。この前提のため、本当に一番良い手順の確率より、わずかに低く出ることがあります（ほとんどの場合0.1ポイント未満）。</li>
-    <li>{used_txt}で計算しています（それ以外にすでに持っている分は入れていません）。</li>{more_notes}
+    <li>{used_txt}で計算しています（それ以外にすでに持っている分は入れていません）。</li>{mix_note}{more_notes}
     <li>Lv40は、PSRが1枚以上出る（PSRは上限開放なしでLv40）か、SRを+3まで上限開放できる確率です。</li>
     <li><b>SR Lv45の確率は、出たPSRもSRに合成する前提の確率です</b>（PSRを合成するとSRが必ず+1）。PSRを素材にしない場合は、これより低くなります。</li>
     <li>Lv40・SR Lv45・PSR Lv50の確率は、それぞれ「手持ちを全部その目標に使った場合」の確率です。3つを同時に達成できる確率ではありません。</li>
