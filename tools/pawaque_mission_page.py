@@ -8,9 +8,9 @@ from pathlib import Path
 
 here = Path(__file__).resolve().parent.parent
 D = json.loads((here / "src/pawaque_data/mission.json").read_text(encoding="utf-8"))
-AS_OF = "2026/11/14"
+AS_OF = "2026/11/16"
 # まだ配信前で、名前だけ先に載せるストーリー（名前, 予定）。配信されたら mission.json に足して、ここから消す
-COMING = [("西球記", "2026/11/16 14時 配信予定")]
+COMING = []
 e = html.escape
 CATS = ["クエストクリア", "プレイ回数", "ベストチームのランク", "チーム総合力の累計", "チームの能力", "スカウト人数", "ボス戦の勝利数", "その他"]
 
@@ -64,7 +64,7 @@ def rew_item(x, comma, only):
 
 
 def head(name):
-    return f'<span class="pm-full">{nb(name)}</span><span class="pm-abbr">{e(SHORT[name])}</span>' if name in SHORT else e(name)
+    return f'<span class="pm-full">{nb(name)}</span><span class="pm-abbr">{e(SHORT[name])}</span>' if name in SHORT else f'<span class="pm-nb">{e(name)}</span>'   # 3文字の名前は途中で折り返さない
 
 
 def num(s):
@@ -85,7 +85,7 @@ for s in stories:
 out = []
 out.append(f"""<!--
 title: パワクエ ミッション報酬まとめ｜パワプロアプリ攻略ベース
-description: パワプロアプリのパワクエのミッション報酬を、球炎島・月姫伝・冥界トライアル・幻想野球冒険伝のストーリーごとに一覧にまとめました。アイテムコストの合計と、ストーリーごとの違いも比べられます。
+description: パワプロアプリのパワクエのミッション報酬を、球炎島・月姫伝・冥界トライアル・幻想野球冒険伝・西球記のストーリーごとに一覧にまとめました。アイテムコストの合計と、ストーリーごとの違いも比べられます。
 path: pawaque/mission/
 nav: pawaque
 card: ミッションでもらえる報酬とアイテムコストを、ストーリーごとに一覧に<span class="cp-nw">しました。</span>
