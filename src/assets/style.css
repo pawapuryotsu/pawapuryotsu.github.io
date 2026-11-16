@@ -573,4 +573,8 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .sk-img img{object-fit:contain}
 .sk-soon{color:#8a93a0}
 .sk-s{font-size:12px;font-weight:500}
-@media (min-width:760px){.sk-grid{grid-template-columns:repeat(4,1fr)}}
+@media (min-width:760px){.sk-grid{grid-template-columns:repeat(3,1fr)}}
+/* ミッション報酬まとめ：合計の表の見出し（3文字のストーリー名）をスマホでも1行に */
+.pm-sum thead .pm-nb{white-space:nowrap}
+@media (max-width:340px){.bt.pm-sum thead th{font-size:10px!important;padding-left:0;padding-right:0}}
+@media (max-width:420px){.bt.pm-sum thead th{font-size:11px;padding-left:1px;padding-right:1px;letter-spacing:0}}
