@@ -203,7 +203,8 @@ PQ_SIM = ("pawaque/contract_simulator/", "契約書シミュレータ", "契約�
 
 def pq_pages():
     pages = [(m["path"], m.get("card_title") or CRUMB[m["path"]], m.get("card", ""), int(m.get("pq_order", 50)))
-             for m, _ in _parsed if m["path"].startswith("pawaque/") and m["path"] != "pawaque/" and m.get("noindex") != "yes"]
+             for m, _ in _parsed if m["path"].startswith("pawaque/") and m["path"] != "pawaque/" and m.get("noindex") != "yes"
+             and m["path"].count("/") == 2]   # 西球記の下のページ（pawaque/saikyuki/feature/ など）は出さない。西球記トップから行く（2026-11-16 管理人）
     if (src / PQ_SIM[0] / "index.html").exists():
         pages.append(PQ_SIM)
     return sorted(pages, key=lambda x: (x[3], x[0]))
