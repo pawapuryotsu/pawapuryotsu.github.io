@@ -152,6 +152,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--sub);font-weight:70
     <li>図鑑はPSR(+20)、上限突破なし、コーチ+4。持っていないキャラの除外はしません。PSRなしのキャラだけ図鑑SR(+10)です。</li>
     <li>全能力の特訓値は+50（球速は上限190）。変化量はすべて7。コーチ+4のデッキで上げきれない分も、チーム加入後に上げる前提の理論値です。</li>
     <li>伝授する金特・青特は、査定が最大になる組み合わせです。</li>
+    <li><b>投手の先発・中継ぎ・抑えの適正は、まだ計算に反映していません。</b>どの投手キャラも、すべての役割に適正がある前提で計算しています。<span style="display:inline-block">[ムーンライト]橘みずき</span>（先発の適正が低め）をはじめ、役割によって適正が低めのキャラが複数いますが、そのぶんはまだランキングに入っていません。</li>
   </ul>
   <h2>「特能全取得」の数え方</h2>
   <ul class="note" style="margin:4px 0 10px;padding-left:20px">
@@ -160,7 +161,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--sub);font-weight:70
     <li>金特の下位にあたる青特は数えません。</li>
   </ul>
   <h2>サブポジの扱い（守備位置別のランキング）</h2>
-  <p class="note" style="margin:4px 0 4px">その位置がサブポジのキャラも載せています（※サブポジの表記は緑文字）。</p>
+  <p class="note" style="margin:4px 0 4px">その位置がサブポジのキャラも載せています（※サブポジの表記は緑文字）。「サブポジのキャラを外す」にチェックすると、その位置がメインポジションのキャラだけで並べます。</p>
   <ul class="note" style="margin:4px 0 10px;padding-left:20px">
 <li>◎：メインポジションと同じ査定です（至高の〇〇などもサブポジで落ちません）。</li>
 <li>〇・△・×：守備力にかかる査定だけが、〇は0.9倍、△は0.8倍、×は0.7倍になります。対象は、基礎能力の肩力・守備力・捕球の査定の合計と、特殊能力の守備の査定分です。打撃力・機動力の査定は変わりません。至高の〇〇・球界の頭脳などのポジション専用の特能も、サブポジでは0にならず、同じ割合で査定されます。</li>
@@ -168,7 +169,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--sub);font-weight:70
 <li>これらの割合は、入れ替えと特殊能力獲得の実測にもとづきます。特能の割合は〇・△・×・なしの全段階を確認済みですが、基礎能力のサブ×は例が少なく、キャッチャー○を捕手以外で取る場合は、実測が計算より数点高い例があります。</li>
 </ul>
   <p class="note">あらかじめ計算した結果なので、すぐ表示されます。</p>
-  <div class="row"><label>種類</label><select id="trk"></select><label><input type="checkbox" id="trNoLim"> 限定キャラを外す</label><label>並び順</label><select id="trSort"><option value="total">査定の合計が高い順</option><option value="turns">特能全取得のターンが少ない順（同じなら合計順）</option></select></div>
+  <div class="row"><label>種類</label><select id="trk"></select><label><input type="checkbox" id="trNoLim"> 限定キャラを外す</label><label id="trNoSubL"><input type="checkbox" id="trNoSub"> サブポジのキャラを外す</label><label>並び順</label><select id="trSort"><option value="total">査定の合計が高い順</option><option value="turns">特能全取得のターンが少ない順（同じなら合計順）</option></select></div>
 </div>
 <div id="trout"></div>
 </section>
@@ -207,6 +208,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--sub);font-weight:70
 <div class="card">
 <h2>アップデート情報</h2>
 <ul>
+<li><b>2026-11-16</b>　理論値ランキングの守備位置別に「サブポジのキャラを外す」のチェックを付けました。査定表の金特に、下位の青特込みの査定合計の表を足しました。査定表の「投手キャラの野手特能」「野手キャラの投手特能」から、鉄人・精神的支柱など投手も野手も普通に取れる特能を外しました（計算には影響しません）。理論値ランキングの注意書きに、投手の適正がまだ反映されていないことを書きました。</li>
 <li><b>2026-11-06</b>　ゲームのアップデートで伝授できるようになった特殊能力の査定を追加しました（査定表・理論値ランキングに反映）。
 <ul>
 <li>野手の金特：接戦巧者、ストーンウォール</li>
@@ -1597,7 +1599,8 @@ function nameHtml(n) { const m = /^(\[[^\]]*\])(.+)$/.exec(n); return m ? `<span
 function showTheory() {
   const [label, mode, isP, posF] = RK[+$("trk").value];
   if (!TRANK) { $("trout").innerHTML = '<div class="card">理論値ランキングのデータがありません</div>'; return; }
-  const rows = (TRANK[(isP ? "投手" : "野手") + mode] || []).filter((x) => (posF ? x.pos === posF : !x.sub) && !($("trNoLim").checked && x.限定));
+  const rows = (TRANK[(isP ? "投手" : "野手") + mode] || []).filter((x) => (posF ? x.pos === posF : !x.sub) && !($("trNoLim").checked && x.限定) && !($("trNoSub").checked && x.sub));
+  $("trNoSubL").hidden = !posF; // サブポジのキャラが載るのは守備位置別のときだけ
   rows.forEach((x) => (x.mode = mode));
   const showPos = !isP, ncol = 6 + (showPos ? 1 : 0);
   if ($("trSort").value === "turns") rows.sort((a, b) => a.turns - b.turns || b.total - a.total);
@@ -1608,7 +1611,7 @@ function showTheory() {
     if (tr.hidden) { if (!tr.firstChild.innerHTML) tr.firstChild.innerHTML = theoryDetail(rows[i]); tr.hidden = false; } else tr.hidden = true;
   }));
 }
-$("trk").onchange = showTheory; $("trNoLim").onchange = showTheory; $("trSort").onchange = showTheory; showTheory();
+$("trk").onchange = showTheory; $("trNoLim").onchange = showTheory; $("trNoSub").onchange = showTheory; $("trSort").onchange = showTheory; showTheory();
 // ---- 契約書を比べる ----
 const cs = { pol: "balance" };
 const CPOS = ["捕", "一", "二", "三", "遊", "外"];
@@ -1784,10 +1787,32 @@ function showSatei() {
     out.innerHTML = tbl(["変化量", "査定"], keys([T]).map((k) => [k, T[k][i]]), (main ? "先発" : "中継ぎ・抑え") + "の査定です。表の7は、1方向の変化量の最大です。複数の方向がある場合は、すべての方向の変化量を足した合計に、1あたり" + (main ? 24 : 12) + "をかけます。");
   } else {
     const T = DATA.skills[v], pitchSide = v === "投手";
-    const rows = Object.entries(T).filter(([n, e]) => e.種類 === stS.kind && !STHIDE.has(n) && !(e.種類 === "赤特" && !OWNED.has(n)) && (!q || norm(n).includes(q))).map(([n, e]) => { const a = main ? e.st : e.bn, tot = main ? e.main : e.sub; return [n, tot, ...a]; });
-    const nt = { 投手: "投手キャラの投手特能です。", 投手の野手特能: "投手キャラが持つ野手特能です（野手スタメンの打撃・機動・守備の1/5、投手力0）。", 野手の投手特能: "野手キャラが持つ投手特能です（推定。投手の打撃・機動・守備の5倍、投手力0）。", 野手: "野手キャラの野手特能です。" }[v];
-    out.innerHTML = tbl(["特殊能力", "査定合計", "打撃力", "機動力", "守備力", "投手力"], rows, `${rows.length}件。${nt}金特・◎の値は、下位の特能を含まない単独値です。` + (v === "野手" && stS.kind === "赤特" ? "赤特はすべて0です。" : ""));
+    const rows = Object.entries(T).filter(([n, e]) => e.種類 === stS.kind && !STHIDE.has(n) && !stShared(v, n, e) && !(e.種類 === "赤特" && !OWNED.has(n)) && (!q || norm(n).includes(q))).map(([n, e]) => { const a = main ? e.st : e.bn, tot = main ? e.main : e.sub; return [n, tot, ...a]; });
+    const nt = { 投手: "投手キャラの投手特能です。", 投手の野手特能: "投手キャラが持つ野手特能です（野手スタメンの打撃・機動・守備の1/5、投手力0）。鉄人・精神的支柱など投手も普通に取れる特能は「特殊能力：投手キャラ」の表に載せています。", 野手の投手特能: "野手キャラが持つ投手特能です（推定。投手の打撃・機動・守備の5倍、投手力0）。鉄人・精神的支柱など野手も普通に取れる特能は「特殊能力：野手キャラ」の表に載せています。", 野手: "野手キャラの野手特能です。" }[v];
+    out.innerHTML = (stS.kind === "金特" ? stGoldFull(v, T, main, q, nt, tbl) : "") + tbl(["特殊能力", "査定合計", "打撃力", "機動力", "守備力", "投手力"], rows, `${stS.kind === "金特" ? "<b>単独値の表</b>　" : ""}${rows.length}件。${nt}金特・◎の値は、下位の特能を含まない単独値です。` + (v === "野手" && stS.kind === "赤特" ? "赤特はすべて0です。" : ""));
   }
+}
+// 「投手キャラの野手特能」「野手キャラの投手特能」の表には、自分の側の表にも同じ名前・同じ下位で載っている特能（鉄人・精神的支柱・ケガしにくさ・人気者など、野手も投手も普通に取れるもの）は出さない。
+// 自分の側の値で計算されるため（左キラーのように名前が同じでも下位が違うものは別の特能として残す）
+const STOWN = { 投手の野手特能: "投手", 野手の投手特能: "野手" };
+function stShared(v, n, e) { const o = STOWN[v] && DATA.skills[STOWN[v]][n]; return !!o && (o.下位 || "") === (e.下位 || ""); }
+// 金特の下位青特込みの表：金特を取ると下位の青特（◎なら○も）がついてくるので、その査定も足した合計
+const STBOOK = SimEngine.makeSkillBook(DATA.skills);
+function stPosOf(n) { // 名前の（位置）から、下位の特能を引くときの守備位置を決める
+  const m = /（(.*?)）$/.exec(n); if (!m) return null;
+  let s = m[1].replace("↑", ""); const not = s.endsWith("以外"); if (not) s = s.slice(0, -2);
+  const p = SimEngine.POS_MAP[s]; if (!p) return null;
+  return not ? (p === "捕" ? "一" : "捕") : p;
+}
+function stGoldFull(v, T, main, q, nt, tbl) {
+  const rows = Object.entries(T).filter(([n, e]) => e.種類 === "金特" && !STHIDE.has(n) && !stShared(v, n, e) && (!q || norm(n).includes(q))).map(([n, e]) => {
+    const base = n.replace(/（.*?）$/, ""), pos = stPosOf(n), o = new Set();
+    SimEngine.closure(STBOOK, v, base, pos, o); o.delete(base);
+    let tot = main ? e.main : e.sub; const a = (main ? e.st : e.bn).slice(), low = [];
+    o.forEach((x) => { const f = SimEngine.lookup(STBOOK, v, x, pos); if (!f) return; low.push(x); tot += main ? f.v.main : f.v.sub; (main ? f.v.st : f.v.bn).forEach((y, i) => (a[i] += y)); });
+    return [`<span style="display:inline-block;min-width:7.5em">${n}</span>${low.length ? `<br><span class="note">${low.map((x) => `<span style="display:inline-block">＋${x}</span>`).join("")}</span>` : ""}`, tot, ...a];
+  });
+  return tbl(["特殊能力", "査定合計", "打撃力", "機動力", "守備力", "投手力"], rows, `<b>下位の青特込みの表</b>　${rows.length}件。${nt}金特を取ると下位の青特もついてくるので、その査定も足した合計です（◎の下位は○も足しています）。名前の下が、足した下位の青特です。`);
 }
 $("stSel").onchange = () => { stModes(); showSatei(); }; $("stQ").oninput = showSatei; stModes(); showSatei();
 // タブ
