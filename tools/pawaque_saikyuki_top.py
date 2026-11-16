@@ -23,7 +23,10 @@ done = [q for q in Q if q.get("タイトル") or q.get("ボスドロップ")]
 nums = [q["番号"] for q in done if re.fullmatch(r"[①-⑳]", q["番号"])]
 extra = [q["番号"] for q in done if not re.fullmatch(r"[①-⑳]", q["番号"])]
 qrange = f"{nums[0]}〜{nums[-1]}" if len(nums) > 1 else (nums[0] if nums else "")
-qrange = "・".join([x for x in [qrange] if x] + extra)
+qparts = [x for x in [qrange] if x] + extra
+qrange = "・".join(qparts)
+# カードの小さい字では「むずク|エ」のように途中で折り返さないよう、項目ごとにまとめる
+qrange_nw = "・".join(f'<span class="cp-nw">{x}</span>' for x in qparts)
 mis = next((len(s["ミッション"]) for s in M if s["ストーリー"] == "西球記"), 0)
 
 
@@ -47,7 +50,7 @@ out = ['  <section class="sk-nav" aria-label="西球記の関連ページ">',
        card("pawaque/saikyuki/feature/", "saikyuki_logo.png", "西球記のロゴ", 235, 130,
             '西球記の<span class="cp-nw">固有ギミック</span>', "仙術・神前試合マス・<wbr>祈願エンディングマス"),
        card("pawaque/saikyuki/quest/", "saikyuki_link_quest.jpg", "クエスト一覧の画面", 374, 148,
-            "クエスト一覧", f"{qrange}の<wbr>ドロップ・管理人メモ" if qrange else "準備中"),
+            "クエスト一覧", f"{qrange_nw}の<wbr>ドロップ・管理人メモ" if qrange else "準備中"),
        card("pawaque/saikyuki/drop/", "saikyuki_link_drop.jpg", "交渉の指輪", 311, 121,
             '重要アイテム<span class="cp-nw">周回方法</span>', "", READY["drop"]),
        card("pawaque/saikyuki/shinzen/", "saikyuki_link_shinzen.jpg", "神前試合の画面", 660, 334,
