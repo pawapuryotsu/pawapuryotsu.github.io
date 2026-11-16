@@ -16,7 +16,7 @@ def lst(v):
     return "<br>".join(e(x) for x in v) if v else SOON
 
 
-out = ['<div class="qc-list">']
+out = ['<div class="qc-list sz-list">']
 for i, t in enumerate(D["対戦相手"], 1):
     out.append(f'  <section class="qc" id="t{i}">')
     out.append(f'    <h3 class="qc-h"><span class="qc-t">{e(t["対戦相手"])}</span></h3>')
