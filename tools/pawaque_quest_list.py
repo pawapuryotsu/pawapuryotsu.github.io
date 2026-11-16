@@ -54,3 +54,6 @@ assert "<!-- QUESTS:START -->" in s and "<!-- QUESTS:END -->" in s, "QUESTS の�
 s2 = re.sub(r"(<!-- QUESTS:START -->).*?(<!-- QUESTS:END -->)", lambda m: m.group(1) + "\n" + block + "\n  " + m.group(2), s, flags=re.S)
 page.write_text(s2, encoding="utf-8")
 print("ok", len(D["クエスト"]), "件")
+
+import subprocess, sys
+subprocess.run([sys.executable, str(here / "tools/pawaque_saikyuki_top.py")], check=True)
