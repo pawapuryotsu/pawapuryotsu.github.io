@@ -8,16 +8,25 @@ card_title: 西球記の神前試合まとめ
 card: 西球記の神前試合を<span class="cp-nw">まとめました。</span>
 pq_order: 9
 -->
-<!-- 下書き（2026-11-16）：形だけ。文章・表は管理人の原稿と画面のとおり（推測で書かない）。中身が入ったら noindex の行を消して公開する。description と card も原稿に合わせて直す。 -->
+<!-- 対戦相手一覧は src/pawaque_data/saikyuki_shinzen.json → python3 tools/pawaque_shinzen_list.py で作る。値は管理人のスクショのとおり（推測で書かない） -->
 <section class="phead"><p class="eyebrow">パワクエ 西球記</p><h1><span class="mk"><i>神前試合まとめ</i></span></h1><p>パワクエ<span class="cp-nw">「西球記（さいきゅうき）」</span>の神前試合を<span class="cp-nw">まとめました。</span></p></section>
 <div class="prose">
-  <h2 id="s1">【見出し1：管理人の原稿】</h2>
-  <p>【本文：管理人の原稿】</p>
-  <p class="pq-shot">（画像の枠）</p>
-
-  <h2 id="s2">【見出し2：管理人の原稿】</h2>
-  <p>【本文：管理人の原稿】</p>
-  <p class="pq-shot">（画像の枠）</p>
+  <h2 id="teams">対戦相手一覧</h2>
+  <p>神前試合で選べる対戦相手ごとに、進化対象の特殊能力と固有スカウト選手候補を<span class="cp-nw">まとめました。</span>対戦相手は随時更新して<span class="cp-nw">いきます。</span></p>
+  <!-- SHINZEN:START -->
+<div class="qc-list">
+  <section class="qc" id="t1">
+    <h3 class="qc-h"><span class="qc-t">乱馬チーム</span></h3>
+    <div class="sz-b"><img class="qc-img sz-img" src="{{root}}img/pawaque/saikyuki_shinzen_ranma.jpg" alt="乱馬チームの神前試合" width="722" height="342" loading="lazy"></div>
+    <dl class="qc-d"><dt>進化対象</dt><dd>真・変幻自在<br>真・電光石火</dd><dt>固有スカウト選手候補</dt><dd>早乙女　乱馬の契約書<br>天道　あかねの契約書</dd></dl>
+  </section>
+  <section class="qc" id="t2">
+    <h3 class="qc-h"><span class="qc-t">覇堂野球流</span></h3>
+    <div class="sz-b"><img class="qc-img sz-img" src="{{root}}img/pawaque/saikyuki_shinzen_hado.jpg" alt="覇堂野球流の神前試合" width="722" height="342" loading="lazy"></div>
+    <dl class="qc-d"><dt>進化対象</dt><dd>真・怪物球威<br>真・鉄腕</dd><dt>固有スカウト選手候補</dt><dd>金原　いずるの契約書<br>木場　嵐士の契約書<br>土門　季音の契約書<br>水鳥　忍の契約書</dd></dl>
+  </section>
+</div>
+  <!-- SHINZEN:END -->
 
   <p><a href="{{root}}pawaque/saikyuki/">西球記の攻略（トップ）</a>に<span class="cp-nw">戻る</span></p>
 </div>
