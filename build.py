@@ -285,6 +285,17 @@ DATED = ("gacha/", "ranking/")
 _hu = json.loads((src / "home_updates.json").read_text(encoding="utf-8")) if (src / "home_updates.json").exists() else {}
 HOME_SKIP = set(_hu.get("トップに出さないページ", [])) | {"", "404.html", "about/", "privacy/", "contact/"}
 HOME_N = int(_hu.get("出す件数", 8))
+# イベキャラのページは、実装日が「最近の更新に出す実装日」（2026/11/01）より前の昔のキャラは出さない（2026-11-16 管理人）
+_HOME_CHAR_FROM = _hu.get("最近の更新に出すイベキャラの実装日", "2026/11/01")
+try:
+    _cfg = json.loads((src / "chars" / "config.json").read_text(encoding="utf-8"))
+    _cj = {c["name"]: c for c in json.loads(chars.read_text(encoding="utf-8"))}
+    for _pid, _nm in _cfg.get("公開するキャラ", {}).items():
+        _d = (_cj.get(_nm) or {}).get("実装日") or ""
+        if not _d or _d < _HOME_CHAR_FROM:
+            HOME_SKIP.add(f"chars/{_pid}/")
+except Exception as _ex:
+    print("警告: 最近の更新のイベキャラ判定に失敗", _ex)
 _page_info = []   # (path, 名前, 更新日, 公開日, 種類, アイコン)
 
 
