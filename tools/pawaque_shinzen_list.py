@@ -18,8 +18,10 @@ def lst(v):
 
 out = ['<div class="qc-list sz-list">']
 for i, t in enumerate(D["対戦相手"], 1):
-    out.append(f'  <section class="qc" id="t{i}">')
-    out.append(f'    <h3 class="qc-h"><span class="qc-t">{e(t["対戦相手"])}</span></h3>')
+    lim = t.get("期間")
+    out.append(f'  <section class="qc{" sz-lim" if lim else ""}" id="t{i}">')
+    note = f'<span class="qc-a sz-note">※{e(lim)}</span>' if lim else ""
+    out.append(f'    <h3 class="qc-h"><span class="qc-t">{e(t["対戦相手"])}</span>{note}</h3>')
     body = ""
     if t.get("画像"):
         body += f'<img class="qc-img sz-img" src="{{{{root}}}}img/{e(t["画像"])}" alt="{e(t["対戦相手"])}の神前試合" width="722" height="342" loading="lazy">'
