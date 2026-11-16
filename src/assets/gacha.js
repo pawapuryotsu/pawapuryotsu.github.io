@@ -1,6 +1,8 @@
 // ガチャ記事の「周回ごとの確率」の表と「引いてみる」シミュレータ。データはページ内の #gdata（JSON）。
 // 博士像ありの表は assets/gacha_t/<id>.bin、手持ち→達成確率の表は assets/gacha_v/*.bin（gacha_calc/build_tables.py が作る）。
 // 旧バージョンの手持ちを入れたとき（json の "old_ver"）は、assets/gacha_old.js（Web Worker）がその場で計算する。
+// 別バージョン（通常版など）も同じガチャから出るとき（json の "mix"）は、表は計算済み（gacha_calc/mix.py）。
+// シミュレータで別バージョンが出たら、旧バージョンの手持ちと同じ方法でその場で計算する。
 (function () {
   const G = JSON.parse(document.getElementById("gdata").textContent);
   const root = document.body.dataset.root || "./";
@@ -26,18 +28,23 @@
   const OLD = { pool: [], res: null, job: 0, worker: null };
   const oldOn = () => OLD.pool.length > 0 && !CH.both;
   function oldStatus(t, err) { const el = $("g-olds"); if (el) { el.textContent = t; el.classList.toggle("g-err", !!err); } }
-  function runOld() {
+  function runOld(job) {
+    if (job) { startWorker(job); return; }
     OLD.res = null;
     const id = ++OLD.job;
-    if (!oldOn()) { oldStatus(OLD.pool.length ? "「2人とも」では旧バージョンの手持ちは使いません。" : ""); renderTable(); draw(); return; }
-    oldStatus("計算中…（数秒〜数十秒かかります）");
-    renderTable(); draw();
+    startWorker(null, id);
+  }
+  function startWorker(job, id) {
+    if (!job && !oldOn()) { oldStatus(OLD.pool.length ? "「2人とも」では旧バージョンの手持ちは使いません。" : ""); renderTable(); draw(); return; }
+    if (!job) { oldStatus("計算中…（数秒〜数十秒かかります）"); renderTable(); draw(); }
     try {
       if (!OLD.worker) {
         OLD.worker = new Worker(root + "assets/gacha_old.js?v=" + G.old_v);
         OLD.worker.onmessage = (ev) => {
           const m = ev.data;
-          if (m.id !== OLD.job || m.progress) return;
+          if (m.progress) return;
+          if (typeof m.id === "string") { simDone(m); return; }   // シミュレータ用の計算（下の MIX）
+          if (m.id !== OLD.job) return;
           if (m.error) { oldStatus(m.error === "too_many" ? "旧バージョンのカードの種類・枚数が多すぎて計算できません。影響の小さいカード（Rなど）から減らしてください。" : "計算できませんでした。通信状況を確認して、もう一度「計算する」を押してください。", true); return; }
           OLD.res = m;
           const names = ["R", "PR", "SR", "PSR"];
@@ -45,11 +52,36 @@
             + (m.tier[0] > 1 || m.tier[1] > 3 ? "カードが多いため、合成の順番を調べる範囲をせばめて計算しました（実際より低めに出やすくなります）。" : ""));
           renderTable(); draw();
         };
-        OLD.worker.onerror = () => { OLD.worker = null; oldStatus("計算できませんでした。もう一度「計算する」を押してください。", true); };
+        OLD.worker.onerror = () => { OLD.worker = null; if (SIMX.key) { SIMX.res = false; draw(); } if (oldOn()) oldStatus("計算できませんでした。もう一度「計算する」を押してください。", true); };
       }
+      if (job) { OLD.worker.postMessage(job); return; }
       OLD.worker.postMessage({ id, base: new URL(root + "assets/", location.href).href, steps: G.steps, loop: !!G.loop, share: G.share, nch: NCH,
         extra: CH.extra || [], old: OLD.pool, dj: Object.assign({}, DJ), KL: G.tables.KL });
-    } catch (e) { oldStatus("このブラウザでは旧バージョンの計算ができません。", true); }
+    } catch (e) { if (job) { SIMX.res = false; } else oldStatus("このブラウザでは旧バージョンの計算ができません。", true); }
+  }
+  // ---- シミュレータで出た別バージョン（json の "mix" があるガチャだけ） ----
+  // HO＝シミュレータで出た別バージョンの枚数。SIMX.res＝その手持ち（＋入力した旧バージョン）での「手持ち→完成確率」の表（計算中は null、計算できなければ false）
+  const MIX = G.mix || null;
+  let HO = { PSR: 0, SR: 0, PR: 0, R: 0 };
+  const SIMX = { key: "", res: null, n: 0 };
+  const mixN = () => HO.PSR + HO.SR + HO.PR + HO.R;
+  function simDone(m) {
+    if (m.id !== "s" + SIMX.n) return;
+    SIMX.res = m.error ? false : m;
+    draw();
+  }
+  // 今の手持ちで使う表：undefined＝いつもの表（別バージョンなし）、null＝計算中、それ以外＝{Ws, Wp}
+  function curRes() {
+    if (!mixN() || CH.both) return oldOn() ? OLD.res : undefined;
+    const pool = (oldOn() ? OLD.pool : []).concat([["R", 0], ["PR", 1], ["SR", 2], ["PSR", 3]].filter(([k]) => HO[k]).map(([k, r]) => ({ r, l: 0, n: HO[k] })));
+    const key = JSON.stringify([pool, DJ]);
+    if (SIMX.key !== key) {
+      SIMX.key = key; SIMX.res = null;
+      runOld({ id: "s" + (++SIMX.n), sim: true, base: new URL(root + "assets/", location.href).href, steps: G.steps, loop: !!G.loop, share: G.share, nch: NCH,
+        extra: [], old: pool, dj: Object.assign({}, DJ), KL: G.tables.KL });
+    }
+    if (SIMX.res === false) return oldOn() ? OLD.res : undefined;   // 計算できないとき（カードが多すぎる等）は、シミュレータで出た別バージョンを使わない確率
+    return SIMX.res;
   }
   function readOld() {
     const pool = [];
@@ -139,7 +171,8 @@
       c += slot.rarity[r];
       if (u < c) {
         if (slot.target === "pick") return r;
-        return Math.random() * NCH < 1 && (slot.target === "only" || Math.random() * 100 < G.share[r]) ? r : null;
+        if (slot.target === "only" || Math.random() * 100 < G.share[r]) return Math.random() * NCH < 1 ? r : null;
+        return MIX && Math.random() * MIX.n < 1 ? "o" + r : null;   // 出現率アップではない MIX.n 人の中の1人が別バージョン
       }
     }
     return null;
@@ -150,15 +183,16 @@
   let VS = null, vsReq = false;
   const VP = {};
   const u255 = (v) => v >= 1 ? 255 : v <= 0 ? 0 : Math.min(254, Math.max(1, Math.round(v * 255)));
-  function pSold(h, N, psr) {   // 旧バージョン込み（OLD.res.Ws＝[PR][R][PSR 0..4][ベース以外のSR 0..4][あと何段階-1]）
-    if (!OLD.res) return null;
+  function pSold(R, h, N, psr) {   // 旧バージョン・別バージョン込み（R.Ws＝[PR][R][PSR 0..4][ベース以外のSR 0..4][あと何段階-1]）
     const n = N - DJ.SR, x = h.SR - 1;
     if (n <= 0 || psr + x >= n) return 255;
-    return u255(OLD.res.Ws[(((Math.min(h.PR, CB) * (DB + 1) + Math.min(h.R, DB)) * 5 + psr) * 5 + x) * 5 + n - 1]);
+    if (!R) return null;
+    return u255(R.Ws[(((Math.min(h.PR, CB) * (DB + 1) + Math.min(h.R, DB)) * 5 + psr) * 5 + x) * 5 + n - 1]);
   }
   function pS(h, N, free) {   // SRをあとN段階。free＝確定で+1できる枚数（2枚目以降のSRなど）
     if (h.SR === 0) return 0;
-    if (oldOn()) return pSold(h, N, free - (h.SR - 1));
+    const R = curRes();
+    if (R !== undefined) return pSold(R, h, N, free - (h.SR - 1));
     const n = N - free - DJ.SR;
     if (n <= 0) return 255;
     if (!VS) {
@@ -173,7 +207,8 @@
     if (h.PSR === 0) return 0;
     const n = 5 - (h.PSR - 1) - DJ.PSR;
     if (n <= 0) return 255;
-    if (oldOn()) return OLD.res ? u255(OLD.res.Wp[((Math.min(h.PR, CB) * (DB + 1) + Math.min(h.R, DB)) * (SB + 1) + Math.min(h.SR, SB)) * 5 + n - 1]) : null;
+    const R = curRes();
+    if (R !== undefined) return R ? u255(R.Wp[((Math.min(h.PR, CB) * (DB + 1) + Math.min(h.R, DB)) * (SB + 1) + Math.min(h.SR, SB)) * 5 + n - 1]) : null;
     const k = DJ.SR + "_" + DJ.PR + "_" + DJ.R;
     if (!(k in VP)) { VP[k] = null; bin("gacha_v/p" + k + ".bin", Uint8Array, (a) => { VP[k] = a; draw(); }).catch(() => { delete VP[k]; }); }
     if (!VP[k]) return null;
@@ -184,6 +219,7 @@
   function reset() {
     const EX = CH.extra || [];   // ガチャ以外で手に入る分（イベント報酬など）。最初から手持ちに入れる
     H = { PSR: 0, SR: 0, PR: 0, R: 0 }; st = 0; log = [];
+    HO = { PSR: 0, SR: 0, PR: 0, R: 0 };
     for (const x of EX) { H[x.rarity] += x.n; log.push(`${x.label}：` + Array(x.n).fill(`<span class="g-${x.rarity}">${x.rarity}</span>`).join(" ")); }
     draw();
   }
@@ -201,13 +237,17 @@
     bar("g-vlv", pLV40(H));
     bar("g-vsr", pSR45(H));
     bar("g-vpsr", pPSR50(H));
+    if (MIX) {
+      $("g-mixc").innerHTML = mixN() ? RS.filter((r) => HO[r]).map((r) => `<span class="g-${r}">${r}</span>×${HO[r]}`).join("・") : "なし";
+      $("g-mixn").hidden = !(mixN() && SIMX.res === false);
+    }
     $("g-log").innerHTML = log.slice(-60).reverse().join("<br>");
   }
   document.querySelectorAll("[data-pull]").forEach((b) => (b.onclick = () => {
     for (let i = 0; i < +b.dataset.pull; i++) {
       const r = pullStep(st);
-      r.forEach((k) => H[k]++);
-      log.push(`${G.loop ? Math.floor(st / L) + 1 + "周目 " : ""}${stepOf(st).name}：` + (r.length ? r.map((k) => `<span class="g-${k}">${k}</span>`).join(" ") : `${CH.chara}なし`));
+      r.forEach((k) => (k[0] === "o" ? HO[k.slice(1)]++ : H[k]++));
+      log.push(`${G.loop ? Math.floor(st / L) + 1 + "周目 " : ""}${stepOf(st).name}：` + (r.length ? r.map((k) => k[0] === "o" ? `<span class="g-${k.slice(1)}">${MIX.short}${k.slice(1)}</span>` : `<span class="g-${k}">${k}</span>`).join(" ") : `${CH.chara}なし`));
       st++;
     }
     draw();
