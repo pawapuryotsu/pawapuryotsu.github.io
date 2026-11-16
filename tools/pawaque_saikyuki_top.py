@@ -80,8 +80,11 @@ if lim:
 memos = []
 for q in done:
     for k, cls in (("青メモ", "em-blue"), ("赤メモ", "em-red"), ("管理人メモ", "")):
-        if q.get(k):
-            t = memo(q[k])
+        # 改行で区切ったメモは1行ずつ別の項目にする
+        for line in (q.get(k) or "").split("\n"):
+            if not line:
+                continue
+            t = memo(line)
             memos.append(f'    <li><a href="{{{{root}}}}pawaque/saikyuki/quest/#{qid(q)}">{e(q["番号"] + q["タイトル"].replace("|", ""))}</a>：'
                          + (f'<span class="{cls}">{t}</span>' if cls else t) + '</li>')
 if memos:
