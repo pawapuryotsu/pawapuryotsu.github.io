@@ -817,7 +817,8 @@ def generate(chars_path, src, decks, noindex=True):
             for n in alias_names(chars[nm]):
                 _BASE_PID.setdefault(n, pid)
     pages, items = [], []
-    pub = set(config.get("検索に出すページ", []))   # ここに書いた番号のページだけ検索に出す（サイトマップにも入る）
+    # noindex は管理人が指定したページだけ（2026-11-16 管理人「調査中しか書いてないページ以外は全部noindex付けないで。指定したもの以外は付けるな」）
+    hide = set(config.get("検索に出さないページ", []))
     for pid, name in config["公開するキャラ"].items():
         if not re.fullmatch(r"\d{4}", pid):
             raise SystemExit(f"ページ番号は4桁の数字にしてください: {pid}")
@@ -841,7 +842,7 @@ def generate(chars_path, src, decks, noindex=True):
                     f"description: パワプロアプリ（サクセス・パワクエ共通）のイベキャラ {full}{yomi_paren(c)} のボーナス、金特、イベント選択肢、選手能力をまとめています。\n")
         # トップ「最近の更新」での名前（管理人指示 2026-11-12）
         meta += f"recent_title: {full}のイベント{'・評価' if has_eval(c, text) else ''}\n"
-        meta += f"path: {path}\nnav: none\ncrumb: {full}\n" + ("noindex: yes\n" if noindex and pid not in pub else "")
+        meta += f"path: {path}\nnav: none\ncrumb: {full}\n" + ("noindex: yes\n" if pid in hide else "")
         body = (head_html(full, c, pid, has_eval(c, text))   # 評価があるキャラは大見出しも「評価・イベントまとめ」（2026-11-12 管理人 案A）
                 + build_page(c, text, config, decks, kinds))
         pages.append(f"<!--\n{meta}-->\n{body}")
@@ -855,7 +856,7 @@ def generate(chars_path, src, decks, noindex=True):
         items.append((pid, c, full))
         meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
                 f"description: パワプロアプリのイベキャラ {full}{yomi_paren(c)} のページです。データは準備中です。\n"
-                f"path: chars/{pid}/\nnav: none\ncrumb: {full}\n" + ("" if pid in pub else "noindex: yes\n"))
+                f"path: chars/{pid}/\nnav: none\ncrumb: {full}\n" + "noindex: yes\n")   # データ未入力（準備中だけ）のページは検索に出さない
         body = (head_html(full, c, pid)
                 + stub_body(full, st, *stub_char(chars, st, kinds)))
         pages.append(f"<!--\n{meta}-->\n{body}")
@@ -863,7 +864,7 @@ def generate(chars_path, src, decks, noindex=True):
     pages += ranking_pages(items, config, chars, chars_path)
     if _COMBOS:
         pages.append(combo_page())
-    pages.append(index_page(items, config, noindex and not pub))
+    pages.append(index_page(items, config, False))
     return pages
 
 
@@ -873,7 +874,7 @@ def combo_page():
     _CTYPE[0] = None
     meta = ("title: コンボイベント一覧｜パワプロアプリ攻略ベース\n"
             "description: パワプロアプリのイベキャラの組み合わせで発生するコンボイベントを、組み合わせ・イベント前後・効果ごとにまとめています。\n"
-            "path: chars/combo/\nnav: none\nnoindex: yes\n")
+            "path: chars/combo/\nnav: none\n")
     body = ('<section class="phead"><p class="eyebrow">イベキャラ</p><h1>コンボイベント一覧</h1></section>\n'
             '<p class="cp-sec-lead">特定のイベキャラの組み合わせで発生するイベントです。イベント前後は、イベキャラの前後とは関係なく、コンボごとに決まっています。二つ名が異なる別バージョンでも基本的に同じように発生します。</p>'
             + "".join(f'<section class="cp-sec">{combo_html(x, "../../")}</section>' for x in _COMBOS))
@@ -1168,6 +1169,6 @@ def ranking_pages(items, config, chars, chars_path):
         # 「検索用タイトル」があれば <title> だけそれにする（見出し・パンくず・SNS画像は title のまま。2026-11-12 管理人OK）
         meta = "\n".join([f'title: {r.get("検索用タイトル") or r["title"]}｜パワプロアプリ攻略ベース', f'crumb: {r["title"]}', f'og_title: {r["title"]}',
                           f'description: パワプロアプリのイベキャラを、Tier表（{"・".join(t for t in TIERS if r["ランク"].get(t))}）でランク付けしました。{r["title"]}の評価基準と、各キャラのランクをまとめています。',
-                          f'path: {r["path"]}', "nav: none"] + ([] if r.get("公開") else ["noindex: yes"])) + "\n"
+                          f'path: {r["path"]}', "nav: none"] + (["noindex: yes"] if r.get("公開") is False else [])) + "\n"
         pages.append(f"<!--\n{meta}-->\n{body}")
     return pages

@@ -180,7 +180,7 @@ def static_decks(school):
 layout = (src / "layout.html").read_text(encoding="utf-8")
 urls = []
 import charpages
-_char_pages = charpages.generate(chars, src, DECKS)  # キャラページ（評価を書くまでは noindex）
+_char_pages = charpages.generate(chars, src, DECKS)  # キャラページ（noindex は config「検索に出さないページ」と準備中のキャラだけ）
 import gachapages
 _gacha_pages, _gacha_cards = gachapages.generate(src)  # ガチャ記事（src/gacha/*.json）とトップの「ガチャ」欄のカード
 (out / "img" / "chars").mkdir(exist_ok=True)
