@@ -560,6 +560,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .prose .qc-d dd{display:block;margin:0;padding:0}
 .qc-img{display:block;margin:8px 0 0;max-width:min(100%,420px);height:auto;border:1px solid var(--line);border-radius:4px}
 :root[data-theme="dark"] .qc .em-red{color:#d6303a}
+:root[data-theme="dark"] .qc .em-blue{color:#1a5fd0}
 .qc-cap{margin:4px 0 0;font-size:13px;color:#5b6676}
 /* パワクエ西球記：入口ページの関連ページリンク */
 .sk-nav{margin:0 0 20px;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fff}
