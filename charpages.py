@@ -668,7 +668,7 @@ def gacha_links(name):
     for g in _GACHAS:
         chs = g.get("charas") or [{"chara": g.get("chara")}]
         if any(ch.get("chara") == name for ch in chs):
-            out.append((f'gacha/{g["id"]}/', f'{g["chara"]}のガチャは引くべき？'))
+            out.append((f'gacha/{g["id"]}/', f'{g["chara"]}の{"復刻" if g.get("revival") else ""}ガチャは引くべき？'))
     return out
 
 

@@ -301,7 +301,7 @@ _page_info = []   # (path, 名前, 更新日, 公開日, 種類, アイコン)
 
 def _nice_break(name):
     """「…のガチャは引くべき？」「…のイベント・評価」の後ろ半分は途中で折り返さない（スマホで「あか／ねの」のように切れないように）"""
-    m = re.match(r"(.*)(の(?:ガチャは引くべき？|イベント・評価|イベント))$", name)
+    m = re.match(r"(.*)(の(?:(?:復刻)?ガチャは引くべき？|イベント・評価|イベント))$", name)
     if not m:
         return _html.escape(name)
     return f'{_html.escape(m.group(1))}<wbr><span class="cp-nw">{_html.escape(m.group(2))}</span>'
