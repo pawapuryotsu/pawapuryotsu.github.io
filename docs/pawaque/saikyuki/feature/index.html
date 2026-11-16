@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+1p:wght@900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Saira+Condensed:wght@600;700&display=swap">
-<link rel="stylesheet" href="../../../assets/style.css?v=2f7e8408">
+<link rel="stylesheet" href="../../../assets/style.css?v=2a836a74">
 <meta name="google-adsense-account" content="ca-pub-8546020269968696">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8546020269968696" crossorigin="anonymous"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F98XGNW3LS"></script>
@@ -65,23 +65,70 @@
   <nav class="toc" aria-label="このページの目次">
   <b>もくじ</b>
   <ol>
-    <li><a href="#square">西球記専用マス</a></li>
-    <li><a href="#item">西球記専用アイテム</a></li>
-    <li><a href="#skill">西球記専用スキル</a></li>
+    <li><a href="#sennjutsu">西球記専用ギミック「仙術」</a></li>
+    <li><a href="#square">西球記専用マス「神前試合マス」</a></li>
   </ol>
   </nav>
 
-  <h2 id="square">西球記専用マス</h2>
-  <p>【本文：管理人の原稿】</p>
-  <p class="pq-shot">（画像の枠）</p>
+  <h2 id="sennjutsu">西球記専用ギミック「仙術」</h2>
+  <!-- 仙術の章は管理人の指示で、公式「遊び方」の内容をClaudeが短くまとめた（2026-11-16。公式ページを3回読み、回復の術の「確率で」の有無は原文の引用で確認）。公式へのリンクは載せない -->
+  <p>仙術は、西球記だけで使える特別な技です。<span class="em-blue">クエスト③から使えるようになり、エリアの開始時に自動で発動します。</span>クエスト④から出てくる「桃マス」に止まると、その場でもう一度仙術を<span class="cp-nw">使えます。</span></p>
+  <p><span class="em-blue">自動発動の仙術は、一度発動すればそのクエストの間ずっと効果が続きます。</span>発動中の仙術は、マップ画面の左上のボタンで確認できます。<span class="tx-red">仙術によっては、使える回数に限りが<span class="cp-nw">あります。</span></span></p>
+  <img class="pq-img" src="../../../img/pawaque/saikyuki_sennjutsu.jpg" alt="仙術を選ぶ画面" width="750" height="721" loading="lazy">
 
-  <h2 id="item">西球記専用アイテム</h2>
-  <p>【本文：管理人の原稿】</p>
-  <p class="pq-shot">（画像の枠）</p>
+  <h3 id="sennjutsu_list">仙術の種類</h3>
+  <div class="bt-wrap"><table class="bt sen-t">
+    <thead><tr><th scope="col">仙術</th><th scope="col">効果</th><th scope="col">必要な書</th></tr></thead>
+    <tbody>
+      <tr class="sen-cat"><th colspan="3" scope="rowgroup">マップ変動</th></tr>
+      <tr><th scope="row">袋変換の術</th><td class="sen-f">ゴールマスのアイテム袋の<span class="cp-nw">レア度が上がる</span></td><td>袋ノ書</td></tr>
+      <tr><th scope="row">錬金の術</th><td class="sen-f">今いるマスの周り2マスを金マスに変える</td><td>－</td></tr>
+      <tr><th scope="row">空白変換の術</th><td class="sen-f">周り2マスの空白マスを、野手特訓マスか投手特訓マスに変える（どちらになるかはランダム）</td><td>空白ノ書</td></tr>
+      <tr class="sen-cat"><th colspan="3" scope="rowgroup">自動発動</th></tr>
+      <tr><th scope="row">回復の術 野訓</th><td class="sen-f">野手特訓マスに止まると、確率で<span class="cp-nw">1ターン回復</span></td><td>野訓ノ書</td></tr>
+      <tr><th scope="row">回復の術 投訓</th><td class="sen-f">投手特訓マスに止まると、確率で<span class="cp-nw">1ターン回復</span></td><td>投訓ノ書</td></tr>
+      <tr><th scope="row">回復の術 総練</th><td class="sen-f">総合練習マスに止まると、確率で<span class="cp-nw">2ターン回復</span></td><td>－</td></tr>
+      <tr><th scope="row">回復の術 縁</th><td class="sen-f">イベントマスに止まると、<span class="cp-nw">1ターン回復</span></td><td>－</td></tr>
+      <tr><th scope="row">回復の術 金</th><td class="sen-f">金マスに止まると、<span class="cp-nw">2ターン回復</span></td><td>金ノ書</td></tr>
+      <tr><th scope="row">回復の術 空白</th><td class="sen-f">空白マスに止まると、確率で<span class="cp-nw">1ターン回復</span></td><td>－</td></tr>
+      <tr><th scope="row">回復の術 戦</th><td class="sen-f">神前試合マスに止まると、<span class="cp-nw">2ターン回復</span></td><td>－</td></tr>
+      <tr class="sen-cat"><th colspan="3" scope="rowgroup">能力アップ</th></tr>
+      <tr><th scope="row">修練の術 特能</th><td class="sen-f">特殊能力マスの効果を<span class="cp-nw">その場で発動</span></td><td>特能ノ書</td></tr>
+      <tr><th scope="row">修練の術 野手</th><td class="sen-f">野手特訓マスの効果を<span class="cp-nw">その場で発動</span></td><td>－</td></tr>
+      <tr><th scope="row">修練の術 投手</th><td class="sen-f">投手特訓マスの効果を<span class="cp-nw">その場で発動</span></td><td>－</td></tr>
+      <tr><th scope="row">修練の術 総合</th><td class="sen-f">総合練習マスの効果を<span class="cp-nw">その場で発動</span></td><td>－</td></tr>
+      <tr><th scope="row">呼応の術</th><td class="sen-f">スカウトマスの効果を<span class="cp-nw">その場で発動</span></td><td>呼応ノ書</td></tr>
+      <tr class="sen-cat"><th colspan="3" scope="rowgroup">移動</th></tr>
+      <tr><th scope="row">郷雲の法</th><td class="sen-f">ボス戦マスのとなりのマスへ移動（ボス戦マスが2つ以上ある時はランダム）</td><td>－</td></tr>
+      <tr><th scope="row">星雲の法</th><td class="sen-f">スタートマスへ移動</td><td>－</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="pq-steps" style="padding-left:1.3em;margin-top:10px">
+    <li>錬金の術で金マスに変わるのは、総合練習・野手特訓・投手特訓・特殊能力・スカウト・イベント・ミラクルの各マスです。それぞれ対応する金マスに<span class="cp-nw">なります。</span></li>
+    <li>郷雲の法と星雲の法は、ターンを使わずに移動できます。移動した先で突発イベントが起こることも<span class="cp-nw">あります。</span></li>
+  </ul>
 
-  <h2 id="skill">西球記専用スキル</h2>
-  <p>【本文：管理人の原稿】</p>
-  <p class="pq-shot">（画像の枠）</p>
+  <h3 id="sennjutsu_book">仙術指南ノ書</h3>
+  <p>表の「必要な書」にある仙術は、そのままでは使えません。西球記でだけ手に入る専用アイテム<span class="cp-nw">「仙術指南ノ書」</span>を持っていくと、書についているスキルで対応する仙術が使えるように<span class="cp-nw">なります。</span></p>
+  <img class="pq-img" src="../../../img/pawaque/saikyuki_sennjutsu_book.jpg" alt="仙術指南ノ書（特能ノ書）" width="585" height="138" loading="lazy">
+
+  <h2 id="square">西球記専用マス「神前試合マス」</h2>
+  <!-- 管理人の指示で、公式「遊び方」の神前試合マスの内容をClaudeがまとめた（2026-11-16。公式ページを2回読み、進化の条件・契約書の枚数・出現クエストは原文の引用で確認）。公式へのリンクは載せない -->
+  <p>神前試合マスは、クエスト③から出てくる西球記だけのマスです。止まると相手チームを選んで、自分で操作して試合を<span class="cp-nw">します。</span></p>
+  <img class="pq-img" src="../../../img/pawaque/saikyuki_shinzen_select.jpg" alt="神前試合の相手チームを選ぶ画面" width="750" height="983" loading="lazy">
+  <p>試合の結果によって、次の2つが<span class="cp-nw">もらえます。</span></p>
+  <ul class="pq-steps" style="padding-left:1.3em">
+    <li><b>契約書</b>：<span class="em-blue">勝つか引き分けると、相手チームに応じた契約書を<span class="cp-nw">最大2枚</span>もらえます。</span></li>
+    <li><b>特殊能力の進化</b>：<span class="em-blue">「必勝」か、10点差以上で勝つと、チームメイトの特殊能力が<span class="cp-nw">1段階進化</span>します。</span></li>
+  </ul>
+  <p>特殊能力の進化には、次のルールが<span class="cp-nw">あります。</span></p>
+  <ul class="pq-steps" style="padding-left:1.3em">
+    <li>1回の神前試合で進化するのは、1人につき1つまでです。新しい特殊能力を覚えることは<span class="cp-nw">ありません。</span></li>
+    <li>相手チームごとに、進化先の真・超特殊能力が決まっています。その進化元になる超特殊能力を先に覚えていると、そちらが優先して<span class="cp-nw">進化します。</span></li>
+    <li>真・超特殊能力以外の特殊能力は、どのチームと試合をしても進化することが<span class="cp-nw">あります。</span></li>
+    <li>専用アイテムを持っていくと、特殊能力が進化する人数が<span class="cp-nw">増えます。</span></li>
+  </ul>
+  <p>仙術の「回復の術 戦」が発動していると、神前試合マスに止まるたびに2ターン<span class="cp-nw">回復します。</span></p>
 
   <p><a href="../../../pawaque/saikyuki/">西球記の攻略（トップ）</a>に<span class="cp-nw">戻る</span></p>
 </div>
