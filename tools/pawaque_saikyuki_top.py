@@ -18,9 +18,12 @@ page = here / "src/pages/pawaque-saikyuki.html"
 # 中身ができたら True にする
 READY = {"drop": False, "contract": False}
 
-done = [q for q in Q if q.get("タイトル")]
-nums = [q["番号"] for q in done]
+# 入力済みのクエスト（むずクエなどはタイトルが無いので、ボスドロップが入っていれば入力済みとみなす）
+done = [q for q in Q if q.get("タイトル") or q.get("ボスドロップ")]
+nums = [q["番号"] for q in done if re.fullmatch(r"[①-⑳]", q["番号"])]
+extra = [q["番号"] for q in done if not re.fullmatch(r"[①-⑳]", q["番号"])]
 qrange = f"{nums[0]}〜{nums[-1]}" if len(nums) > 1 else (nums[0] if nums else "")
+qrange = "・".join([x for x in [qrange] if x] + extra)
 mis = next((len(s["ミッション"]) for s in M if s["ストーリー"] == "西球記"), 0)
 
 
