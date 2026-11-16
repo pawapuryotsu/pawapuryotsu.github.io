@@ -17,7 +17,9 @@ def lst(v):
 
 
 out = ['<div class="qc-list sz-list">']
-for i, t in enumerate(D["対戦相手"], 1):
+# 並び順：期間限定（json の順）→ シナリオ番号順 → 番号なし（json の順）
+ORDER = sorted(D["対戦相手"], key=lambda t: (0, 0) if t.get("期間") else ((1, t["シナリオ番号"]) if t.get("シナリオ番号") else (2, 0)))
+for i, t in enumerate(ORDER, 1):
     lim = t.get("期間")
     out.append(f'  <section class="qc{" sz-lim" if lim else ""}" id="t{i}">')
     note = f'<span class="qc-a sz-note">※{e(lim)}</span>' if lim else ""
