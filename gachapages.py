@@ -139,7 +139,8 @@ def _body(g, root_icon, src_dir):
         metas = f'<p>開催期間：{_period(g["period"])}</p>' + metas
     # 見出し：キャラ名の途中で改行しないように、名前ごとに区切る
     h1 = ("".join(f'<i>{e(ch["chara"])}{"・" if i < len(chs) - 1 else "の"}</i>' for i, ch in enumerate(chs)) + " <i>ガチャは</i> <i>引くべき？</i>"
-          if multi else f'<i>{e(g["chara"])}のガチャは</i> <i>引くべき？</i>')
+          if multi else f'<i>{e(g["chara"])}の</i><i>ガチャは</i> <i>引くべき？</i>' if len(g["chara"]) >= 8   # 長い名前はスマホで名前の途中で折り返さないよう分ける
+          else f'<i>{e(g["chara"])}のガチャは</i> <i>引くべき？</i>')
     nm = lambda ch: e(ch.get("short", ch["chara"]))
     both_notes = [
         "選択ガチャ券は取っておき、引き終わってから、2人とも完成する確率が一番高くなるように2人に分けて使います（1人ずつの確率では、券を全部そのキャラに使います）。",
