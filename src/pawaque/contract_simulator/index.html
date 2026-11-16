@@ -1592,7 +1592,7 @@ function theoryDetail(x) {
     const adj = d.bd["サブポジ調整"] ? `<tr><td>サブポジ調整（×${f}）</td><td></td><td></td><td>${fmt(d.bd["サブポジ調整"][2])}</td></tr>` : "";
     const sk = skillsCard(ch, isP ? x.mode : x.mode, isP, { skills: d.sk });
     return `<div class="card"><div class="big" style="font-size:20px">査定合計 ${fmt(x.total)}</div><div class="note">基礎能力 ${fmt(x.base + x.train)} ＋ 特殊能力 ${fmt(x.skill)}</div></div>
-    <div class="card"><h2>基礎能力（Lv${x.lv}・特訓値込み）</h2><div style="overflow-x:auto"><table class="bt"><tr><th style="text-align:left">能力</th><th>Lv時</th><th>合計</th><th>査定</th></tr>${rows}${adj}</table></div></div>${sk}`;
+    <div class="card"><h2>基礎能力（Lv${x.lv}・特訓値込み）</h2><div style="overflow-x:auto"><table class="bt"><tr><th style="text-align:left">能力</th><th>最大<br>Lv時</th><th>特訓値<br>+50</th><th>査定</th></tr>${rows}${adj}</table></div></div>${sk}`;
   } finally { SimEngine.opts.subF = old; }
 }
 function nameHtml(n) { const m = /^(\[[^\]]*\])(.+)$/.exec(n); return m ? `<span class="nk">${m[1]}</span><span class="nm">${m[2]}</span>` : `<span class="nm">${n}</span>`; }
