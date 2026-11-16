@@ -44,6 +44,11 @@ def _rate_table(g):
                if g.get("charas") else f'<p>{e(g["chara"])}のみの枠以外で、そのレアリティが出たときに{e(g["chara"])}になる割合：{share}</p>'))
 
 
+def gw(g):
+    """タイトル・見出しでの呼び方。イベキャラ復刻のガチャ（json の "revival": true）は「復刻ガチャ」（管理人 2026-11-17）"""
+    return "復刻ガチャ" if g.get("revival") else "ガチャ"
+
+
 def _eval_html(g, src_dir):
     """「管理人の評価」。comment＝管理人の考え（文字の色指定 {太:…} などはキャラページと同じ）。
     イベキャラとしての評価は、ランキングでのランクだけ出す（評価文は長くなるので載せない。管理人 2026-11-12）"""
@@ -138,9 +143,9 @@ def _body(g, root_icon, src_dir):
     if multi:
         metas = f'<p>開催期間：{_period(g["period"])}</p>' + metas
     # 見出し：キャラ名の途中で改行しないように、名前ごとに区切る
-    h1 = ("".join(f'<i>{e(ch["chara"])}{"・" if i < len(chs) - 1 else "の"}</i>' for i, ch in enumerate(chs)) + " <i>ガチャは</i> <i>引くべき？</i>"
-          if multi else f'<i>{e(g["chara"])}の</i><i>ガチャは</i> <i>引くべき？</i>' if len(g["chara"]) >= 8   # 長い名前はスマホで名前の途中で折り返さないよう分ける
-          else f'<i>{e(g["chara"])}のガチャは</i> <i>引くべき？</i>')
+    h1 = ("".join(f'<i>{e(ch["chara"])}{"・" if i < len(chs) - 1 else "の"}</i>' for i, ch in enumerate(chs)) + f" <i>{gw(g)}は</i> <i>引くべき？</i>"
+          if multi else f'<i>{e(g["chara"])}の</i><i>{gw(g)}は</i> <i>引くべき？</i>' if len(g["chara"]) >= 8   # 長い名前はスマホで名前の途中で折り返さないよう分ける
+          else f'<i>{e(g["chara"])}の{gw(g)}は</i> <i>引くべき？</i>')
     nm = lambda ch: e(ch.get("short", ch["chara"]))
     both_notes = [
         "選択ガチャ券は取っておき、引き終わってから、2人とも完成する確率が一番高くなるように2人に分けて使います（1人ずつの確率では、券を全部そのキャラに使います）。",
@@ -244,12 +249,12 @@ def generate(src):
         else:
             g["tables"] = load(f.stem)
         path = f'gacha/{g["id"]}/'
-        meta = (f'title: {g["chara"]}のガチャは引くべき？何周で完成するか計算（SR Lv45・PSR Lv50）｜パワプロアプリ攻略ベース\n'
-                f'description: {g["chara"]}のガチャは引くべき？{g["title"]}で{g["chara"]}のSR Lv45・PSR Lv50を作るのに何周必要かを計算。SR・PSRが引ける確率、Lv40に届く確率、ダイジョーブ博士像を使う場合の確率と、実際に引いて試せるシミュレータつき。\n'
+        meta = (f'title: {g["chara"]}の{gw(g)}は引くべき？何周で完成するか計算（SR Lv45・PSR Lv50）｜パワプロアプリ攻略ベース\n'
+                f'description: {g["chara"]}の{gw(g)}は引くべき？{g["title"]}で{g["chara"]}のSR Lv45・PSR Lv50を作るのに何周必要かを計算。SR・PSRが引ける確率、Lv40に届く確率、ダイジョーブ博士像を使う場合の確率と、実際に引いて試せるシミュレータつき。\n'
                 f"path: {path}\nnav: home\nscripts: gacha\ncrumb: {g['chara']}のガチャ\n"
-                f"og_title: {g['chara']}のガチャは引くべき？\nrecent_title: {g['chara']}のガチャは引くべき？\nog_icon: {(g.get('charas') or [g])[0]['icon']}\n")
+                f"og_title: {g['chara']}の{gw(g)}は引くべき？\nrecent_title: {g['chara']}の{gw(g)}は引くべき？\nog_icon: {(g.get('charas') or [g])[0]['icon']}\n")
         pages.append(f"<!--\n{meta}-->\n" + _body(g, "", src))
-        cards.append((g["id"], f'<a class="scard" href="{{{{root}}}}{path}"><span class="tag p">{e(g["chara"])}</span><h3>{e(g["chara"])}のガチャは引くべき？</h3>'
+        cards.append((g["id"], f'<a class="scard" href="{{{{root}}}}{path}"><span class="tag p">{e(g["chara"])}</span><h3><span class="cp-nw">{e(g["chara"])}の</span><span class="cp-nw">{gw(g)}は</span><span class="cp-nw">引くべき？</span></h3>'
                                f'<p>SR Lv45・PSR Lv50の完成確率と<span class="cp-nw">シミュレータ。</span></p><span class="go" aria-hidden="true">→</span></a>'))
     cards.sort(key=lambda x: x[0], reverse=True)   # 新しいガチャを上に
     return pages, "\n  ".join(c for _, c in cards)
