@@ -38,6 +38,12 @@ for i, t in enumerate(ORDER, 1):
     out.append('    <dl class="qc-d">' + "".join(f"<dt>{k}</dt><dd>{v}</dd>" for k, v in rows) + "</dl>")
     out.append("  </section>")
 out.append("</div>")
+# 固有スカウト全員チーム加入時に得られる契約書（2026-11-16 管理人。分かったものから足す）
+ALL = D.get("全員加入の契約書", [])
+out.append("")
+out.append('  <h2 id="all-join"><span class="cp-nw">固有スカウト</span><span class="cp-nw">全員チーム加入時に</span><span class="cp-nw">得られる契約書まとめ</span></h2>')
+out.append("  <p>神前試合で、固有スカウト選手候補を全員チームに加入させたときに得られた契約書です。分かったものから<span class=\"cp-nw\">追記します。</span></p>")
+out.append('  <ul class="sz-all">' + "".join(f"<li>{item(x)}</li>" for x in ALL) + "</ul>" if ALL else f"  <p>{SOON}</p>")
 block = "\n".join(out)
 s = page.read_text(encoding="utf-8")
 assert "<!-- SHINZEN:START -->" in s and "<!-- SHINZEN:END -->" in s, "SHINZEN の目印が見つからない"
