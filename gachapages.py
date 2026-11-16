@@ -112,7 +112,7 @@ def _body(g, root_icon, src_dir):
         rows = "".join(f'<tr><th scope="row" class="g-{r}">{r}</th>' + "".join(
             f'<td><input type="number" inputmode="numeric" min="0" max="9" data-old="{3 - i}_{l}" autocomplete="off" aria-label="旧バージョンの{r}+{l}の枚数"></td>' for l in range(6))
             + "</tr>" for i, r in enumerate(RS))
-        old_box = (f'<div class="g-dj g-old" data-nb><p class="g-h">旧バージョンの{c}を持っている場合（枚数を入れる）</p>'
+        old_box = (f'<div class="g-dj g-old" data-nb><p class="g-h">旧バージョンの{e(g.get("old_name") or c)}を持っている場合（枚数を入れる）</p>'
                    '<table class="g-oldt"><thead><tr><th></th>' + "".join(f'<th scope="col">+{l}</th>' for l in range(6)) + f'</tr></thead><tbody>{rows}</tbody></table>'
                    '<p class="g-oldb"><button type="button" id="g-oldgo">計算する</button><button type="button" id="g-oldclr" class="ghost">クリア</button></p>'
                    '<p class="g-olds" id="g-olds" aria-live="polite"></p>'
@@ -139,7 +139,8 @@ def _body(g, root_icon, src_dir):
         metas = f'<p>開催期間：{_period(g["period"])}</p>' + metas
     # 見出し：キャラ名の途中で改行しないように、名前ごとに区切る
     h1 = ("".join(f'<i>{e(ch["chara"])}{"・" if i < len(chs) - 1 else "の"}</i>' for i, ch in enumerate(chs)) + " <i>ガチャは</i> <i>引くべき？</i>"
-          if multi else f'<i>{e(g["chara"])}のガチャは</i> <i>引くべき？</i>')
+          if multi else f'<i>{e(g["chara"])}の</i><i>ガチャは</i> <i>引くべき？</i>' if len(g["chara"]) >= 8   # 長い名前はスマホで名前の途中で折り返さないよう分ける
+          else f'<i>{e(g["chara"])}のガチャは</i> <i>引くべき？</i>')
     nm = lambda ch: e(ch.get("short", ch["chara"]))
     both_notes = [
         "選択ガチャ券は取っておき、引き終わってから、2人とも完成する確率が一番高くなるように2人に分けて使います（1人ずつの確率では、券を全部そのキャラに使います）。",
@@ -154,7 +155,7 @@ def _body(g, root_icon, src_dir):
         pick_note,
         f'出現率アップの割合は{e(g["chara"])}の{len(chs)}人合計なので、1人あたりはその{len(chs)}分の1で計算しています（公式の「各レアリティ内の各イベキャラの出現割合は均一」による）。「{e(g["chara"]).replace("・", "」または「")}」の確定枠も{len(chs)}人で等分です。' if multi else "",
         "キャラごとの確率は、手持ちを全部そのキャラに使った場合の確率です。2人とも育てる場合は、選択ガチャ券を分けるぶん確率が下がります" + ("（「2人とも」を選ぶと、2人とも完成する確率を表示します）。" if both else "。") if multi and picks else "",
-        ("「2人とも」の確率は、1人ずつのときと計算のしかたが違います：" + "".join(both_notes)) if both else ""] if x)
+        ("「2人とも」の確率は、1人ずつのときと計算のしかたが違います：" + "".join(both_notes)) if both else ""] + g.get("notes", []) if x)   # notes：そのガチャだけの注意（json に書く）
     loop_note = (f'1周＝{"〜".join([g["steps"][0]["name"], g["steps"][-1]["name"]])}'
                  f'（{sum(s["pulls"] for s in g["steps"])}連・<span class="cp-nw">パワストーン{sum(s["cost"] for s in g["steps"])}個</span>）。<br>') if g.get("loop") else ""
     comment = _eval_html(g, src_dir)
