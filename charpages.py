@@ -304,13 +304,19 @@ def _kind_of(name):
     return None
 
 
+# 長くて途中で折り返せない能力名の、折り返してよい位置（375px前後で表がはみ出すのを防ぐ。[超攻型]大西で発生）
+_ITEM_BREAK = {"ハイスピンジャイロ": "ハイスピン<wbr>ジャイロ"}
+
+
 def _item(i):
     """「○○コツLv3」は、狭い幅では能力名とコツLvの間でだけ折り返す（<wbr>）。長い名前は伸ばし棒「ー」のあとでも折り返せる（「ポーカーフェイスコツ」が表の外に切れないように）"""
-    t = e(i).replace("コツLv", "<wbr>コツLv").replace("取得", "<wbr>取得").replace("ー", "ー<wbr>")
+    t = e(i).replace("コツLv", "<wbr>コツLv").replace("取得", "<wbr>取得").replace("になる", "<wbr>になる").replace("ー", "ー<wbr>")
+    for k, v in _ITEM_BREAK.items():
+        t = t.replace(k, v)
     if re.match(r"^オリジナル(ストレート|変化球)", i) and i.endswith("取得"):  # オリジナルストレート取得・オリジナル変化球(○○方向)取得は青字（管理人指示 2026-11-07）
         return f'<div class="tx-b tx-bold">{t.replace("(", "<wbr>(")}</div>'
-    m = re.match(r"^(.+?)取得$", i)
-    if m and _kind_of(m.group(1)) in ("赤特", "緑特"):  # 「○○取得」は、赤特は赤文字、緑特は緑文字
+    m = re.match(r"^(.+?)(?:取得|になる)$", i)
+    if m and _kind_of(m.group(1)) in ("赤特", "緑特"):  # 「○○取得」「○○になる」は、赤特は赤文字、緑特は緑文字
         return f'<div class="{"tx-r" if _kind_of(m.group(1)) == "赤特" else "tx-g"}">{t}</div>'
     is_friend = any(i.startswith(n + "コツ") for n in _FRIEND[0])
     cls = "cp-kotsu cp-kotsu-gold" if (_is_gold_kotsu(i) or is_friend) else ("cp-kotsu" if "コツLv" in i else "")
