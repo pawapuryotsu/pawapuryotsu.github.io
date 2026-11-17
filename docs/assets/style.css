@@ -605,3 +605,15 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .scard.pq-latest img{display:block;width:100%;max-width:320px;height:auto;margin:0 auto 4px}
 /* 西球記トップ：カードが4枚の時はPCで4列（空きマスを出さない） */
 @media (min-width:760px){.sk-grid.sk-g4{grid-template-columns:repeat(4,1fr)}.sk-grid.sk-g2{grid-template-columns:1fr 1fr}}
+/* 西球記クエスト一覧：タップで開く（2026-11-17） */
+.qc-x>summary{list-style:none;cursor:pointer;padding:0;display:block}
+.qc-x>summary::-webkit-details-marker{display:none}
+.qc-x .qc-t{display:flex;flex-wrap:wrap;align-items:center;column-gap:6px;row-gap:2px}
+.qc-tags{display:flex;flex-wrap:wrap;gap:4px;flex-basis:100%}
+.qc-tag{font-size:12px;font-weight:700;background:#fff;border-radius:4px;padding:0 6px;line-height:1.6;white-space:nowrap}
+.qc-tag-b{color:#1a5fd0}
+.qc-tag-r{color:#d6303a}
+.qc-arw{flex:none;width:9px;height:9px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg);margin:-4px 2px 0 0;transition:transform .15s}
+.qc-x[open] .qc-arw{transform:rotate(-135deg);margin-top:4px}
+.qc-x .qc-a{margin-left:auto}
+@media (min-width:720px){.qc-tags{flex-basis:auto}}

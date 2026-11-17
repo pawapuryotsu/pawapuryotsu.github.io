@@ -43,11 +43,22 @@ for q in D["クエスト"]:
         rows.append(("管理人メモ", memo + imgs))
     if named and not title:
         head = f'{e(no)}<span class="qc-sub qc-soon">（あとで追加）</span>'
-    out.append(f'  <section class="qc" id="q{D["クエスト"].index(q) + 1}">')
-    out.append(f'    <h3 class="qc-h"><span class="qc-t">{head}</span><span class="qc-a">エリア数<b>{area if area is not None else "－"}</b></span></h3>')
+    # 名前の横の印（2026-11-17 管理人）：祈願エンディングあり→※祈願あり、仙術は使用不可→赤の※仙術不可、④⑪→※周回オススメ!
+    tags = []
+    if q.get("周回オススメ"):
+        tags.append('<span class="qc-tag qc-tag-b">※周回オススメ!</span>')
+    if "祈願エンディングあり" in q.get("青メモ", ""):
+        tags.append('<span class="qc-tag qc-tag-b">※祈願あり</span>')
+    if "仙術は使用不可" in q.get("赤メモ", ""):
+        tags.append('<span class="qc-tag qc-tag-r">※仙術不可</span>')
+    tag = f'<span class="qc-tags">{"".join(tags)}</span>' if tags else ""
+    # タップで詳細を開く（details）。#q4 などのリンクで来たら開く（ページ下のスクリプト）
+    out.append(f'  <details class="qc qc-x" id="q{D["クエスト"].index(q) + 1}">')
+    out.append(f'    <summary><h3 class="qc-h"><span class="qc-t">{head}{tag}</span><span class="qc-a">エリア数<b>{area if area is not None else "－"}</b></span><span class="qc-arw" aria-hidden="true"></span></h3></summary>')
     out.append('    <dl class="qc-d">' + "".join(f"<dt>{k}</dt><dd>{v}</dd>" for k, v in rows) + "</dl>")
-    out.append("  </section>")
+    out.append("  </details>")
 out.append("</div>")
+out.append('<script>(()=>{const o=()=>{const d=location.hash&&document.getElementById(location.hash.slice(1));if(d&&d.tagName==="DETAILS"){d.open=true;d.scrollIntoView()}};o();addEventListener("hashchange",o)})();</script>')
 block = "\n".join(out)
 
 s = page.read_text(encoding="utf-8")
