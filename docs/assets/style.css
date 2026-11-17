@@ -609,7 +609,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .qc-x>summary{list-style:none;cursor:pointer;padding:0;display:block}
 .qc-x>summary::-webkit-details-marker{display:none}
 .qc-x .qc-t{display:flex;flex-wrap:wrap;align-items:center;column-gap:6px;row-gap:2px}
-.qc-tags{display:inline-flex;flex-wrap:wrap;gap:4px}
+.qc-tags{display:flex;flex-wrap:wrap;gap:4px;flex-basis:100%}
 .qc-tag{font-size:12px;font-weight:700;background:#fff;border-radius:4px;padding:0 6px;line-height:1.6;white-space:nowrap}
 .qc-tag-b{color:#1a5fd0}
 .qc-tag-r{color:#d6303a}
