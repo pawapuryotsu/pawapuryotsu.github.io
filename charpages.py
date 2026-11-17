@@ -683,6 +683,17 @@ def gacha_links(name):
     return out
 
 
+_HIDDEN_NAMES = set()   # 検索に出さない（noindex）キャラの名前。関連ページの「同じランクのキャラ」に出さない（管理人 2026-11-17）
+
+
+def has_no_events(c, text, config):
+    """イベント詳細欄にイベント内容が1つも無いか（events_wip と同じ判定を、ページ全体を作る前に行う）"""
+    has_friend = bool(c["金特"].get("友情", {}).get("野手") or c["金特"].get("友情", {}).get("投手"))
+    ev = events_of(text, event_kinds(c, config, text, has_friend))
+    move_epilogue(ev)
+    return events_wip(section(f"{c['name']}のイベント詳細", event_detail(ev)))
+
+
 def related_html(name, root):
     """キャラページの一番下の「関連ページ」：イベキャラ一覧・ガチャ記事・同じランキングで同じランクのキャラ（SEOの内部リンク。2026-11-12 管理人OK）"""
     li = [f'<li><a href="{root}chars/">イベキャラ一覧</a></li>']
@@ -691,7 +702,8 @@ def related_html(name, root):
     for r, t, _ in rankings_of(name):
         if t == "C":  # Cランクの「同じランクのキャラ」は出さない（管理人指示 2026-11-17）
             continue
-        others = [x["name"] for x in r.get("ランク", {}).get(t, []) if x["name"] != name and x["name"] in CHAR_PATHS]
+        others = [x["name"] for x in r.get("ランク", {}).get(t, []) if x["name"] != name and x["name"] in CHAR_PATHS
+                  and x["name"] not in _HIDDEN_NAMES]
         if others:
             out += (f'<h3>{e(r["短い名前"])}で同じ{t}ランクのキャラ</h3><ul class="cp-rel cp-relchips">'
                     + "".join(f'<li><a href="{root}{CHAR_PATHS[n]}">{e(n)}</a></li>' for n in others) + "</ul>")
@@ -839,6 +851,15 @@ def generate(chars_path, src, decks, noindex=True):
     # ＋イベント内容が1つも書かれていないキャラは検索に出さない（ボーナスや評価が入っていても）。イベント内容を書けば自動で外れる
     #   （2026-11-17 管理人「イベント内容が記載されてないものはnoindexを付ける。記載されているならnoindexを外す」）
     hide = set(config.get("検索に出さないページ", []))
+    # 先に、検索に出さないキャラ（指定したもの＋イベント内容が無いもの）を調べておく（関連ページから外すため）
+    _HIDDEN_NAMES.clear()
+    for pid, name in config["公開するキャラ"].items():
+        c = chars.get(name)
+        if not c:
+            continue
+        tf = next((f for f in (src / "chars" / "texts").glob("*.json") if json.loads(f.read_text(encoding="utf-8")).get("name") == name), None)
+        if pid in hide or has_no_events(c, json.loads(tf.read_text(encoding="utf-8")) if tf else {}, config):
+            _HIDDEN_NAMES.add(name)
     for pid, name in config["公開するキャラ"].items():
         if not re.fullmatch(r"\d{4}", pid):
             raise SystemExit(f"ページ番号は4桁の数字にしてください: {pid}")
