@@ -700,7 +700,7 @@ def related_html(name, root):
     li += [f'<li><a href="{root}{e(path)}">{e(t)}</a></li>' for path, t in gacha_links(name)]
     out = '<ul class="rk-list cp-rel">' + "".join(li) + "</ul>"
     for r, t, _ in rankings_of(name):
-        if t == "C":  # Cランクの「同じランクのキャラ」は出さない（管理人指示 2026-11-17）
+        if t not in ("SS", "S"):  # 「同じランクのキャラ」はSS・Sだけ。A・B・Cは出さない（管理人指示 2026-11-17）
             continue
         others = [x["name"] for x in r.get("ランク", {}).get(t, []) if x["name"] != name and x["name"] in CHAR_PATHS
                   and x["name"] not in _HIDDEN_NAMES]
