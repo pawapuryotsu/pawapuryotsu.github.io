@@ -61,7 +61,7 @@ for q in D["クエスト"]:
     tag = f'<span class="qc-tags">{"".join(tags)}</span>' if tags else ""
     # タップで詳細を開く（details）。#q4 などのリンクで来たら開く（ページ下のスクリプト）
     out.append(f'  <details class="qc qc-x" id="q{D["クエスト"].index(q) + 1}">')
-    out.append(f'    <summary><h3 class="qc-h"><span class="qc-t">{head}{tag}</span><span class="qc-a">エリア数<b>{area if area is not None else "－"}</b></span><span class="qc-arw" aria-hidden="true"></span></h3></summary>')
+    out.append(f'    <summary><h3 class="qc-h"><span class="qc-t"><span class="qc-n">{head}</span>{tag}</span><span class="qc-a">エリア数<b>{area if area is not None else "－"}</b></span><span class="qc-arw" aria-hidden="true"></span></h3></summary>')
     out.append('    <dl class="qc-d">' + "".join(f"<dt>{k}</dt><dd>{v}</dd>" for k, v in rows) + "</dl>")
     out.append("  </details>")
 out.append("</div>")
