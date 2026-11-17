@@ -320,8 +320,8 @@ for _gf in sorted((src / "gacha").glob("*.json")):
         _y0 = int(_gf.stem[:4])
         _st = re.match(r"(\d{1,2})月", _g.get("period", "").split("年")[-1])
         _y = int(_m.group(1)) if _m.group(1) else _y0 + (1 if _st and int(_m.group(2)) < int(_st.group(1)) else 0)
-        _end = datetime(_y, int(_m.group(2)), int(_m.group(3)), int(_m.group(4)), int(_m.group(5))) + timedelta(minutes=1)
-        HOME_UNTIL[f"gacha/{_gf.stem}/"] = _end.strftime("%Y-%m-%dT%H:%M")
+        # ガチャの入れ替えは9時か14時なので、終わる日の14時（日本時間）に外す（9時までのガチャも14時でよい。2026-11-17 管理人）
+        HOME_UNTIL[f"gacha/{_gf.stem}/"] = f"{_y:04d}-{int(_m.group(2)):02d}-{int(_m.group(3)):02d}T14:00"
     except Exception as _ex:
         print("警告: ガチャ期間が読めません", _gf.name, _ex)
 _NOW_JST = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%dT%H:%M")
@@ -416,7 +416,7 @@ for meta, body in _parsed:
             # 新イベキャラは公開日から2週間、新シナリオのトップ（ページ先頭 recent_scenario: yes）は公開日から3週間（2026-11-17 管理人）
             _days = _CHAR_DAYS if path in _CHAR_PAGES else (_SCENARIO_DAYS if meta.get("recent_scenario") == "yes" else None)
             if _days and _pub:
-                HOME_UNTIL[path] = (datetime.strptime(_pub, "%Y-%m-%d") + timedelta(days=_days)).strftime("%Y-%m-%dT00:00")
+                HOME_UNTIL[path] = (datetime.strptime(_pub, "%Y-%m-%d") + timedelta(days=_days)).strftime("%Y-%m-%dT14:00")   # 外すのは14時（日本時間）
             elif path.startswith(_HOME_ALWAYS):
                 HOME_UNTIL[path] = "9999-12-31T00:00"
             _wide = bool(meta.get("recent_logo"))   # 「最近の更新」だけで使う横長のロゴ（例 西球記。2026-11-17 管理人）
