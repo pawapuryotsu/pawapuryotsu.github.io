@@ -273,7 +273,48 @@ def generate(src):
                 f"path: {path}\nnav: home\nscripts: gacha\ncrumb: {g['chara']}のガチャ\n"
                 f"og_title: {g['chara']}の{gw(g)}は引くべき？\nrecent_title: {g['chara']}の{gw(g)}は引くべき？\nog_icon: {(g.get('charas') or [g])[0]['icon']}\n")
         pages.append(f"<!--\n{meta}-->\n" + _body(g, "", src))
-        cards.append((g["id"], f'<a class="scard" href="{{{{root}}}}{path}"><span class="tag p">{e(g["chara"])}</span><h3><span class="cp-nw">{e(g["chara"])}の</span><span class="cp-nw">{gw(g)}は</span><span class="cp-nw">引くべき？</span></h3>'
+        cards.append((g["id"], _ended(g), f'<a class="scard" href="{{{{root}}}}{path}"><span class="tag p">{e(g["chara"])}</span><h3><span class="cp-nw">{e(g["chara"])}の</span><span class="cp-nw">{gw(g)}は</span><span class="cp-nw">引くべき？</span></h3>'
                                f'<p>SR Lv45・PSR Lv50の完成確率と<span class="cp-nw">シミュレータ。</span></p><span class="go" aria-hidden="true">→</span></a>'))
     cards.sort(key=lambda x: x[0], reverse=True)   # 新しいガチャを上に
-    return pages, "\n  ".join(c for _, c in cards)
+    past = [c for _, ended, c in cards if ended]
+    pages.append(_past_page(past))
+    now = [c for _, ended, c in cards if not ended] + [PAST_CARD]
+    return pages, "\n  ".join(now)
+
+
+# 「過去のガチャ」ページ（/gacha/past/、2026-11-17 管理人）。ガチャ期間が終わったガチャの記事のカードをここに並べる。
+# 期間が終わったかどうかは json の period の終了日時（日本時間）と build.py を実行した時刻で自動で決める。
+# json に "past": true / false を書けば、そちらを優先する（手で移したい・戻したいとき用）。
+# まだ終わったガチャが無いので noindex（管理人指示）。トップ「最近の更新」にも出さない（src/home_updates.json）。
+PAST_PATH = "gacha/past/"
+PAST_NOINDEX = True
+PAST_CARD = (f'<a class="scard" href="{{{{root}}}}{PAST_PATH}"><h3>過去のガチャ</h3>'
+             f'<p>ガチャ期間が終了したガチャの<span class="cp-nw">記事をまとめています。</span></p><span class="go" aria-hidden="true">→</span></a>')
+
+
+def _ended(g, now=None):
+    import re
+    from datetime import datetime, timedelta, timezone
+    if "past" in g:
+        return bool(g["past"])
+    m = re.match(r"(\d+)年(\d+)月\d+日.*?〜(?:(\d+)年)?(\d+)月(\d+)日\(.\)(\d+):(\d+)", g.get("period", ""))
+    if not m:
+        return False
+    y0, m0, y1, mo, d, hh, mm = m.groups()
+    y = int(y1) if y1 else int(y0) + (1 if int(mo) < int(m0) else 0)   # 終了日に年が無ければ開始の年（年をまたぐときは次の年）
+    jst = timezone(timedelta(hours=9))
+    end = datetime(y, int(mo), int(d), int(hh), int(mm), tzinfo=jst) + timedelta(minutes=1)   # 13:59 まで → 14:00 に終了
+    return (now or datetime.now(jst)) >= end
+
+
+def _past_page(cards):
+    meta = (f"title: 過去のガチャ（期間終了したガチャの記事まとめ）｜パワプロアプリ攻略ベース\n"
+            f"description: パワプロアプリのガチャのうち、ガチャ期間が終了したものの「引くべき？」記事をまとめています。\n"
+            f"path: {PAST_PATH}\nnav: home\ncrumb: 過去のガチャ\n" + ("noindex: yes\n" if PAST_NOINDEX else ""))
+    body = ('<section class="phead"><p class="eyebrow">ガチャ</p><h1><span class="mk"><i>過去のガチャ</i></span></h1>'
+            '<p>ガチャ期間が終了したガチャの<span class="cp-nw">「引くべき？」記事を</span><span class="cp-nw">まとめています。</span></p></section>\n')
+    if cards:
+        body += '<div class="grid2">\n  ' + "\n  ".join(cards) + "\n</div>\n"
+    else:
+        body += '<div class="prose"><p>まだ期間が終了したガチャは<span class="cp-nw">ありません。</span></p></div>\n'
+    return f"<!--\n{meta}-->\n" + body
