@@ -562,6 +562,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .qc-d dd{margin:0}
 .qc-soon{color:#8a93a0}
 .prose .qc-d{display:block}
+.qc-more{margin:0;padding:0 12px 12px;font-size:14px;font-weight:700}
 .prose .qc-d dt{display:block;width:auto;margin:6px 0 0;padding:0}
 .prose .qc-d dt:first-child{margin-top:0}
 .prose .qc-d dd{display:block;margin:0;padding:0}

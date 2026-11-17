@@ -63,6 +63,9 @@ for q in D["クエスト"]:
     out.append(f'  <details class="qc qc-x" id="q{D["クエスト"].index(q) + 1}">')
     out.append(f'    <summary><h3 class="qc-h"><span class="qc-t"><span class="qc-n">{head}</span>{tag}</span><span class="qc-a">エリア数<b>{area if area is not None else "－"}</b></span><span class="qc-arw" aria-hidden="true"></span></h3></summary>')
     out.append('    <dl class="qc-d">' + "".join(f"<dt>{k}</dt><dd>{v}</dd>" for k, v in rows) + "</dl>")
+    # 攻略ページがあるクエストは、開いた中の最後に「詳しい攻略はコチラ」リンク（2026-11-18 管理人、むずクエ）
+    if q.get("攻略ページ"):
+        out.append(f'    <p class="qc-more"><a href="{{{{root}}}}{e(q["攻略ページ"])}">詳しい攻略はコチラ</a></p>')
     out.append("  </details>")
 out.append("</div>")
 out.append('<script>(()=>{const o=()=>{const d=location.hash&&document.getElementById(location.hash.slice(1));if(d&&d.tagName==="DETAILS"){d.open=true;d.scrollIntoView()}};o();addEventListener("hashchange",o)})();</script>')
