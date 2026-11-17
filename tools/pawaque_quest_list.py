@@ -22,8 +22,15 @@ def item(x):
     return f'<span class="em-blue">{e(x)}</span>' if x.startswith("［") and "契約書" in x else e(x)
 
 
+def marks(s):
+    # 管理人メモの {青:…}＝青文字・{青太:…}＝青太字・{赤:…}＝赤文字（2026-11-17 管理人）
+    for tag, cls in (("青太", "em-blue"), ("青", "tx-b"), ("赤太", "em-red"), ("赤", "tx-r")):
+        s = re.sub(r"\{" + tag + r":(.*?)\}", lambda m: f'<span class="{cls}">{m.group(1)}</span>', s)
+    return s
+
+
 def txt(s):
-    return "<br>".join(item(x) for x in s.split("\n")) if s else SOON
+    return "<br>".join(marks(item(x)) for x in s.split("\n")) if s else SOON
 
 
 out = ['<div class="qc-list">']
@@ -54,7 +61,7 @@ for q in D["クエスト"]:
     tag = f'<span class="qc-tags">{"".join(tags)}</span>' if tags else ""
     # タップで詳細を開く（details）。#q4 などのリンクで来たら開く（ページ下のスクリプト）
     out.append(f'  <details class="qc qc-x" id="q{D["クエスト"].index(q) + 1}">')
-    out.append(f'    <summary><h3 class="qc-h"><span class="qc-t">{head}{tag}</span><span class="qc-a">エリア数<b>{area if area is not None else "－"}</b></span><span class="qc-arw" aria-hidden="true"></span></h3></summary>')
+    out.append(f'    <summary><h3 class="qc-h"><span class="qc-t"><span class="qc-n">{head}</span>{tag}</span><span class="qc-a">エリア数<b>{area if area is not None else "－"}</b></span><span class="qc-arw" aria-hidden="true"></span></h3></summary>')
     out.append('    <dl class="qc-d">' + "".join(f"<dt>{k}</dt><dd>{v}</dd>" for k, v in rows) + "</dl>")
     out.append("  </details>")
 out.append("</div>")
