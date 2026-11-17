@@ -22,8 +22,15 @@ def item(x):
     return f'<span class="em-blue">{e(x)}</span>' if x.startswith("［") and "契約書" in x else e(x)
 
 
+def marks(s):
+    # 管理人メモの {青:…}＝青文字・{青太:…}＝青太字・{赤:…}＝赤文字（2026-11-17 管理人）
+    for tag, cls in (("青太", "em-blue"), ("青", "tx-b"), ("赤太", "em-red"), ("赤", "tx-r")):
+        s = re.sub(r"\{" + tag + r":(.*?)\}", lambda m: f'<span class="{cls}">{m.group(1)}</span>', s)
+    return s
+
+
 def txt(s):
-    return "<br>".join(item(x) for x in s.split("\n")) if s else SOON
+    return "<br>".join(marks(item(x)) for x in s.split("\n")) if s else SOON
 
 
 out = ['<div class="qc-list">']
