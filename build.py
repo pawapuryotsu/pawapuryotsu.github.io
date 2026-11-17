@@ -310,11 +310,12 @@ def _nice_break(name):
 
 
 def recent_html():
-    items = sorted((x for x in _page_info if x[0] not in HOME_SKIP), key=lambda x: (x[2] or "", x[3] or "", x[0]), reverse=True)[:HOME_N]
+    # 新しく公開したページだけを公開日が新しい順に出す。すでにあるページの中身を更新しただけでは順番は上がらない（2026-11-17 管理人）
+    items = sorted((x for x in _page_info if x[0] not in HOME_SKIP), key=lambda x: (x[3] or "", x[0]), reverse=True)[:HOME_N]
     li = []
     for path, name, lm, pub, label, icon in items:
         img = f'<img class="news-icon" src="{{{{root}}}}{icon}" alt="" width="44" height="44" loading="lazy">' if icon else ""
-        li.append(f'<li{"" if icon else " class=rc-noimg"}><a href="{{{{root}}}}{path}">{img}<span><small class="rc-meta">{ymd(lm)} 更新{"・" + _html.escape(label) if label else ""}</small><b>{_nice_break(name)}</b></span></a></li>')
+        li.append(f'<li{"" if icon else " class=rc-noimg"}><a href="{{{{root}}}}{path}">{img}<span><small class="rc-meta">{ymd(pub)} 公開{"・" + _html.escape(label) if label else ""}</small><b>{_nice_break(name)}</b></span></a></li>')
     return "<!--recent-->" + '<ul class="news recent">' + "".join(li) + "</ul><!--/recent-->"
 
 
