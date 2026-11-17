@@ -181,8 +181,11 @@ footer .fname{font-family:var(--display);font-size:15px;opacity:1}
 
 /* ===== 文章ページ（このサイトについて・プライバシーポリシーなど） ===== */
 .prose{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:20px 18px;display:flex;flex-direction:column;gap:12px}
-.prose h2{font-size:17px;font-weight:900;margin:12px 0 0;padding-left:10px;border-left:4px solid var(--accent)}
+.prose h2{font-size:17px;font-weight:900;margin:30px 0 0;padding:8px 12px;border-left:6px solid var(--accent);background:var(--accent-soft);border-radius:0 4px 4px 0;position:relative}
+/* 見出しの上に細い区切り線（アイテム・項目ごとの区切りを分かりやすく、2026-11-17 管理人） */
+.prose h2::before{content:"";position:absolute;left:-6px;right:0;top:-16px;border-top:1px solid var(--line)}
 .prose h2:first-child{margin-top:0}
+.prose h2:first-child::before{display:none}
 .prose p,.prose ul,.prose ol{margin:0}
 .prose li{margin:2px 0}
 .prose dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0}
