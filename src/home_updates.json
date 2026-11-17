@@ -7,7 +7,12 @@
     "pawaque/saikyuki/shinzen/",
     "pawaque/saikyuki/contract/",
     "chars/combo/",
-    "gacha/past/"
+    "gacha/past/",
+    "pawaque/",
+    "pawaque/basics/",
+    "pawaque/mission/",
+    "pawaque/coach/",
+    "guide/limit_break/"
   ],
   "出す件数": 8,
   "最近の更新に出すイベキャラの実装日": "2026/11/01"

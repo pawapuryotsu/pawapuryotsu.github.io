@@ -298,7 +298,7 @@ try:
             HOME_SKIP.add(f"chars/{_pid}/")
 except Exception as _ex:
     print("警告: 最近の更新のイベキャラ判定に失敗", _ex)
-_page_info = []   # (path, 名前, 更新日, 公開日, 種類, アイコン)
+_page_info = []   # (path, 名前, 更新日, 公開日, 種類, アイコン, 横長ロゴか)
 
 
 def _nice_break(name):
@@ -313,8 +313,11 @@ def recent_html():
     # 新しく公開したページだけを公開日が新しい順に出す。すでにあるページの中身を更新しただけでは順番は上がらない（2026-11-17 管理人）
     items = sorted((x for x in _page_info if x[0] not in HOME_SKIP), key=lambda x: (x[3] or "", x[0]), reverse=True)[:HOME_N]
     li = []
-    for path, name, lm, pub, label, icon in items:
-        img = f'<img class="news-icon" src="{{{{root}}}}{icon}" alt="" width="44" height="44" loading="lazy">' if icon else ""
+    for path, name, lm, pub, label, icon, wide in items:
+        if icon and wide:
+            img = f'<img class="news-icon news-logo" src="{{{{root}}}}{icon}" alt="" width="80" height="44" loading="lazy">'
+        else:
+            img = f'<img class="news-icon" src="{{{{root}}}}{icon}" alt="" width="44" height="44" loading="lazy">' if icon else ""
         li.append(f'<li{"" if icon else " class=rc-noimg"}><a href="{{{{root}}}}{path}">{img}<span><small class="rc-meta">{ymd(pub)} 公開{"・" + _html.escape(label) if label else ""}</small><b>{_nice_break(name)}</b></span></a></li>')
     return "<!--recent-->" + '<ul class="news recent">' + "".join(li) + "</ul><!--/recent-->"
 
@@ -379,8 +382,11 @@ for meta, body in _parsed:
         _pub = first_published(path)   # 「最近の更新」で更新日が同じページは公開日が新しい順
         if _lm:
             _icon = meta.get("og_icon") or (f"img/chars/{path.split('/')[1]}.png" if re.fullmatch(r"chars/\d{4}/", path) else None)
+            _wide = bool(meta.get("recent_logo"))   # 「最近の更新」だけで使う横長のロゴ（例 西球記。2026-11-17 管理人）
+            if _wide:
+                _icon = meta["recent_logo"]
             _page_info.append((path, meta.get("recent_title") or CRUMB.get(path, path), _lm, _pub, next((l for pre, l in OG_LABEL if path.startswith(pre)), ""),
-                               _icon if _icon and (out / _icon).exists() else None))
+                               _icon if _icon and (out / _icon).exists() else None, _wide))
         if path.startswith(DATED) and _lm:
             _pub = min(_pub, _lm)
             html = html.replace("</h1>", f'</h1><p class="pubdate">公開日 <time datetime="{_pub}">{ymd(_pub)}</time>・更新日 <time datetime="{_lm}">{ymd(_lm)}</time></p>', 1)
