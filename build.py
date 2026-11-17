@@ -289,22 +289,28 @@ HOME_SKIP = set(_hu.get("トップに出さないページ", [])) | {"", "404.ht
 HOME_N = int(_hu.get("出す件数", 8))
 # 「最近の更新」に出す期間（2026-11-17 管理人）。期間が決まっているページだけを出し、期間が過ぎたら外す。
 #  ・ガチャ「引くべき？」記事：ガチャ期間が終わるまで（src/gacha/<id>.json の period の終わり）
-#  ・新イベキャラのページ：実装日から2週間
-#  ・サクセス・パワクエの新シナリオのトップ：配信日（ページ先頭の recent_scenario_start:）から3週間
+#  ・新イベキャラのページ：公開日から2週間
+#  ・サクセス・パワクエの新シナリオのトップ：公開日から3週間（ページ先頭に recent_scenario: yes）
+#  ・ランキング・次期シナリオ予想（ranking/）：期限なし
 #  サイトを更新しない日でも消えるように、トップのページの中で日時を見て期限切れの行を消す（下の _RECENT_JS）
 from datetime import datetime, timedelta, timezone
 HOME_UNTIL = {}   # path → この日時（日本時間）から出さない "YYYY-MM-DDTHH:MM"
 _CHAR_DAYS = int(_hu.get("イベキャラを出す日数", 14))
 _SCENARIO_DAYS = int(_hu.get("新シナリオを出す日数", 21))
+_CHAR_PAGES = set()
 try:
     _cfg = json.loads((src / "chars" / "config.json").read_text(encoding="utf-8"))
     _cj = {c["name"]: c for c in json.loads(chars.read_text(encoding="utf-8"))}
+    # 実装日が「最近の更新に出すイベキャラの実装日」（2026/11/01）より前の昔のキャラは出さない（2026-11-16 管理人）
+    _CHAR_FROM = _hu.get("最近の更新に出すイベキャラの実装日", "2026/11/01")
     for _pid, _nm in _cfg.get("公開するキャラ", {}).items():
-        _d = (_cj.get(_nm) or {}).get("実装日") or ""
-        if re.fullmatch(r"\d{4}/\d{2}/\d{2}", _d):
-            HOME_UNTIL[f"chars/{_pid}/"] = (datetime.strptime(_d, "%Y/%m/%d") + timedelta(days=_CHAR_DAYS)).strftime("%Y-%m-%dT00:00")
+        _CHAR_PAGES.add(f"chars/{_pid}/")
+        if ((_cj.get(_nm) or {}).get("実装日") or "") < _CHAR_FROM:
+            HOME_SKIP.add(f"chars/{_pid}/")
 except Exception as _ex:
     print("警告: 最近の更新のイベキャラ判定に失敗", _ex)
+# ランキングと次期シナリオ予想は期限なしで出す（2026-11-17 管理人）
+_HOME_ALWAYS = tuple(_hu.get("期限なしで出すページ", ["ranking/"]))
 for _gf in sorted((src / "gacha").glob("*.json")):
     if _gf.name.endswith(".tables.json"):
         continue
@@ -407,8 +413,12 @@ for meta, body in _parsed:
         _pub = first_published(path)   # 「最近の更新」で更新日が同じページは公開日が新しい順
         if _lm:
             _icon = meta.get("og_icon") or (f"img/chars/{path.split('/')[1]}.png" if re.fullmatch(r"chars/\d{4}/", path) else None)
-            if meta.get("recent_scenario_start"):   # 新シナリオのトップ：配信日から3週間
-                HOME_UNTIL[path] = (datetime.strptime(meta["recent_scenario_start"], "%Y-%m-%d") + timedelta(days=_SCENARIO_DAYS)).strftime("%Y-%m-%dT00:00")
+            # 新イベキャラは公開日から2週間、新シナリオのトップ（ページ先頭 recent_scenario: yes）は公開日から3週間（2026-11-17 管理人）
+            _days = _CHAR_DAYS if path in _CHAR_PAGES else (_SCENARIO_DAYS if meta.get("recent_scenario") == "yes" else None)
+            if _days and _pub:
+                HOME_UNTIL[path] = (datetime.strptime(_pub, "%Y-%m-%d") + timedelta(days=_days)).strftime("%Y-%m-%dT00:00")
+            elif path.startswith(_HOME_ALWAYS):
+                HOME_UNTIL[path] = "9999-12-31T00:00"
             _wide = bool(meta.get("recent_logo"))   # 「最近の更新」だけで使う横長のロゴ（例 西球記。2026-11-17 管理人）
             if _wide:
                 _icon = meta["recent_logo"]
