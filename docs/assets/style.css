@@ -510,6 +510,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .news li.rc-noimg{grid-template-columns:1fr}
 .news.recent a{text-decoration:none}   /* 文字色は .news a の赤（管理人指示 2026-11-12） */
 .news.recent a b{display:inline}
+.news-icon.news-logo{width:80px;object-fit:contain;background:none;border-radius:0}   /* 横長のロゴ（西球記など） */
 /* パワクエ ミッション報酬まとめ */
 .pm-note{font-size:13px;color:var(--muted);margin:6px 0 0}
 .bt.pm-t th,.bt.pm-t td{white-space:normal;padding:6px 4px}

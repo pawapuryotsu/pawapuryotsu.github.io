@@ -287,18 +287,48 @@ DATED = ("gacha/", "ranking/")
 _hu = json.loads((src / "home_updates.json").read_text(encoding="utf-8")) if (src / "home_updates.json").exists() else {}
 HOME_SKIP = set(_hu.get("トップに出さないページ", [])) | {"", "404.html", "about/", "privacy/", "contact/"}
 HOME_N = int(_hu.get("出す件数", 8))
-# イベキャラのページは、実装日が「最近の更新に出す実装日」（2026/11/01）より前の昔のキャラは出さない（2026-11-16 管理人）
-_HOME_CHAR_FROM = _hu.get("最近の更新に出すイベキャラの実装日", "2026/11/01")
+# 「最近の更新」に出す期間（2026-11-17 管理人）。期間が決まっているページだけを出し、期間が過ぎたら外す。
+#  ・ガチャ「引くべき？」記事：ガチャ期間が終わるまで（src/gacha/<id>.json の period の終わり）
+#  ・新イベキャラのページ：公開日から2週間
+#  ・サクセス・パワクエの新シナリオのトップ：公開日から3週間（ページ先頭に recent_scenario: yes）
+#  ・ランキング・次期シナリオ予想（ranking/）：期限なし
+#  サイトを更新しない日でも消えるように、トップのページの中で日時を見て期限切れの行を消す（下の _RECENT_JS）
+from datetime import datetime, timedelta, timezone
+HOME_UNTIL = {}   # path → この日時（日本時間）から出さない "YYYY-MM-DDTHH:MM"
+_CHAR_DAYS = int(_hu.get("イベキャラを出す日数", 14))
+_SCENARIO_DAYS = int(_hu.get("新シナリオを出す日数", 21))
+_CHAR_PAGES = set()
 try:
     _cfg = json.loads((src / "chars" / "config.json").read_text(encoding="utf-8"))
     _cj = {c["name"]: c for c in json.loads(chars.read_text(encoding="utf-8"))}
+    # 実装日が「最近の更新に出すイベキャラの実装日」（2026/11/01）より前の昔のキャラは出さない（2026-11-16 管理人）
+    _CHAR_FROM = _hu.get("最近の更新に出すイベキャラの実装日", "2026/11/01")
     for _pid, _nm in _cfg.get("公開するキャラ", {}).items():
-        _d = (_cj.get(_nm) or {}).get("実装日") or ""
-        if not _d or _d < _HOME_CHAR_FROM:
+        _CHAR_PAGES.add(f"chars/{_pid}/")
+        if ((_cj.get(_nm) or {}).get("実装日") or "") < _CHAR_FROM:
             HOME_SKIP.add(f"chars/{_pid}/")
 except Exception as _ex:
     print("警告: 最近の更新のイベキャラ判定に失敗", _ex)
-_page_info = []   # (path, 名前, 更新日, 公開日, 種類, アイコン)
+# ランキングと次期シナリオ予想は期限なしで出す（2026-11-17 管理人）
+_HOME_ALWAYS = tuple(_hu.get("期限なしで出すページ", ["ranking/"]))
+for _gf in sorted((src / "gacha").glob("*.json")):
+    if _gf.name.endswith(".tables.json"):
+        continue
+    try:
+        _g = json.loads(_gf.read_text(encoding="utf-8"))
+        _m = re.search(r"〜\s*(?:(\d{4})年)?(\d{1,2})月(\d{1,2})日[^0-9]*(\d{1,2}):(\d{2})", _g.get("period", ""))
+        _y0 = int(_gf.stem[:4])
+        _st = re.match(r"(\d{1,2})月", _g.get("period", "").split("年")[-1])
+        _y = int(_m.group(1)) if _m.group(1) else _y0 + (1 if _st and int(_m.group(2)) < int(_st.group(1)) else 0)
+        # ガチャの入れ替えは9時か14時なので、終わる日の14時（日本時間）に外す（9時までのガチャも14時でよい。2026-11-17 管理人）
+        HOME_UNTIL[f"gacha/{_gf.stem}/"] = f"{_y:04d}-{int(_m.group(2)):02d}-{int(_m.group(3)):02d}T14:00"
+    except Exception as _ex:
+        print("警告: ガチャ期間が読めません", _gf.name, _ex)
+_NOW_JST = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%dT%H:%M")
+_RECENT_JS = ("<script>(function(){var d=new Date(Date.now()+9*36e5).toISOString().slice(0,16),n=0;"
+              "document.querySelectorAll('.news.recent li').forEach(function(li){var u=li.getAttribute('data-until');"
+              f"if((u&&u<=d)||n>={HOME_N})li.remove();else n++;}});}})();</script>")
+_page_info = []   # (path, 名前, 更新日, 公開日, 種類, アイコン, 横長ロゴか)
 
 
 def _nice_break(name):
@@ -311,12 +341,16 @@ def _nice_break(name):
 
 def recent_html():
     # 新しく公開したページだけを公開日が新しい順に出す。すでにあるページの中身を更新しただけでは順番は上がらない（2026-11-17 管理人）
-    items = sorted((x for x in _page_info if x[0] not in HOME_SKIP), key=lambda x: (x[3] or "", x[0]), reverse=True)[:HOME_N]
+    # 出す期間が決まっているページ（HOME_UNTIL）だけ。期限切れは出さない（2026-11-17 管理人）
+    items = sorted((x for x in _page_info if x[0] not in HOME_SKIP and HOME_UNTIL.get(x[0], "") > _NOW_JST), key=lambda x: (x[3] or "", x[0]), reverse=True)
     li = []
-    for path, name, lm, pub, label, icon in items:
-        img = f'<img class="news-icon" src="{{{{root}}}}{icon}" alt="" width="44" height="44" loading="lazy">' if icon else ""
-        li.append(f'<li{"" if icon else " class=rc-noimg"}><a href="{{{{root}}}}{path}">{img}<span><small class="rc-meta">{ymd(pub)} 公開{"・" + _html.escape(label) if label else ""}</small><b>{_nice_break(name)}</b></span></a></li>')
-    return "<!--recent-->" + '<ul class="news recent">' + "".join(li) + "</ul><!--/recent-->"
+    for path, name, lm, pub, label, icon, wide in items:
+        if icon and wide:
+            img = f'<img class="news-icon news-logo" src="{{{{root}}}}{icon}" alt="" width="80" height="44" loading="lazy">'
+        else:
+            img = f'<img class="news-icon" src="{{{{root}}}}{icon}" alt="" width="44" height="44" loading="lazy">' if icon else ""
+        li.append(f'<li{"" if icon else " class=rc-noimg"} data-until="{HOME_UNTIL[path]}"><a href="{{{{root}}}}{path}">{img}<span><small class="rc-meta">{ymd(pub)} 公開{"・" + _html.escape(label) if label else ""}</small><b>{_nice_break(name)}</b></span></a></li>')
+    return "<!--recent-->" + '<ul class="news recent">' + "".join(li) + "</ul>" + _RECENT_JS + "<!--/recent-->"
 
 
 _parsed.sort(key=lambda mb: mb[0]["path"] == "")   # トップは最後に作る（ほかのページの更新日を使うため）
@@ -379,8 +413,17 @@ for meta, body in _parsed:
         _pub = first_published(path)   # 「最近の更新」で更新日が同じページは公開日が新しい順
         if _lm:
             _icon = meta.get("og_icon") or (f"img/chars/{path.split('/')[1]}.png" if re.fullmatch(r"chars/\d{4}/", path) else None)
+            # 新イベキャラは公開日から2週間、新シナリオのトップ（ページ先頭 recent_scenario: yes）は公開日から3週間（2026-11-17 管理人）
+            _days = _CHAR_DAYS if path in _CHAR_PAGES else (_SCENARIO_DAYS if meta.get("recent_scenario") == "yes" else None)
+            if _days and _pub:
+                HOME_UNTIL[path] = (datetime.strptime(_pub, "%Y-%m-%d") + timedelta(days=_days)).strftime("%Y-%m-%dT14:00")   # 外すのは14時（日本時間）
+            elif path.startswith(_HOME_ALWAYS):
+                HOME_UNTIL[path] = "9999-12-31T00:00"
+            _wide = bool(meta.get("recent_logo"))   # 「最近の更新」だけで使う横長のロゴ（例 西球記。2026-11-17 管理人）
+            if _wide:
+                _icon = meta["recent_logo"]
             _page_info.append((path, meta.get("recent_title") or CRUMB.get(path, path), _lm, _pub, next((l for pre, l in OG_LABEL if path.startswith(pre)), ""),
-                               _icon if _icon and (out / _icon).exists() else None))
+                               _icon if _icon and (out / _icon).exists() else None, _wide))
         if path.startswith(DATED) and _lm:
             _pub = min(_pub, _lm)
             html = html.replace("</h1>", f'</h1><p class="pubdate">公開日 <time datetime="{_pub}">{ymd(_pub)}</time>・更新日 <time datetime="{_lm}">{ymd(_lm)}</time></p>', 1)
