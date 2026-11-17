@@ -252,6 +252,9 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .pq-p{margin:10px 0 0}
 .pq-cap{margin:6px 0 0;max-width:420px;font-size:13px;color:var(--muted)}
 .pq-img{display:block;margin:8px 0 0;max-width:min(100%,420px);height:auto;border:1px solid var(--line);border-radius:4px}
+.prose h2.dr-h2{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dr-h2 img{height:56px;width:auto;border-radius:4px;flex:none}
+.dr-update{margin:0 0 12px;padding:8px 12px;background:#fdecee;border:1px solid #d6303a;border-left:6px solid #d6303a;border-radius:4px;color:#d6303a;font-weight:700;font-size:15px}
 
 :root[data-theme="dark"] .em-blue{color:#8fbcff}
 :root[data-theme="dark"] .em-red,:root[data-theme="dark"] .tx-red{color:#ff8a8a}
