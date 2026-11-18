@@ -628,3 +628,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .sk-c.sk-cur{color:#222}
 .sk-c.sk-cur .sk-th{opacity:.55}
 .sk-now{display:inline-block;padding:1px 8px;border-radius:10px;background:#eef0f2;color:#5b6676;font-size:11px;font-weight:700}
+/* 西球記のリンク欄：最後の行の空きマスは白で埋める（スマホ2列・PC3列で数が違う） */
+.sk-fill{background:#fff}
+.sk-fill-pc{display:none}
+@media (min-width:760px){.sk-fill-pc{display:block}.sk-fill-sp{display:none}}

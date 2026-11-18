@@ -66,6 +66,8 @@ def nav_cards():
             '重要アイテム<span class="cp-nw">周回方法</span>', "", READY["drop"]),
        card("pawaque/saikyuki/muzu/", "saikyuki_link_muzu.jpg", "むずクエ エリア3のマップ", 360, 150,
             'むずクエ<span class="cp-nw">攻略＆周回</span>', 'エリアごとの<wbr><span class="cp-nw">ルートと仙術</span>'),
+       card("pawaque/saikyuki/mucha/", "saikyuki_link_mucha.jpg", "むちゃクエ エリア5のマップ", 360, 150,
+            'むちゃクエ<span class="cp-nw">攻略＆周回</span>', 'エリアごとの<wbr><span class="cp-nw">ルートと仙術</span>'),
        card("pawaque/saikyuki/shinzen/", "saikyuki_link_shinzen.jpg", "神前試合の画面", 660, 334,
             '神前試合<span class="cp-nw">まとめ</span>', f"{len(S)}校の進化対象・<wbr>スカウト候補"),
        card("pawaque/saikyuki/contract/", "saikyuki_link_contract.jpg", "［求道者］才賀 侑人の契約書", 320, 125,
@@ -75,10 +77,26 @@ def nav_cards():
     ] if x is not None]
 
 
+def grid(cs):
+    """カードの並び。PC（3列）・スマホ（2列）で最後の行が空く時は、白い空きマスで埋める（線の色が見えないように）"""
+    n = len(cs)
+    g = "sk-grid"
+    pc = 3
+    if n % 3 and n % 2 == 0:   # PC（3列）で空きマスが出る枚数（4枚など）は、PCを枚数に合わせた列にする
+        pc = n if n <= 4 else 2
+        g += f" sk-g{pc}"
+    mob, pcf = (2 - n % 2) % 2, (pc - n % pc) % pc
+    fill = []
+    for i in range(max(mob, pcf)):
+        cls = "sk-fill" + ("" if i < mob and i < pcf else (" sk-fill-sp" if i < mob else " sk-fill-pc"))
+        fill.append(f'    <span class="{cls}" aria-hidden="true"></span>')
+    return [f'  <div class="{g}">'] + cs + fill + ['  </div>']
+
+
 out = ['  <section class="sk-nav" aria-label="西球記の関連ページ">',
        '  <p class="sk-nav-h">西球記の攻略ページ</p>',
-       '  <div class="sk-grid">'] + nav_cards() + [
-       '  </div>', '  </section>', '',
+      ] + grid(nav_cards()) + [
+       '  </section>', '',
        '  <h2 id="about">西球記とは</h2>',
        '  <p><span class="cp-nw">「西球記（さいきゅうき）」</span>は、パワクエの5つ目のストーリーです。<span class="em-blue">2026/11/16 14時に配信されました。</span></p>', '']
 
@@ -127,9 +145,6 @@ if rows:
     out += ['  <h2 id="boss-contract">契約書がボスドロップするクエスト</h2>', '  <ul class="sk-list">'] + rows + ['  </ul>', '']
 
 out = [x for x in out if x is not None]   # 準備中で出さないカードを除く
-_n = sum(1 for x in out if x.startswith('    <a class="sk-c"'))
-if _n % 3 and _n % 2 == 0:   # PC（3列）で空きマスが出る枚数（4枚など）は、PCを2列ではなく枚数に合わせた列にする
-    out = [x.replace('<div class="sk-grid">', f'<div class="sk-grid sk-g{_n if _n <= 4 else 2}">') for x in out]
 block = "\n".join(out)
 s = page.read_text(encoding="utf-8")
 assert "<!-- SKTOP:START -->" in s and "<!-- SKTOP:END -->" in s, "SKTOP の目印が見つからない"
@@ -150,11 +165,8 @@ for f in sorted((here / "src/pages").glob("pawaque-saikyuki-*.html")):
     cs = nav_cards()
     if not any("sk-cur" in x for x in cs) and "noindex: yes" not in f.read_text(encoding="utf-8"):
         print(f"※注意：{f.name} のカードが nav_cards() にありません（トップと各ページのリンク欄に出ません）。カードを足してください")
-    g = "sk-grid"
-    if len(cs) % 3 and len(cs) % 2 == 0:
-        g += f" sk-g{len(cs) if len(cs) <= 4 else 2}"
     nav = "\n".join(['  <section class="sk-nav sk-nav-btm" aria-label="西球記の関連ページ">',
-                     '  <p class="sk-nav-h">西球記の攻略ページ</p>', f'  <div class="{g}">'] + cs + ['  </div>', '  </section>'])
+                     '  <p class="sk-nav-h">西球記の攻略ページ</p>'] + grid(cs) + ['  </section>'])
     t = f.read_text(encoding="utf-8")
     if "<!-- SKNAV:START -->" not in t:
         assert t.count(BACK) == 1, f"{f.name}: 「戻る」の行が見つからない"
