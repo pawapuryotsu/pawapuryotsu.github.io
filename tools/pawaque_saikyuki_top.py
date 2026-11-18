@@ -107,7 +107,8 @@ for q in done:
     for k, cls in (("青メモ", "em-blue"), ("赤メモ", "em-red"), ("管理人メモ", "")):
         # 改行で区切ったメモは1行ずつ別の項目にする
         for line in (q.get(k) or "").split("\n"):
-            if not line:
+            # 「祈願エンディングあり」「仙術は使用不可」はクエスト一覧の印で分かるので、ここにも出さない（2026-11-18 管理人）
+            if not line or line.strip() in ("祈願エンディングあり", "仙術は使用不可"):
                 continue
             t = memo(line)
             memos.append(f'    <li><a href="{{{{root}}}}pawaque/saikyuki/quest/#{qid(q)}">{e(q["番号"] + q["タイトル"].replace("|", ""))}</a>：'
