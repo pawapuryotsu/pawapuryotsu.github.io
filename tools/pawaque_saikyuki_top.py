@@ -141,19 +141,23 @@ print("ok トップ", qrange, len(S), "校", mis, "件")
 # 今見ているページのカードは「表示中のページ」にしてリンクにしない。カードの並びと枚数はトップと同じ。
 # ページの <!-- SKNAV:START --> と <!-- SKNAV:END --> の間を書き換える（目印が無ければ「西球記の攻略（トップ）に戻る」の上に足す）。
 BACK = '  <p><a href="{{root}}pawaque/saikyuki/">西球記の攻略（トップ）</a>に<span class="cp-nw">戻る</span></p>'
-for slug in ["feature", "quest", "drop", "muzu", "shinzen", "contract"]:
+# 子ページは src/pages/pawaque-saikyuki-*.html を全部自動で拾う（新しいページを作っても自動で付く。2026-11-18 管理人）。
+# 新しい攻略ページを作ったら、上の nav_cards() にカードを1枚足す → トップと全ページのリンク欄が同時に更新される。
+for f in sorted((here / "src/pages").glob("pawaque-saikyuki-*.html")):
+    slug = f.stem.removeprefix("pawaque-saikyuki-")
     CUR = f"pawaque/saikyuki/{slug}/"
     cs = nav_cards()
+    if not any("sk-cur" in x for x in cs) and "noindex: yes" not in f.read_text(encoding="utf-8"):
+        print(f"※注意：{f.name} のカードが nav_cards() にありません（トップと各ページのリンク欄に出ません）。カードを足してください")
     g = "sk-grid"
     if len(cs) % 3 and len(cs) % 2 == 0:
         g += f" sk-g{len(cs) if len(cs) <= 4 else 2}"
     nav = "\n".join(['  <section class="sk-nav sk-nav-btm" aria-label="西球記の関連ページ">',
                      '  <p class="sk-nav-h">西球記の攻略ページ</p>', f'  <div class="{g}">'] + cs + ['  </div>', '  </section>'])
-    f = here / f"src/pages/pawaque-saikyuki-{slug}.html"
     t = f.read_text(encoding="utf-8")
     if "<!-- SKNAV:START -->" not in t:
         assert t.count(BACK) == 1, f"{f.name}: 「戻る」の行が見つからない"
         t = t.replace(BACK, "  <!-- SKNAV:START -->\n  <!-- SKNAV:END -->\n\n" + BACK)
     t = re.sub(r"(<!-- SKNAV:START -->).*?(<!-- SKNAV:END -->)", lambda m: m.group(1) + "\n" + nav + "\n  " + m.group(2), t, flags=re.S)
     f.write_text(t, encoding="utf-8")
-print("ok 子ページのリンク欄 6ページ")
+print("ok 子ページのリンク欄", len(list((here / "src/pages").glob("pawaque-saikyuki-*.html"))), "ページ")
