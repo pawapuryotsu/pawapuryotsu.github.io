@@ -34,6 +34,13 @@ def txt(s):
 
 
 out = ['<div class="qc-list">']
+TAGGED = ("祈願エンディングあり", "仙術は使用不可")
+
+
+def strip_tagged(t):
+    return "\n".join(x for x in (t or "").split("\n") if x.strip() not in TAGGED)
+
+
 for q in D["クエスト"]:
     no, title = q["番号"], q["タイトル"]
     area = q["エリア数"]
@@ -43,8 +50,11 @@ for q in D["クエスト"]:
     rows = [("ドロップしやすいアイテム", txt(q["ドロップしやすいアイテム"])), ("ボスドロップ", txt(q["ボスドロップ"]))]
     imgs = "".join(f'<img class="qc-img" src="{{{{root}}}}img/{e(g["file"])}" alt="{e(g.get("説明") or no + "の画像")}" loading="lazy">'
                    + (f'<p class="qc-cap">{e(g["説明"])}</p>' if g.get("説明") else "") for g in q.get("画像", []))
-    red = f'<span class="em-red">{emtxt(q["赤メモ"])}</span>' if q.get("赤メモ") else ""
-    blue = f'<span class="em-blue">{emtxt(q["青メモ"])}</span>' if q.get("青メモ") else ""
+    # 「祈願エンディングあり」「仙術は使用不可」は名前の横の印（※祈願あり・※仙術不可）で分かるので、管理人メモには出さない（2026-11-18 管理人）。
+    # データには残す（印はこの文字から自動で付く）
+    rm, bm = strip_tagged(q.get("赤メモ")), strip_tagged(q.get("青メモ"))
+    red = f'<span class="em-red">{emtxt(rm)}</span>' if rm else ""
+    blue = f'<span class="em-blue">{emtxt(bm)}</span>' if bm else ""
     memo = "<br>".join(x for x in (blue, red, txt(q["管理人メモ"]) if q["管理人メモ"] else "") if x)
     if memo or imgs:
         rows.append(("管理人メモ", memo + imgs))
@@ -55,7 +65,7 @@ for q in D["クエスト"]:
     if q.get("周回オススメ"):
         tags.append('<span class="qc-tag qc-tag-b">※周回オススメ!</span>')
     if "祈願エンディングあり" in q.get("青メモ", ""):
-        tags.append('<span class="qc-tag qc-tag-b">※祈願あり</span>')
+        tags.append('<span class="qc-tag qc-tag-g">※祈願あり</span>')
     if "仙術は使用不可" in q.get("赤メモ", ""):
         tags.append('<span class="qc-tag qc-tag-r">※仙術不可</span>')
     tag = f'<span class="qc-tags">{"".join(tags)}</span>' if tags else ""
