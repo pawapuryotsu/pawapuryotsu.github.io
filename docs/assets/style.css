@@ -622,3 +622,8 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .qc-x[open] .qc-arw{transform:rotate(-135deg);margin-top:4px}
 .qc-x .qc-a{margin-left:auto}
 @media (min-width:720px){.qc-tags{flex-basis:auto}}
+/* 西球記の子ページ：一番下のリンク欄（トップと同じ形）。表示中のページはリンクにしない（2026-11-18 管理人） */
+.sk-nav.sk-nav-btm{margin:32px 0 16px}
+.sk-c.sk-cur{color:#222}
+.sk-c.sk-cur .sk-th{opacity:.55}
+.sk-now{display:inline-block;padding:1px 8px;border-radius:10px;background:#eef0f2;color:#5b6676;font-size:11px;font-weight:700}

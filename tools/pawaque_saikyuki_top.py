@@ -42,17 +42,22 @@ def memo(t):
     return s
 
 
+CUR = None   # 子ページの下に出す時、そのページのパス（カードを「表示中」にしてリンクにしない）
+
+
 def card(href, img, alt, w, h, label, sub, ready=True):
     # 準備中のページはカードごと出さない（2026-11-17 管理人「カードごと消す」）。原稿が入ったら READY を True に
     if not ready:
         return None
-    return (f'    <a class="sk-c" href="{{{{root}}}}{href}"><span class="sk-th sk-img"><img src="{{{{root}}}}img/pawaque/{img}" '
-            f'alt="{e(alt)}" width="{w}" height="{h}"></span><span class="sk-l">{label}</span><span class="sk-s">{sub}</span></a>')
+    th = (f'<span class="sk-th sk-img"><img src="{{{{root}}}}img/pawaque/{img}" alt="{e(alt)}" width="{w}" height="{h}"></span>'
+          f'<span class="sk-l">{label}</span><span class="sk-s">{sub}</span>')
+    if href == CUR:
+        return f'    <span class="sk-c sk-cur" aria-current="page">{th}<span class="sk-now">表示中のページ</span></span>'
+    return f'    <a class="sk-c" href="{{{{root}}}}{href}">{th}</a>'
 
 
-out = ['  <section class="sk-nav" aria-label="西球記の関連ページ">',
-       '  <p class="sk-nav-h">西球記の攻略ページ</p>',
-       '  <div class="sk-grid">',
+def nav_cards():
+    return [x for x in [
        card("pawaque/saikyuki/feature/", "saikyuki_logo.png", "西球記のロゴ", 235, 130,
             '西球記の<span class="cp-nw">固有ギミック</span>', "仙術・神前試合マス・<wbr>祈願エンディングマス"),
        card("pawaque/saikyuki/quest/", "saikyuki_link_quest.jpg", "クエスト一覧の画面", 374, 148,
@@ -67,6 +72,12 @@ out = ['  <section class="sk-nav" aria-label="西球記の関連ページ">',
             'ドロップ<span class="cp-nw">契約書まとめ</span>', "", READY["contract"]),
        card("pawaque/mission/", "saikyuki_link_mission.jpg", "ミッションの画面", 232, 161,
             "ミッション報酬", f"西球記の{mis}件を<wbr>掲載" if mis else ""),
+    ] if x is not None]
+
+
+out = ['  <section class="sk-nav" aria-label="西球記の関連ページ">',
+       '  <p class="sk-nav-h">西球記の攻略ページ</p>',
+       '  <div class="sk-grid">'] + nav_cards() + [
        '  </div>', '  </section>', '',
        '  <h2 id="about">西球記とは</h2>',
        '  <p><span class="cp-nw">「西球記（さいきゅうき）」</span>は、パワクエの5つ目のストーリーです。<span class="em-blue">2026/11/16 14時に配信されました。</span></p>', '']
@@ -124,3 +135,25 @@ assert "<!-- SKTOP:START -->" in s and "<!-- SKTOP:END -->" in s, "SKTOP の目�
 s = re.sub(r"(<!-- SKTOP:START -->).*?(<!-- SKTOP:END -->)", lambda m: m.group(1) + "\n" + block + "\n  " + m.group(2), s, flags=re.S)
 page.write_text(s, encoding="utf-8")
 print("ok トップ", qrange, len(S), "校", mis, "件")
+
+
+# 子ページの一番下にも、トップと同じ形のリンク欄を出す（2026-11-18 管理人「下部のほかのページへのリンクは西球記の攻略同様この形で」）。
+# 今見ているページのカードは「表示中のページ」にしてリンクにしない。カードの並びと枚数はトップと同じ。
+# ページの <!-- SKNAV:START --> と <!-- SKNAV:END --> の間を書き換える（目印が無ければ「西球記の攻略（トップ）に戻る」の上に足す）。
+BACK = '  <p><a href="{{root}}pawaque/saikyuki/">西球記の攻略（トップ）</a>に<span class="cp-nw">戻る</span></p>'
+for slug in ["feature", "quest", "drop", "muzu", "shinzen", "contract"]:
+    CUR = f"pawaque/saikyuki/{slug}/"
+    cs = nav_cards()
+    g = "sk-grid"
+    if len(cs) % 3 and len(cs) % 2 == 0:
+        g += f" sk-g{len(cs) if len(cs) <= 4 else 2}"
+    nav = "\n".join(['  <section class="sk-nav sk-nav-btm" aria-label="西球記の関連ページ">',
+                     '  <p class="sk-nav-h">西球記の攻略ページ</p>', f'  <div class="{g}">'] + cs + ['  </div>', '  </section>'])
+    f = here / f"src/pages/pawaque-saikyuki-{slug}.html"
+    t = f.read_text(encoding="utf-8")
+    if "<!-- SKNAV:START -->" not in t:
+        assert t.count(BACK) == 1, f"{f.name}: 「戻る」の行が見つからない"
+        t = t.replace(BACK, "  <!-- SKNAV:START -->\n  <!-- SKNAV:END -->\n\n" + BACK)
+    t = re.sub(r"(<!-- SKNAV:START -->).*?(<!-- SKNAV:END -->)", lambda m: m.group(1) + "\n" + nav + "\n  " + m.group(2), t, flags=re.S)
+    f.write_text(t, encoding="utf-8")
+print("ok 子ページのリンク欄 6ページ")
