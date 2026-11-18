@@ -618,6 +618,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .qc-tag{font-size:12px;font-weight:700;background:#fff;border-radius:4px;padding:0 6px;line-height:1.6;white-space:nowrap}
 .qc-tag-b{color:#1a5fd0}
 .qc-tag-r{color:#d6303a}
+.qc-tag-g{color:#2e7d32}
 .qc-arw{flex:none;width:9px;height:9px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg);margin:-4px 2px 0 0;transition:transform .15s}
 .qc-x[open] .qc-arw{transform:rotate(-135deg);margin-top:4px}
 .qc-x .qc-a{margin-left:auto}

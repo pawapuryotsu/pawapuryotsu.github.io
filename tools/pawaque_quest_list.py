@@ -55,7 +55,7 @@ for q in D["クエスト"]:
     if q.get("周回オススメ"):
         tags.append('<span class="qc-tag qc-tag-b">※周回オススメ!</span>')
     if "祈願エンディングあり" in q.get("青メモ", ""):
-        tags.append('<span class="qc-tag qc-tag-b">※祈願あり</span>')
+        tags.append('<span class="qc-tag qc-tag-g">※祈願あり</span>')
     if "仙術は使用不可" in q.get("赤メモ", ""):
         tags.append('<span class="qc-tag qc-tag-r">※仙術不可</span>')
     tag = f'<span class="qc-tags">{"".join(tags)}</span>' if tags else ""
