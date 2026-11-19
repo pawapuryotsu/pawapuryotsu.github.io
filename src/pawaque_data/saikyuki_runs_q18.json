@@ -198,7 +198,7 @@
     {
      "area": 3,
      "boss": false,
-     "name": "ガナル・派羅",
+     "name": "ガナル・波羅",
      "rarity": "銅",
      "skills": [],
      "slot": 10
@@ -733,7 +733,7 @@
     {
      "area": 3,
      "boss": false,
-     "name": "ガナル・派羅",
+     "name": "ガナル・波羅",
      "rarity": "銅",
      "skills": [],
      "slot": 7
@@ -749,7 +749,7 @@
     {
      "area": 3,
      "boss": true,
-     "name": "ガナル・派羅",
+     "name": "ガナル・波羅",
      "rarity": "銀",
      "skills": [],
      "slot": 9
@@ -1155,7 +1155,7 @@
     {
      "area": 3,
      "boss": false,
-     "name": "ガナル・派羅",
+     "name": "ガナル・波羅",
      "rarity": "銅",
      "skills": [],
      "slot": 8
@@ -1278,7 +1278,7 @@
     {
      "area": 3,
      "boss": true,
-     "name": "ガナル・派羅",
+     "name": "ガナル・波羅",
      "rarity": "銀",
      "skills": [],
      "slot": 11
@@ -1381,7 +1381,7 @@
     {
      "area": 3,
      "boss": false,
-     "name": "ガナル・派羅",
+     "name": "ガナル・波羅",
      "rarity": "銅",
      "skills": [],
      "slot": 9
