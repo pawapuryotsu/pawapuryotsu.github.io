@@ -18,6 +18,8 @@ runs = D["runs"]
 SKIP = set(D.get("記録対象外") or [])
 for r in runs:
     r["drops"] = [x for x in r["drops"] if x["name"] not in SKIP]
+# ボスドロップを記録していない周はページに使わない（2026-11-19 管理人。コーチ・祈願の欄も含めて全部外す。カウンターの記録はそのまま）
+runs = [r for r in runs if r.get("boss")]
 n = len(runs)
 RAR = ["金", "銀", "銅"]
 ITEM = re.compile(r"(秘伝書|攻略本|巻物|お札|ノ書|呼び寄せの香|金丹|リュック|カバン|指輪|ドリンク)")
