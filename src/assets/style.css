@@ -259,6 +259,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .dr-h2 img{height:56px;width:auto;border-radius:4px;flex:none}.dr-h2-tag{display:block;color:#2e7d32;font-size:14px;font-weight:700;line-height:1.3}
 .dr-update{margin:0 0 12px;padding:8px 12px;background:#fdecee;border:1px solid #d6303a;border-left:6px solid #d6303a;border-radius:4px;color:#d6303a;font-weight:700;font-size:15px}
 .dr-loc{margin:14px 0;padding:10px 14px 4px;background:#eef5ff;border:1px solid #a9c8f5;border-radius:6px}.dr-loc>p{margin:0 0 4px}.dr-loc ul{margin:0 0 6px}
+.dr-best{margin:16px 0;padding:12px 14px;background:#e8f1ff;border:2px solid #1a5fd0;border-left:8px solid #1a5fd0;border-radius:6px}.prose .dr-best p{margin:0}.prose .dr-best p+p{margin-top:8px}.dr-best-h{color:#1a5fd0;font-weight:900;font-size:19px;line-height:1.5}
 .dr-update p{margin:0}.dr-update .dr-log-h{margin-top:6px;color:#2e7d32}.dr-update .dr-log{margin:2px 0 0;padding-left:1.2em;color:#333;font-weight:400;font-size:14px;line-height:1.6}
 
 :root[data-theme="dark"] .em-blue{color:#8fbcff}
