@@ -248,6 +248,25 @@ def paras(lst):
     return "".join(f"<p>{rich(t)}</p>" for t in lst)
 
 
+def eval_html(lst):
+    """評価文。【長所】から【短所】の前までを薄い青の枠、【短所】から後ろを薄い赤の枠で囲む（管理人指示 2026-11-19）"""
+    out, box, cur = "", None, []
+
+    def flush():
+        nonlocal out, cur
+        if cur:
+            out += f'<div class="cp-{box}">{paras(cur)}</div>' if box else paras(cur)
+        cur = []
+    for t in lst:
+        k = {"【長所】": "pro", "【短所】": "con"}.get(t.strip())
+        if k:
+            flush()
+            box = k
+        cur.append(t)
+    flush()
+    return out
+
+
 def event_kinds(c, config, text, has_friend):
     """そのキャラのページに並べるイベントの種類（分類ごと。config.json「イベント構成」）"""
     kinds = list(config["イベント構成"].get(c.get("分類") or "選手", config["イベント構成"]["選手"]))
@@ -775,7 +794,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
         parts.append(section(f"{name}のコンボイベント", "".join(combo_html(x, root, alias_names(c)) for x in cbs)))
     parts += [
         section(f"{name}の評価", ranking_eval_html(c["name"], root)
-                + paras(text.get("評価", []))
+                + eval_html(text.get("評価", []))
                 + (f'<p class="cp-evdate"><span class="rk-date">【記入日{e(text["評価記入日"])}】</span></p>' if text.get("評価") and text.get("評価記入日") else "")),   # 評価文を書いた日。評価文の一番下に出す（管理人指示 2026-11-11）
     ]
     # 使用デッキ例は、そのキャラを使ったデッキがある時だけ出す（無い時は欄ごと出さない。2026-11-17 管理人、今後の全イベキャラに適用）
