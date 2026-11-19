@@ -74,20 +74,23 @@ GOOD = ("交渉術3", "契約書+2", "契約書+3", "スカウト率UP1", "ス�
         "祈願率UP2", "祈願率UP3", "5カード特殊能力", "6カード特殊能力")
 
 
-def good_tr(x, sk):
+def good_tr(x, sk, lap):
     # 表の1行：アイテム（レア度）｜付いたスキルを1行ずつ（2026-11-19 管理人「アイテム1個に何のスキルか分かりやすく」）
     nm = x["name"].replace("[", "［").replace("]", "］")
     # 優秀なスキル・コーチ人数+3/+4は青の太字
     t = "<br>".join(f'<span class="cp-nw{" em-blue" if k.split("（")[0] in GOOD + COACH else ""}">{e(k)}</span>' for k in sk)
     # ［バージョン］と名前は途中で折り返さない
-    nm_h = "".join(f'<span class="cp-nw">{e(p)}</span>' for p in re.split(r"(?<=］)", nm) if p)
-    return f'  <tr><th>{nm_h}<br><span class="rs-rar">（{e(x["rarity"])}）</span></th><td class="rs-l">{t}</td></tr>'
+    # 名前の横に（レア度）、次の行に「○周目エリア○」（2026-11-19 管理人）。周の少ない順
+    ps = [p for p in re.split(r"(?<=］)", nm) if p]
+    ps[-1] += f'（{x["rarity"]}）'
+    nm_h = "".join(f'<span class="cp-nw">{e(p)}</span>' for p in ps)
+    return f'  <tr><th>{nm_h}<br><span class="rs-rar">{lap}周目{f"エリア{x['area']}" if x.get("area") else ""}</span></th><td class="rs-l">{t}</td></tr>'
 
 
 def skill_table(lst):
     """アイテム｜付いたスキル の表（優秀なスキル欄・コーチ欄で共通）"""
     return "\n".join(['  <div class="bt-wrap"><table class="bt rs-t rs-good">', '  <thead><tr><th>アイテム</th><th>付いたスキル</th></tr></thead><tbody>']
-                     + [good_tr(x, sk) for x, sk in lst] + ['  </tbody></table></div>'])
+                     + [good_tr(x, sk, lap) for x, sk, lap in sorted(lst, key=lambda t: (t[2], t[0].get("area") or 0))] + ['  </tbody></table></div>'])
 
 
 def render(runs, note, hp=""):
@@ -131,15 +134,15 @@ def render(runs, note, hp=""):
         out += [f'  <p class="rs-sub">エリア{a}ボス</p>'] + table(boss, None, extra, " rs-boss", bcon)
         # コーチ人数+3・+4が付いた契約書（全周から。祈願で付いた・増えたものは（祈願））
         coach = []
-        for r in runs:
+        for lap, r in enumerate(runs, 1):
             gained = {(p["name"], g) for p in (r.get("prayers") or []) if p.get("result") == "成功" for g in (p.get("gained") or [])}
             for x in r["drops"]:
                 if x.get("area") == a and not is_item(x["name"]):
                     # 表にはコーチ以外のスキルも全部載せる（2026-11-19 管理人）
                     cs = [k + ("（祈願）" if (x["name"], k) in gained else "") for k in (x.get("skills") or [])]
                     if any(k in COACH for k in (x.get("skills") or [])):
-                        coach.append((x, cs))
-                        tcoach.append((x, cs))
+                        coach.append((x, cs, lap))
+                        tcoach.append((x, cs, lap))
         if coach:
             out.append('  <div class="rs-coach-box"><p class="rs-coach-h">コーチ人数+3・+4が付いた契約書</p>')
             out.append(skill_table(coach) + '</div>')
@@ -148,12 +151,12 @@ def render(runs, note, hp=""):
     # 並べ替え（2026-11-19 管理人）：○周合計（青枠）→ コーチ人数+3以上（青枠）→「エリア毎の詳細はコチラをタップ」の中にエリアごとの表
     head += ['  <div class="rs-area rs-blue">', f'  <h3 class="rs-area-h">{nb}周合計</h3>'] + table(tot, tcon) + ['  </div>']
     tgood = []
-    for r in runs:
+    for lap, r in enumerate(runs, 1):
         gained = {(p["name"], g) for p in (r.get("prayers") or []) if p.get("result") == "成功" for g in (p.get("gained") or [])}
         for x in r["drops"]:
             sk = x.get("skills") or []
             if any(k in GOOD for k in sk):
-                tgood.append((x, [k + ("（祈願）" if (x["name"], k) in gained else "") for k in sk]))
+                tgood.append((x, [k + ("（祈願）" if (x["name"], k) in gained else "") for k in sk], lap))
     if tgood:
         head += ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">優秀なスキルが付いたアイテム</h3>', skill_table(tgood), '  </div>']
     if tcoach:
