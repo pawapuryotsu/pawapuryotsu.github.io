@@ -74,10 +74,11 @@ GOOD = ("交渉術3", "契約書+2", "契約書+3", "スカウト率UP1", "ス�
         "祈願率UP2", "祈願率UP3", "5カード特殊能力", "6カード特殊能力")
 
 
-def good_li(x, sk):
+def good_tr(x, sk):
+    # 表の1行：アイテム（レア度）｜付いたスキルを1行ずつ（2026-11-19 管理人「アイテム1個に何のスキルか分かりやすく」）
     nm = x["name"].replace("[", "［").replace("]", "］")
-    t = "・".join(f'<span class="cp-nw{" em-blue" if k.split("（")[0] in GOOD else ""}">{e(k)}</span>' for k in sk)
-    return f'<li>{e(nm)}（{e(x["rarity"])}）：{t}</li>'
+    t = "<br>".join(f'<span class="cp-nw{" em-blue" if k.split("（")[0] in GOOD else ""}">{e(k)}</span>' for k in sk)
+    return f'  <tr><th>{e(nm)}<br><span class="rs-rar">（{e(x["rarity"])}）</span></th><td class="rs-l">{t}</td></tr>'
 
 
 def coach_li(x, cs):
@@ -155,7 +156,8 @@ def render(runs, note, hp=""):
                 tgood.append((x, [k + ("（祈願）" if (x["name"], k) in gained else "") for k in sk]))
     if tgood:
         head += ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">優秀なスキルが付いたアイテム</h3>',
-                 '  <ul class="rs-coach">' + "".join(good_li(x, sk) for x, sk in tgood) + '</ul>', '  </div>']
+                 '  <div class="bt-wrap"><table class="bt rs-t rs-good">', '  <thead><tr><th>アイテム</th><th>付いたスキル</th></tr></thead><tbody>']
+        head += [good_tr(x, sk) for x, sk in tgood] + ['  </tbody></table></div>', '  </div>']
     if tcoach:
         head += ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">コーチ人数+3以上が付いた契約書</h3>', coach_ul(tcoach), '  </div>']
     out = out[:1] + head + ['  <details class="rs-old rs-det"><summary>エリア毎の詳細は<span class="cp-nw">コチラをタップ</span></summary><div class="rs-old-in">'] + out[1:] + ['  </div></details>']
