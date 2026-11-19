@@ -26,12 +26,13 @@ for f in sorted(src.glob("*.json")):
         continue
     drops = [{k: x.get(k) for k in ("area", "boss", "name", "rarity", "skills", "slot")}
              for x in r.get("drops") or [] if not x.get("memo")]   # memo＝スキルのメモだけ（集計しない）
-    runs.append({"no": r["no"], "date": r.get("date"), "area": r["area"], "result": r.get("result"),
+    runs.append({"no": r["no"], "date": r.get("date"), "area": r["area"], "result": r.get("result"), "period": r.get("period"),
                  "areaNums": r.get("areaNums"), "boss": r.get("boss") or {},
                  "prayers": r.get("prayers") or [], "drops": drops})
 runs.sort(key=lambda r: r["no"])
 assert runs, f"「{quest}」の周が見つからない（クエスト名は帯の表記どおりに）"
 D = {"取得日": day, "元": "パワクエ周回カウンター", "クエスト": quest,
-     "記録対象外": old.get("記録対象外", []), "runs": runs}
+     "記録対象外": old.get("記録対象外", []),
+     "期間の表示名": old.get("期間の表示名", {}), "runs": runs}
 out.write_text(json.dumps(D, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 print("ok", out.name, len(runs), "周", "（ボス記録あり", sum(1 for r in runs if r["boss"]), "周）")
