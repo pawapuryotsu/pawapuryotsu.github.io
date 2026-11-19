@@ -56,6 +56,9 @@ for q in D["クエスト"]:
     red = f'<span class="em-red">{emtxt(rm)}</span>' if rm else ""
     blue = f'<span class="em-blue">{emtxt(bm)}</span>' if bm else ""
     memo = "<br>".join(x for x in (blue, red, txt(q["管理人メモ"]) if q["管理人メモ"] else "") if x)
+    # 周回ページがあるクエストは、管理人メモの最後に「周回の詳細はコチラ」リンク（2026-11-19 管理人、⑱道中2）
+    if q.get("周回ページ"):
+        memo = "<br>".join(x for x in (memo, f'<a href="{{{{root}}}}{e(q["周回ページ"])}">周回の詳細はコチラ</a>') if x)
     if memo or imgs:
         rows.append(("管理人メモ", memo + imgs))
     if named and not title:
