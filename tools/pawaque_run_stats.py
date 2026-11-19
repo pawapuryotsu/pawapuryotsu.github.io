@@ -107,9 +107,9 @@ for a in areas:
                 if cs:
                     coach.append((x, cs))
     if coach:
-        out.append('  <p class="rs-coach-h">コーチ人数+3・+4が付いた契約書</p>')
+        out.append('  <div class="rs-coach-box"><p class="rs-coach-h">コーチ人数+3・+4が付いた契約書</p>')
         out.append('  <ul class="rs-coach">' + "".join(
-            f'<li>{e(vname(x["name"]))}（{e(x["rarity"])}）：<span class="em-blue cp-nw">{e("・".join(cs))}</span></li>' for x, cs in coach) + '</ul>')
+            f'<li>{e(vname(x["name"]))}（{e(x["rarity"])}）：<span class="em-blue cp-nw">{e("・".join(cs))}</span></li>' for x, cs in coach) + '</ul></div>')
     out.append('  </div>')
 
 # 祈願
