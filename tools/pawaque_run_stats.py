@@ -18,6 +18,8 @@ runs = D["runs"]
 SKIP = set(D.get("記録対象外") or [])
 for r in runs:
     r["drops"] = [x for x in r["drops"] if x["name"] not in SKIP]
+# ボスドロップを記録していない周はページに使わない（2026-11-19 管理人。コーチ・祈願の欄も含めて全部外す。カウンターの記録はそのまま）
+runs = [r for r in runs if r.get("boss")]
 n = len(runs)
 RAR = ["金", "銀", "銅"]
 ITEM = re.compile(r"(秘伝書|攻略本|巻物|お札|ノ書|呼び寄せの香|金丹|リュック|カバン|指輪|ドリンク)")
@@ -136,19 +138,19 @@ for r in runs:
     if k not in periods:
         periods.append(k)
 by = {k: [r for r in runs if (r.get("period") or "") == k] for k in periods}
-MEMO = "総合練習の攻略本・秘伝書、○○の巻物など、有用性が無いアイテムを記録対象外のアイテムとしています。"
+# 説明文（2026-11-19 管理人の文面）
+MEMO = "<br>総合練習の攻略本・秘伝書や○○の巻物など、有用性がないアイテムを記録対象外のアイテムとしています。<br>道中の契約書は、神前試合マスで獲得したものも含みます。"
 
 
 def note_now(nb):
-    return (f'  <p class="rs-note">管理人の周回記録 <b>{nb}周分</b>（{int(m)}/{int(d)}時点、ボスドロップを記録した周）から集計しています。'
-            f'<span class="cp-nw">周回が増えたら更新します。</span>{MEMO}</p>')
+    return f'  <p class="rs-note">周回記録 <b>{nb}周分</b>（{int(m)}/{int(d)}時点）から<span class="cp-nw">集計しています。</span>{MEMO}</p>'
 
 
 out = render(by[periods[-1]], note_now)
 for k in reversed(periods[:-1]):
     nm = NAMES.get(k, k or "以前")
     rs = by[k]
-    old = render(rs, lambda nb: f'  <p class="rs-note">{e(nm)}の管理人の周回記録 <b>{nb}周分</b>（ボスドロップを記録した周）から集計しています。{MEMO}</p>', e(nm) + "の")
+    old = render(rs, lambda nb: f'  <p class="rs-note">{e(nm)}の周回記録 <b>{nb}周分</b>から<span class="cp-nw">集計しています。</span>{MEMO}</p>', e(nm) + "の")
     out += [f'  <details class="rs-old"><summary>{e(nm)}の記録は<span class="cp-nw">こちらをタップ</span></summary><div class="rs-old-in">'] + old + ['  </div></details>']
 
 block = "\n".join(out)
