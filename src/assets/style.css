@@ -642,3 +642,4 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cp-con{border-color:#efaaaa;background:#fdf0f0}
 .cp-pro>p:first-child,.cp-con>p:first-child{margin-top:0;font-weight:700}
 .cp-pro>p:last-child,.cp-con>p:last-child{margin-bottom:0}
+.rs-area{border:2px solid #2f6b4f;border-radius:8px;margin:18px 0;padding:0 10px 8px;overflow:hidden}.prose .rs-area h3.rs-area-h{margin:0 -10px 8px;border:0;border-radius:0;padding:7px 12px;background:#2f6b4f;color:#fff;font-size:16px}.rs-area .rs-sub:first-of-type{margin-top:6px}.rs-area .bt-wrap:last-child,.rs-area ul.rs-coach{margin-bottom:4px}

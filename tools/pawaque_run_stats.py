@@ -56,7 +56,8 @@ def table(cnt, con, extra=(), cls="", named=None):
     if con:
         t.append('  <tr class="rs-con"><th>契約書</th>' + "".join(f'<td>{con[r] or "-"}</td>' for r in RAR) + f'<td class="rs-sum">{sum(con.values())}</td></tr>')
     # ボスの契約書はキャラ名ごと（2026-11-19 管理人）
-    for k in sorted(named or {}, key=lambda k: (-sum(named[k].values()), k)):
+    # ［バージョン］付きを上に（2026-11-19 管理人）
+    for k in sorted(named or {}, key=lambda k: (not k.startswith("["), -sum(named[k].values()), k)):
         c = named[k]
         t.append(f'  <tr class="rs-con"><th>{e(vname(k))}</th>' + "".join(f'<td>{c[r] or "-"}</td>' for r in RAR) + f'<td class="rs-sum">{sum(c.values())}</td></tr>')
     for nm, v in extra:
@@ -92,8 +93,8 @@ for a in areas:
             none += 1
         elif sl is not None and not any(x.get("slot") == sl for x in r["drops"]):
             other += 1   # カウンターで「記録する」を外した物（何かは記録に無い）
-    extra = [(nm, v) for nm, v in (("記録対象外のアイテム", other), ("ボスドロップなし", none)) if v]
-    out += [f'  <h3 class="rs-h">エリア{a}</h3>', f'  <p class="rs-sub">エリア{a}道中</p>'] + table(road, rcon)
+    extra = [(nm, v) for nm, v in (("記録対象外のアイテム", other), ("ボスドロップなし（祈願）" if a == areas[-1] else "ボスドロップなし", none)) if v]
+    out += [f'  <div class="rs-area">', f'  <h3 class="rs-area-h">エリア{a}</h3>', f'  <p class="rs-sub">エリア{a}道中</p>'] + table(road, rcon)
     out += [f'  <p class="rs-sub">エリア{a}ボス</p>'] + table(boss, None, extra, " rs-boss", bcon)
     # コーチ人数+3・+4が付いた契約書（全周から。祈願で付いた・増えたものは（祈願））
     coach = []
@@ -108,6 +109,7 @@ for a in areas:
         out.append('  <p class="rs-coach-h">コーチ人数+3・+4が付いた契約書</p>')
         out.append('  <ul class="rs-coach">' + "".join(
             f'<li>{e(vname(x["name"]))}（{e(x["rarity"])}）：<span class="em-blue cp-nw">{e("・".join(cs))}</span></li>' for x, cs in coach) + '</ul>')
+    out.append('  </div>')
 
 # 祈願
 pr = [(r, p) for r in runs for p in (r.get("prayers") or [])]
