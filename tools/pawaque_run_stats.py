@@ -76,6 +76,14 @@ def render(runs, note, hp=""):
     bk = [r for r in runs if r.get("boss")]
     nb = len(bk)
     out = [note(nb)]
+    head = []    # 全エリアの合計・コーチ（一番上に出す、2026-11-19 管理人）
+    tot, tcon, tcoach = defaultdict(Counter), Counter(), []
+    for r in bk:
+        for x in r["drops"]:
+            if is_item(x["name"]):
+                tot[x["name"]][x["rarity"]] += 1
+            else:
+                tcon[x["rarity"]] += 1
     for a in areas:
         road, boss = defaultdict(Counter), defaultdict(Counter)
         rcon, bcon = Counter(), defaultdict(Counter)
@@ -109,17 +117,27 @@ def render(runs, note, hp=""):
                     cs = [k + ("（祈願）" if (x["name"], k) in gained else "") for k in (x.get("skills") or []) if k in COACH]
                     if cs:
                         coach.append((x, cs))
+                        tcoach.append((x, cs))
         if coach:
             out.append('  <div class="rs-coach-box"><p class="rs-coach-h">コーチ人数+3・+4が付いた契約書</p>')
             out.append('  <ul class="rs-coach">' + "".join(
                 f'<li>{e(vname(x["name"]))}（{e(x["rarity"])}）：<span class="em-blue cp-nw">{e("・".join(cs))}</span></li>' for x, cs in coach) + '</ul></div>')
         out.append('  </div>')
 
+    # 並べ替え（2026-11-19 管理人）：○周合計（青枠）→ コーチ人数+3以上（青枠）→「エリア毎の詳細はコチラをタップ」の中にエリアごとの表
+    def coach_ul(lst):
+        return ('  <ul class="rs-coach">' + "".join(
+            f'<li>{e(vname(x["name"]))}（{e(x["rarity"])}）：<span class="em-blue cp-nw">{e("・".join(cs))}</span></li>' for x, cs in lst) + '</ul>')
+    head += ['  <div class="rs-area rs-blue">', f'  <h3 class="rs-area-h">{nb}周合計</h3>'] + table(tot, tcon) + ['  </div>']
+    if tcoach:
+        head += ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">コーチ人数+3以上が付いた契約書</h3>', coach_ul(tcoach), '  </div>']
+    out = out[:1] + head + ['  <details class="rs-old rs-det"><summary>エリア毎の詳細は<span class="cp-nw">コチラをタップ</span></summary><div class="rs-old-in">'] + out[1:] + ['  </div></details>']
+
     # 祈願
     pr = [(r, p) for r in runs for p in (r.get("prayers") or [])]
     if pr:
         ok = sum(p["result"] == "成功" for _, p in pr)
-        out += ['  <div class="rs-area rs-pray">', f'  <h3 class="rs-area-h">{hp}祈願の記録</h3>', f'  <p class="rs-note">{len(pr)}回中、成功{ok}回・失敗{len(pr) - ok}回。</p>',
+        out += ['  <div class="rs-area rs-blue">', f'  <h3 class="rs-area-h">{hp}祈願の記録</h3>', f'  <p class="rs-note">{len(pr)}回中、成功{ok}回・失敗{len(pr) - ok}回。</p>',
                 '  <div class="bt-wrap"><table class="bt rs-t">', '  <thead><tr><th>アイテム</th><th>結果</th><th>付いたスキル</th></tr></thead><tbody>']
         for r, p in pr:
             res = '<span class="tx-b tx-bold">成功</span>' if p["result"] == "成功" else '<span class="tx-r tx-bold">失敗</span>'
