@@ -98,7 +98,7 @@ def nav_cards():
             'むずクエ<span class="cp-nw">攻略＆周回</span>', 'エリアごとの<wbr><span class="cp-nw">ルートと仙術</span>'),
        card("pawaque/saikyuki/mucha/", "saikyuki_link_mucha.jpg", "むちゃクエ エリア5のマップ", 360, 150,
             'むちゃクエ<span class="cp-nw">攻略＆周回</span>', 'エリアごとの<wbr><span class="cp-nw">ルートと仙術</span>'),
-       card("pawaque/saikyuki/q18/", "saikyuki_link_q18.jpg", "⑱道中2のマップ", 360, 150,
+       card("pawaque/saikyuki/q18/", "saikyuki_link_q18.jpg", "⑱道中2 エリア1のマップ", 360, 150,
             '⑱道中2<span class="cp-nw">周回</span>', "", READY["q18"]),
        card("pawaque/saikyuki/shinzen/", "saikyuki_link_shinzen.jpg", "神前試合の画面", 660, 334,
             '神前試合<span class="cp-nw">まとめ</span>', f"{len(S)}校の進化対象・<wbr>スカウト候補"),
