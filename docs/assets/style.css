@@ -447,6 +447,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 
 /* ランキングのボーナス一覧（基礎合計・コツボナ・推奨Lv）。375px以上は枠内に収め、320pxではみ出す分だけ枠内で横スクロール */
 .bt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.rs-h{margin:18px 0 6px;font-size:16px}.rs-note{font-size:14px}.rs-t{margin-bottom:8px}.rs-t tbody th{min-width:9em}.rs-t td.rs-l{text-align:left;white-space:normal}.rs-t tr.rs-con th,.rs-t tr.rs-con td{background:#f3f5f8}
 .bt{width:100%;border-collapse:collapse;font-size:clamp(11px,3.1vw,15px);line-height:1.25;text-align:center}
 .bt th,.bt td{border:1px solid var(--line);padding:5px 3px;white-space:nowrap}
 .bt thead th{background:#33415c;color:#fff;font-weight:700;font-size:.9em;text-align:center}
