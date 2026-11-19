@@ -69,6 +69,12 @@ def table(cnt, con, extra=(), cls="", named=None):
 COACH = ("コーチ人数+3", "コーチ人数+4")
 
 
+def coach_li(x, cs):
+    # 表記（2026-11-19 管理人）：「の契約書」は省き、［恋のキューピッド］天音姫恋+3（銀） のように。+3・+4 は青太字
+    nm = x["name"].replace("[", "［").replace("]", "］")
+    return f'<li>{e(nm)}<span class="em-blue cp-nw">{e("・".join(c.replace("コーチ人数", "") for c in cs))}</span>（{e(x["rarity"])}）</li>'
+
+
 def render(runs, note, hp=""):
     """周の一覧から「周回記録」の中身（エリアごとの表・コーチ・祈願）を作る。note(周数)＝先頭の説明文、hp＝祈願の見出しの頭"""
     areas = sorted({x["area"] for r in runs for x in r["drops"] if x.get("area")})
@@ -121,13 +127,13 @@ def render(runs, note, hp=""):
         if coach:
             out.append('  <div class="rs-coach-box"><p class="rs-coach-h">コーチ人数+3・+4が付いた契約書</p>')
             out.append('  <ul class="rs-coach">' + "".join(
-                f'<li>{e(vname(x["name"]))}（{e(x["rarity"])}）：<span class="em-blue cp-nw">{e("・".join(cs))}</span></li>' for x, cs in coach) + '</ul></div>')
+                coach_li(x, cs) for x, cs in coach) + '</ul></div>')
         out.append('  </div>')
 
     # 並べ替え（2026-11-19 管理人）：○周合計（青枠）→ コーチ人数+3以上（青枠）→「エリア毎の詳細はコチラをタップ」の中にエリアごとの表
     def coach_ul(lst):
         return ('  <ul class="rs-coach">' + "".join(
-            f'<li>{e(vname(x["name"]))}（{e(x["rarity"])}）：<span class="em-blue cp-nw">{e("・".join(cs))}</span></li>' for x, cs in lst) + '</ul>')
+            coach_li(x, cs) for x, cs in lst) + '</ul>')
     head += ['  <div class="rs-area rs-blue">', f'  <h3 class="rs-area-h">{nb}周合計</h3>'] + table(tot, tcon) + ['  </div>']
     if tcoach:
         head += ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">コーチ人数+3以上が付いた契約書</h3>', coach_ul(tcoach), '  </div>']
