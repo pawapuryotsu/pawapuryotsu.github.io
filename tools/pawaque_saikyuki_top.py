@@ -63,7 +63,7 @@ def nav_cards():
        card("pawaque/saikyuki/quest/", "saikyuki_link_quest.jpg", "クエスト一覧の画面", 374, 148,
             "クエスト一覧", f"{qrange_nw}の<wbr>ドロップ・管理人メモ" if qrange else "準備中"),
        card("pawaque/saikyuki/drop/", "saikyuki_link_drop.jpg", "交渉の指輪", 311, 121,
-            '重要アイテム<span class="cp-nw">周回方法</span>', "", READY["drop"]),
+            '重要アイテム一覧', "", READY["drop"]),
        card("pawaque/saikyuki/muzu/", "saikyuki_link_muzu.jpg", "むずクエ エリア3のマップ", 360, 150,
             'むずクエ<span class="cp-nw">攻略＆周回</span>', 'エリアごとの<wbr><span class="cp-nw">ルートと仙術</span>'),
        card("pawaque/saikyuki/mucha/", "saikyuki_link_mucha.jpg", "むちゃクエ エリア5のマップ", 360, 150,
