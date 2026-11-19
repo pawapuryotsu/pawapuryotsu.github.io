@@ -635,3 +635,9 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .sk-fill{background:#fff}
 .sk-fill-pc{display:none}
 @media (min-width:760px){.sk-fill-pc{display:block}.sk-fill-sp{display:none}}
+/* キャラページの評価：【長所】は薄い青、【短所】は薄い赤の枠で囲む（管理人指示 2026-11-19） */
+.cp-pro,.cp-con{border:1px solid;border-radius:6px;padding:8px 12px;margin:10px 0}
+.cp-pro{border-color:#9cc3ec;background:#eef5fd}
+.cp-con{border-color:#efaaaa;background:#fdf0f0}
+.cp-pro>p:first-child,.cp-con>p:first-child{margin-top:0;font-weight:700}
+.cp-pro>p:last-child,.cp-con>p:last-child{margin-bottom:0}
