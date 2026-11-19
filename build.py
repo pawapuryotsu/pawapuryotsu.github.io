@@ -437,7 +437,9 @@ for meta, body in _parsed:
 
 # URLを変えたページ：古いURLに「新しいURLへ自動で移動するページ」を置く（検索結果や過去のリンクから来た人のため）。
 # サイトのURLは「-」を使わず「_」で統一（2026-11-12 りょーつー指示）。古いURL → 新しいURL
-REDIRECTS = [("guide/how-to-read/", "guide/how_to_read/"), ("guide/cost-tool/", "guide/cost_tool/"), ("ranking/next-batter/", "ranking/next_batter/")]
+REDIRECTS = [("guide/how-to-read/", "guide/how_to_read/"), ("guide/cost-tool/", "roman_costchecker/"), ("ranking/next-batter/", "ranking/next_batter/"),
+             # コスト計算ツールの使い方ページはツール本体と内容が同じなので消して、ツール本体へ移動（2026-11-19 管理人）
+             ("guide/cost_tool/", "roman_costchecker/")]
 for _old, _new in REDIRECTS:
     _to = f"{SITE_URL}/{_new}"
     _d = out / _old
