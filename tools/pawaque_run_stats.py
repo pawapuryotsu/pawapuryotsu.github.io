@@ -14,6 +14,10 @@ pid = sys.argv[1] if len(sys.argv) > 1 else "q18"
 D = json.loads((here / f"src/pawaque_data/saikyuki_runs_{pid}.json").read_text(encoding="utf-8"))
 page = here / f"src/pages/pawaque-saikyuki-{pid}.html"
 runs = D["runs"]
+# 記録対象外（管理人が誤ってチェックしていた物など）は集計から外す
+SKIP = set(D.get("記録対象外") or [])
+for r in runs:
+    r["drops"] = [x for x in r["drops"] if x["name"] not in SKIP]
 n = len(runs)
 RAR = ["金", "銀", "銅"]
 ITEM = re.compile(r"(秘伝書|攻略本|巻物|お札|ノ書|呼び寄せの香|金丹|リュック|カバン|指輪|ドリンク)")
@@ -41,16 +45,20 @@ def vname(name):
     return name.replace("[", "［").replace("]", "］") + "の契約書"
 
 
-def table(cnt, con, extra=()):
+def table(cnt, con, extra=(), cls="", named=None):
     """金・銀・銅・合計の表。cnt＝{アイテム名: Counter(レア度)}、con＝契約書の Counter(レア度)、extra＝[(名前, 回数)]（合計だけの行）"""
     rows = sorted(cnt, key=lambda k: (group(k), -sum(cnt[k].values()), k))
-    t = ['  <div class="bt-wrap"><table class="bt rs-t">',
+    t = [f'  <div class="bt-wrap"><table class="bt rs-t{cls}">',
          '  <thead><tr><th>アイテム</th><th>金</th><th>銀</th><th>銅</th><th>合計</th></tr></thead><tbody>']
     for k in rows:
         c = cnt[k]
         t.append(f'  <tr><th>{e(k)}</th>' + "".join(f'<td>{c[r] or "-"}</td>' for r in RAR) + f'<td class="rs-sum">{sum(c.values())}</td></tr>')
     if con:
         t.append('  <tr class="rs-con"><th>契約書</th>' + "".join(f'<td>{con[r] or "-"}</td>' for r in RAR) + f'<td class="rs-sum">{sum(con.values())}</td></tr>')
+    # ボスの契約書はキャラ名ごと（2026-11-19 管理人）
+    for k in sorted(named or {}, key=lambda k: (-sum(named[k].values()), k)):
+        c = named[k]
+        t.append(f'  <tr class="rs-con"><th>{e(vname(k))}</th>' + "".join(f'<td>{c[r] or "-"}</td>' for r in RAR) + f'<td class="rs-sum">{sum(c.values())}</td></tr>')
     for nm, v in extra:
         t.append(f'  <tr class="rs-con"><th>{e(nm)}</th><td>-</td><td>-</td><td>-</td><td class="rs-sum">{v}</td></tr>')
     t.append('  </tbody></table></div>')
@@ -65,7 +73,7 @@ out[0] = (f'  <p class="rs-note">管理人の周回記録 <b>{nb}周分</b>（{i
           '<span class="cp-nw">周回が増えたら更新します。</span>管理人が記録対象にしていないアイテムは表に入っていません。</p>')
 for a in areas:
     road, boss = defaultdict(Counter), defaultdict(Counter)
-    rcon, bcon = Counter(), Counter()
+    rcon, bcon = Counter(), defaultdict(Counter)
     none = other = 0
     for r in bk:
         sl = r["boss"].get(str(a))
@@ -76,14 +84,17 @@ for a in areas:
             if is_item(x["name"]):
                 (boss if isb else road)[x["name"]][x["rarity"]] += 1
             else:
-                (bcon if isb else rcon)[x["rarity"]] += 1
+                if isb:
+                    bcon[x["name"]][x["rarity"]] += 1
+                else:
+                    rcon[x["rarity"]] += 1
         if sl == -1:
             none += 1
         elif sl is not None and not any(x.get("slot") == sl for x in r["drops"]):
             other += 1   # カウンターで「記録する」を外した物（何かは記録に無い）
     extra = [(nm, v) for nm, v in (("記録対象外のアイテム", other), ("ボスドロップなし", none)) if v]
     out += [f'  <h3 class="rs-h">エリア{a}</h3>', f'  <p class="rs-sub">エリア{a}道中</p>'] + table(road, rcon)
-    out += [f'  <p class="rs-sub">エリア{a}ボス</p>'] + table(boss, bcon, extra)
+    out += [f'  <p class="rs-sub">エリア{a}ボス</p>'] + table(boss, None, extra, " rs-boss", bcon)
     # コーチ人数+3・+4が付いた契約書（全周から。祈願で付いた・増えたものは（祈願））
     coach = []
     for r in runs:
