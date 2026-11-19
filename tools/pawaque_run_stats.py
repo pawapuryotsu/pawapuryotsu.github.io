@@ -58,52 +58,45 @@ def table(cnt, con, extra=()):
 
 
 COACH = ("コーチ人数+3", "コーチ人数+4")
+# 道中とボスを分けて集計（2026-11-19 管理人）。どれがボスか分かる周（ボスを記録した周）だけを使う
+bk = [r for r in runs if r.get("boss")]
+nb = len(bk)
+out[0] = (f'  <p class="rs-note">管理人の周回記録 <b>{nb}周分</b>（{int(m)}/{int(d)}時点、ボスドロップを記録した周）から集計しています。'
+          '<span class="cp-nw">周回が増えたら更新します。</span>管理人が記録対象にしていないアイテムは表に入っていません。</p>')
 for a in areas:
-    cnt = defaultdict(Counter)
-    con = Counter()
-    coach = []
-    for r in runs:
+    road, boss = defaultdict(Counter), defaultdict(Counter)
+    rcon, bcon = Counter(), Counter()
+    none = other = 0
+    for r in bk:
+        sl = r["boss"].get(str(a))
         for x in r["drops"]:
             if x.get("area") != a:
                 continue
+            isb = sl is not None and sl >= 0 and x.get("slot") == sl
             if is_item(x["name"]):
-                cnt[x["name"]][x["rarity"]] += 1
+                (boss if isb else road)[x["name"]][x["rarity"]] += 1
             else:
-                con[x["rarity"]] += 1
-                cs = [k for k in (x.get("skills") or []) if k in COACH]
+                (bcon if isb else rcon)[x["rarity"]] += 1
+        if sl == -1:
+            none += 1
+        elif sl is not None and not any(x.get("slot") == sl for x in r["drops"]):
+            other += 1   # カウンターで「記録する」を外した物（何かは記録に無い）
+    extra = [(nm, v) for nm, v in (("記録対象外のアイテム", other), ("ボスドロップなし", none)) if v]
+    out += [f'  <h3 class="rs-h">エリア{a}</h3>', f'  <p class="rs-sub">エリア{a}道中</p>'] + table(road, rcon)
+    out += [f'  <p class="rs-sub">エリア{a}ボス</p>'] + table(boss, bcon, extra)
+    # コーチ人数+3・+4が付いた契約書（全周から。祈願で付いた・増えたものは（祈願））
+    coach = []
+    for r in runs:
+        gained = {(p["name"], g) for p in (r.get("prayers") or []) if p.get("result") == "成功" for g in (p.get("gained") or [])}
+        for x in r["drops"]:
+            if x.get("area") == a and not is_item(x["name"]):
+                cs = [k + ("（祈願）" if (x["name"], k) in gained else "") for k in (x.get("skills") or []) if k in COACH]
                 if cs:
                     coach.append((x, cs))
-    out += [f'  <h3 class="rs-h">エリア{a}</h3>'] + table(cnt, con)
-    # コーチ人数+3・+4が付いた契約書は表の下に（2026-11-19 管理人）
     if coach:
         out.append('  <p class="rs-coach-h">コーチ人数+3・+4が付いた契約書</p>')
         out.append('  <ul class="rs-coach">' + "".join(
             f'<li>{e(vname(x["name"]))}（{e(x["rarity"])}）：<span class="em-blue cp-nw">{e("・".join(cs))}</span></li>' for x, cs in coach) + '</ul>')
-
-# ボスドロップ（記録で選ばれている周だけ）。エリアごとの表と同じ形（2026-11-19 管理人）
-bk = [r for r in runs if r.get("boss")]
-if bk:
-    out += ['  <h3 class="rs-h">ボスドロップ</h3>', f'  <p class="rs-note">ボスドロップを記録した{len(bk)}周分です。</p>']
-    for a in areas:
-        cnt = defaultdict(Counter)
-        con = Counter()
-        none = other = 0
-        for r in bk:
-            sl = r["boss"].get(str(a))
-            if sl is None:
-                continue
-            if sl == -1:
-                none += 1
-                continue
-            x = next((x for x in r["drops"] if x.get("slot") == sl), None)
-            if not x:   # カウンターで「記録する」を外した物（何かは記録に無い）
-                other += 1
-            elif is_item(x["name"]):
-                cnt[x["name"]][x["rarity"]] += 1
-            else:
-                con[x["rarity"]] += 1
-        extra = [(nm, v) for nm, v in (("記録対象外のアイテム", other), ("ボスドロップなし", none)) if v]
-        out += [f'  <p class="rs-sub">エリア{a}のボス</p>'] + table(cnt, con, extra)
 
 # 祈願
 pr = [(r, p) for r in runs for p in (r.get("prayers") or [])]
