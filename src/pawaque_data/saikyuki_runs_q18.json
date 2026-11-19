@@ -74,14 +74,6 @@
     },
     {
      "area": 2,
-     "boss": true,
-     "name": "球速の凄い巻物",
-     "rarity": "銀",
-     "skills": [],
-     "slot": 4
-    },
-    {
-     "area": 2,
      "boss": false,
      "name": "蒼鳥つばさ",
      "rarity": "銅",
@@ -186,14 +178,6 @@
      "rarity": "銅",
      "skills": [],
      "slot": 6
-    },
-    {
-     "area": 2,
-     "boss": false,
-     "name": "球速の凄い巻物",
-     "rarity": "金",
-     "skills": [],
-     "slot": 7
     },
     {
      "area": 2,
@@ -989,22 +973,6 @@
     {
      "area": 2,
      "boss": false,
-     "name": "球速の凄い巻物",
-     "rarity": "銅",
-     "skills": [],
-     "slot": 5
-    },
-    {
-     "area": 2,
-     "boss": true,
-     "name": "コントロールの凄い巻物",
-     "rarity": "銀",
-     "skills": [],
-     "slot": 6
-    },
-    {
-     "area": 2,
-     "boss": false,
      "name": "斬金半馬",
      "rarity": "銅",
      "skills": [],
@@ -1167,14 +1135,6 @@
      "rarity": "銅",
      "skills": [],
      "slot": 3
-    },
-    {
-     "area": 2,
-     "boss": false,
-     "name": "コントロールの凄い巻物",
-     "rarity": "銅",
-     "skills": [],
-     "slot": 4
     },
     {
      "area": 2,
@@ -1543,5 +1503,9 @@
     }
    ]
   }
+ ],
+ "記録対象外": [
+  "球速の凄い巻物",
+  "コントロールの凄い巻物"
  ]
 }
