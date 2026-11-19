@@ -648,3 +648,4 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .rs-area.rs-blue{border-color:#2f6fb0}.prose .rs-blue h3.rs-area-h{background:#2f6fb0}.rs-blue .bt.rs-t thead th{background:#2f6fb0}.rs-blue .rs-note{margin-top:4px}.rs-blue ul.rs-coach{margin:6px 0 4px}
 .rs-good{width:100%}.rs-good tbody th{width:45%;white-space:normal}.rs-good tbody td.rs-l{line-height:1.7}.rs-good .rs-rar{font-weight:400;font-size:12px}.rs-good tbody tr+tr th,.rs-good tbody tr+tr td{border-top:2px solid #9bb8d6}
 .rs-coach-box .rs-good{background:#fff}
+.prose .rs-good tbody th{color:var(--ink)}.prose .rs-good .rs-rar{color:#5b6676}
