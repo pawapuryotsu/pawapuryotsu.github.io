@@ -42,6 +42,36 @@ def memo(t):
     return s
 
 
+# 更新日の表示（2026-11-19 管理人）：ページを更新したら、そのページの先頭の <!-- --> に「sk_updated: 2026-11-19」を書く
+# → リンク欄のカードに緑太字「※11/19更新!」が出る。1週間後（7日後の日本時間14時）にページ内スクリプトで自動で消える。
+# このあと同じ形のページまとめ（カード型リンク欄）を作る時も、同じ仕組みを付ける。
+import datetime as _dt
+JST = _dt.timezone(_dt.timedelta(hours=9))
+UPD = {}
+for _f in (here / "src/pages").glob("*.html"):
+    _h = _f.read_text(encoding="utf-8")[:1500]
+    _p = re.search(r"^path: *(\S+)", _h, re.M)
+    _u = re.search(r"^sk_updated: *(\d{4}-\d{2}-\d{2})", _h, re.M)
+    if _p and _u:
+        UPD[_p.group(1)] = _u.group(1)
+
+
+def upd_tag(href):
+    d = UPD.get(href)
+    if not d:
+        return ""
+    day = _dt.date.fromisoformat(d)
+    end = _dt.datetime.combine(day + _dt.timedelta(days=7), _dt.time(14, 0), JST)
+    if _dt.datetime.now(JST) >= end:   # もう期限が過ぎていれば最初から出さない
+        return ""
+    return f'<span class="sk-upd" data-end="{end.isoformat()}">※{day.month}/{day.day}更新!</span>'
+
+
+# 期限が来た「※○/○更新!」を消すスクリプト（リンク欄ごとに1つ）
+UPD_JS = ("  <script>(function(){var n=Date.now();document.querySelectorAll('.sk-upd[data-end]').forEach(function(e){"
+          "if(n>=Date.parse(e.getAttribute('data-end')))e.parentNode.removeChild(e)})})();</script>")
+
+
 CUR = None   # 子ページの下に出す時、そのページのパス（カードを「表示中」にしてリンクにしない）
 
 
@@ -50,7 +80,7 @@ def card(href, img, alt, w, h, label, sub, ready=True):
     if not ready:
         return None
     th = (f'<span class="sk-th sk-img"><img src="{{{{root}}}}img/pawaque/{img}" alt="{e(alt)}" width="{w}" height="{h}"></span>'
-          f'<span class="sk-l">{label}</span><span class="sk-s">{sub}</span>')
+          f'<span class="sk-l">{label}</span>{upd_tag(href)}<span class="sk-s">{sub}</span>')
     if href == CUR:
         return f'    <span class="sk-c sk-cur" aria-current="page">{th}<span class="sk-now">表示中のページ</span></span>'
     return f'    <a class="sk-c" href="{{{{root}}}}{href}">{th}</a>'
@@ -95,7 +125,7 @@ def grid(cs):
 
 out = ['  <section class="sk-nav" aria-label="西球記の関連ページ">',
        '  <p class="sk-nav-h">西球記の攻略ページ</p>',
-      ] + grid(nav_cards()) + [
+      ] + grid(nav_cards()) + [UPD_JS,
        '  </section>', '',
        '  <h2 id="about">西球記とは</h2>',
        '  <p><span class="cp-nw">「西球記（さいきゅうき）」</span>は、パワクエの5つ目のストーリーです。<span class="em-blue">2026/11/16 14時に配信されました。</span></p>', '']
@@ -166,7 +196,7 @@ for f in sorted((here / "src/pages").glob("pawaque-saikyuki-*.html")):
     if not any("sk-cur" in x for x in cs) and "noindex: yes" not in f.read_text(encoding="utf-8"):
         print(f"※注意：{f.name} のカードが nav_cards() にありません（トップと各ページのリンク欄に出ません）。カードを足してください")
     nav = "\n".join(['  <section class="sk-nav sk-nav-btm" aria-label="西球記の関連ページ">',
-                     '  <p class="sk-nav-h">西球記の攻略ページ</p>'] + grid(cs) + ['  </section>'])
+                     '  <p class="sk-nav-h">西球記の攻略ページ</p>'] + grid(cs) + [UPD_JS, '  </section>'])
     t = f.read_text(encoding="utf-8")
     if "<!-- SKNAV:START -->" not in t:
         assert t.count(BACK) == 1, f"{f.name}: 「戻る」の行が見つからない"
