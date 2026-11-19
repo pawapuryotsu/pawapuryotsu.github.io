@@ -29,7 +29,7 @@ def is_item(name):
 
 areas = sorted({x["area"] for r in runs for x in r["drops"] if x.get("area")})
 y, m, d = D["取得日"].split("-")
-out = [f'  <p class="rs-note">管理人の周回記録 <b>{n}周分</b>（{int(m)}/{int(d)}時点）から集計しています。<span class="cp-nw">周回が増えたら更新します。</span>管理人が記録対象にしていないアイテムは表に入っていません。</p>']
+out = [f'  <p class="rs-note">管理人の周回記録 <b>{n}周分</b>（{int(m)}/{int(d)}時点）から集計しています。<span class="cp-nw">周回が増えたら更新します。</span></p>']
 
 # 並び順（2026-11-19 管理人）：西球記専用 → マス強化 → その他 → 契約書
 def group(name):
@@ -71,7 +71,7 @@ COACH = ("コーチ人数+3", "コーチ人数+4")
 bk = [r for r in runs if r.get("boss")]
 nb = len(bk)
 out[0] = (f'  <p class="rs-note">管理人の周回記録 <b>{nb}周分</b>（{int(m)}/{int(d)}時点、ボスドロップを記録した周）から集計しています。'
-          '<span class="cp-nw">周回が増えたら更新します。</span>管理人が記録対象にしていないアイテムは表に入っていません。'
+          '<span class="cp-nw">周回が増えたら更新します。</span>'
           '総合練習の攻略本・秘伝書、○○の巻物など、有用性が無いアイテムを記録対象外のアイテムとしています。</p>')
 for a in areas:
     road, boss = defaultdict(Counter), defaultdict(Counter)
