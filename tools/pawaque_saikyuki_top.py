@@ -16,7 +16,7 @@ M = json.loads((here / "src/pawaque_data/mission.json").read_text(encoding="utf-
 page = here / "src/pages/pawaque-saikyuki.html"
 
 # 中身ができたら True にする
-READY = {"drop": True, "contract": False, "q18": True}
+READY = {"drop": True, "contract": False, "q18": True, "q19": True}
 
 # 入力済みのクエスト（むずクエなどはタイトルが無いので、ボスドロップが入っていれば入力済みとみなす）
 done = [q for q in Q if q.get("タイトル") or q.get("ボスドロップ")]
@@ -94,12 +94,15 @@ def nav_cards():
             "クエスト一覧", f"{qrange_nw}の<wbr>ドロップ・管理人メモ" if qrange else "準備中"),
        card("pawaque/saikyuki/drop/", "saikyuki_link_drop.jpg", "交渉の指輪", 311, 121,
             '重要アイテム一覧', "", READY["drop"]),
+       # 並び（2026-11-19 管理人）：重要アイテム一覧の次に⑱⑲の周回ページ
+       card("pawaque/saikyuki/q18/", "saikyuki_link_q18.jpg", "⑱道中2 エリア1のマップ", 360, 150,
+            '⑱道中2<span class="cp-nw">周回</span>', "", READY["q18"]),
+       card("pawaque/saikyuki/q19/", "saikyuki_link_q19.jpg", "⑲道中3 エリア1のマップ", 360, 150,
+            '⑲道中3<span class="cp-nw">周回</span>', "", READY["q19"]),
        card("pawaque/saikyuki/muzu/", "saikyuki_link_muzu.jpg", "むずクエ エリア3のマップ", 360, 150,
             'むずクエ<span class="cp-nw">攻略＆周回</span>', 'エリアごとの<wbr><span class="cp-nw">ルートと仙術</span>'),
        card("pawaque/saikyuki/mucha/", "saikyuki_link_mucha.jpg", "むちゃクエ エリア5のマップ", 360, 150,
             'むちゃクエ<span class="cp-nw">攻略＆周回</span>', 'エリアごとの<wbr><span class="cp-nw">ルートと仙術</span>'),
-       card("pawaque/saikyuki/q18/", "saikyuki_link_q18.jpg", "⑱道中2 エリア1のマップ", 360, 150,
-            '⑱道中2<span class="cp-nw">周回</span>', "", READY["q18"]),
        card("pawaque/saikyuki/shinzen/", "saikyuki_link_shinzen.jpg", "神前試合の画面", 660, 334,
             '神前試合<span class="cp-nw">まとめ</span>', f"{len(S)}校の進化対象・<wbr>スカウト候補"),
        card("pawaque/saikyuki/contract/", "saikyuki_link_contract.jpg", "［求道者］才賀 侑人の契約書", 320, 125,

@@ -15,8 +15,9 @@ CONTACT_FORM = "https://forms.gle/mXyapp3TYUPzyLAz6"                            
 GA_ID = "G-F98XGNW3LS"                                    # Googleアナリティクス4の測定ID（G-XXXXXXXXXX）。空なら解析なし
 POLICY_DATE = "2026年10月"                    # プライバシーポリシーの制定日
 
-NAV = [("home", "", "トップ"), ("roman", "decks/roman/", "ロマン開花學園<small>投手</small>"),
-       ("andromeda", "decks/andromeda/", "アンドロメダ学園<small>野手</small>"), ("pawaque", "pawaque/", "パワクエ"), ("about", "about/", "このサイトについて")]
+# 上部タブ。トップへはロゴで、運営者情報へはフッターで行ける（2026-11-19 管理人：トップ・このサイトについてを外し、デッキは2行表記）
+NAV = [("roman", "decks/roman/", "ロマン開花<small>投手</small>"),
+       ("andromeda", "decks/andromeda/", "アンドロメダ<small>野手</small>"), ("pawaque", "pawaque/", "パワクエ")]
 
 here = pathlib.Path(__file__).parent
 src, out = here / "src", here / "docs"
@@ -198,7 +199,8 @@ CRUMB = {m["path"]: m.get("crumb") or m["title"].split("｜")[0] for m, _ in _pa
 # パワクエのページ一覧（2026-11-14 管理人OK）。入口ページ /pawaque/ とトップの「パワクエ」欄のカード（{{pawaque_cards}}）、
 # パワクエの各ページの下の「パワクエのほかのページ」欄に自動で出す。src/pages/ のパワクエ記事は meta の card（カードの説明文）と
 # pq_order（並び順。小さいほど先）で並ぶ。新しいパワクエのページを足せば、全部の所に自動で増える（noindex のページは出さない）
-PQ_SIM = ("pawaque/contract_simulator/", "契約書シミュレータ", "契約書キャラの査定を、コーチ育成の最適な状態で計算。ランキング・比較・査定表つき。", 30)
+PQ_SIM = ("pawaque/contract_simulator/", "契約書シミュレータ", "契約書キャラの査定を、コーチ育成の最適な状態で計算。ランキング・比較・査定表つき。", 6)
+# 並び順（2026-11-19 管理人）：西球記(5)→契約書シミュレータ(6)→コーチ専用選手の作り方(7)→超基本まとめ(10)→ミッション報酬まとめ(20)
 
 
 def pq_pages(skip_latest=False):

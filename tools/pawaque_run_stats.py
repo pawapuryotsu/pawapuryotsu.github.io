@@ -18,6 +18,8 @@ runs = D["runs"]
 SKIP = set(D.get("記録対象外") or [])
 for r in runs:
     r["drops"] = [x for x in r["drops"] if x["name"] not in SKIP]
+# ボスドロップを記録していない周はページに使わない（2026-11-19 管理人。コーチ・祈願の欄も含めて全部外す。カウンターの記録はそのまま）
+runs = [r for r in runs if r.get("boss")]
 n = len(runs)
 RAR = ["金", "銀", "銅"]
 ITEM = re.compile(r"(秘伝書|攻略本|巻物|お札|ノ書|呼び寄せの香|金丹|リュック|カバン|指輪|ドリンク)")
@@ -67,6 +69,30 @@ def table(cnt, con, extra=(), cls="", named=None):
 COACH = ("コーチ人数+3", "コーチ人数+4")
 
 
+# 優秀なスキル（2026-11-19 管理人）：どれか1つでも付いたアイテムを「優秀なスキルが付いたアイテム」に出し、付いたスキルは全部書く
+GOOD = ("交渉術3", "契約書+2", "契約書+3", "スカウト率UP1", "スカウト率UP2", "スカウト率UP3", "特能進化+3",
+        "祈願率UP2", "祈願率UP3", "5カード特殊能力", "6カード特殊能力")
+
+
+def good_tr(x, sk, lap):
+    # 表の1行：アイテム（レア度）｜付いたスキルを1行ずつ（2026-11-19 管理人「アイテム1個に何のスキルか分かりやすく」）
+    nm = x["name"].replace("[", "［").replace("]", "］")
+    # 優秀なスキル・コーチ人数+3/+4は青の太字
+    t = "<br>".join(f'<span class="cp-nw{" em-blue" if k.split("（")[0] in GOOD + COACH else ""}">{e(k)}</span>' for k in sk)
+    # ［バージョン］と名前は途中で折り返さない
+    # 名前の横に（レア度）、次の行に「○周目エリア○」（2026-11-19 管理人）。周の少ない順
+    ps = [p for p in re.split(r"(?<=］)", nm) if p]
+    ps[-1] += f'（{x["rarity"]}）'
+    nm_h = "".join(f'<span class="cp-nw">{e(p)}</span>' for p in ps)
+    return f'  <tr><th>{nm_h}<br><span class="rs-rar">{lap}周目{f"エリア{x['area']}" if x.get("area") else ""}</span></th><td class="rs-l">{t}</td></tr>'
+
+
+def skill_table(lst):
+    """アイテム｜付いたスキル の表（優秀なスキル欄・コーチ欄で共通）"""
+    return "\n".join(['  <div class="bt-wrap"><table class="bt rs-t rs-good">', '  <thead><tr><th>アイテム</th><th>付いたスキル</th></tr></thead><tbody>']
+                     + [good_tr(x, sk, lap) for x, sk, lap in sorted(lst, key=lambda t: (t[2], t[0].get("area") or 0))] + ['  </tbody></table></div>'])
+
+
 def render(runs, note, hp=""):
     """周の一覧から「周回記録」の中身（エリアごとの表・コーチ・祈願）を作る。note(周数)＝先頭の説明文、hp＝祈願の見出しの頭"""
     areas = sorted({x["area"] for r in runs for x in r["drops"] if x.get("area")})
@@ -74,6 +100,14 @@ def render(runs, note, hp=""):
     bk = [r for r in runs if r.get("boss")]
     nb = len(bk)
     out = [note(nb)]
+    head = []    # 全エリアの合計・コーチ（一番上に出す、2026-11-19 管理人）
+    tot, tcon, tcoach = defaultdict(Counter), Counter(), []
+    for r in bk:
+        for x in r["drops"]:
+            if is_item(x["name"]):
+                tot[x["name"]][x["rarity"]] += 1
+            else:
+                tcon[x["rarity"]] += 1
     for a in areas:
         road, boss = defaultdict(Counter), defaultdict(Counter)
         rcon, bcon = Counter(), defaultdict(Counter)
@@ -100,24 +134,40 @@ def render(runs, note, hp=""):
         out += [f'  <p class="rs-sub">エリア{a}ボス</p>'] + table(boss, None, extra, " rs-boss", bcon)
         # コーチ人数+3・+4が付いた契約書（全周から。祈願で付いた・増えたものは（祈願））
         coach = []
-        for r in runs:
+        for lap, r in enumerate(runs, 1):
             gained = {(p["name"], g) for p in (r.get("prayers") or []) if p.get("result") == "成功" for g in (p.get("gained") or [])}
             for x in r["drops"]:
                 if x.get("area") == a and not is_item(x["name"]):
-                    cs = [k + ("（祈願）" if (x["name"], k) in gained else "") for k in (x.get("skills") or []) if k in COACH]
-                    if cs:
-                        coach.append((x, cs))
+                    # 表にはコーチ以外のスキルも全部載せる（2026-11-19 管理人）
+                    cs = [k + ("（祈願）" if (x["name"], k) in gained else "") for k in (x.get("skills") or [])]
+                    if any(k in COACH for k in (x.get("skills") or [])):
+                        coach.append((x, cs, lap))
+                        tcoach.append((x, cs, lap))
         if coach:
             out.append('  <div class="rs-coach-box"><p class="rs-coach-h">コーチ人数+3・+4が付いた契約書</p>')
-            out.append('  <ul class="rs-coach">' + "".join(
-                f'<li>{e(vname(x["name"]))}（{e(x["rarity"])}）：<span class="em-blue cp-nw">{e("・".join(cs))}</span></li>' for x, cs in coach) + '</ul></div>')
+            out.append(skill_table(coach) + '</div>')
         out.append('  </div>')
+
+    # 並べ替え（2026-11-19 管理人）：○周合計（青枠）→ コーチ人数+3以上（青枠）→「エリア毎の詳細はコチラをタップ」の中にエリアごとの表
+    head += ['  <div class="rs-area rs-blue">', f'  <h3 class="rs-area-h">{nb}周合計</h3>'] + table(tot, tcon) + ['  </div>']
+    tgood = []
+    for lap, r in enumerate(runs, 1):
+        gained = {(p["name"], g) for p in (r.get("prayers") or []) if p.get("result") == "成功" for g in (p.get("gained") or [])}
+        for x in r["drops"]:
+            sk = x.get("skills") or []
+            if any(k in GOOD for k in sk):
+                tgood.append((x, [k + ("（祈願）" if (x["name"], k) in gained else "") for k in sk], lap))
+    if tgood:
+        head += ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">優秀なスキルが付いたアイテム</h3>', skill_table(tgood), '  </div>']
+    if tcoach:
+        head += ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">コーチ人数+3以上が付いた契約書</h3>', skill_table(tcoach), '  </div>']
+    out = out[:1] + head + ['  <details class="rs-old rs-det"><summary>エリア毎の詳細は<span class="cp-nw">コチラをタップ</span></summary><div class="rs-old-in">'] + out[1:] + ['  </div></details>']
 
     # 祈願
     pr = [(r, p) for r in runs for p in (r.get("prayers") or [])]
     if pr:
         ok = sum(p["result"] == "成功" for _, p in pr)
-        out += ['  <div class="rs-area rs-pray">', f'  <h3 class="rs-area-h">{hp}祈願の記録</h3>', f'  <p class="rs-note">{len(pr)}回中、成功{ok}回・失敗{len(pr) - ok}回。</p>',
+        out += ['  <div class="rs-area rs-blue">', f'  <h3 class="rs-area-h">{hp}祈願の記録</h3>', f'  <p class="rs-note">{len(pr)}回中、成功{ok}回・失敗{len(pr) - ok}回。</p>',
                 '  <div class="bt-wrap"><table class="bt rs-t">', '  <thead><tr><th>アイテム</th><th>結果</th><th>付いたスキル</th></tr></thead><tbody>']
         for r, p in pr:
             res = '<span class="tx-b tx-bold">成功</span>' if p["result"] == "成功" else '<span class="tx-r tx-bold">失敗</span>'
@@ -136,19 +186,19 @@ for r in runs:
     if k not in periods:
         periods.append(k)
 by = {k: [r for r in runs if (r.get("period") or "") == k] for k in periods}
-MEMO = "総合練習の攻略本・秘伝書、○○の巻物など、有用性が無いアイテムを記録対象外のアイテムとしています。"
+# 説明文（2026-11-19 管理人の文面）
+MEMO = "<br>総合練習の攻略本・秘伝書や○○の巻物など、有用性がないアイテムを記録対象外のアイテムとしています。<br>道中の契約書は、神前試合マスで獲得したものも含みます。"
 
 
 def note_now(nb):
-    return (f'  <p class="rs-note">管理人の周回記録 <b>{nb}周分</b>（{int(m)}/{int(d)}時点、ボスドロップを記録した周）から集計しています。'
-            f'<span class="cp-nw">周回が増えたら更新します。</span>{MEMO}</p>')
+    return f'  <p class="rs-note">周回記録 <b>{nb}周分</b>（{int(m)}/{int(d)}時点）から<span class="cp-nw">集計しています。</span>{MEMO}</p>'
 
 
 out = render(by[periods[-1]], note_now)
 for k in reversed(periods[:-1]):
     nm = NAMES.get(k, k or "以前")
     rs = by[k]
-    old = render(rs, lambda nb: f'  <p class="rs-note">{e(nm)}の管理人の周回記録 <b>{nb}周分</b>（ボスドロップを記録した周）から集計しています。{MEMO}</p>', e(nm) + "の")
+    old = render(rs, lambda nb: f'  <p class="rs-note">{e(nm)}の周回記録 <b>{nb}周分</b>から<span class="cp-nw">集計しています。</span>{MEMO}</p>', e(nm) + "の")
     out += [f'  <details class="rs-old"><summary>{e(nm)}の記録は<span class="cp-nw">こちらをタップ</span></summary><div class="rs-old-in">'] + old + ['  </div></details>']
 
 block = "\n".join(out)
