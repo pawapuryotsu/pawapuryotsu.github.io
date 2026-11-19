@@ -1,0 +1,1552 @@
+{
+ "取得日": "2026-11-19",
+ "元": "パワクエ周回カウンター",
+ "クエスト": "⑱道中2",
+ "記録対象外": [
+  "球速の凄い巻物",
+  "コントロールの凄い巻物",
+  "総合練習の攻略本"
+ ],
+ "runs": [
+  {
+   "no": 200,
+   "date": "2026-11-19",
+   "area": "3/3 ⑱道中2",
+   "result": "クリア",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 4,
+    "3": -1
+   },
+   "prayers": [
+    {
+     "after": [
+      "特能マス強化1",
+      "総合練マス強化1",
+      "4カード特殊能力"
+     ],
+     "area": 0,
+     "before": [
+      "特能マス強化1",
+      "総合練マス強化1"
+     ],
+     "gained": [
+      "4カード特殊能力"
+     ],
+     "lost": [],
+     "name": "投手特訓の秘伝書",
+     "rarity": "金",
+     "result": "成功"
+    }
+   ],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "斬金半馬",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": true,
+     "name": "投手特訓の秘伝書",
+     "rarity": "金",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "尾根瑛人",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "尾上亜月",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "球速の凄い巻物",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "蒼鳥つばさ",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "シャンプー",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "小田切巧",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 7
+    }
+   ]
+  },
+  {
+   "no": 201,
+   "date": "2026-11-19",
+   "area": "3/3 ⑱道中2",
+   "result": "クリア",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {},
+   "prayers": [
+    {
+     "after": [
+      "コーチ人数+3",
+      "熟練の走塁1"
+     ],
+     "area": 0,
+     "before": [
+      "コーチ人数+3",
+      "熟練の走塁1"
+     ],
+     "gained": [],
+     "lost": [],
+     "name": "シャンプー",
+     "rarity": "銅",
+     "result": "失敗"
+    }
+   ],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "総合練習の攻略本",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "シャンプー",
+     "rarity": "銅",
+     "skills": [
+      "コーチ人数+3",
+      "熟練の走塁1"
+     ],
+     "slot": 2
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "獅乃木琢磨",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "美多村知秋",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "早乙女乱馬",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "部長",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "球速の凄い巻物",
+     "rarity": "金",
+     "skills": [],
+     "slot": 7
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "村雨",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 8
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "鈴本大輔",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 9
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "ガナル・波羅",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 10
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "早乙女乱馬",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 11
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "伊貫大和",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 12
+    }
+   ]
+  },
+  {
+   "no": 202,
+   "date": "2026-11-19",
+   "area": "3/3 ⑱道中2",
+   "result": "クリア",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 2,
+    "2": 8,
+    "3": -1
+   },
+   "prayers": [
+    {
+     "after": [
+      "コーチ人数+4"
+     ],
+     "area": 0,
+     "before": [
+      "コーチ人数+3"
+     ],
+     "gained": [
+      "コーチ人数+4"
+     ],
+     "lost": [
+      "コーチ人数+3"
+     ],
+     "name": "[恋のキューピッド]天音姫恋",
+     "rarity": "銅",
+     "result": "成功"
+    }
+   ],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "呼び寄せの香",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "[恋のキューピッド]天音姫恋",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": true,
+     "name": "[わんこだよ！]パーちゃん",
+     "rarity": "金",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "宇渡幹久",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "アンヌ",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "ナヌーク",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "[恋のキューピッド]天音姫恋",
+     "rarity": "銅",
+     "skills": [
+      "コーチ人数+4"
+     ],
+     "slot": 6
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "響良牙",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 7
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "[再起の灯]戸内聖華",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 9
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "塚見リフター",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 10
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "ゼルヴィー・ハイゼンベルク",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 12
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "小田切巧",
+     "rarity": "金",
+     "skills": [],
+     "slot": 13
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "佐奈あゆみ",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 14
+    }
+   ]
+  },
+  {
+   "no": 203,
+   "date": "2026-11-19",
+   "area": "3/3 ⑱道中2",
+   "result": "クリア",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 5,
+    "3": 9
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "古羽流登",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": true,
+     "name": "投訓ノ書",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "千代姫",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "夏野向日葵",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "小田切巧",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "払拭のお札",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "武秀英",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "村雨",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 7
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "鳴海悠斗",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 8
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "[満開ステップ]ゼルヴィー",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 9
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "アサガミ・キョウスケ",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 10
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "[野球マン1号]早川あおい",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 11
+    }
+   ]
+  },
+  {
+   "no": 204,
+   "date": "2026-11-19",
+   "area": "3/3 ⑱道中2",
+   "result": "クリア",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 3,
+    "2": 8,
+    "3": 13
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "野手特訓の秘伝書",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "松倉宗光",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "上下沙優",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "泊方明日音",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "読心のお札",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 8
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "[野球マン1号]早川あおい",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 9
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "千代姫",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 10
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "払拭のお札",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 11
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "小平陽向",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 12
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "ゼルヴィー・ハイゼンベルク",
+     "rarity": "金",
+     "skills": [
+      "コーチ人数+3",
+      "総合練習1"
+     ],
+     "slot": 13
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "武秀英",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 14
+    }
+   ]
+  },
+  {
+   "no": 206,
+   "date": "2026-11-19",
+   "area": "3/3 ⑱道中2",
+   "result": "クリア",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 2,
+    "2": 7,
+    "3": 9
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "金ノ書",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": true,
+     "name": "金ノ書",
+     "rarity": "金",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "村雨",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "永瀬大河",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "諏訪野聖人",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 8
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "ゼルヴィー・ハイゼンベルク",
+     "rarity": "金",
+     "skills": [],
+     "slot": 9
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "中之島幸宏",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 10
+    }
+   ]
+  },
+  {
+   "no": 213,
+   "date": "2026-11-19",
+   "area": "3/3 ⑱道中2",
+   "result": "クリア",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 0,
+    "2": 5,
+    "3": 9
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "獅乃木琢磨",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "鈴本大輔",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "天道あかね",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "[二刀流]十六夜瑠菜",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "瀧上輝汐",
+     "rarity": "金",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "滝本太郎",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "ガナル・波羅",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 7
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "鋼毅",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 8
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "ガナル・波羅",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 9
+    }
+   ]
+  },
+  {
+   "no": 214,
+   "date": "2026-11-19",
+   "area": "3/3 ⑱道中2",
+   "result": "クリア",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 7,
+    "3": -1
+   },
+   "prayers": [
+    {
+     "after": [
+      "コーチ人数+4",
+      "上限突破1",
+      "ミート特訓1"
+     ],
+     "area": 0,
+     "before": [
+      "コーチ人数+3",
+      "上限突破1",
+      "ミート特訓1"
+     ],
+     "gained": [
+      "コーチ人数+4"
+     ],
+     "lost": [
+      "コーチ人数+3"
+     ],
+     "name": "[野球マン5号]小山雅",
+     "rarity": "銅",
+     "result": "成功"
+    }
+   ],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "呼応ノ書",
+     "rarity": "金",
+     "skills": [
+      "呼応の術",
+      "肩力特訓人数+1",
+      "契約書+2"
+     ],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "金原いづる",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "菊度アイラ",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "[野球マン5号]小山雅",
+     "rarity": "銅",
+     "skills": [
+      "コーチ人数+4",
+      "上限突破1",
+      "ミート特訓1"
+     ],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "尾上亜月",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "館西勉",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "明神陽",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 7
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "尾根瑛人",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 8
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "久留米美加",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 9
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "明智光秀",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 11
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "蒼鳥つばさ",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 12
+    }
+   ]
+  },
+  {
+   "no": 215,
+   "date": "2026-11-19",
+   "area": "3/3 ⑱道中2",
+   "result": "クリア",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 2,
+    "2": 6,
+    "3": -1
+   },
+   "prayers": [
+    {
+     "after": [
+      "呼応の術",
+      "交渉術3",
+      "契約書+1"
+     ],
+     "area": 0,
+     "before": [
+      "呼応の術",
+      "交渉術2",
+      "契約書+1"
+     ],
+     "gained": [
+      "交渉術3"
+     ],
+     "lost": [
+      "交渉術2"
+     ],
+     "name": "呼応ノ書",
+     "rarity": "銀",
+     "result": "成功"
+    }
+   ],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "総合練習の攻略本",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": true,
+     "name": "呼応ノ書",
+     "rarity": "銀",
+     "skills": [
+      "呼応の術",
+      "交渉術3",
+      "契約書+1"
+     ],
+     "slot": 2
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "星井スバル",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "中之島幸宏",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "球速の凄い巻物",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "コントロールの凄い巻物",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "斬金半馬",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 7
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "久留米美加",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 8
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "蒼鳥つばさ",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 9
+    }
+   ]
+  },
+  {
+   "no": 216,
+   "date": "2026-11-19",
+   "area": "3/3 ⑱道中2",
+   "result": "クリア",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 2,
+    "2": 6,
+    "3": 8
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "呼び寄せの香",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "十六夜満",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "西矢田来一",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "鈴本大輔",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "滝本太郎",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "天道あかね",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "小田切巧",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 7
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "久留米美加",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 8
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "天道あかね",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 9
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "伊貫大和",
+     "rarity": "金",
+     "skills": [],
+     "slot": 10
+    }
+   ]
+  },
+  {
+   "no": 217,
+   "date": "2026-11-19",
+   "area": "3/3 ⑱道中2",
+   "result": "クリア",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 5,
+    "3": 10
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "投手特訓の攻略本",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "滝本太郎",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "美多村知秋",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "コントロールの凄い巻物",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "伊貫大和",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "千代姫",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 7
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "ガナル・波羅",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 8
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "早乙女乱馬",
+     "rarity": "金",
+     "skills": [],
+     "slot": 10
+    }
+   ]
+  },
+  {
+   "no": 218,
+   "date": "2026-11-19",
+   "area": "3/3 ⑱道中2",
+   "result": "クリア",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 5,
+    "3": 11
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "特殊能力秘伝書",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": true,
+     "name": "袋ノ書",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "伊貫大和",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "尾上亜月",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "竹内脅人",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "読心のお札",
+     "rarity": "金",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "アサガミ・キョウスケ",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "村雨",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 7
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "佐奈あゆみ",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 8
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "久留米美加",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 9
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "久里武尊",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 10
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "ガナル・波羅",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 11
+    }
+   ]
+  },
+  {
+   "no": 220,
+   "date": "2026-11-19",
+   "area": "3/3 ⑱道中2",
+   "result": "クリア",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 0,
+    "2": 7,
+    "3": 10
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "特殊能力秘伝書",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "星井スバル",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "特能ノ書",
+     "rarity": "銀",
+     "skills": [
+      "修練の術 特能",
+      "球速特訓人数+2",
+      "4カード特殊能力"
+     ],
+     "slot": 2
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "中之島幸宏",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "アラン・レイヴン",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "神楽坂光彦",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "明神陽",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "瀧上輝汐",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 7
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "武秀英",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 8
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "ガナル・波羅",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 9
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "ゼルヴィー・ハイゼンベルク",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 10
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "尾根瑛人",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 11
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "アサガミ・キョウスケ",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 12
+    }
+   ]
+  },
+  {
+   "no": 221,
+   "date": "2026-11-19",
+   "area": "3/3 ⑱道中2",
+   "result": "クリア",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 2,
+    "2": 6,
+    "3": -1
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "風薙豹",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "伊貫大和",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "諏訪野聖人",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "鈴本大輔",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "神楽坂光彦",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 7
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "天宮果也乃",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 8
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "敷上マニィ",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 9
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "響良牙",
+     "rarity": "金",
+     "skills": [],
+     "slot": 10
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "明智光秀",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 11
+    }
+   ]
+  }
+ ]
+}
