@@ -117,12 +117,12 @@ def render(runs, note, hp=""):
     pr = [(r, p) for r in runs for p in (r.get("prayers") or [])]
     if pr:
         ok = sum(p["result"] == "成功" for _, p in pr)
-        out += [f'  <h3 class="rs-h">{hp}祈願の記録</h3>', f'  <p class="rs-note">{len(pr)}回中、成功{ok}回・失敗{len(pr) - ok}回。</p>',
+        out += ['  <div class="rs-area rs-pray">', f'  <h3 class="rs-area-h">{hp}祈願の記録</h3>', f'  <p class="rs-note">{len(pr)}回中、成功{ok}回・失敗{len(pr) - ok}回。</p>',
                 '  <div class="bt-wrap"><table class="bt rs-t">', '  <thead><tr><th>アイテム</th><th>結果</th><th>付いたスキル</th></tr></thead><tbody>']
         for r, p in pr:
             res = '<span class="tx-b tx-bold">成功</span>' if p["result"] == "成功" else '<span class="tx-r tx-bold">失敗</span>'
-            out.append(f'  <tr><th>{e(p["name"])}</th><td>{res}</td><td class="rs-l">{e("・".join(p.get("gained") or [])) or "-"}</td></tr>')
-        out.append('  </tbody></table></div>')
+            out.append(f'  <tr><th>{e(p["name"].replace("[", "［").replace("]", "］"))}</th><td>{res}</td><td class="rs-l">{e("・".join(p.get("gained") or [])) or "-"}</td></tr>')
+        out.append('  </tbody></table></div>\n  </div>')
     return out
 
 
