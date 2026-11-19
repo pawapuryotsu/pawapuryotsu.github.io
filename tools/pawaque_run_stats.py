@@ -77,14 +77,17 @@ GOOD = ("交渉術3", "契約書+2", "契約書+3", "スカウト率UP1", "ス�
 def good_tr(x, sk):
     # 表の1行：アイテム（レア度）｜付いたスキルを1行ずつ（2026-11-19 管理人「アイテム1個に何のスキルか分かりやすく」）
     nm = x["name"].replace("[", "［").replace("]", "］")
-    t = "<br>".join(f'<span class="cp-nw{" em-blue" if k.split("（")[0] in GOOD else ""}">{e(k)}</span>' for k in sk)
-    return f'  <tr><th>{e(nm)}<br><span class="rs-rar">（{e(x["rarity"])}）</span></th><td class="rs-l">{t}</td></tr>'
+    # 優秀なスキル・コーチ人数+3/+4は青の太字
+    t = "<br>".join(f'<span class="cp-nw{" em-blue" if k.split("（")[0] in GOOD + COACH else ""}">{e(k)}</span>' for k in sk)
+    # ［バージョン］と名前は途中で折り返さない
+    nm_h = "".join(f'<span class="cp-nw">{e(p)}</span>' for p in re.split(r"(?<=］)", nm) if p)
+    return f'  <tr><th>{nm_h}<br><span class="rs-rar">（{e(x["rarity"])}）</span></th><td class="rs-l">{t}</td></tr>'
 
 
-def coach_li(x, cs):
-    # 表記（2026-11-19 管理人）：「の契約書」は省き、［恋のキューピッド］天音姫恋+3（銀） のように。+3・+4 は青太字
-    nm = x["name"].replace("[", "［").replace("]", "］")
-    return f'<li>{e(nm)}<span class="em-blue cp-nw">{e("・".join(c.replace("コーチ人数", "") for c in cs))}</span>（{e(x["rarity"])}）</li>'
+def skill_table(lst):
+    """アイテム｜付いたスキル の表（優秀なスキル欄・コーチ欄で共通）"""
+    return "\n".join(['  <div class="bt-wrap"><table class="bt rs-t rs-good">', '  <thead><tr><th>アイテム</th><th>付いたスキル</th></tr></thead><tbody>']
+                     + [good_tr(x, sk) for x, sk in lst] + ['  </tbody></table></div>'])
 
 
 def render(runs, note, hp=""):
@@ -132,20 +135,17 @@ def render(runs, note, hp=""):
             gained = {(p["name"], g) for p in (r.get("prayers") or []) if p.get("result") == "成功" for g in (p.get("gained") or [])}
             for x in r["drops"]:
                 if x.get("area") == a and not is_item(x["name"]):
-                    cs = [k + ("（祈願）" if (x["name"], k) in gained else "") for k in (x.get("skills") or []) if k in COACH]
-                    if cs:
+                    # 表にはコーチ以外のスキルも全部載せる（2026-11-19 管理人）
+                    cs = [k + ("（祈願）" if (x["name"], k) in gained else "") for k in (x.get("skills") or [])]
+                    if any(k in COACH for k in (x.get("skills") or [])):
                         coach.append((x, cs))
                         tcoach.append((x, cs))
         if coach:
             out.append('  <div class="rs-coach-box"><p class="rs-coach-h">コーチ人数+3・+4が付いた契約書</p>')
-            out.append('  <ul class="rs-coach">' + "".join(
-                coach_li(x, cs) for x, cs in coach) + '</ul></div>')
+            out.append(skill_table(coach) + '</div>')
         out.append('  </div>')
 
     # 並べ替え（2026-11-19 管理人）：○周合計（青枠）→ コーチ人数+3以上（青枠）→「エリア毎の詳細はコチラをタップ」の中にエリアごとの表
-    def coach_ul(lst):
-        return ('  <ul class="rs-coach">' + "".join(
-            coach_li(x, cs) for x, cs in lst) + '</ul>')
     head += ['  <div class="rs-area rs-blue">', f'  <h3 class="rs-area-h">{nb}周合計</h3>'] + table(tot, tcon) + ['  </div>']
     tgood = []
     for r in runs:
@@ -155,11 +155,9 @@ def render(runs, note, hp=""):
             if any(k in GOOD for k in sk):
                 tgood.append((x, [k + ("（祈願）" if (x["name"], k) in gained else "") for k in sk]))
     if tgood:
-        head += ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">優秀なスキルが付いたアイテム</h3>',
-                 '  <div class="bt-wrap"><table class="bt rs-t rs-good">', '  <thead><tr><th>アイテム</th><th>付いたスキル</th></tr></thead><tbody>']
-        head += [good_tr(x, sk) for x, sk in tgood] + ['  </tbody></table></div>', '  </div>']
+        head += ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">優秀なスキルが付いたアイテム</h3>', skill_table(tgood), '  </div>']
     if tcoach:
-        head += ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">コーチ人数+3以上が付いた契約書</h3>', coach_ul(tcoach), '  </div>']
+        head += ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">コーチ人数+3以上が付いた契約書</h3>', skill_table(tcoach), '  </div>']
     out = out[:1] + head + ['  <details class="rs-old rs-det"><summary>エリア毎の詳細は<span class="cp-nw">コチラをタップ</span></summary><div class="rs-old-in">'] + out[1:] + ['  </div></details>']
 
     # 祈願

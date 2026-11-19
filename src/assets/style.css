@@ -647,3 +647,4 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .rs-old{margin:18px 0}.rs-old>summary{list-style:none;cursor:pointer;display:block;text-align:center;padding:11px 12px;border:2px solid #2f6b4f;border-radius:8px;background:#eef6f1;color:#2f6b4f;font-weight:700;font-size:15px}.rs-old>summary::-webkit-details-marker{display:none}.rs-old>summary::after{content:" ▼";font-size:12px}.rs-old[open]>summary::after{content:" ▲"}.rs-old-in{padding-top:4px}
 .rs-area.rs-blue{border-color:#2f6fb0}.prose .rs-blue h3.rs-area-h{background:#2f6fb0}.rs-blue .bt.rs-t thead th{background:#2f6fb0}.rs-blue .rs-note{margin-top:4px}.rs-blue ul.rs-coach{margin:6px 0 4px}
 .rs-good{width:100%}.rs-good tbody th{width:45%;white-space:normal}.rs-good tbody td.rs-l{line-height:1.7}.rs-good .rs-rar{font-weight:400;font-size:12px}.rs-good tbody tr+tr th,.rs-good tbody tr+tr td{border-top:2px solid #9bb8d6}
+.rs-coach-box .rs-good{background:#fff}
