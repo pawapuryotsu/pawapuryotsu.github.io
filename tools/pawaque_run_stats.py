@@ -27,53 +27,83 @@ areas = sorted({x["area"] for r in runs for x in r["drops"] if x.get("area")})
 y, m, d = D["取得日"].split("-")
 out = [f'  <p class="rs-note">管理人の周回記録 <b>{n}周分</b>（{int(m)}/{int(d)}時点）から集計しています。<span class="cp-nw">周回が増えたら更新します。</span>管理人が記録対象にしていないアイテムは表に入っていません。</p>']
 
+# 並び順（2026-11-19 管理人）：西球記専用 → マス強化 → その他 → 契約書
+def group(name):
+    if re.search(r"(ノ書|呼び寄せの香|金丹)", name):
+        return 0
+    if re.search(r"(攻略本|秘伝書)", name):
+        return 1
+    return 2
+
+
+def vname(name):
+    # 契約書の名前：[バージョン] は全角の［］に
+    return name.replace("[", "［").replace("]", "］") + "の契約書"
+
+
+def table(cnt, con, extra=()):
+    """金・銀・銅・合計の表。cnt＝{アイテム名: Counter(レア度)}、con＝契約書の Counter(レア度)、extra＝[(名前, 回数)]（合計だけの行）"""
+    rows = sorted(cnt, key=lambda k: (group(k), -sum(cnt[k].values()), k))
+    t = ['  <div class="bt-wrap"><table class="bt rs-t">',
+         '  <thead><tr><th>アイテム</th><th>金</th><th>銀</th><th>銅</th><th>合計</th></tr></thead><tbody>']
+    for k in rows:
+        c = cnt[k]
+        t.append(f'  <tr><th>{e(k)}</th>' + "".join(f'<td>{c[r] or "-"}</td>' for r in RAR) + f'<td class="rs-sum">{sum(c.values())}</td></tr>')
+    if con:
+        t.append('  <tr class="rs-con"><th>契約書</th>' + "".join(f'<td>{con[r] or "-"}</td>' for r in RAR) + f'<td class="rs-sum">{sum(con.values())}</td></tr>')
+    for nm, v in extra:
+        t.append(f'  <tr class="rs-con"><th>{e(nm)}</th><td>-</td><td>-</td><td>-</td><td class="rs-sum">{v}</td></tr>')
+    t.append('  </tbody></table></div>')
+    return t
+
+
+COACH = ("コーチ人数+3", "コーチ人数+4")
 for a in areas:
-    cnt = defaultdict(Counter)   # 名前 → レア度ごとの個数
-    runs_with = defaultdict(set)
+    cnt = defaultdict(Counter)
     con = Counter()
+    coach = []
     for r in runs:
         for x in r["drops"]:
             if x.get("area") != a:
                 continue
             if is_item(x["name"]):
                 cnt[x["name"]][x["rarity"]] += 1
-                runs_with[x["name"]].add(r["no"])
             else:
                 con[x["rarity"]] += 1
-    rows = sorted(cnt, key=lambda k: (-sum(cnt[k].values()), k))
-    out += [f'  <h3 class="rs-h">エリア{a}</h3>', '  <div class="bt-wrap"><table class="bt rs-t">',
-            '  <thead><tr><th>アイテム</th><th>出た周</th><th>金</th><th>銀</th><th>銅</th></tr></thead><tbody>']
-    for k in rows:
-        c = cnt[k]
-        out.append(f'  <tr><th>{e(k)}</th><td>{len(runs_with[k])}/{n}周</td>' + "".join(f'<td>{c[r] or "-"}</td>' for r in RAR) + '</tr>')
-    if con:
-        out.append(f'  <tr class="rs-con"><th>契約書（合計）</th><td>{sum(con.values())}枚</td>' + "".join(f'<td>{con[r] or "-"}</td>' for r in RAR) + '</tr>')
-    out.append('  </tbody></table></div>')
+                cs = [k for k in (x.get("skills") or []) if k in COACH]
+                if cs:
+                    coach.append((x, cs))
+    out += [f'  <h3 class="rs-h">エリア{a}</h3>'] + table(cnt, con)
+    # コーチ人数+3・+4が付いた契約書は表の下に（2026-11-19 管理人）
+    if coach:
+        out.append('  <p class="rs-coach-h">コーチ人数+3・+4が付いた契約書</p>')
+        out.append('  <ul class="rs-coach">' + "".join(
+            f'<li>{e(vname(x["name"]))}（{e(x["rarity"])}）：<span class="em-blue cp-nw">{e("・".join(cs))}</span></li>' for x, cs in coach) + '</ul>')
 
-# ボスドロップ（記録で選ばれている周だけ）
+# ボスドロップ（記録で選ばれている周だけ）。エリアごとの表と同じ形（2026-11-19 管理人）
 bk = [r for r in runs if r.get("boss")]
 if bk:
-    out += [f'  <h3 class="rs-h">ボスドロップ</h3>', f'  <p class="rs-note">ボスドロップを記録した{len(bk)}周分です。</p>',
-            '  <div class="bt-wrap"><table class="bt rs-t">', '  <thead><tr><th>エリア</th><th>ドロップ</th><th>レア度</th></tr></thead><tbody>']
+    out += ['  <h3 class="rs-h">ボスドロップ</h3>', f'  <p class="rs-note">ボスドロップを記録した{len(bk)}周分です。</p>']
     for a in areas:
-        c = Counter()
+        cnt = defaultdict(Counter)
+        con = Counter()
+        none = other = 0
         for r in bk:
-            s = r["boss"].get(str(a))
-            if s is None:
+            sl = r["boss"].get(str(a))
+            if sl is None:
                 continue
-            if s == -1:
-                c[("なし", "")] += 1
+            if sl == -1:
+                none += 1
                 continue
-            x = next((x for x in r["drops"] if x.get("slot") == s), None)
-            if x:
-                c[(x["name"] if is_item(x["name"]) else "契約書", x["rarity"])] += 1
-            else:   # カウンターで「記録する」を外した物（何かは記録に無い）
-                c[("記録対象外のアイテム", "")] += 1
-        first = True
-        for (nm, rr), v in sorted(c.items(), key=lambda t: (t[0][0] == "なし", t[0][0] == "記録対象外のアイテム", t[0][0] == "契約書", t[0][0], RAR.index(t[0][1]) if t[0][1] in RAR else 9)):
-            out.append(f'  <tr>' + (f'<th rowspan="{len(c)}">エリア{a}</th>' if first else '') + f'<td class="rs-l">{e(nm)}{"" if v == 1 else f"（{v}回）"}</td><td>{e(rr) or "-"}</td></tr>')
-            first = False
-    out.append('  </tbody></table></div>')
+            x = next((x for x in r["drops"] if x.get("slot") == sl), None)
+            if not x:   # カウンターで「記録する」を外した物（何かは記録に無い）
+                other += 1
+            elif is_item(x["name"]):
+                cnt[x["name"]][x["rarity"]] += 1
+            else:
+                con[x["rarity"]] += 1
+        extra = [(nm, v) for nm, v in (("記録対象外のアイテム", other), ("ボスドロップなし", none)) if v]
+        out += [f'  <p class="rs-sub">エリア{a}のボス</p>'] + table(cnt, con, extra)
 
 # 祈願
 pr = [(r, p) for r in runs for p in (r.get("prayers") or [])]
