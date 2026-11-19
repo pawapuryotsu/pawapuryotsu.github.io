@@ -15,8 +15,9 @@ CONTACT_FORM = "https://forms.gle/mXyapp3TYUPzyLAz6"                            
 GA_ID = "G-F98XGNW3LS"                                    # Googleアナリティクス4の測定ID（G-XXXXXXXXXX）。空なら解析なし
 POLICY_DATE = "2026年10月"                    # プライバシーポリシーの制定日
 
-NAV = [("home", "", "トップ"), ("roman", "decks/roman/", "ロマン開花學園<small>投手</small>"),
-       ("andromeda", "decks/andromeda/", "アンドロメダ学園<small>野手</small>"), ("pawaque", "pawaque/", "パワクエ"), ("about", "about/", "このサイトについて")]
+# 上部タブ。トップへはロゴで、運営者情報へはフッターで行ける（2026-11-19 管理人：トップ・このサイトについてを外し、デッキは2行表記）
+NAV = [("roman", "decks/roman/", "ロマン開花<small>投手</small>"),
+       ("andromeda", "decks/andromeda/", "アンドロメダ<small>野手</small>"), ("pawaque", "pawaque/", "パワクエ")]
 
 here = pathlib.Path(__file__).parent
 src, out = here / "src", here / "docs"
