@@ -141,14 +141,14 @@ MEMO = "<br>総合練習の攻略本・秘伝書や○○の巻物など、有�
 
 
 def note_now(nb):
-    return f'  <p class="rs-note">周回記録 <b>{nb}周分</b>（{int(m)}/{int(d)}時点）から集計しています。{MEMO}</p>'
+    return f'  <p class="rs-note">周回記録 <b>{nb}周分</b>（{int(m)}/{int(d)}時点）から<span class="cp-nw">集計しています。</span>{MEMO}</p>'
 
 
 out = render(by[periods[-1]], note_now)
 for k in reversed(periods[:-1]):
     nm = NAMES.get(k, k or "以前")
     rs = by[k]
-    old = render(rs, lambda nb: f'  <p class="rs-note">{e(nm)}の周回記録 <b>{nb}周分</b>から集計しています。{MEMO}</p>', e(nm) + "の")
+    old = render(rs, lambda nb: f'  <p class="rs-note">{e(nm)}の周回記録 <b>{nb}周分</b>から<span class="cp-nw">集計しています。</span>{MEMO}</p>', e(nm) + "の")
     out += [f'  <details class="rs-old"><summary>{e(nm)}の記録は<span class="cp-nw">こちらをタップ</span></summary><div class="rs-old-in">'] + old + ['  </div></details>']
 
 block = "\n".join(out)
