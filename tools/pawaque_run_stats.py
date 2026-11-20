@@ -157,10 +157,10 @@ def render(runs, note, hp=""):
             sk = x.get("skills") or []
             if any(k in GOOD for k in sk):
                 tgood.append((x, [k + ("（祈願）" if (x["name"], k) in gained else "") for k in sk], lap))
-    if tgood:
-        head += ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">優秀なスキルが付いたアイテム</h3>', skill_table(tgood), '  </div>']
-    if tcoach:
-        head += ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">コーチ人数+3以上が付いた契約書</h3>', skill_table(tcoach), '  </div>']
+    gb = ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">優秀なスキルが付いたアイテム</h3>', skill_table(tgood), '  </div>'] if tgood else []
+    cb = ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">コーチ人数+3以上が付いた契約書</h3>', skill_table(tcoach), '  </div>'] if tcoach else []
+    # json の「コーチを先に」: true のクエストは、コーチの表を優秀なスキルより上に（2026-11-20 管理人、むずクエ）
+    head += cb + gb if D.get("コーチを先に") else gb + cb
     out = out[:1] + head + ['  <details class="rs-old rs-det"><summary>エリア毎の詳細は<span class="cp-nw">コチラをタップ</span></summary><div class="rs-old-in">'] + out[1:] + ['  </div></details>']
 
     # 祈願

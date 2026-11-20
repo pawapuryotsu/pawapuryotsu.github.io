@@ -33,6 +33,8 @@ runs.sort(key=lambda r: r["no"])
 assert runs, f"「{quest}」の周が見つからない（クエスト名は帯の表記どおりに）"
 D = {"取得日": day, "元": "パワクエ周回カウンター", "クエスト": quest,
      "記録対象外": old.get("記録対象外", []),
-     "期間の表示名": old.get("期間の表示名", {}), "runs": runs}
+     "期間の表示名": old.get("期間の表示名", {}),
+     **({"コーチを先に": True} if old.get("コーチを先に") else {}),   # ページごとの表示設定も引き継ぐ
+     "runs": runs}
 out.write_text(json.dumps(D, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 print("ok", out.name, len(runs), "周", "（ボス記録あり", sum(1 for r in runs if r["boss"]), "周）")
