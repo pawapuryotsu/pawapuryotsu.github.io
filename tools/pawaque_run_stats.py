@@ -79,6 +79,31 @@ GOOD = ("交渉術3", "契約書+2", "契約書+3", "スカウト率UP1", "ス�
         "祈願率UP2", "祈願率UP3", "5カード特殊能力", "6カード特殊能力")
 
 
+# 契約書の名前の左にイベキャラのアイコン（2026-11-20 管理人）。
+# chars.json の name と［バージョン］まで完全一致したキャラだけ。元画像は pawa-data/event-chars/icons（PSR、無ければSR）、
+# 80x80 に縮めて src/img/pawaque/ci/<名前のmd5>.jpg に置く（一度作ればpawa-dataが無くても使える）。見つからなければアイコン無し
+import hashlib
+CHARS = {c["name"]: c for c in json.loads((here / "docs/data/chars.json").read_text(encoding="utf-8"))}
+ICON_SRC = here.parent / "pawa-data" / "event-chars" / "icons"
+
+
+def icon_of(name):
+    fn = "img/pawaque/ci/" + hashlib.md5(name.encode()).hexdigest()[:12] + ".jpg"
+    out = here / "src" / fn
+    if not out.exists():
+        c = CHARS.get(name)
+        if not c:
+            return ""
+        base = f'{c["苗字"]}{c.get("名前") or ""}' + (f'_{c["二つ名"]}' if c.get("二つ名") else "")
+        f = next((ICON_SRC / f"{base}_{r}.png" for r in ("PSR", "SR") if (ICON_SRC / f"{base}_{r}.png").exists()), None)
+        if not f:
+            return ""
+        from PIL import Image
+        out.parent.mkdir(parents=True, exist_ok=True)
+        Image.open(f).convert("RGB").resize((80, 80), Image.LANCZOS).save(out, quality=88)
+    return f'<img class="rs-ic" src="{{{{root}}}}{fn}" alt="" width="40" height="40" loading="lazy">'
+
+
 def good_tr(x, sk, lap):
     # 表の1行：アイテム（レア度）｜付いたスキルを1行ずつ（2026-11-19 管理人「アイテム1個に何のスキルか分かりやすく」）
     nm = x["name"].replace("[", "［").replace("]", "］")
@@ -89,7 +114,8 @@ def good_tr(x, sk, lap):
     ps = [p for p in re.split(r"(?<=］)", nm) if p]
     ps[-1] += f'（{x["rarity"]}）'
     nm_h = "".join(f'<span class="cp-nw">{e(p)}</span>' for p in ps)
-    return f'  <tr><th>{nm_h}<br><span class="rs-rar">{lap}周目{f"エリア{x['area']}" if x.get("area") else ""}{"ボス" if x.get("_boss") else ""}</span></th><td class="rs-l">{t}</td></tr>'
+    ic = "" if is_item(x["name"]) else icon_of(x["name"])
+    return f'  <tr><th class="{'rs-hasic' if ic else ''}">{ic}<div class="rs-nm">{nm_h}<br><span class="rs-rar">{lap}周目{f"エリア{x['area']}" if x.get("area") else ""}{"ボス" if x.get("_boss") else ""}</span></div></th><td class="rs-l">{t}</td></tr>'
 
 
 def skill_table(lst):
