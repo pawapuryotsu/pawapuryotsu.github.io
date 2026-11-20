@@ -124,13 +124,21 @@ def skill_table(lst):
                      + [good_tr(x, sk, lap) for x, sk, lap in sorted(lst, key=lambda t: (t[2], t[0].get("area") or 0))] + ['  </tbody></table></div>'])
 
 
+def abandon_note(rs):
+    """途中で諦めた周の内訳「 (うち、エリア2終了1回)」。無ければ ""（2026-11-20 管理人。カウンターの result＝途中終了・endArea）"""
+    c = Counter(r["endArea"] for r in rs if r.get("result") == "途中終了" and r.get("endArea"))
+    if not c:
+        return ""
+    return ' <span class="cp-nw">(うち、' + "・".join(f"エリア{k}終了{c[k]}回" for k in sorted(c)) + ")</span>"
+
+
 def render(runs, note, hp=""):
     """周の一覧から「周回記録」の中身（エリアごとの表・コーチ・祈願）を作る。note(周数)＝先頭の説明文、hp＝祈願の見出しの頭"""
     areas = sorted({x["area"] for r in runs for x in r["drops"] if x.get("area")})
     # 道中とボスを分けて集計（2026-11-19 管理人）。どれがボスか分かる周（ボスを記録した周）だけを使う
     bk = [r for r in runs if r.get("boss")]
     nb = len(bk)
-    out = [note(nb)]
+    out = [note(nb, abandon_note(bk))]   # 説明文にも「(うち、エリア△終了□回)」を出す（2026-11-20 管理人）
     head = []    # 全エリアの合計・コーチ（一番上に出す、2026-11-19 管理人）
     tot, tcon, tcoach = defaultdict(Counter), Counter(), []
     for r in bk:
@@ -180,7 +188,7 @@ def render(runs, note, hp=""):
         out.append('  </div>')
 
     # 並べ替え（2026-11-19 管理人）：○周合計（青枠）→ コーチ人数+3以上（青枠）→「エリア毎の詳細はコチラをタップ」の中にエリアごとの表
-    head += ['  <div class="rs-area rs-blue">', f'  <h3 class="rs-area-h">{nb}周合計</h3>'] + table(tot, tcon) + ['  </div>']
+    head += ['  <div class="rs-area rs-blue">', f'  <h3 class="rs-area-h">{nb}周合計{abandon_note(bk)}</h3>'] + table(tot, tcon) + ['  </div>']
     tgood = []
     for lap, r in enumerate(runs, 1):
         gained = {(p["name"], g) for p in (r.get("prayers") or []) if p.get("result") == "成功" for g in (p.get("gained") or [])}
@@ -221,15 +229,15 @@ by = {k: [r for r in runs if (r.get("period") or "") == k] for k in periods}
 MEMO = "<br>総合練習の攻略本・秘伝書や○○の巻物など、有用性がないアイテムを記録対象外のアイテムとしています。<br>道中の契約書は、神前試合マスで獲得したものも含みます。"
 
 
-def note_now(nb):
-    return f'  <p class="rs-note">周回記録 <b>{nb}周分</b>（{int(m)}/{int(d)}時点）から<span class="cp-nw">集計しています。</span>{MEMO}</p>'
+def note_now(nb, ab=""):
+    return f'  <p class="rs-note">周回記録 <b>{nb}周分</b>{ab}（{int(m)}/{int(d)}時点）から<span class="cp-nw">集計しています。</span>{MEMO}</p>'
 
 
 out = render(by[periods[-1]], note_now)
 for k in reversed(periods[:-1]):
     nm = NAMES.get(k, k or "以前")
     rs = by[k]
-    old = render(rs, lambda nb: f'  <p class="rs-note">{e(nm)}の周回記録 <b>{nb}周分</b>から<span class="cp-nw">集計しています。</span>{MEMO}</p>', e(nm) + "の")
+    old = render(rs, lambda nb, ab="": f'  <p class="rs-note">{e(nm)}の周回記録 <b>{nb}周分</b>{ab}から<span class="cp-nw">集計しています。</span>{MEMO}</p>', e(nm) + "の")
     out += [f'  <details class="rs-old"><summary>{e(nm)}の記録は<span class="cp-nw">こちらをタップ</span></summary><div class="rs-old-in">'] + old + ['  </div></details>']
 
 block = "\n".join(out)
