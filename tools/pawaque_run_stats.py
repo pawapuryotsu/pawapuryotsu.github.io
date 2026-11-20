@@ -20,6 +20,11 @@ for r in runs:
     r["drops"] = [x for x in r["drops"] if x["name"] not in SKIP]
 # ボスドロップを記録していない周はページに使わない（2026-11-19 管理人。コーチ・祈願の欄も含めて全部外す。カウンターの記録はそのまま）
 runs = [r for r in runs if r.get("boss")]
+# ボスドロップの印（スキル表で「○周目エリア○ボス」と出す、2026-11-20 管理人）
+for r in runs:
+    for x in r["drops"]:
+        sl = r["boss"].get(str(x.get("area")))
+        x["_boss"] = sl is not None and sl >= 0 and x.get("slot") == sl
 n = len(runs)
 RAR = ["金", "銀", "銅"]
 ITEM = re.compile(r"(秘伝書|攻略本|巻物|お札|ノ書|呼び寄せの香|金丹|リュック|カバン|指輪|ドリンク)")
@@ -84,7 +89,7 @@ def good_tr(x, sk, lap):
     ps = [p for p in re.split(r"(?<=］)", nm) if p]
     ps[-1] += f'（{x["rarity"]}）'
     nm_h = "".join(f'<span class="cp-nw">{e(p)}</span>' for p in ps)
-    return f'  <tr><th>{nm_h}<br><span class="rs-rar">{lap}周目{f"エリア{x['area']}" if x.get("area") else ""}</span></th><td class="rs-l">{t}</td></tr>'
+    return f'  <tr><th>{nm_h}<br><span class="rs-rar">{lap}周目{f"エリア{x['area']}" if x.get("area") else ""}{"ボス" if x.get("_boss") else ""}</span></th><td class="rs-l">{t}</td></tr>'
 
 
 def skill_table(lst):
@@ -157,10 +162,10 @@ def render(runs, note, hp=""):
             sk = x.get("skills") or []
             if any(k in GOOD for k in sk):
                 tgood.append((x, [k + ("（祈願）" if (x["name"], k) in gained else "") for k in sk], lap))
-    if tgood:
-        head += ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">優秀なスキルが付いたアイテム</h3>', skill_table(tgood), '  </div>']
-    if tcoach:
-        head += ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">コーチ人数+3以上が付いた契約書</h3>', skill_table(tcoach), '  </div>']
+    gb = ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">優秀なスキルが付いたアイテム</h3>', skill_table(tgood), '  </div>'] if tgood else []
+    cb = ['  <div class="rs-area rs-blue">', '  <h3 class="rs-area-h">コーチ人数+3以上が付いた契約書</h3>', skill_table(tcoach), '  </div>'] if tcoach else []
+    # json の「コーチを先に」: true のクエストは、コーチの表を優秀なスキルより上に（2026-11-20 管理人、むずクエ）
+    head += cb + gb if D.get("コーチを先に") else gb + cb
     out = out[:1] + head + ['  <details class="rs-old rs-det"><summary>エリア毎の詳細は<span class="cp-nw">コチラをタップ</span></summary><div class="rs-old-in">'] + out[1:] + ['  </div></details>']
 
     # 祈願
