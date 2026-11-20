@@ -378,6 +378,9 @@ for meta, body in _parsed:
     # トップのランキングカードの評価日は、ランキングページ（src/ranking/ranking.json）の評価日を自動で使う（管理人指示 2026-11-10）。{{rk_date_roman}} など
     for _k, _d in DECKS.items():   # デッキページの title の「○選」（デッキの数。自動）
         rep["deck_count_" + _k] = str(len(_d["list"]))
+        # title の「【○月最新】」：いちばん新しいデッキの日付（date）の月（自動。2026-11-20 管理人OK）
+        _dates = [x.get("date", "") for x in _d["list"] if x.get("date")]
+        rep["deck_month_" + _k] = f"【{int(max(_dates)[5:7])}月最新】" if _dates else ""
     for _k, _r in charpages._RANKING.get("ranking", {}).items():
         rep["rk_date_" + _k] = f'【評価日{_r["評価日"]}】' if _r.get("評価日") else ""
     if meta.get("school") in DECKS:
