@@ -138,7 +138,7 @@ def render(runs, note, hp=""):
     # 道中とボスを分けて集計（2026-11-19 管理人）。どれがボスか分かる周（ボスを記録した周）だけを使う
     bk = [r for r in runs if r.get("boss")]
     nb = len(bk)
-    out = [note(nb)]
+    out = [note(nb, abandon_note(bk))]   # 説明文にも「(うち、エリア△終了□回)」を出す（2026-11-20 管理人）
     head = []    # 全エリアの合計・コーチ（一番上に出す、2026-11-19 管理人）
     tot, tcon, tcoach = defaultdict(Counter), Counter(), []
     for r in bk:
@@ -229,15 +229,15 @@ by = {k: [r for r in runs if (r.get("period") or "") == k] for k in periods}
 MEMO = "<br>総合練習の攻略本・秘伝書や○○の巻物など、有用性がないアイテムを記録対象外のアイテムとしています。<br>道中の契約書は、神前試合マスで獲得したものも含みます。"
 
 
-def note_now(nb):
-    return f'  <p class="rs-note">周回記録 <b>{nb}周分</b>（{int(m)}/{int(d)}時点）から<span class="cp-nw">集計しています。</span>{MEMO}</p>'
+def note_now(nb, ab=""):
+    return f'  <p class="rs-note">周回記録 <b>{nb}周分</b>{ab}（{int(m)}/{int(d)}時点）から<span class="cp-nw">集計しています。</span>{MEMO}</p>'
 
 
 out = render(by[periods[-1]], note_now)
 for k in reversed(periods[:-1]):
     nm = NAMES.get(k, k or "以前")
     rs = by[k]
-    old = render(rs, lambda nb: f'  <p class="rs-note">{e(nm)}の周回記録 <b>{nb}周分</b>から<span class="cp-nw">集計しています。</span>{MEMO}</p>', e(nm) + "の")
+    old = render(rs, lambda nb, ab="": f'  <p class="rs-note">{e(nm)}の周回記録 <b>{nb}周分</b>{ab}から<span class="cp-nw">集計しています。</span>{MEMO}</p>', e(nm) + "の")
     out += [f'  <details class="rs-old"><summary>{e(nm)}の記録は<span class="cp-nw">こちらをタップ</span></summary><div class="rs-old-in">'] + old + ['  </div></details>']
 
 block = "\n".join(out)
