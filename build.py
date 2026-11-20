@@ -331,6 +331,17 @@ _RECENT_JS = ("<script>(function(){var d=new Date(Date.now()+9*36e5).toISOString
               "document.querySelectorAll('.news.recent li').forEach(function(li){var u=li.getAttribute('data-until');"
               f"if((u&&u<=d)||n>={HOME_N})li.remove();else n++;}});}})();</script>")
 _page_info = []   # (path, 名前, 更新日, 公開日, 種類, アイコン, 横長ロゴか)
+# 「最近の更新」の親ページ（例 西球記トップ）に出す「更新日」（2026-11-20 管理人）：
+# そのページと子ページ（path がそのページの path で始まるページ。noindex は除く）の先頭の sk_updated のうち、いちばん新しい日
+_SK_UPDATED = {}
+for _m, _ in _parsed:
+    if _m.get("noindex") != "yes" and re.fullmatch(r"\d{4}-\d{2}-\d{2}", _m.get("sk_updated", "")):
+        _SK_UPDATED[_m["path"]] = _m["sk_updated"]
+
+
+def sk_updated_of(path):
+    _ds = [d for p, d in _SK_UPDATED.items() if p.startswith(path)]
+    return max(_ds) if _ds else None
 
 
 def _nice_break(name):
@@ -351,7 +362,9 @@ def recent_html():
             img = f'<img class="news-icon news-logo" src="{{{{root}}}}{icon}" alt="" width="80" height="44" loading="lazy">'
         else:
             img = f'<img class="news-icon" src="{{{{root}}}}{icon}" alt="" width="44" height="44" loading="lazy">' if icon else ""
-        li.append(f'<li{"" if icon else " class=rc-noimg"} data-until="{HOME_UNTIL[path]}"><a href="{{{{root}}}}{path}">{img}<span><small class="rc-meta">{ymd(pub)} 公開{"・" + _html.escape(label) if label else ""}</small><b>{_nice_break(name)}</b></span></a></li>')
+        _up = sk_updated_of(path)
+        _up = f"・{ymd(_up)} 更新" if _up and pub and _up > pub else ""   # 子ページが更新されたら更新日も出す（2026-11-20 管理人）
+        li.append(f'<li{"" if icon else " class=rc-noimg"} data-until="{HOME_UNTIL[path]}"><a href="{{{{root}}}}{path}">{img}<span><small class="rc-meta">{ymd(pub)} 公開{_up}{"・" + _html.escape(label) if label else ""}</small><b>{_nice_break(name)}</b></span></a></li>')
     return "<!--recent-->" + '<ul class="news recent">' + "".join(li) + "</ul>" + _RECENT_JS + "<!--/recent-->"
 
 
