@@ -20,6 +20,11 @@ for r in runs:
     r["drops"] = [x for x in r["drops"] if x["name"] not in SKIP]
 # ボスドロップを記録していない周はページに使わない（2026-11-19 管理人。コーチ・祈願の欄も含めて全部外す。カウンターの記録はそのまま）
 runs = [r for r in runs if r.get("boss")]
+# ボスドロップの印（スキル表で「○周目エリア○ボス」と出す、2026-11-20 管理人）
+for r in runs:
+    for x in r["drops"]:
+        sl = r["boss"].get(str(x.get("area")))
+        x["_boss"] = sl is not None and sl >= 0 and x.get("slot") == sl
 n = len(runs)
 RAR = ["金", "銀", "銅"]
 ITEM = re.compile(r"(秘伝書|攻略本|巻物|お札|ノ書|呼び寄せの香|金丹|リュック|カバン|指輪|ドリンク)")
@@ -84,7 +89,7 @@ def good_tr(x, sk, lap):
     ps = [p for p in re.split(r"(?<=］)", nm) if p]
     ps[-1] += f'（{x["rarity"]}）'
     nm_h = "".join(f'<span class="cp-nw">{e(p)}</span>' for p in ps)
-    return f'  <tr><th>{nm_h}<br><span class="rs-rar">{lap}周目{f"エリア{x['area']}" if x.get("area") else ""}</span></th><td class="rs-l">{t}</td></tr>'
+    return f'  <tr><th>{nm_h}<br><span class="rs-rar">{lap}周目{f"エリア{x['area']}" if x.get("area") else ""}{"ボス" if x.get("_boss") else ""}</span></th><td class="rs-l">{t}</td></tr>'
 
 
 def skill_table(lst):
