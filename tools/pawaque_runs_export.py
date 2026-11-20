@@ -28,7 +28,9 @@ for f in sorted(src.glob("*.json")):
              for x in r.get("drops") or [] if not x.get("memo")]   # memo＝スキルのメモだけ（集計しない）
     runs.append({"no": r["no"], "date": r.get("date"), "area": r["area"], "result": r.get("result"), "period": r.get("period"),
                  "areaNums": r.get("areaNums"), "boss": r.get("boss") or {},
-                 "prayers": r.get("prayers") or [], "drops": drops})
+                 "prayers": r.get("prayers") or [], "drops": drops,
+                 # 途中で諦めた周（result＝途中終了）は、最後に進んだエリアの番号を持つ
+                 **({"endArea": r["endArea"]} if r.get("endArea") else {})})
 runs.sort(key=lambda r: r["no"])
 assert runs, f"「{quest}」の周が見つからない（クエスト名は帯の表記どおりに）"
 D = {"取得日": day, "元": "パワクエ周回カウンター", "クエスト": quest,
