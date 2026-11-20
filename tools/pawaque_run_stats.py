@@ -46,8 +46,8 @@ def group(name):
 
 
 def vname(name):
-    # 契約書の名前：[バージョン] は全角の［］に
-    return name.replace("[", "［").replace("]", "］") + "の契約書"
+    # 契約書の名前：[バージョン] は半角の[]（2026-11-20 管理人「[]の方が見栄えがいい」）
+    return name.replace("［", "[").replace("］", "]") + "の契約書"
 
 
 def table(cnt, con, extra=(), cls="", named=None):
@@ -106,12 +106,12 @@ def icon_of(name):
 
 def good_tr(x, sk, lap):
     # 表の1行：アイテム（レア度）｜付いたスキルを1行ずつ（2026-11-19 管理人「アイテム1個に何のスキルか分かりやすく」）
-    nm = x["name"].replace("[", "［").replace("]", "］")
+    nm = x["name"].replace("［", "[").replace("］", "]")  # [バージョン]は半角（2026-11-20 管理人）
     # 優秀なスキル・コーチ人数+3/+4は青の太字
     t = "<br>".join(f'<span class="cp-nw{" em-blue" if k.split("（")[0] in GOOD + COACH else ""}">{e(k)}</span>' for k in sk)
     # ［バージョン］と名前は途中で折り返さない
     # 名前の横に（レア度）、次の行に「○周目エリア○」（2026-11-19 管理人）。周の少ない順
-    ps = [p for p in re.split(r"(?<=］)", nm) if p]
+    ps = [p for p in re.split(r"(?<=\])", nm) if p]
     ps[-1] += f'（{x["rarity"]}）'
     nm_h = "".join(f'<span class="cp-nw">{e(p)}</span>' for p in ps)
     ic = "" if is_item(x["name"]) else icon_of(x["name"])
@@ -202,7 +202,7 @@ def render(runs, note, hp=""):
                 '  <div class="bt-wrap"><table class="bt rs-t">', '  <thead><tr><th>アイテム</th><th>結果</th><th>付いたスキル</th></tr></thead><tbody>']
         for r, p in pr:
             res = '<span class="tx-b tx-bold">成功</span>' if p["result"] == "成功" else '<span class="tx-r tx-bold">失敗</span>'
-            out.append(f'  <tr><th>{e(p["name"].replace("[", "［").replace("]", "］"))}</th><td>{res}</td><td class="rs-l">{e("・".join(p.get("gained") or [])) or "-"}</td></tr>')
+            out.append(f'  <tr><th>{e(p["name"].replace("［", "[").replace("］", "]"))}</th><td>{res}</td><td class="rs-l">{e("・".join(p.get("gained") or [])) or "-"}</td></tr>')
         out.append('  </tbody></table></div>\n  </div>')
     return out
 

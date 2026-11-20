@@ -654,3 +654,6 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .rs-good .rs-ic{float:left;width:40px;height:40px;margin:2px 6px 0 0;border-radius:6px}.rs-good .rs-hasic .rs-nm{overflow:hidden}
 .rs-good .rs-ic{width:32px;height:32px;margin:2px 5px 0 0}.rs-good tbody th.rs-hasic{width:55%;font-size:13px}@media (max-width:400px){.rs-good tbody td.rs-l{font-size:12px}}
 @media (max-width:340px){.rs-good .rs-ic{width:24px;height:24px;margin-right:4px}.rs-good tbody th.rs-hasic{font-size:12px}.rs-good tbody td.rs-l{font-size:11.5px}.rs-good tbody td.rs-l .cp-nw{white-space:normal}}
+/* 周回記録スキル表：名前が切れないように（2026-11-20 管理人「名前切れちゃってる」）。列幅を固定し、[バージョン]と名前の間で折り返し、それでも入らない時だけ途中で折り返す */
+.rs-good{table-layout:fixed}.rs-good thead th:first-child{width:56%}.rs-good tbody th,.rs-good tbody th.rs-hasic{width:auto}
+.rs-good .rs-nm .cp-nw,.rs-good td.rs-l .cp-nw{display:inline-block;white-space:normal}.rs-good .rs-hasic .rs-nm{overflow:visible}
