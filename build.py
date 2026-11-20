@@ -363,8 +363,9 @@ def recent_html():
         else:
             img = f'<img class="news-icon" src="{{{{root}}}}{icon}" alt="" width="44" height="44" loading="lazy">' if icon else ""
         _up = sk_updated_of(path)
-        _up = f"・{ymd(_up)} 更新" if _up and pub and _up > pub else ""   # 子ページが更新されたら更新日も出す（2026-11-20 管理人）
-        li.append(f'<li{"" if icon else " class=rc-noimg"} data-until="{HOME_UNTIL[path]}"><a href="{{{{root}}}}{path}">{img}<span><small class="rc-meta">{ymd(pub)} 公開{_up}{"・" + _html.escape(label) if label else ""}</small><b>{_nice_break(name)}</b></span></a></li>')
+        # 子ページが更新されたら公開日の代わりに更新日を出す（更新された時は公開日を出さない。2026-11-20 管理人）
+        _when = f"{ymd(_up)} 更新" if _up and pub and _up > pub else f"{ymd(pub)} 公開"
+        li.append(f'<li{"" if icon else " class=rc-noimg"} data-until="{HOME_UNTIL[path]}"><a href="{{{{root}}}}{path}">{img}<span><small class="rc-meta">{_when}{"・" + _html.escape(label) if label else ""}</small><b>{_nice_break(name)}</b></span></a></li>')
     return "<!--recent-->" + '<ul class="news recent">' + "".join(li) + "</ul>" + _RECENT_JS + "<!--/recent-->"
 
 
