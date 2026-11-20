@@ -649,3 +649,5 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .rs-good{width:100%}.rs-good tbody th{width:45%;white-space:normal}.rs-good tbody td.rs-l{line-height:1.7}.rs-good .rs-rar{font-weight:400;font-size:12px}.rs-good tbody tr+tr th,.rs-good tbody tr+tr td{border-top:2px solid #9bb8d6}
 .rs-coach-box .rs-good{background:#fff}
 .prose .rs-good tbody th{color:var(--ink)}.prose .rs-good .rs-rar{color:#5b6676}
+.mz-route .pq-img{margin-top:4px}.mz-route p:last-child{margin-bottom:6px}
+.prose .mz-route p{margin:0 0 12px}.prose .mz-route .pq-img{margin:4px 0 12px}
