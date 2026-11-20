@@ -1,5 +1,5 @@
 {
- "取得日": "2026-11-19",
+ "取得日": "2026-11-20",
  "元": "パワクエ周回カウンター",
  "クエスト": "⑲道中3",
  "記録対象外": [
@@ -1582,6 +1582,190 @@
      "rarity": "銅",
      "skills": [],
      "slot": 9
+    }
+   ]
+  },
+  {
+   "no": 251,
+   "date": "2026-11-20",
+   "area": "3/3 ⑲道中3",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 2,
+    "2": 3,
+    "3": -1
+   },
+   "prayers": [
+    {
+     "after": [
+      "修練の術 特能",
+      "走力特訓人数+3",
+      "スタミナ特訓人数+1"
+     ],
+     "area": 0,
+     "before": [
+      "修練の術 特能",
+      "走力特訓人数+3"
+     ],
+     "gained": [
+      "スタミナ特訓人数+1"
+     ],
+     "lost": [],
+     "name": "特能ノ書",
+     "rarity": "銀",
+     "result": "成功"
+    }
+   ],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "空白ノ書",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "夏野向日葵",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": true,
+     "name": "特能ノ書",
+     "rarity": "銀",
+     "skills": [
+      "修練の術 特能",
+      "走力特訓人数+3",
+      "スタミナ特訓人数+1"
+     ],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "呼び寄せの香",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "武秀英",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "小平陽向",
+     "rarity": "金",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "須々木清吾",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "星井スバル",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 7
+    }
+   ]
+  },
+  {
+   "no": 252,
+   "date": "2026-11-20",
+   "area": "3/3 ⑲道中3",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 2,
+    "3": 4
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "特能ノ書",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": true,
+     "name": "金ノ書",
+     "rarity": "金",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "特能ノ書",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "パーちゃん",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "天道あかね",
+     "rarity": "金",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "[野球マン5号]小山雅",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "斬金半馬",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
     }
    ]
   }
