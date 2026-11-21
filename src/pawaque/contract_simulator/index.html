@@ -48,7 +48,7 @@ table{border-collapse:collapse;width:100%;font-size:14px}th,td{border-bottom:1px
 th:first-child,td:first-child{text-align:left}th{color:var(--sub);font-weight:700;font-size:12px}
 .big{font-family:var(--head);font-size:28px;font-weight:900}.tag-lim{color:#d92d20!important;font-weight:700}.tag-nopsr{color:#1f6feb!important;font-weight:700}:root[data-theme="dark"] .tag-lim{color:#ff6b61!important}:root[data-theme="dark"] .tag-nopsr{color:#6ea8ff!important}.tag-sub{color:#12a150!important;font-weight:700}:root[data-theme="dark"] .tag-sub{color:#4ade80!important}td.tot{font-weight:800;font-size:16px}th.tot{color:var(--fg)}.warn{color:var(--warn)}.ok{color:var(--ok)}
 .pill{display:inline-block;padding:1px 8px;border:1px solid var(--line);border-radius:4px;margin:2px;font-size:13px}
-.gold{border-color:#d4a017;color:#b8860b}.blue{border-color:#2f6fed}
+.gold{border-color:#d4a017;color:#b8860b}.pill.niji{border:2px solid transparent;background:linear-gradient(#fff,#fff) padding-box,linear-gradient(90deg,#e53935,#fb8c00,#fdd835,#43a047,#1e88e5,#8e24aa) border-box;color:#b8860b}.chui{color:#c62828;font-weight:bold;margin-left:2px}.blue{border-color:#2f6fed}
 .deck{font-size:13px}.deck td,.deck th{padding:4px 5px;white-space:nowrap}.deck td:nth-child(2){white-space:normal;min-width:11em}.deck .pill{white-space:nowrap}.deck b{color:var(--sub)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
 .suggest{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:6px}
@@ -221,6 +221,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--sub);font-weight:70
 <li>野手のスタメン：「安打製造機を取る」「アーチストを取る」のチェックを付けました。チェックした金特を必ず取ったうえで、査定が最大になるように計算します（西球記で虹特化させる場合に）。野手の西球記ボタンはありません。</li>
 <li>査定表の野手キャラ・投手キャラに「虹特」を足しました。中継ぎ・抑えは先発の1/2、ベンチは打撃・守備1/5・機動2/5です（実測で確認）。真・左キラーは今は0です（不具合の可能性）。</li>
 <li>理論値ランキングは今までどおり（虹特なし）です。</li>
+<li>西球記先発の特殊能力欄：虹特に進化する金特は「真・〇〇」と表示し、枠をレインボーにしました。見出しは「元の金特(虹特進化)」「伝授金特(虹特進化)」です。西球記中継ぎ・抑えでは、元から持っている金特で虹特に進化するものに赤字の「※注意」を付けました。</li>
 <li>シナリオで取れる金特に、ロマン開花学園の鉄腕・強心臓・内無双・みなぎる活力を足しました（今までは怪童だけ）。別のシナリオ（アンドロメダ学園）の金特とは、同じ育成選手では取れません。理論値ランキングの査定は変わりませんでした。</li>
 </ul></li>
 <li><b>2026-11-16</b>　理論値ランキングの守備位置別に「サブポジのキャラを外す」のチェックを付けました。査定表の金特に、下位の青特込みの査定合計の表を足しました。査定表の「投手キャラの野手特能」「野手キャラの投手特能」から、鉄人・精神的支柱など投手も野手も普通に取れる特能を外しました（計算には影響しません）。理論値ランキングの注意書きに、投手の適正がまだ反映されていないことを書きました。</li>
@@ -1462,11 +1463,14 @@ function skillsCard(ch, mode, isP, r) {
     let sum = SimEngine.skillElemVal(e, mk); const parts = [];
     o.forEach((x) => { const lv = val2(k, x); if (lv) { sum += lv; parts.push(`${x}${fmt(lv)}`); } });
     // 西球記の先発・スタメン：虹特になる金特は、虹特の査定も足す
-    if (SimEngine.opts.saikyu === "main" && e.v.種類 === "金特") { const nj = SimEngine.lookup(S.book, k, "真・" + n, S.pos); if (nj && nj.v.種類 === "虹特") { const nv = SimEngine.skillElemVal(nj, mk); sum += nv; parts.push(`真・${n}${fmt(nv)}`); } }
-    return { v: sum, note: parts.length ? `＝単独${fmt(SimEngine.skillElemVal(e, mk))}＋${parts.join("＋")}` : "" };
+    let niji = false;
+    if (SimEngine.opts.saikyu === "main" && e.v.種類 === "金特") { const nj = SimEngine.lookup(S.book, k, "真・" + n, S.pos); if (nj && nj.v.種類 === "虹特") { const nv = SimEngine.skillElemVal(nj, mk); sum += nv; parts.push(`真・${n}${fmt(nv)}`); niji = true; } }
+    // 虹特に進化するものは「真・〇〇」と表示するので、内訳の最初は元の金特の名前にする
+    return { v: sum, niji, note: parts.length ? `＝${niji ? n : "単独"}${fmt(SimEngine.skillElemVal(e, mk))}＋${parts.join("＋")}` : "" };
   };
   const val2 = (k, n) => { const e = SimEngine.lookup(S.book, k, n, S.pos); return e ? SimEngine.skillElemVal(e, mk) : 0; };
-  const pillF = (label, k, n, cls) => { const f = full(k, n); return f ? `<span class="pill ${cls}">${label}（${fmt(f.v)}）${f.note ? `<span class="note">${f.note}</span>` : ""}</span>` : `<span class="pill ${cls}">${label}（査定なし）</span>`; };
+  // 西球記先発：虹特に進化する金特は「真・〇〇」表記・レインボー枠（管理人 2026-11-22）
+  const pillF = (label, k, n, cls) => { const f = full(k, n); if (f && f.niji) { label = label.replace(n, "真・" + n); cls = "niji"; } return f ? `<span class="pill ${cls}">${label}（${fmt(f.v)}）${f.note ? `<span class="note">${f.note}</span>` : ""}</span>` : `<span class="pill ${cls}">${label}（査定なし）</span>`; };
   const pill = (label, v, cls) => `<span class="pill ${cls}">${label}${v === null ? "（査定なし）" : `（${fmt(v)}）`}</span>`;
   const sk = r.skills;
   // 伝授する特能
@@ -1487,19 +1491,23 @@ function skillsCard(ch, mode, isP, r) {
       const f = full(it.key, it.name), lbl = (mainSide ? "" : (isP ? "野手" : "投手") + "：") + it.name;
       ov.push(f ? `<span class="pill blue">${lbl}（${fmt(-f.v)}）${f.note ? `<span class="note">${f.note.replace("＝単独", "＝-単独").replace(/＋/g, " -")}</span>` : ""}</span>` : `<span class="pill blue">${lbl}（査定なし）</span>`);
     }
-    else if (kind === "金特") og.push(pillF(label, it.key, it.name, "gold"));
+    else if (kind === "金特") {
+      // 西球記中継ぎ・抑え：元から持つ金特が虹特に進化するものなら「※注意」（管理人 2026-11-22）
+      const nj = SimEngine.opts.saikyu === "sub" ? SimEngine.lookup(S.book, it.key, "真・" + it.name, S.pos) : null;
+      og.push(pillF(label, it.key, it.name, "gold") + (nj && nj.v.種類 === "虹特" ? '<span class="chui">※注意</span>' : ""));
+    }
     else if (kind === "青特") ob.push(pillF(label, it.key, it.name, "blue"));
     else ot.push(pill(label + (kind === "その他" ? "" : ""), v, ""));
   }
   const row = (title, arr) => `<div><b>${title}</b>：${arr.length ? arr.join("") : '<span class="note">なし</span>'}</div>`;
   return `<div class="card"><h2>特殊能力</h2>
-    ${row("元の金特", og)}
-    ${row("伝授金特", tGold.map((n) => pillF(n, key, n, "gold")))}
+    ${row(SimEngine.opts.saikyu === "main" ? "元の金特(虹特進化)" : "元の金特", og)}
+    ${row(SimEngine.opts.saikyu === "main" ? "伝授金特(虹特進化)" : "伝授金特", tGold.map((n) => pillF(n, key, n, "gold")))}
     ${row("元の青特", ob)}
     ${row("伝授青特", tBlue.map((n) => pillF(n, key, n, "blue")))}
     ${row("その他", ot)}
     ${row("上書きされる元の青特", ov)}
-    <p class="note">金特と◎の青特の査定値（）は、下位の特能を含んだ査定です。<br>${SimEngine.opts.saikyu === "main" ? "西球記：虹特になる金特（元の金特も含む）は、神前試合で虹特に進化させる前提で、虹特（真・〇〇）の査定も足しています。<br>" : SimEngine.opts.saikyu === "sub" ? "西球記：虹特になる金特は伝授していません。<br>" : ""}上書きされる青特は、伝授する金特の下位にあたるものや、両立不可で押しのけられるものです。</p></div>`;
+    <p class="note">金特と◎の青特の査定値（）は、下位の特能を含んだ査定です。<br>${SimEngine.opts.saikyu === "main" ? "西球記：虹特になる金特（元の金特も含む）は、神前試合で虹特に進化させる前提で「真・〇〇」と表示し、虹特の査定も足しています。<br>" : SimEngine.opts.saikyu === "sub" ? "西球記：虹特になる金特は伝授していません。元から持っている金特で虹特に進化するものには「※注意」を付けています。<br>" : ""}上書きされる青特は、伝授する金特の下位にあたるものや、両立不可で押しのけられるものです。</p></div>`;
 }
 function renderResult(ch, lv, mode, N, r) {
   if (r.error) return `<div class="card warn">${r.error}</div>`;
