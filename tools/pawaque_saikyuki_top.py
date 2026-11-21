@@ -130,7 +130,30 @@ def grid(cs):
     return [f'  <div class="{g}">'] + cs + fill + ['  </div>']
 
 
-out = ['  <section class="sk-nav" aria-label="西球記の関連ページ">',
+def recent_updates(n=3):
+    """子ページの「最近の更新」（2026-11-21 管理人「子ページの更新情報を、トップの最近の更新のような形で。タイトル・更新日、最大3件」）。
+    日付は各ページ先頭の sk_updated（カードの「※○/○更新!」と同じ値）。新しい順、同じ日はリンク欄の並び順。準備中（READY False）のページは出さない。"""
+    global CUR
+    CUR = None
+    items = []
+    for i, c in enumerate(nav_cards()):
+        href = re.search(r'href="\{\{root\}\}([^"]+)"', c).group(1)
+        d = UPD.get(href)
+        if not d or not href.startswith("pawaque/saikyuki/"):
+            continue
+        img = re.search(r'<img src="([^"]+)" alt="([^"]*)"', c)
+        label = re.sub(r"<[^>]+>", "", re.search(r'<span class="sk-l">(.*?)</span>(?=<span class="sk-(?:upd|s)")', c).group(1))
+        items.append((d, -i, href, img.group(1), label))
+    items.sort(reverse=True)
+    li = [f'<li><a href="{{{{root}}}}{h}"><img class="news-icon news-logo sk-rc-img" src="{im}" alt="" width="80" height="44" loading="lazy">'
+          f'<span><small class="rc-meta">{d.replace("-", "/")} 更新</small><b>{e(lb)}</b></span></a></li>'
+          for d, _, h, im, lb in items[:n]]
+    if not li:
+        return []
+    return ['  <h2 id="recent">最近の更新</h2>', '  <ul class="news recent sk-recent">', *["    " + x for x in li], '  </ul>', '']
+
+
+out = recent_updates() + ['  <section class="sk-nav" aria-label="西球記の関連ページ">',
        '  <p class="sk-nav-h">西球記の攻略ページ</p>',
       ] + grid(nav_cards()) + [UPD_JS,
        '  </section>', '',
