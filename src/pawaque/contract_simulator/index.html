@@ -221,6 +221,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--sub);font-weight:70
 <li>野手のスタメン：「安打製造機を取る」「アーチストを取る」のチェックを付けました。チェックした金特を必ず取ったうえで、査定が最大になるように計算します（西球記で虹特化させる場合に）。野手の西球記ボタンはありません。</li>
 <li>査定表の野手キャラ・投手キャラに「虹特」を足しました。中継ぎ・抑えは先発の1/2、ベンチは打撃・守備1/5・機動2/5です（実測で確認）。真・左キラーは今は0です（不具合の可能性）。</li>
 <li>理論値ランキングは今までどおり（虹特なし）です。</li>
+<li>シナリオで取れる金特に、ロマン開花学園の鉄腕・強心臓・内無双・みなぎる活力を足しました（今までは怪童だけ）。別のシナリオ（アンドロメダ学園）の金特とは、同じ育成選手では取れません。理論値ランキングの査定は変わりませんでした。</li>
 </ul></li>
 <li><b>2026-11-16</b>　理論値ランキングの守備位置別に「サブポジのキャラを外す」のチェックを付けました。査定表の金特に、下位の青特込みの査定合計の表を足しました。査定表の「投手キャラの野手特能」「野手キャラの投手特能」から、鉄人・精神的支柱など投手も野手も普通に取れる特能を外しました（計算には影響しません）。理論値ランキングの注意書きに、投手の適正がまだ反映されていないことを書きました。</li>
 <li><b>2026-11-06</b>　ゲームのアップデートで伝授できるようになった特殊能力の査定を追加しました（査定表・理論値ランキングに反映）。
@@ -310,7 +311,11 @@ const DATA = {"chars":[{"name":"[エアギター]志藤玲美","苗字":"志藤"
   const BAT_STATS = ["ミート", "パワー", "走力", "肩力", "守備力", "捕球"];
   const PIT_STATS = ["球速", "コントロール", "スタミナ"];
   const CAP_STATS = ["球速", "コントロール", "スタミナ", "ミート", "パワー", "走力", "肩力", "守備力", "捕球"];
-  const SCENARIO_GOLD = ["電光石火", "ローリング打法", "高速ベースラン", "左キラー", "ストライク送球", "帰巣本能", "トリックスター", "本塁打厳禁", "超尻上がり", "怪童"];
+  // シナリオで取れる金特（コーチの伝授なしで取れる）と、そのシナリオ。同じ育成選手は1つのシナリオの金特しか取れない
+  const SCENARIO_OF = {};
+  ["電光石火", "ローリング打法", "高速ベースラン", "左キラー", "ストライク送球", "帰巣本能", "トリックスター", "本塁打厳禁", "超尻上がり"].forEach((g) => (SCENARIO_OF[g] = "アンドロメダ学園"));
+  ["怪童", "鉄腕", "強心臓", "内無双", "みなぎる活力"].forEach((g) => (SCENARIO_OF[g] = "ロマン開花学園")); // 鉄腕・強心臓・内無双・みなぎる活力は 2026-11-21 管理人
+  const SCENARIO_GOLD = Object.keys(SCENARIO_OF);
   const PITCHER_BAT_BONUS = { 40: 1, 50: 2, 60: 2, 70: 5, 80: 10, 90: 10, 101: 20 };
 
   // ---------- 特殊能力の査定 ----------
@@ -481,7 +486,7 @@ const DATA = {"chars":[{"name":"[エアギター]志藤玲美","苗字":"志藤"
     return train;
   }
 
-  root.SimEngine = { opts: { pitch7: true, allStats50: false, subF: 1, jukuren: {}, saikyu: null }, JUKUREN, jukurenOf, POS_MAP, BAT_STATS, PIT_STATS, CAP_STATS, SCENARIO_GOLD, makeSkillBook, posMatch, lookup, closure, charSkills, skillValue, skillElemVal, levelStat, baseValue, trainFromDecks };
+  root.SimEngine = { opts: { pitch7: true, allStats50: false, subF: 1, jukuren: {}, saikyu: null }, JUKUREN, jukurenOf, POS_MAP, BAT_STATS, PIT_STATS, CAP_STATS, SCENARIO_GOLD, SCENARIO_OF, makeSkillBook, posMatch, lookup, closure, charSkills, skillValue, skillElemVal, levelStat, baseValue, trainFromDecks };
   if (typeof module !== "undefined") module.exports = root.SimEngine;
 })(typeof window !== "undefined" ? window : globalThis);
 </script>
@@ -490,8 +495,7 @@ const DATA = {"chars":[{"name":"[エアギター]志藤玲美","苗字":"志藤"
   const E = root.SimEngine || null;
   const POS_BLUE = { "ファースト": "一", "セカンド": "二", "サード": "三", "ショート": "遊", "アウトフィールダー": "外", "キャッチャー": "捕" };
   const ISOU = "威圧感";
-  const SCENARIO_OF = { 怪童: "ロマン開花学園" };
-  ["電光石火", "ローリング打法", "高速ベースラン", "左キラー", "ストライク送球", "帰巣本能", "トリックスター", "本塁打厳禁", "超尻上がり"].forEach((g) => (SCENARIO_OF[g] = "アンドロメダ学園"));
+  const SCENARIO_OF = E.SCENARIO_OF;
 
   function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
 
@@ -1140,8 +1144,8 @@ const DATA = {"chars":[{"name":"[エアギター]志藤玲美","苗字":"志藤"
       // 1人あたり 金特2・青特3（威圧感は青特枠）
       add(itemsU.map((it, i) => (it.type === "gold" ? [1, av(d, i)] : null)).filter(Boolean), "<=", 2);
       add(itemsU.map((it, i) => (it.type !== "gold" ? [1, av(d, i)] : null)).filter(Boolean), "<=", 3);
-      // シナリオ金特：1人の育成選手が別々のシナリオの金特は取れない（怪童＝ロマン開花学園、他＝アンドロメダ学園）
-      itemsU.forEach((a, i) => { if (a.scen && a.name === "怪童") itemsU.forEach((b, j) => { if (b.scen && b.name !== "怪童") add([[1, av(d, i)], [1, av(d, j)]], "<=", 1); }); });
+      // シナリオ金特：1人の育成選手が別々のシナリオの金特は取れない（ロマン開花学園／アンドロメダ学園。E.SCENARIO_OF）
+      itemsU.forEach((a, i) => { if (a.scen) itemsU.forEach((b, j) => { if (j > i && b.scen && E.SCENARIO_OF[a.name] !== E.SCENARIO_OF[b.name]) add([[1, av(d, i)], [1, av(d, j)]], "<=", 1); }); });
       // 提供者：メインにいて、同じキャラの1つのパターンだけ使える
       const usedPat = {};
       itemsU.forEach((it, i) => {
