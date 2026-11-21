@@ -85,8 +85,10 @@ body{width:1920px;height:1080px;overflow:hidden;background:#eaeeea;font-family:'
 .cover h1{font-size:120px;font-weight:900;line-height:1.3}.cover h1 small{display:block;font-size:64px;color:#2e7d32}
 .cover p{font-size:52px;font-weight:800;margin-top:50px;line-height:1.6}
 .body td br{display:none}.body tbody td:first-child,.body table:has(thead th:nth-child(3)) tbody td:nth-child(2){white-space:nowrap}.body td .nj-d{margin-left:.5em}
-.shots .body{display:grid;grid-template-columns:1fr 1fr;grid-template-areas:"c1 c2" "i1 i2" "c3 i2" "i3 i2" "x i2";grid-template-rows:auto auto auto auto 1fr;column-gap:50px;font-size:40px}
+.shots .body{display:grid;grid-template-columns:1fr 1fr;grid-template-areas:"c1 c2" "i1 i2" "c3 i2" "i3 i2" "z z";grid-template-rows:auto auto auto auto 1fr;column-gap:50px;font-size:40px}
 .shots .body>:nth-child(1){grid-area:c1}.shots .body>:nth-child(2){grid-area:i1}.shots .body>:nth-child(3){grid-area:c2}.shots .body>:nth-child(4){grid-area:i2}.shots .body>:nth-child(5){grid-area:c3}.shots .body>:nth-child(6){grid-area:i3}
+.shots .res{grid-area:z;align-self:center;justify-self:center;margin-top:20px;padding:18px 50px;border:6px solid #1a5fd0;border-radius:12px;text-align:center;font-size:50px;font-weight:900;line-height:1.4}
+.shots .res small{display:block;font-size:36px;color:#33415c}
 .shots .body img{width:100%;height:auto;display:block;border:2px solid #d5dbe3}
 """
 FIT_JS = """<script>window.fit=()=>{const t=document.querySelector('.title');let s=76;while(t.scrollWidth>t.clientWidth&&s>40){s-=2;t.style.fontSize=s+'px'}
@@ -108,7 +110,9 @@ pages = [("表紙", page("cover", f'<div class="panel"><h1><small>パワクエ �
 for head, idx, cls in SLIDES:
     if cls == "shots":
         imgs = [blocks[i] for i in idx]
-        inner = "".join(imgs)
+        # 4枚目の内容（ページの文：投手力13785→14265、査定+480）を画面の下に短く出す
+        assert "13785から14265" in text(how + 9) and "+480" in text(how + 9)
+        inner = "".join(imgs) + '<div class="res"><small>投手力 13785 → 14265（ほかの3つは変化なし）</small><span class="em-blue">真・精密機械（先発）の査定は+480</span></div>'
         pages.append((head, page("shots", f'<div class="panel"><h2>{head}</h2><div class="body">{inner}</div></div>')))
         continue
     cap = f'<p class="pq-cap">{CAPS[cls]}</p>' if cls in CAPS else ""
