@@ -85,3 +85,11 @@ ranking.json に無いTier表（過去の月のランキングの画像など）
 - 推奨Lv：基礎合計とコツボナが両方PSR50の値に届く一番低いLv。SRで届けば数字、SRでは届かずPSRで届けば「PSR40」のように書く
 
 `python3 youtube-slides/table_slides.py youtube-slides/tiers/next_batter.json /mnt/project-files/youtube-slides/next_batter_table` → `01_SS.png …` と order.txt
+
+---
+
+# 西球記「虹特の査定まとめ」解説スライド
+
+ページ（src/pages/pawaque-saikyuki-niji.html）の文章・表・色をそのまま使って、1見出し（または表）ごとに1枚にする（22枚）。
+`python3 youtube-slides/niji_slides.py /mnt/project-files/youtube-slides` → `niji/niji_01.png …` と order.txt。
+ページを直したら流し直せばスライドも同じになる。どのブロックを何枚目にするかは SLIDES の表で決める。
