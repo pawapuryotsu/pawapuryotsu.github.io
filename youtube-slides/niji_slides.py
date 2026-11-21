@@ -10,6 +10,7 @@ HERE = Path(__file__).resolve().parent
 SITE = HERE.parent
 DEST = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / "out"
 src = (SITE / "src/pages/pawaque-saikyuki-niji.html").read_text(encoding="utf-8")
+src = src.replace("<wbr>", "")  # 動画では折り返さない（Chromiumは nowrap でも wbr で折り返す）
 src = src.replace("{{root}}", (SITE / "docs").as_uri() + "/")
 lead = re.search(r'<section class="phead">.*?<p>(.*?)</p></section>', src, re.S).group(1)
 body = src.split("</nav>", 1)[1].split("<!-- SKNAV:START -->")[0]
@@ -75,7 +76,7 @@ body{width:1920px;height:1080px;overflow:hidden;background:#eaeeea;font-family:'
 .cp-nw{white-space:nowrap}
 .body table{width:100%;border-collapse:collapse;margin:.2em 0 .5em}
 .body th,.body td{border:2px solid #d5dbe3;padding:.18em .45em;text-align:center;vertical-align:middle;line-height:1.3}
-.body thead th{background:#24324a;color:#fff;font-size:.8em}
+.body thead th{background:#24324a;color:#fff;font-size:.8em;white-space:nowrap}
 .body tbody th{text-align:left;background:#f3f6f9;white-space:nowrap}
 .body td.nj-op{text-align:left;font-weight:700}
 .nj-d{font-size:.65em;color:#555;font-weight:700}
@@ -83,7 +84,7 @@ body{width:1920px;height:1080px;overflow:hidden;background:#eaeeea;font-family:'
 .cover .panel{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
 .cover h1{font-size:120px;font-weight:900;line-height:1.3}.cover h1 small{display:block;font-size:64px;color:#2e7d32}
 .cover p{font-size:52px;font-weight:800;margin-top:50px;line-height:1.6}
-.body td br{display:none}.body tbody td:first-child,.body tbody td:nth-child(2){white-space:nowrap}.body td .nj-d{margin-left:.5em}
+.body td br{display:none}.body tbody td:first-child,.body table:has(thead th:nth-child(3)) tbody td:nth-child(2){white-space:nowrap}.body td .nj-d{margin-left:.5em}
 .shots .body{display:grid;grid-template-columns:1fr 1fr;grid-template-areas:"c1 c2" "i1 i2" "c3 i2" "i3 i2" "x i2";grid-template-rows:auto auto auto auto 1fr;column-gap:50px;font-size:40px}
 .shots .body>:nth-child(1){grid-area:c1}.shots .body>:nth-child(2){grid-area:i1}.shots .body>:nth-child(3){grid-area:c2}.shots .body>:nth-child(4){grid-area:i2}.shots .body>:nth-child(5){grid-area:c3}.shots .body>:nth-child(6){grid-area:i3}
 .shots .body img{width:100%;height:auto;display:block;border:2px solid #d5dbe3}
