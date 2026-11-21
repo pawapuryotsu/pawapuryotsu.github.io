@@ -144,7 +144,7 @@ main{max-width:860px;padding:8px max(16px,env(safe-area-inset-right,0px)) 48px m
 <div class="phead"><p class="eyebrow">パワクエ</p>
 <h1><span class="mk"><i>パワクエ</i> <i>契約書シミュレータ</i></span></h1>
 <p class="note">りょーつーが調べた査定表（2026-11-01）と、イベキャラのデータから計算します。計算結果は目安で、実際のチームランクと数点ずれることがあります。</p>
-<p style="margin:10px 0 6px;padding:10px 12px;border:2px solid var(--marker);background:#fff8db;border-radius:6px;color:var(--fg);font-size:14px;font-weight:700;line-height:1.6"><span style="display:inline-block">※西球記で追加された虹特には</span><span style="display:inline-block">まだ対応していません。</span><span style="display:inline-block">調査終わり次第</span><span style="display:inline-block">シミュレータに追加いたします。</span></p></div>
+</div>
 <div class="tabs row"><button id="tb1" class="on">1人を調べる</button><button id="tb5">契約書を比べる</button><button id="tb4">理論値ランキング</button><button id="tb6">実装済み契約書</button><button id="tb9">調査中の契約書</button><button id="tb7">査定表</button><button id="tb3">前提・注意</button><button id="tb8">更新情報</button></div>
 
 <details id="exWrap" class="card"><summary><b>持っていないイベキャラを除外</b><span style="white-space:nowrap">（<span id="exCount">0</span>人）</span></summary>
@@ -165,7 +165,7 @@ main{max-width:860px;padding:8px max(16px,env(safe-area-inset-right,0px)) 48px m
   <div class="fld" id="jkrow" hidden><label>熟練スキル</label><select id="jk" style="width:100%;max-width:100%;box-sizing:border-box"></select><div class="note">コーチなしで付く特訓値です。コーチ分と合わせて+50（球速は190）が上限なので、理論値は変わりません。</div></div>
   <div class="fld"><label>起用</label><span id="modeSel" class="tabs"></span></div>
   <p class="note" id="sknote" hidden></p>
-  <div class="fld" id="forcerow" hidden><label>西球記：虹特化させる金特</label><label><input type="checkbox" id="fAnda"> 安打製造機を取る</label> <label><input type="checkbox" id="fArch"> アーチストを取る</label><div class="note">チェックした金特を必ず取ったうえで、査定が最大になるように計算します（西球記の神前試合で虹特化させる場合に）。</div></div>
+  <div class="fld" id="forcerow" hidden><label>西球記：虹特化させる金特</label><label><input type="checkbox" id="fAnda"> 安打製造機を取る</label> <label><input type="checkbox" id="fArch"> アーチストを取る</label><div class="note">チェックした金特を必ず取ったうえで、査定が最大になるように計算します（西球記の神前試合で虹特化させる場合に）。</div><div class="note" id="fwarn" style="color:#c62828;font-weight:bold"></div></div>
   <div class="row" id="posrow" hidden><label>守備位置</label><span id="posSel" class="tabs"></span></div>
   <div class="row note" id="posnote" hidden></div>
   <div class="row" id="polrow" hidden><label>投手の育成方針</label><span id="pol" class="tabs"></span></div>
@@ -195,7 +195,7 @@ main{max-width:860px;padding:8px max(16px,env(safe-area-inset-right,0px)) 48px m
   <div class="grid" id="cmpWrap"></div>
   <div class="row"><button id="cadd">＋ 比べる人を追加</button><span class="note">（最大6人）</span></div>
   <div class="row"><label>比べるポジション</label><select id="cpos"></select></div>
-  <div class="fld" id="cforcerow" hidden><label>西球記：虹特化させる金特</label><label><input type="checkbox" id="cfAnda"> 安打製造機を取る</label> <label><input type="checkbox" id="cfArch"> アーチストを取る</label><div class="note">チェックした金特を必ず取ったうえで、査定が最大になるように計算します（スタメンのみ）。</div></div>
+  <div class="fld" id="cforcerow" hidden><label>西球記：虹特化させる金特</label><label><input type="checkbox" id="cfAnda"> 安打製造機を取る</label> <label><input type="checkbox" id="cfArch"> アーチストを取る</label><div class="note">チェックした金特を必ず取ったうえで、査定が最大になるように計算します（スタメンのみ）。</div><div class="note" id="cfwarn" style="color:#c62828;font-weight:bold"></div></div>
   <div class="row" id="cpolrow" hidden><label>投手の育成方針</label><span id="cpol" class="tabs"></span></div>
   <div class="row"><label><input type="checkbox" id="cp7" checked> 投手：覚えている変化球をすべて7にする</label></div>
   <div class="row"><label><input type="checkbox" id="cneedExp" checked> サポートに「獲得経験点上限」持ちを必ず入れる</label></div>
@@ -1293,7 +1293,13 @@ const DATA = {"chars":[{"name":"[エアギター]志藤玲美","苗字":"志藤"
     const forceNote = [];
     for (const g of opts.force || []) {
       const i = itemsU.findIndex((it) => it.type === "gold" && it.name === g);
-      if (i >= 0) { add(Array.from({ length: N }, (_, d) => [1, av(d, i)]), ">=", 1); continue; }
+      if (i >= 0) {
+        add(Array.from({ length: N }, (_, d) => [1, av(d, i)]), ">=", 1);
+        // 下位の青特を元から持っているときは警告（管理人 2026-11-21）
+        const e = E.lookup(S.book, key, g, S.pos), lw = e && e.v.下位 ? e.v.下位.replace(/（.*?）$/, "") : null;
+        if (lw && S.own.has(key + "|" + lw)) forceNote.push(`※元から${lw}を持っています（${g}の上乗せは単独の査定だけになります）`);
+        continue;
+      }
       const owned = [...S.own].some((e) => e === key + "|" + g);
       forceNote.push(owned ? `${g}：元から持っています` : `${g}：伝授できる契約書がないため取れません`);
     }
@@ -1466,6 +1472,7 @@ function refreshMode() {
   btnGroup($("modeSel"), isP ? [["smain", "西球記先発"], ["ssub", "西球記中継ぎ・抑え"], ["main", "その他先発"], ["sub", "その他中継ぎ・抑え"]] : [["main", "スタメン"], ["sub", "ベンチ"]], "rk", () => { setRk(); refreshPos(); }, state);
   setRk();
   refreshPos();
+  if (typeof refreshFwarn === "function") refreshFwarn();
 }
 function setRk() { state.mode = state.rk.endsWith("main") ? "main" : "sub"; const isPk = state.cIdx !== null && CH[state.cIdx].ポジション === "投"; state.sk = isPk && (state.rk === "smain" || state.rk === "ssub") ? state.mode : null; $("forcerow").hidden = !(state.cIdx !== null && !isPk && state.mode === "main"); $("sknote").hidden = !state.sk; $("sknote").textContent = !state.sk ? "" : state.sk === "main" ? "西球記：虹特になる金特は、神前試合で虹特に進化させる前提で、虹特の査定も足して数えます（伝授できるものは優先して入ります）。" : "西球記：虹特になる金特は伝授しません（神前試合で先発の虹特の邪魔にならないように）。"; }
 // サブポジ：野手のスタメンのときだけ、サブポジを守備位置に選べる。◎はメインと同じ査定、〇・△・×は守備力の査定が 0.9・0.8・0.7 倍
@@ -1663,6 +1670,27 @@ onmessage = async (e) => {
   return { solve, init };
 })();
 // 厳密に計算して、使えない環境では簡易探索に切り替える
+// 安打製造機・アーチストの下位（アベレージヒッター・パワーヒッター）を元から持っていたら警告
+const FORCE_LOW = { 安打製造機: "アベレージヒッター", アーチスト: "パワーヒッター" };
+function forceWarn(chs, pre) {
+  const out = [];
+  for (const ch of chs) for (const g of forceList(pre, true)) {
+    const own = ch.特能.野手 || [];
+    if (own.includes(g)) out.push(`※${chs.length > 1 ? ch.name + "：" : ""}元から${g}を持っています`);
+    else if (own.includes(FORCE_LOW[g])) out.push(`※${chs.length > 1 ? ch.name + "：" : ""}元から${FORCE_LOW[g]}を持っています（${g}の上乗せは単独の査定だけになります）`);
+  }
+  return out.join("<br>");
+}
+function refreshFwarn() {
+  const ch = state.cIdx !== null ? CH[state.cIdx] : null;
+  $("fwarn").innerHTML = ch && ch.ポジション !== "投" ? forceWarn([ch], "f") : "";
+}
+function refreshCfwarn() {
+  const cc = slots.filter((x) => x.cIdx !== null).map((x) => CH[x.cIdx]).filter((c) => c.ポジション !== "投");
+  $("cfwarn").innerHTML = forceWarn(cc, "cf");
+}
+["fAnda", "fArch"].forEach((id) => $(id).addEventListener("change", refreshFwarn));
+["cfAnda", "cfArch"].forEach((id) => $(id).addEventListener("change", refreshCfwarn));
 function forceList(pre, on) { return !on ? [] : [["Anda", "安打製造機"], ["Arch", "アーチスト"]].filter(([id]) => $(pre + id).checked).map((x) => x[1]); }
 async function runOptimize(ch, lv, mode, N, opts) {
   const oldJk = SimEngine.opts.jukuren; SimEngine.opts.jukuren = SimEngine.jukurenOf(opts.jukuren);
@@ -1804,6 +1832,7 @@ function refreshCpos() {
   if (o.some((x) => x[0] === old)) $("cpos").value = old;
   $("cpolrow").hidden = !isP;
   $("cforcerow").hidden = isP !== false || $("cpos").value === "bench";
+  refreshCfwarn();
 }
 refreshCpos();
 $("cpos").addEventListener("change", () => { $("cforcerow").hidden = cIsP() !== false || $("cpos").value === "bench"; });
