@@ -213,8 +213,9 @@ th:first-child,td:first-child{text-align:left}th{color:var(--sub);font-weight:70
 <li><b>2026-11-21</b>　西球記の虹特（真・〇〇）17種類に対応しました（管理人の実測）。
 <ul>
 <li>「1人を調べる」「契約書を比べる」の起用に、西球記先発・西球記中継ぎ・抑え（野手は西球記スタメン・西球記ベンチ）を足しました。今までの計算は「その他」です。</li>
-<li>西球記先発・西球記スタメン：虹特になる金特は、神前試合で虹特に進化させる前提で、虹特の査定も足して数えます（伝授できるものは優先して入ります）。</li>
-<li>西球記中継ぎ・抑え・西球記ベンチ：虹特になる金特は伝授しません（先発・スタメンの虹特の進化の邪魔にならないように）。</li>
+<li>西球記先発：虹特になる金特は、神前試合で虹特に進化させる前提で、虹特の査定も足して数えます（伝授できるものは優先して入ります）。</li>
+<li>西球記中継ぎ・抑え：虹特になる金特は伝授しません（先発の虹特の進化の邪魔にならないように）。</li>
+<li>西球記スタメン・西球記ベンチ：投手の虹特を優先するため、野手は虹特になる金特を特別扱いせずに計算します（その他と同じ計算）。</li>
 <li>査定表の野手キャラ・投手キャラに「虹特」を足しました。中継ぎ・抑えは先発の1/2、ベンチは打撃・守備1/5・機動2/5です（実測で確認）。真・左キラーは今は0です（不具合の可能性）。</li>
 <li>理論値ランキングは今までどおり（虹特なし）です。</li>
 </ul></li>
@@ -1365,7 +1366,7 @@ function refreshMode() {
   setRk();
   refreshPos();
 }
-function setRk() { state.mode = state.rk.endsWith("main") ? "main" : "sub"; state.sk = state.rk.startsWith("s") ? state.mode : null; $("sknote").hidden = !state.sk; $("sknote").textContent = !state.sk ? "" : state.sk === "main" ? "西球記：虹特になる金特は、神前試合で虹特に進化させる前提で、虹特の査定も足して数えます（伝授できるものは優先して入ります）。" : "西球記：虹特になる金特は伝授しません（神前試合で先発・スタメンの虹特の邪魔にならないように）。"; }
+function setRk() { state.mode = state.rk.endsWith("main") ? "main" : "sub"; const isPk = state.cIdx !== null && CH[state.cIdx].ポジション === "投"; state.sk = state.rk.startsWith("s") ? (isPk ? state.mode : "none") : null; $("sknote").hidden = !state.sk; $("sknote").textContent = !state.sk ? "" : state.sk === "none" ? "西球記：野手は、投手の虹特を優先するため、虹特になる金特を特別扱いせずに計算します（その他と同じ計算）。" : state.sk === "main" ? "西球記：虹特になる金特は、神前試合で虹特に進化させる前提で、虹特の査定も足して数えます（伝授できるものは優先して入ります）。" : "西球記：虹特になる金特は伝授しません（神前試合で先発・スタメンの虹特の邪魔にならないように）。"; }
 // サブポジ：野手のスタメンのときだけ、サブポジを守備位置に選べる。◎はメインと同じ査定、〇・△・×は守備力の査定が 0.9・0.8・0.7 倍
 const SUBF = { "〇": 0.9, "△": 0.8, "×": 0.7 };
 function refreshPos() {
@@ -1728,7 +1729,7 @@ $("crun").onclick = async () => {
     for (let i = 0; i < jobs.length; i++) {
       const j = jobs[i];
       $("cstatus").textContent = `厳密に計算中 ${i + 1}/${jobs.length}（${Math.round((performance.now() - t0) / 1000)}秒）`;
-      SimEngine.opts.subF = j.f; SimEngine.opts.saikyu = skMode ? j.mode : null;
+      SimEngine.opts.subF = j.f; SimEngine.opts.saikyu = skMode ? (pT[0] ? j.mode : "none") : null;
       const r = await runOptimize(j.ch, j.lv, j.mode, j.s.N, { needExp: $("cneedExp").checked, pitchPolicy: cs.pol, exclude: [...exclude], jukuren: j.s.jk });
       if (r.error) { $("cstatus").textContent = `${j.s.P}：${r.error}`; return; }
       res.push({ ...j, r, html: renderResult(j.ch, j.lv, j.mode, j.s.N, r) });
