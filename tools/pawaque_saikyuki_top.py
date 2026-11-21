@@ -105,6 +105,8 @@ def nav_cards():
             'むちゃクエ<span class="cp-nw">攻略＆周回</span>', 'エリアごとの<wbr><span class="cp-nw">ルートと仙術</span>'),
        card("pawaque/saikyuki/shinzen/", "saikyuki_link_shinzen.jpg", "神前試合の画面", 660, 334,
             '神前試合<span class="cp-nw">まとめ</span>', f"{len(S)}校の進化対象・<wbr>スカウト候補"),
+       card("pawaque/saikyuki/niji/", "saikyuki_link_niji.jpg", "真・安打製造機に進化した画面", 702, 148,
+            '虹特の<span class="cp-nw">査定まとめ</span>', "17種類の査定と<wbr>進化できる対戦相手"),
        card("pawaque/saikyuki/contract/", "saikyuki_link_contract.jpg", "［求道者］才賀 侑人の契約書", 320, 125,
             'ドロップ<span class="cp-nw">契約書まとめ</span>', "", READY["contract"]),
        card("pawaque/mission/", "saikyuki_link_mission.jpg", "ミッションの画面", 232, 161,
