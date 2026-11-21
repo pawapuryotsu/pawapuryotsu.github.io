@@ -165,6 +165,7 @@ main{max-width:860px;padding:8px max(16px,env(safe-area-inset-right,0px)) 48px m
   <div class="fld" id="jkrow" hidden><label>熟練スキル</label><select id="jk" style="width:100%;max-width:100%;box-sizing:border-box"></select><div class="note">コーチなしで付く特訓値です。コーチ分と合わせて+50（球速は190）が上限なので、理論値は変わりません。</div></div>
   <div class="fld"><label>起用</label><span id="modeSel" class="tabs"></span></div>
   <p class="note" id="sknote" hidden></p>
+  <div class="fld" id="forcerow" hidden><label>西球記：虹特化させる金特</label><label><input type="checkbox" id="fAnda"> 安打製造機を取る</label> <label><input type="checkbox" id="fArch"> アーチストを取る</label><div class="note">チェックした金特を必ず取ったうえで、査定が最大になるように計算します（西球記の神前試合で虹特化させる場合に）。</div></div>
   <div class="row" id="posrow" hidden><label>守備位置</label><span id="posSel" class="tabs"></span></div>
   <div class="row note" id="posnote" hidden></div>
   <div class="row" id="polrow" hidden><label>投手の育成方針</label><span id="pol" class="tabs"></span></div>
@@ -194,6 +195,7 @@ main{max-width:860px;padding:8px max(16px,env(safe-area-inset-right,0px)) 48px m
   <div class="grid" id="cmpWrap"></div>
   <div class="row"><button id="cadd">＋ 比べる人を追加</button><span class="note">（最大6人）</span></div>
   <div class="row"><label>比べるポジション</label><select id="cpos"></select></div>
+  <div class="fld" id="cforcerow" hidden><label>西球記：虹特化させる金特</label><label><input type="checkbox" id="cfAnda"> 安打製造機を取る</label> <label><input type="checkbox" id="cfArch"> アーチストを取る</label><div class="note">チェックした金特を必ず取ったうえで、査定が最大になるように計算します（スタメンのみ）。</div></div>
   <div class="row" id="cpolrow" hidden><label>投手の育成方針</label><span id="cpol" class="tabs"></span></div>
   <div class="row"><label><input type="checkbox" id="cp7" checked> 投手：覚えている変化球をすべて7にする</label></div>
   <div class="row"><label><input type="checkbox" id="cneedExp" checked> サポートに「獲得経験点上限」持ちを必ず入れる</label></div>
@@ -289,10 +291,10 @@ main{max-width:860px;padding:8px max(16px,env(safe-area-inset-right,0px)) 48px m
 <ul>
 <li><b>2026-11-21</b>　西球記の虹特（真・〇〇）17種類に対応しました（管理人の実測）。
 <ul>
-<li>「1人を調べる」「契約書を比べる」の起用に、西球記先発・西球記中継ぎ・抑え（野手は西球記スタメン・西球記ベンチ）を足しました。今までの計算は「その他」です。</li>
+<li>「1人を調べる」「契約書を比べる」の起用に、西球記先発・西球記中継ぎ・抑え（投手のみ）を足しました。今までの計算は「その他」です。</li>
 <li>西球記先発：虹特になる金特は、神前試合で虹特に進化させる前提で、虹特の査定も足して数えます（伝授できるものは優先して入ります）。</li>
 <li>西球記中継ぎ・抑え：虹特になる金特は伝授しません（先発の虹特の進化の邪魔にならないように）。</li>
-<li>西球記スタメン・西球記ベンチ：投手の虹特を優先するため、野手は虹特になる金特を特別扱いせずに計算します（その他と同じ計算）。</li>
+<li>野手のスタメン：「安打製造機を取る」「アーチストを取る」のチェックを付けました。チェックした金特を必ず取ったうえで、査定が最大になるように計算します（西球記で虹特化させる場合に）。野手の西球記ボタンはありません。</li>
 <li>査定表の野手キャラ・投手キャラに「虹特」を足しました。中継ぎ・抑えは先発の1/2、ベンチは打撃・守備1/5・機動2/5です（実測で確認）。真・左キラーは今は0です（不具合の可能性）。</li>
 <li>理論値ランキングは今までどおり（虹特なし）です。</li>
 </ul></li>
@@ -1287,6 +1289,14 @@ const DATA = {"chars":[{"name":"[エアギター]志藤玲美","苗字":"志藤"
       add(terms, "<=", (E.opts.jukuren || {})[k] || 0); // 熟練の○○の分は、コーチなしで付く
     });
 
+    // 必ず取る金特（西球記の野手スタメン：虹特化させる可能性がある金特。管理人 2026-11-21）。取れないときは理由を返す
+    const forceNote = [];
+    for (const g of opts.force || []) {
+      const i = itemsU.findIndex((it) => it.type === "gold" && it.name === g);
+      if (i >= 0) { add(Array.from({ length: N }, (_, d) => [1, av(d, i)]), ">=", 1); continue; }
+      const owned = [...S.own].some((e) => e === key + "|" + g);
+      forceNote.push(owned ? `${g}：元から持っています` : `${g}：伝授できる契約書がないため取れません`);
+    }
     const skillTerms = elems.map((e, k) => [elemVal[e], `y_${k}`]);
     EXCL.forEach((_, p) => { const L = (lossFam[p + "_0"] || 0) + (lossFam[p + "_1"] || 0); if (L) skillTerms.push([-L, `h_${p}`]); });
     const trainTerms = [];
@@ -1373,6 +1383,7 @@ const DATA = {"chars":[{"name":"[エアギター]志藤玲美","苗字":"志藤"
     for (const s of sets) { if (lowerOf.has(s)) continue; const [k, n] = s.split("|"); if (k !== key && n !== "精神的支柱" && n !== "カリスマ" && n !== "ムード○" && n !== "鉄人" && !n.startsWith("ケガしにくさ")) continue; const e = E.lookup(S.book, k, n, S.pos); if (!e) continue; if (e.v.種類 === "金特") nG++; else if (e.v.種類 === "青特") nB++; }
     const fin = O.trainingScore(data, ch, lv, mode, decks.map((x) => x.main.concat(x.sup)));
     const res = O.finalize(data, ch, lv, mode, { decks, per, fin, scenPer }, sk);
+    res.force = opts.force || []; res.forceNote = forceNote;
     res.turns = { gold: nG, blue: nB, turns: Math.ceil(nG / 6) + Math.ceil(nB / 6) };
     res.exact = { status: [r1.status, r2.status, r3 && r3.status].join("/"), skillModel: skillBest };
     return res;
@@ -1451,11 +1462,12 @@ function refreshMode() {
   const isP = state.cIdx !== null && CH[state.cIdx].ポジション === "投";
   $("polrow").hidden = !isP;
   // 起用：西球記（虹特あり）とその他。西球記の先発・スタメンは虹特になる金特を虹特の査定込みで数えて優先、西球記の中継ぎ・抑え・ベンチは虹特になる金特を伝授しない
-  btnGroup($("modeSel"), isP ? [["smain", "西球記先発"], ["ssub", "西球記中継ぎ・抑え"], ["main", "その他先発"], ["sub", "その他中継ぎ・抑え"]] : [["smain", "西球記スタメン"], ["ssub", "西球記ベンチ"], ["main", "その他スタメン"], ["sub", "その他ベンチ"]], "rk", () => { setRk(); refreshPos(); }, state);
+  if (!isP && (state.rk === "smain" || state.rk === "ssub")) state.rk = state.rk.slice(1);
+  btnGroup($("modeSel"), isP ? [["smain", "西球記先発"], ["ssub", "西球記中継ぎ・抑え"], ["main", "その他先発"], ["sub", "その他中継ぎ・抑え"]] : [["main", "スタメン"], ["sub", "ベンチ"]], "rk", () => { setRk(); refreshPos(); }, state);
   setRk();
   refreshPos();
 }
-function setRk() { state.mode = state.rk.endsWith("main") ? "main" : "sub"; const isPk = state.cIdx !== null && CH[state.cIdx].ポジション === "投"; state.sk = state.rk.startsWith("s") ? (isPk ? state.mode : "none") : null; $("sknote").hidden = !state.sk; $("sknote").textContent = !state.sk ? "" : state.sk === "none" ? "西球記：野手は、投手の虹特を優先するため、虹特になる金特を特別扱いせずに計算します（その他と同じ計算）。" : state.sk === "main" ? "西球記：虹特になる金特は、神前試合で虹特に進化させる前提で、虹特の査定も足して数えます（伝授できるものは優先して入ります）。" : "西球記：虹特になる金特は伝授しません（神前試合で先発・スタメンの虹特の邪魔にならないように）。"; }
+function setRk() { state.mode = state.rk.endsWith("main") ? "main" : "sub"; const isPk = state.cIdx !== null && CH[state.cIdx].ポジション === "投"; state.sk = isPk && (state.rk === "smain" || state.rk === "ssub") ? state.mode : null; $("forcerow").hidden = !(state.cIdx !== null && !isPk && state.mode === "main"); $("sknote").hidden = !state.sk; $("sknote").textContent = !state.sk ? "" : state.sk === "main" ? "西球記：虹特になる金特は、神前試合で虹特に進化させる前提で、虹特の査定も足して数えます（伝授できるものは優先して入ります）。" : "西球記：虹特になる金特は伝授しません（神前試合で先発の虹特の邪魔にならないように）。"; }
 // サブポジ：野手のスタメンのときだけ、サブポジを守備位置に選べる。◎はメインと同じ査定、〇・△・×は守備力の査定が 0.9・0.8・0.7 倍
 const SUBF = { "〇": 0.9, "△": 0.8, "×": 0.7 };
 function refreshPos() {
@@ -1598,7 +1610,7 @@ function renderResult(ch, lv, mode, N, r) {
   }).join("");
   const capRow = `<div class="card"><h2>特訓値（全デッキの合計${r.jukuren ? "＋熟練" : ""}、各+50まで）</h2><div style="overflow-x:auto"><table><tr><th></th>${head}</tr><tr><td style="text-align:left">合計</td>${CAPS.map((s) => `<td>${tot[s]}</td>`).join("")}</tr>${r.jukuren ? `<tr><td style="text-align:left">${r.jukuren}</td>${CAPS.map((s) => `<td>${SimEngine.jukurenOf(r.jukuren)[s] ? "+" + SimEngine.jukurenOf(r.jukuren)[s] : ""}</td>`).join("")}</tr>` : ""}<tr><td style="text-align:left">特訓値</td>${CAPS.map((s) => `<td><b>${r.train[s] || 0}</b></td>`).join("")}</tr></table></div></div>`;
   const trainTxt = Object.entries(r.train).filter(([k, v]) => v && (isP || !["球速", "コントロール", "スタミナ"].includes(k))).map(([k, v]) => `${k}+${v}`).join("　");
-  return `<div class="card"><div class="note">${withIco(ch.name, `${ch.name}／Lv${lv}／コーチ+${N}${r.jukuren ? `／${r.jukuren}` : ""}／${SimEngine.opts.saikyu ? "西球記" : "その他"}${isP ? (mode === "main" ? "先発" : "中継ぎ・抑え") : (mode === "main" ? "スタメン" : "ベンチ")}${SimEngine.opts.subF !== 1 ? `／サブポジ（守備力の査定×${SimEngine.opts.subF}）` : ""}`, "lg")}</div>
+  return `<div class="card"><div class="note">${withIco(ch.name, `${ch.name}／Lv${lv}／コーチ+${N}${r.jukuren ? `／${r.jukuren}` : ""}／${isP ? (SimEngine.opts.saikyu ? "西球記" : "その他") : ""}${isP ? (mode === "main" ? "先発" : "中継ぎ・抑え") : (mode === "main" ? "スタメン" : "ベンチ")}${SimEngine.opts.subF !== 1 ? `／サブポジ（守備力の査定×${SimEngine.opts.subF}）` : ""}${r.force && r.force.length ? `／${r.force.join("・")}を取る` : ""}`, "lg")}</div>${r.forceNote && r.forceNote.length ? `<div class="note" style="color:#c62828">${r.forceNote.join("<br>")}</div>` : ""}
   <div class="big">${fmt(r.total)}</div><div class="note">基礎能力 ${fmt(r.baseNoTrain)} ＋ 特訓値 ${fmt(r.baseTotal - r.baseNoTrain)} ＋ 特殊能力 ${fmt(r.skills.value)}（うち伝授の上乗せ ${fmt(r.skills.gain)}）</div>${r.turns ? `<div class="note">特能をすべて取るのに必要なターン：<b>${r.turns.turns}ターン</b>（金特${r.turns.gold}個・青特${r.turns.blue}個、金青は別々に1ターン6個まで）</div>` : ""}</div>
   <div class="grid"><div class="card"><h2>基礎能力</h2><table><tr><th>能力</th><th>Lv時</th><th>特訓</th><th class="tot">合計</th><th>査定</th></tr>${rows}${subAdj}</table><div class="note">特訓値：${trainTxt || "なし"}</div></div>
   </div>
@@ -1651,6 +1663,7 @@ onmessage = async (e) => {
   return { solve, init };
 })();
 // 厳密に計算して、使えない環境では簡易探索に切り替える
+function forceList(pre, on) { return !on ? [] : [["Anda", "安打製造機"], ["Arch", "アーチスト"]].filter(([id]) => $(pre + id).checked).map((x) => x[1]); }
 async function runOptimize(ch, lv, mode, N, opts) {
   const oldJk = SimEngine.opts.jukuren; SimEngine.opts.jukuren = SimEngine.jukurenOf(opts.jukuren);
   try {
@@ -1680,7 +1693,7 @@ $("run").onclick = () => {
   const tick = setInterval(() => { $("status").textContent = `厳密に計算中… ${Math.round((performance.now() - t) / 1000)}秒`; }, 500);
   const spM = state.mode === "main" && state.sp ? ch.サブ[state.sp] : null;
   SimEngine.opts.subF = SUBF[spM] || 1; SimEngine.opts.saikyu = state.sk;
-  runOptimize(ch, lv, state.mode, state.N, { needExp: $("needExp").checked, pitchPolicy: state.pol, exclude: [...exclude], jukuren: $("jk").value }).then((r) => {
+  runOptimize(ch, lv, state.mode, state.N, { needExp: $("needExp").checked, pitchPolicy: state.pol, exclude: [...exclude], jukuren: $("jk").value, force: forceList("f", CH[state.cIdx].ポジション !== "投" && state.mode === "main") }).then((r) => {
     $("out").innerHTML = renderResult(ch, lv, state.mode, state.N, r);
     const ex = r.exact;
     $("status").textContent = r.fallback ? `簡易探索で計算しました（${r.fallback}）` : (ex && /^Optimal\/Optimal\/Optimal$/.test(ex.status) ? `完了：最大であることを確認済み（${Math.round((performance.now() - t) / 1000)}秒）` : `完了（時間切れのため最良の解：${ex ? ex.status : ""}）`);
@@ -1786,12 +1799,14 @@ function refreshCpos() {
   const isP = cIsP(), old = $("cpos").value;
   const one = (pre, lb) => isP ? [[pre + "P先", lb + "先発"], [pre + "P救", lb + "中継ぎ・抑え"]] : [[pre + "main", lb + "スタメン（それぞれのメインポジション）"]].concat(CPOS.map((p) => [pre + p, `${lb}スタメン ${POSN[p]}（サブポジの人はサブで）`]), [[pre + "bench", lb + "ベンチ"]]);
   // 西球記（虹特あり）→その他 の順。投手は 西球記先発・西球記中継ぎ抑え・その他先発・その他中継ぎ抑え
-  const o = isP ? [["S:P先", "西球記先発"], ["S:P救", "西球記中継ぎ・抑え"], ["P先", "その他先発"], ["P救", "その他中継ぎ・抑え"]] : one("S:", "西球記").concat(one("", "その他"));
+  const o = isP ? [["S:P先", "西球記先発"], ["S:P救", "西球記中継ぎ・抑え"], ["P先", "その他先発"], ["P救", "その他中継ぎ・抑え"]] : one("", "");
   $("cpos").innerHTML = o.map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
   if (o.some((x) => x[0] === old)) $("cpos").value = old;
   $("cpolrow").hidden = !isP;
+  $("cforcerow").hidden = isP !== false || $("cpos").value === "bench";
 }
 refreshCpos();
+$("cpos").addEventListener("change", () => { $("cforcerow").hidden = cIsP() !== false || $("cpos").value === "bench"; });
 $("crun").onclick = async () => {
   const v0 = $("cpos").value, jobs = [], skMode = v0.startsWith("S:"), v = skMode ? v0.slice(2) : v0;
   if (slots.some((s) => s.cIdx === null)) { $("cstatus").textContent = "選んでいない欄があります（使わない欄は「削除」してください）"; return; }
@@ -1819,8 +1834,8 @@ $("crun").onclick = async () => {
     for (let i = 0; i < jobs.length; i++) {
       const j = jobs[i];
       $("cstatus").textContent = `厳密に計算中 ${i + 1}/${jobs.length}（${Math.round((performance.now() - t0) / 1000)}秒）`;
-      SimEngine.opts.subF = j.f; SimEngine.opts.saikyu = skMode ? (pT[0] ? j.mode : "none") : null;
-      const r = await runOptimize(j.ch, j.lv, j.mode, j.s.N, { needExp: $("cneedExp").checked, pitchPolicy: cs.pol, exclude: [...exclude], jukuren: j.s.jk });
+      SimEngine.opts.subF = j.f; SimEngine.opts.saikyu = skMode && pT[0] ? j.mode : null;
+      const r = await runOptimize(j.ch, j.lv, j.mode, j.s.N, { needExp: $("cneedExp").checked, pitchPolicy: cs.pol, exclude: [...exclude], jukuren: j.s.jk, force: forceList("cf", !pT[0] && j.mode === "main") });
       if (r.error) { $("cstatus").textContent = `${j.s.P}：${r.error}`; return; }
       res.push({ ...j, r, html: renderResult(j.ch, j.lv, j.mode, j.s.N, r) });
     }
