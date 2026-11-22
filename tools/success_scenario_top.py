@@ -58,6 +58,10 @@ CUR = None
 
 def card(c):
     if not c.get("準備OK"):
+        if c.get("準備中で出す"):   # リンクは貼らず、タイトルと（準備中）だけ出す（2026-11-22 管理人）
+            th = '<span class="sk-th">画像準備中</span>'
+            return (f'    <span class="sk-c sk-off">{th}<span class="sk-l">{c.get("表示名") or e(c["名前"])}</span>'
+                    f'<span class="sk-wait">準備中</span></span>')
         return None
     href = href_of(c)
     img = c.get("画像") or C.get("ロゴ画像")

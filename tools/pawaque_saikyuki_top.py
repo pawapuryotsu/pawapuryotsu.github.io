@@ -79,8 +79,9 @@ def card(href, img, alt, w, h, label, sub, ready=True):
     # 準備中のページはカードごと出さない（2026-11-17 管理人「カードごと消す」）。原稿が入ったら READY を True に
     if not ready:
         return None
-    th = (f'<span class="sk-th sk-img"><img src="{{{{root}}}}img/pawaque/{img}" alt="{e(alt)}" width="{w}" height="{h}"></span>'
-          f'<span class="sk-l">{label}</span>{upd_tag(href)}<span class="sk-s">{sub}</span>')
+    th = ((f'<span class="sk-th sk-img"><img src="{{{{root}}}}img/pawaque/{img}" alt="{e(alt)}" width="{w}" height="{h}"></span>' if img
+           else '<span class="sk-th">画像準備中</span>')
+          + f'<span class="sk-l">{label}</span>{upd_tag(href)}<span class="sk-s">{sub}</span>')
     if href == CUR:
         return f'    <span class="sk-c sk-cur" aria-current="page">{th}<span class="sk-now">表示中のページ</span></span>'
     return f'    <a class="sk-c" href="{{{{root}}}}{href}">{th}</a>'
@@ -111,6 +112,9 @@ def nav_cards():
             'ドロップ<span class="cp-nw">契約書まとめ</span>', "", READY["contract"]),
        card("pawaque/mission/", "saikyuki_link_mission.jpg", "ミッションの画面", 232, 161,
             'ミッション<span class="cp-nw">報酬</span>', f"西球記の{mis}件を<wbr>掲載" if mis else ""),
+       # 一番右下（最後）に契約書シミュレータ（2026-11-22 管理人）。画像は管理人から届いたら入れる
+       card("pawaque/contract_simulator/", "", "", 0, 0,
+            '契約書<span class="cp-nw">シミュレータ</span>', ""),
     ] if x is not None]
 
 
@@ -165,14 +169,21 @@ if mis:
 out += ['  </ul>', '  <p>遊んで分かったことから順に<span class="cp-nw">追記します。</span></p>', '']
 
 # 期間限定の神前試合
-lim = [(i, t) for i, t in enumerate(S) if t.get("期間")]
+# 「終了」の日時（日本時間14時）を過ぎた学校は出さない。ビルド前でもページ内スクリプトで消す（2026-11-22 管理人）
+from datetime import datetime, timezone
+_now = datetime.now(timezone.utc)
+lim = [(i, t) for i, t in enumerate(S) if t.get("期間") and not (t.get("終了") and _now >= datetime.fromisoformat(t["終了"]))]
 if lim:
     # 神前試合まとめでは期間限定の学校が先頭（t1〜）に並ぶ
-    out += ['  <h2 id="limited">期間限定の神前試合</h2>', '  <ul>']
+    ends = [t.get("終了") for _, t in lim]
+    last = max(ends) if all(ends) else ""
+    out += [f'  <div class="sk-lim"{f' data-end="{e(last)}"' if last else ""}>', '  <h2 id="limited">期間限定の神前試合</h2>', '  <ul>']
     for n, (_, t) in enumerate(lim, 1):
-        out.append(f'    <li><a href="{{{{root}}}}pawaque/saikyuki/shinzen/#t{n}">{e(t["対戦相手"])}</a>'
+        de = f' data-end="{e(t["終了"])}"' if t.get("終了") else ""
+        out.append(f'    <li{de}><a href="{{{{root}}}}pawaque/saikyuki/shinzen/#t{n}">{e(t["対戦相手"])}</a>'
                    f'<span class="em-red">（※{e(t["期間"])}）</span></li>')
-    out += ['  </ul>', '']
+    out += ['  </ul>', '  </div>',
+            "  <script>(function(){var n=Date.now();document.querySelectorAll('.sk-lim [data-end],.sk-lim[data-end]').forEach(function(e){if(n>=Date.parse(e.getAttribute('data-end'))&&e.parentNode)e.parentNode.removeChild(e)})})();</script>", '']
 
 # クエストのメモ（青メモ・赤メモ・管理人メモ）
 memos = []
