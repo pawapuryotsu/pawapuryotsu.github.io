@@ -17,7 +17,8 @@ POLICY_DATE = "2026年10月"                    # プライバシーポリシー
 
 # 上部タブ。トップへはロゴで、運営者情報へはフッターで行ける（2026-11-19 管理人：トップ・このサイトについてを外し、デッキは2行表記）
 NAV = [("roman", "decks/roman/", "ロマン開花<small>投手</small>"),
-       ("andromeda", "decks/andromeda/", "アンドロメダ<small>野手</small>"), ("pawaque", "pawaque/", "パワクエ")]
+       ("andromeda", "decks/andromeda/", "アンドロメダ<small>野手</small>"), ("pawaque", "pawaque/", "パワクエ"),
+       ("koshokan", "success/koshokan/", "古書館高校<small>野手</small>")]   # 2026-11-22 管理人：配信前はパワクエの右。11/26 14時の配信後は「アンドロメダ 野手」と入れ替えて一番左に
 
 here = pathlib.Path(__file__).parent
 src, out = here / "src", here / "docs"
