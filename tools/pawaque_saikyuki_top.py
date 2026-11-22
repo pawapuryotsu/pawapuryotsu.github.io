@@ -108,6 +108,9 @@ def nav_cards():
             '神前試合<span class="cp-nw">まとめ</span>', f"{len(S)}校の進化対象・<wbr>スカウト候補"),
        card("pawaque/saikyuki/niji/", "saikyuki_link_niji.jpg", "真・精密機械", 151, 50,
             '虹特の<span class="cp-nw">査定まとめ</span>', "17種類の査定と<wbr>進化できる対戦相手"),
+       # 2026-11-22 管理人：コーチ+4を狙う記事。画像は記事の1枚目（［求道者］才賀のコーチ人数+3）から切り出し
+       card("pawaque/saikyuki/coach4/", "saikyuki_link_coach4.jpg", "コーチ人数+3のスキル", 126, 52,
+            'コーチ+4を<span class="cp-nw">狙うには？</span>', "狙い方と<wbr>おすすめ契約書"),
        card("pawaque/saikyuki/contract/", "saikyuki_link_contract.jpg", "［求道者］才賀 侑人の契約書", 320, 125,
             'ドロップ<span class="cp-nw">契約書まとめ</span>', "", READY["contract"]),
        card("pawaque/mission/", "saikyuki_link_mission.jpg", "ミッションの画面", 232, 161,
