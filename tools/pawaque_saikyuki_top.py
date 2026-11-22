@@ -169,14 +169,21 @@ if mis:
 out += ['  </ul>', '  <p>遊んで分かったことから順に<span class="cp-nw">追記します。</span></p>', '']
 
 # 期間限定の神前試合
-lim = [(i, t) for i, t in enumerate(S) if t.get("期間")]
+# 「終了」の日時（日本時間14時）を過ぎた学校は出さない。ビルド前でもページ内スクリプトで消す（2026-11-22 管理人）
+from datetime import datetime, timezone
+_now = datetime.now(timezone.utc)
+lim = [(i, t) for i, t in enumerate(S) if t.get("期間") and not (t.get("終了") and _now >= datetime.fromisoformat(t["終了"]))]
 if lim:
     # 神前試合まとめでは期間限定の学校が先頭（t1〜）に並ぶ
-    out += ['  <h2 id="limited">期間限定の神前試合</h2>', '  <ul>']
+    ends = [t.get("終了") for _, t in lim]
+    last = max(ends) if all(ends) else ""
+    out += [f'  <div class="sk-lim"{f' data-end="{e(last)}"' if last else ""}>', '  <h2 id="limited">期間限定の神前試合</h2>', '  <ul>']
     for n, (_, t) in enumerate(lim, 1):
-        out.append(f'    <li><a href="{{{{root}}}}pawaque/saikyuki/shinzen/#t{n}">{e(t["対戦相手"])}</a>'
+        de = f' data-end="{e(t["終了"])}"' if t.get("終了") else ""
+        out.append(f'    <li{de}><a href="{{{{root}}}}pawaque/saikyuki/shinzen/#t{n}">{e(t["対戦相手"])}</a>'
                    f'<span class="em-red">（※{e(t["期間"])}）</span></li>')
-    out += ['  </ul>', '']
+    out += ['  </ul>', '  </div>',
+            "  <script>(function(){var n=Date.now();document.querySelectorAll('.sk-lim [data-end],.sk-lim[data-end]').forEach(function(e){if(n>=Date.parse(e.getAttribute('data-end'))&&e.parentNode)e.parentNode.removeChild(e)})})();</script>", '']
 
 # クエストのメモ（青メモ・赤メモ・管理人メモ）
 memos = []
