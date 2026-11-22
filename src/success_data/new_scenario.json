@@ -12,14 +12,25 @@
       "名前": "ギミック解説",
       "説明": "",
       "画像": "",
-      "準備OK": true
+      "準備OK": true,
+      "表示名": "ギミック<span class=\"cp-nw\">解説</span>"
     },
     {
       "キー": "tachimawari",
       "名前": "立ち回り解説",
       "説明": "",
       "画像": "",
-      "準備OK": true
+      "準備OK": true,
+      "表示名": "立ち回り<span class=\"cp-nw\">解説</span>"
+    },
+    {
+      "キー": "yosou",
+      "名前": "有能キャラ予想",
+      "リンク": "ranking/next_batter/",
+      "説明": "",
+      "画像": "",
+      "準備OK": true,
+      "表示名": "有能キャラ<span class=\"cp-nw\">予想</span>"
     },
     {
       "キー": "decks",

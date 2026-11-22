@@ -44,6 +44,8 @@ UPD_JS = ("  <script>(function(){var n=Date.now();document.querySelectorAll('.sk
 
 
 def href_of(c):
+    if c.get("リンク"):   # 既にあるページへのリンク（例：有能キャラ予想 ranking/next_batter/、2026-11-22 管理人）
+        return c["リンク"]
     if c["キー"] == "decks":
         return f"decks/{KEY}/"
     if c["キー"] == "ranking":
@@ -68,18 +70,14 @@ def card(c):
 
 
 def grid(cs):
-    """西球記と同じ並び（スマホ2列・PC3列、空きマスは白で埋める）"""
+    """スマホは横3列・PCなど広い画面は横4列（2026-11-22 管理人）。空きマスは白で埋める"""
     n = len(cs)
-    g, pc = "sk-grid", 3
-    if n % 3 and n % 2 == 0:
-        pc = n if n <= 4 else 2
-        g += f" sk-g{pc}"
-    mob, pcf = (2 - n % 2) % 2, (pc - n % pc) % pc
+    mob, pcf = (3 - n % 3) % 3, (4 - n % 4) % 4   # スマホ3列・PC4列で最後の行の空き
     fill = []
     for i in range(max(mob, pcf)):
         cls = "sk-fill" + ("" if i < mob and i < pcf else (" sk-fill-sp" if i < mob else " sk-fill-pc"))
         fill.append(f'    <span class="{cls}" aria-hidden="true"></span>')
-    return [f'  <div class="{g}">'] + cs + fill + ['  </div>']
+    return ['  <div class="sk-grid sk-sp3">'] + cs + fill + ['  </div>']
 
 
 def nav(bottom=False):

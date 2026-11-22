@@ -635,6 +635,11 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 /* 西球記のリンク欄：最後の行の空きマスは白で埋める（スマホ2列・PC3列で数が違う） */
 .sk-fill{background:#fff}
 .sk-fill-pc{display:none}
+/* 西球記・サクセス新シナリオのリンク欄：スマホ横3列・PC横4列（2026-11-22 管理人） */
+.sk-grid.sk-sp3{grid-template-columns:repeat(3,1fr)}
+@media (min-width:760px){.sk-grid.sk-sp3{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:759px){.sk-sp3 .sk-c{padding:8px 4px 10px;font-size:13px;gap:4px}.sk-sp3 .sk-th{font-size:10px}.sk-sp3 .sk-now{font-size:10px}.sk-sp3 .sk-upd{white-space:nowrap;font-size:12px}}
+@media (max-width:359px){.sk-sp3 .sk-c{font-size:12px}.sk-sp3 .sk-s{font-size:11px}.sk-sp3 .sk-upd{font-size:11px}}
 @media (min-width:760px){.sk-fill-pc{display:block}.sk-fill-sp{display:none}}
 /* キャラページの評価：【長所】は薄い青、【短所】は薄い赤の枠で囲む（管理人指示 2026-11-19） */
 .cp-pro,.cp-con{border:1px solid;border-radius:6px;padding:8px 12px;margin:10px 0}

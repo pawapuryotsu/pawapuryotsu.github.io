@@ -91,9 +91,9 @@ def nav_cards():
        card("pawaque/saikyuki/feature/", "saikyuki_logo.png", "西球記のロゴ", 235, 130,
             '西球記の<span class="cp-nw">固有ギミック</span>', "仙術・神前試合マス・<wbr>祈願エンディングマス"),
        card("pawaque/saikyuki/quest/", "saikyuki_link_quest.jpg", "クエスト一覧の画面", 374, 148,
-            "クエスト一覧", f"{qrange_nw}の<wbr>ドロップ・管理人メモ" if qrange else "準備中"),
+            'クエスト<span class="cp-nw">一覧</span>', f"{qrange_nw}の<wbr>ドロップ・管理人メモ" if qrange else "準備中"),
        card("pawaque/saikyuki/drop/", "saikyuki_link_drop.jpg", "交渉の指輪", 311, 121,
-            '重要アイテム一覧', "", READY["drop"]),
+            '重要<span class="cp-nw">アイテム一覧</span>', "", READY["drop"]),
        # 並び（2026-11-19 管理人）：重要アイテム一覧の次に⑱⑲の周回ページ
        card("pawaque/saikyuki/q18/", "saikyuki_link_q18.jpg", "クエスト一覧の⑱道中2", 374, 148,
             '⑱道中2<span class="cp-nw">周回</span>', "", READY["q18"]),
@@ -110,24 +110,19 @@ def nav_cards():
        card("pawaque/saikyuki/contract/", "saikyuki_link_contract.jpg", "［求道者］才賀 侑人の契約書", 320, 125,
             'ドロップ<span class="cp-nw">契約書まとめ</span>', "", READY["contract"]),
        card("pawaque/mission/", "saikyuki_link_mission.jpg", "ミッションの画面", 232, 161,
-            "ミッション報酬", f"西球記の{mis}件を<wbr>掲載" if mis else ""),
+            'ミッション<span class="cp-nw">報酬</span>', f"西球記の{mis}件を<wbr>掲載" if mis else ""),
     ] if x is not None]
 
 
 def grid(cs):
-    """カードの並び。PC（3列）・スマホ（2列）で最後の行が空く時は、白い空きマスで埋める（線の色が見えないように）"""
+    """カードの並び。スマホは横3列・PCなど広い画面は横4列（2026-11-22 管理人）。最後の行が空く時は白い空きマスで埋める（線の色が見えないように）"""
     n = len(cs)
-    g = "sk-grid"
-    pc = 3
-    if n % 3 and n % 2 == 0:   # PC（3列）で空きマスが出る枚数（4枚など）は、PCを枚数に合わせた列にする
-        pc = n if n <= 4 else 2
-        g += f" sk-g{pc}"
-    mob, pcf = (2 - n % 2) % 2, (pc - n % pc) % pc
+    mob, pcf = (3 - n % 3) % 3, (4 - n % 4) % 4   # スマホ3列・PC4列で最後の行の空き
     fill = []
     for i in range(max(mob, pcf)):
         cls = "sk-fill" + ("" if i < mob and i < pcf else (" sk-fill-sp" if i < mob else " sk-fill-pc"))
         fill.append(f'    <span class="{cls}" aria-hidden="true"></span>')
-    return [f'  <div class="{g}">'] + cs + fill + ['  </div>']
+    return ['  <div class="sk-grid sk-sp3">'] + cs + fill + ['  </div>']
 
 
 def recent_updates(n=5):
