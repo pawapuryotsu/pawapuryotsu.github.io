@@ -201,7 +201,7 @@ for raw in SH.get("全員加入の契約書", []):
 B = []
 for x in D["5のキャラ"]:
     w = "・".join(f'<span class="tx-red">{e(q["名前"])}※注</span>' if q["注"] else e(q["名前"]) for q in x["クエスト"])
-    B.append(entry(x["名前"], w))
+    B.append(entry(x["名前"], w, x.get("マーク", "")))
 
 SECS = [
     ("s1", "コーチ人数+4を狙うには？", sec1()),
@@ -212,6 +212,7 @@ SECS = [
     ("s5", "神前試合以外で入手できる別バージョンキャラ一覧",
      f'<p>西球記の周回記録（{D["5の周回数"]}周分）でドロップした別バージョンの契約書のうち、4の表にいないキャラ（{len(B)}人）。</p>'
      + tables(B, "ドロップしたクエスト") + '<p class="tx-red c4-note"><b>※現在エリア最終ボスでしかドロップを確認できていないので注意</b></p>'
+     + "".join(f'<p class="c4-note">{e(x["マーク"])} {rich(x["補足"])}</p>' for x in D["5のキャラ"] if x.get("補足"))
      + f'<p class="c4-note">{rich(D["5の未登録"])}</p>'),
 ]
 toc = ('  <nav class="toc" aria-label="このページの目次">\n  <b>もくじ</b>\n  <ol>\n'
