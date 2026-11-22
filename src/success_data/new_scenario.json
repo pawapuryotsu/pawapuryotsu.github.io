@@ -13,7 +13,8 @@
       "説明": "",
       "画像": "",
       "準備OK": false,
-      "表示名": "ギミック<span class=\"cp-nw\">解説</span>"
+      "表示名": "ギミック<span class=\"cp-nw\">解説</span>",
+      "準備中で出す": true
     },
     {
       "キー": "tachimawari",
@@ -21,7 +22,8 @@
       "説明": "",
       "画像": "",
       "準備OK": false,
-      "表示名": "立ち回り<span class=\"cp-nw\">解説</span>"
+      "表示名": "立ち回り<span class=\"cp-nw\">解説</span>",
+      "準備中で出す": true
     },
     {
       "キー": "yosou",
