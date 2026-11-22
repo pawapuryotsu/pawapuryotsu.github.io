@@ -608,6 +608,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .qc.sz-lim{border:2px solid #c62828}
 .prose .sz-lim .qc-h{background:#c62828}
 .sz-lim .sz-note{color:#c62828}
+.sz-past{margin-top:28px}.sz-past[hidden],.sz-list>section[hidden]{display:none}
 .qc .sz-img{max-width:100%;width:100%;margin:0}
 @media (min-width:720px){.sz-list{grid-template-columns:1fr 1fr;align-items:start}}
 .sk-c .sk-s{color:#5b6676}
