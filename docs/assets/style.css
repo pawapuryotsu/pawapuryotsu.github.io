@@ -41,6 +41,9 @@ nav.gnav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin:0 -4px
 nav.gnav a{color:var(--field-ink);text-decoration:none;font-size:13px;font-weight:700;padding:6px 12px 7px;white-space:nowrap;opacity:.78;border-bottom:3px solid transparent;display:flex;flex-direction:column;justify-content:center;align-items:center;line-height:1.25;text-align:center}
 nav.gnav a[aria-current="page"]{opacity:1;border-bottom-color:var(--field-ink)}
 nav.gnav a small{display:block;font-size:11px;font-weight:500;opacity:.85}
+/* 上部タブが4つになったので、スマホでは左右の余白を詰めて1画面に収める（2026-11-22） */
+@media (max-width:420px){nav.gnav a{padding:6px 7px 7px}}
+@media (max-width:359px){nav.gnav a{padding:6px 4px 7px;font-size:12px}nav.gnav a small{font-size:10px}}
 
 main .wrap{padding-block:24px 56px;display:flex;flex-direction:column;gap:20px}
 h2.sec{font-family:var(--head);font-weight:900;font-size:22px;line-height:1.3;margin:8px 0 0;text-wrap:balance}
@@ -635,6 +638,11 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 /* 西球記のリンク欄：最後の行の空きマスは白で埋める（スマホ2列・PC3列で数が違う） */
 .sk-fill{background:#fff}
 .sk-fill-pc{display:none}
+/* 西球記・サクセス新シナリオのリンク欄：スマホ横3列・PC横4列（2026-11-22 管理人） */
+.sk-grid.sk-sp3{grid-template-columns:repeat(3,1fr)}
+@media (min-width:760px){.sk-grid.sk-sp3{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:759px){.sk-sp3 .sk-c{padding:8px 4px 10px;font-size:13px;gap:4px}.sk-sp3 .sk-th{font-size:10px}.sk-sp3 .sk-now{font-size:10px}.sk-sp3 .sk-upd{white-space:nowrap;font-size:12px}}
+@media (max-width:359px){.sk-sp3 .sk-c{font-size:12px}.sk-sp3 .sk-s{font-size:11px}.sk-sp3 .sk-upd{font-size:11px}}
 @media (min-width:760px){.sk-fill-pc{display:block}.sk-fill-sp{display:none}}
 /* キャラページの評価：【長所】は薄い青、【短所】は薄い赤の枠で囲む（管理人指示 2026-11-19） */
 .cp-pro,.cp-con{border:1px solid;border-radius:6px;padding:8px 12px;margin:10px 0}
