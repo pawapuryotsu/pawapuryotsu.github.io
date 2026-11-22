@@ -397,7 +397,7 @@ for meta, body in _parsed:
         _dates = [x.get("date", "") for x in _d["list"] if x.get("date")]
         rep["deck_month_" + _k] = f"【{int(max(_dates)[5:7])}月最新】" if _dates else ""
     for _k, _r in charpages._RANKING.get("ranking", {}).items():
-        rep["rk_date_" + _k] = f'【評価日{_r["評価日"]}】' if _r.get("評価日") else ""
+        rep["rk_date_" + _k] = f'<span class="cp-nw">【評価日</span><span class="cp-nw">{_r["評価日"]}】</span>' if _r.get("評価日") else ""
     if meta.get("school") in DECKS:
         body = body.replace('<p class="muted">読み込み中…</p>', static_decks(meta["school"]))
         # deck.js がキャラ名をキャラページへのリンクにするための表（キャラ名→ページ）
