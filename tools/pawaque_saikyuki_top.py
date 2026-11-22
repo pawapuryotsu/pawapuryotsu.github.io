@@ -110,7 +110,7 @@ def nav_cards():
             '虹特の<span class="cp-nw">査定まとめ</span>', "17種類の査定と<wbr>進化できる対戦相手"),
        # 2026-11-22 管理人：コーチ+4を狙う記事。画像は1章の祈願画像（野球マン5号のコーチ人数+4）を重要アイテム一覧と同じ311×121で切り出し
        card("pawaque/saikyuki/coach4/", "saikyuki_link_coach4.jpg", "野球マン5号の契約書のコーチ人数+4", 311, 121,
-            'コーチ+4を<span class="cp-nw">狙うには？</span>', "狙い方と<wbr>おすすめ契約書"),
+            'おすすめ契約書&amp;<span class="cp-nw">コーチ+4厳選解説</span>', "狙い方と<wbr>おすすめ契約書"),
        card("pawaque/saikyuki/contract/", "saikyuki_link_contract.jpg", "［求道者］才賀 侑人の契約書", 320, 125,
             'ドロップ<span class="cp-nw">契約書まとめ</span>', "", READY["contract"]),
        card("pawaque/mission/", "saikyuki_link_mission.jpg", "ミッションの画面", 232, 161,
@@ -163,7 +163,7 @@ def recent_updates(n=5):
         if not d or not href.startswith("pawaque/saikyuki/"):
             continue
         img = re.search(r'<img src="([^"]+)" alt="([^"]*)"', c)
-        label = re.sub(r"<[^>]+>", "", re.search(r'<span class="sk-l">(.*?)</span>(?=<span class="sk-(?:upd|s)")', c).group(1))
+        label = html.unescape(re.sub(r"<[^>]+>", "", re.search(r'<span class="sk-l">(.*?)</span>(?=<span class="sk-(?:upd|s)")', c).group(1)))
         items.append((d, -i, href, img.group(1), label))
     items.sort(reverse=True)
     li = [f'<li><a href="{{{{root}}}}{h}"><img class="news-icon news-logo sk-rc-img" src="{im}" alt="" width="80" height="44" loading="lazy">'
