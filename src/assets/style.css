@@ -580,6 +580,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 /* パワクエ西球記：入口ページの関連ページリンク */
 .sk-nav{margin:0 0 20px;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fff}
 .prose .sk-nav-h{margin:0;padding:8px 12px;background:#eef0f2;color:#222;font-weight:900;font-size:15px;text-align:center}
+.sk-nav .sk-grid + .sk-nav-h{border-top:1px solid var(--line)}
 .sk-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-top:1px solid var(--line)}
 .sk-c{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 8px 12px;background:#fff;text-decoration:none;color:#1a5fd0;font-weight:700;font-size:14px;line-height:1.4;text-align:center}
 .sk-c:hover .sk-l{text-decoration:underline}

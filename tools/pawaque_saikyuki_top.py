@@ -108,7 +108,7 @@ def nav_cards():
             '神前試合<span class="cp-nw">まとめ</span>', f"{len(S)}校の進化対象・<wbr>スカウト候補"),
        card("pawaque/saikyuki/niji/", "saikyuki_link_niji.jpg", "真・精密機械", 151, 50,
             '虹特の<span class="cp-nw">査定まとめ</span>', "17種類の査定と<wbr>進化できる対戦相手"),
-       # 2026-11-22 管理人：コーチ+4を狙う記事。画像は記事の1枚目（［求道者］才賀のコーチ人数+3）から切り出し
+       # 2026-11-22 管理人：コーチ+4を狙う記事。画像は1章の祈願画像（野球マン5号のコーチ人数+4）を重要アイテム一覧と同じ311×121で切り出し
        card("pawaque/saikyuki/coach4/", "saikyuki_link_coach4.jpg", "野球マン5号の契約書のコーチ人数+4", 311, 121,
             'コーチ+4を<span class="cp-nw">狙うには？</span>', "狙い方と<wbr>おすすめ契約書"),
        card("pawaque/saikyuki/contract/", "saikyuki_link_contract.jpg", "［求道者］才賀 侑人の契約書", 320, 125,
@@ -119,6 +119,25 @@ def nav_cards():
        card("pawaque/contract_simulator/", "", "", 0, 0,
             '契約書<span class="cp-nw">シミュレータ</span>', ""),
     ] if x is not None]
+
+
+# リンク欄は2段（2026-11-23 管理人）：1段目「西球記の攻略ページ」、2段目「西球記のクエスト・周回ページ」（クエスト一覧と各クエストの攻略・周回ページ）
+QUEST_PAGES = ("pawaque/saikyuki/quest/", "pawaque/saikyuki/q18/", "pawaque/saikyuki/q19/",
+               "pawaque/saikyuki/muzu/", "pawaque/saikyuki/mucha/")
+
+
+def _is_quest(c):
+    return any(f'{{{{root}}}}{h}"' in c for h in QUEST_PAGES) or any(
+        f'sk-cur' in c and h == CUR for h in QUEST_PAGES)
+
+
+def nav_sections(cs):
+    a = [c for c in cs if not _is_quest(c)]
+    b = [c for c in cs if _is_quest(c)]
+    out = ['  <p class="sk-nav-h">西球記の攻略ページ</p>'] + grid(a)
+    if b:
+        out += ['  <p class="sk-nav-h">西球記のクエスト・周回ページ</p>'] + grid(b)
+    return out
 
 
 def grid(cs):
@@ -156,8 +175,7 @@ def recent_updates(n=5):
 
 
 out = recent_updates() + ['  <section class="sk-nav" aria-label="西球記の関連ページ">',
-       '  <p class="sk-nav-h">西球記の攻略ページ</p>',
-      ] + grid(nav_cards()) + [UPD_JS,
+             ] + nav_sections(nav_cards()) + [UPD_JS,
        '  </section>', '',
        '  <h2 id="about">西球記とは</h2>',
        '  <p><span class="cp-nw">「西球記（さいきゅうき）」</span>は、パワクエの5つ目のストーリーです。<span class="em-blue">2026/11/16 14時に配信されました。</span></p>', '']
@@ -235,7 +253,7 @@ for f in sorted((here / "src/pages").glob("pawaque-saikyuki-*.html")):
     if not any("sk-cur" in x for x in cs) and "noindex: yes" not in f.read_text(encoding="utf-8"):
         print(f"※注意：{f.name} のカードが nav_cards() にありません（トップと各ページのリンク欄に出ません）。カードを足してください")
     nav = "\n".join(['  <section class="sk-nav sk-nav-btm" aria-label="西球記の関連ページ">',
-                     '  <p class="sk-nav-h">西球記の攻略ページ</p>'] + grid(cs) + [UPD_JS, '  </section>'])
+                     ] + nav_sections(cs) + [UPD_JS, '  </section>'])
     t = f.read_text(encoding="utf-8")
     if "<!-- SKNAV:START -->" not in t:
         assert t.count(BACK) == 1, f"{f.name}: 「戻る」の行が見つからない"
