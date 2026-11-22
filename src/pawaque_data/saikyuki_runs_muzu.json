@@ -1,5 +1,5 @@
 {
- "取得日": "2026-11-21",
+ "取得日": "2026-11-22",
  "元": "パワクエ周回カウンター",
  "クエスト": "むずクエ",
  "記録対象外": [
@@ -4630,6 +4630,294 @@
      "rarity": "銀",
      "skills": [],
      "slot": 2
+    }
+   ]
+  },
+  {
+   "no": 305,
+   "date": "2026-11-22",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 3,
+    "3": -1
+   },
+   "prayers": [
+    {
+     "after": [
+      "コーチ人数+2",
+      "熟練の走塁1",
+      "熟練の打撃1"
+     ],
+     "area": 0,
+     "before": [
+      "コーチ人数+2",
+      "熟練の走塁1",
+      "熟練の打撃1"
+     ],
+     "gained": [],
+     "lost": [],
+     "name": "[クール！]小平陽向",
+     "rarity": "銅",
+     "result": "失敗"
+    }
+   ],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "[クール！]小平陽向",
+     "rarity": "銅",
+     "skills": [
+      "コーチ人数+2",
+      "熟練の走塁1",
+      "熟練の打撃1"
+     ],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": true,
+     "name": "呼び寄せの香",
+     "rarity": "金",
+     "skills": [
+      "契約書+1",
+      "マスプラス2",
+      "スカウト率UP1"
+     ],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "[求道者]才賀侑人",
+     "rarity": "銅",
+     "skills": [
+      "コーチ人数+3"
+     ],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "天道あかね",
+     "rarity": "金",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "夏野向日葵",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "中之島幸宏",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    }
+   ]
+  },
+  {
+   "no": 306,
+   "date": "2026-11-22",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 0,
+    "2": 2,
+    "3": 4
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "投訓ノ書",
+     "rarity": "金",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "響良牙",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "神成尊",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "往田真威人",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "投訓ノ書",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 4
+    }
+   ]
+  },
+  {
+   "no": 307,
+   "date": "2026-11-22",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 6,
+    "3": 7
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "投訓ノ書",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "永瀬大河",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "明智光秀",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "変化球の凄い巻物",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "空白ノ書",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "特能ノ書",
+     "rarity": "銀",
+     "skills": [
+      "修練の術 特能",
+      "特能マス強化3"
+     ],
+     "slot": 7
+    }
+   ]
+  },
+  {
+   "no": 308,
+   "date": "2026-11-22",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 2,
+    "3": 5
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "天道あかね",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "空白ノ書",
+     "rarity": "金",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "アサガミ・キョウスケ",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "涼風希望",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "響良牙",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 5
     }
    ]
   }
