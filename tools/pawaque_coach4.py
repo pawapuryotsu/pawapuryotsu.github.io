@@ -1,4 +1,4 @@
-"""西球記「コーチ+4を狙うには？」（/pawaque/saikyuki/coach4/）の本文を作る（2026-11-22 管理人）。
+"""西球記「おすすめ契約書&コーチ+4厳選解説」（旧「コーチ+4を狙うには？」）（/pawaque/saikyuki/coach4/）の本文を作る（2026-11-22 管理人）。
 
 使い方： python3 tools/pawaque_coach4.py → python3 build.py
 - 文章：src/pawaque_data/saikyuki_coach4.json（管理人の原稿。{青太:…}{赤太:…}{赤:…} が使える）
