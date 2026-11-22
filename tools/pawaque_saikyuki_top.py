@@ -79,8 +79,9 @@ def card(href, img, alt, w, h, label, sub, ready=True):
     # 準備中のページはカードごと出さない（2026-11-17 管理人「カードごと消す」）。原稿が入ったら READY を True に
     if not ready:
         return None
-    th = (f'<span class="sk-th sk-img"><img src="{{{{root}}}}img/pawaque/{img}" alt="{e(alt)}" width="{w}" height="{h}"></span>'
-          f'<span class="sk-l">{label}</span>{upd_tag(href)}<span class="sk-s">{sub}</span>')
+    th = ((f'<span class="sk-th sk-img"><img src="{{{{root}}}}img/pawaque/{img}" alt="{e(alt)}" width="{w}" height="{h}"></span>' if img
+           else '<span class="sk-th">画像準備中</span>')
+          + f'<span class="sk-l">{label}</span>{upd_tag(href)}<span class="sk-s">{sub}</span>')
     if href == CUR:
         return f'    <span class="sk-c sk-cur" aria-current="page">{th}<span class="sk-now">表示中のページ</span></span>'
     return f'    <a class="sk-c" href="{{{{root}}}}{href}">{th}</a>'
@@ -111,6 +112,9 @@ def nav_cards():
             'ドロップ<span class="cp-nw">契約書まとめ</span>', "", READY["contract"]),
        card("pawaque/mission/", "saikyuki_link_mission.jpg", "ミッションの画面", 232, 161,
             'ミッション<span class="cp-nw">報酬</span>', f"西球記の{mis}件を<wbr>掲載" if mis else ""),
+       # 一番右下（最後）に契約書シミュレータ（2026-11-22 管理人）。画像は管理人から届いたら入れる
+       card("pawaque/contract_simulator/", "", "", 0, 0,
+            '契約書<span class="cp-nw">シミュレータ</span>', ""),
     ] if x is not None]
 
 
