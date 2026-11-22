@@ -667,3 +667,23 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 /* 周回記録スキル表：名前が切れないように（2026-11-20 管理人「名前切れちゃってる」）。列幅を固定し、[バージョン]と名前の間で折り返し、それでも入らない時だけ途中で折り返す */
 .rs-good{table-layout:fixed}.rs-good thead th:first-child{width:56%}.rs-good tbody th,.rs-good tbody th.rs-hasic{width:auto}
 .rs-good .rs-nm .cp-nw,.rs-good td.rs-l .cp-nw{display:inline-block;white-space:normal}.rs-good .rs-hasic .rs-nm{overflow:visible}
+/* トップの誘導カード：子ページのリンク欄と同じ形（スマホ横3列・PC横4列、2026-11-22 管理人） */
+.grid2.hg{grid-template-columns:repeat(3,1fr);gap:0;background:var(--surface);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+@media (min-width:760px){.grid2.hg{grid-template-columns:repeat(4,1fr)}}
+.hg .scard{border:0;box-shadow:0 0 0 1px var(--line);border-radius:0;align-items:center;text-align:center;gap:4px;padding:10px 6px 12px;min-width:0}
+a.hg .scard:hover,.hg a.scard:hover{background:#f6f8fa}
+.hg .scard h3{font-size:14px;line-height:1.4;color:#1a5fd0;font-weight:700}
+.hg a.scard:hover h3{text-decoration:underline}
+.hg .scard p{font-size:12px;line-height:1.45}
+.hg .scard .tag{align-self:center;font-size:10px;padding:0 6px;text-wrap:balance;max-width:100%}
+.hg .scard .go{display:none}
+.hg .score{justify-content:center;flex-wrap:wrap;gap:2px 4px;margin-top:0}
+.hg .score b{font-size:24px}
+.hg .scard.rkcard h3{padding-right:0}
+@media (max-width:759px){.hg .scard h3{font-size:13px}.hg .scard p{font-size:11px}}
+@media (max-width:359px){.hg .scard{padding:8px 4px 10px}.hg .scard h3{font-size:12px}.hg .scard p{font-size:10.5px}}
+.hg .scard h3,.hg .scard p{text-wrap:balance}
+.hg .scard .cp-nw,.hg .scard .cp-h1{display:inline-block;white-space:normal}
+@media (max-width:759px){.hg .scard{padding:10px 4px 12px}}
+/* 2列版（比較用） */
+@media (max-width:759px){.grid2.hg.hg2{grid-template-columns:1fr 1fr}.hg2 .scard{padding:12px 8px 14px}.hg2 .scard h3{font-size:14px}.hg2 .scard p{font-size:12px}}
