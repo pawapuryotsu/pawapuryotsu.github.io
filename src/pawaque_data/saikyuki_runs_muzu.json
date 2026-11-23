@@ -1,5 +1,5 @@
 {
- "取得日": "2026-11-22",
+ "取得日": "2026-11-23",
  "元": "パワクエ周回カウンター",
  "クエスト": "むずクエ",
  "記録対象外": [
@@ -4918,6 +4918,1062 @@
      "rarity": "銀",
      "skills": [],
      "slot": 5
+    }
+   ]
+  },
+  {
+   "no": 309,
+   "date": "2026-11-22",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 0,
+    "2": 1,
+    "3": -1
+   },
+   "prayers": [
+    {
+     "after": [
+      "コーチ人数+4",
+      "熟練の投球1"
+     ],
+     "area": 0,
+     "before": [
+      "コーチ人数+3",
+      "熟練の投球1"
+     ],
+     "gained": [
+      "コーチ人数+4"
+     ],
+     "lost": [
+      "コーチ人数+3"
+     ],
+     "name": "[野球マン1号]早川あおい",
+     "rarity": "銅",
+     "result": "成功"
+    }
+   ],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "空白ノ書",
+     "rarity": "金",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "シャンプー",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "武秀英",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "アサガミ・キョウスケ",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "[野球マン1号]早川あおい",
+     "rarity": "銅",
+     "skills": [
+      "コーチ人数+4",
+      "熟練の投球1"
+     ],
+     "slot": 4
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "堂江竜河",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    }
+   ]
+  },
+  {
+   "no": 310,
+   "date": "2026-11-22",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 2,
+    "3": -1
+   },
+   "prayers": [
+    {
+     "after": [
+      "回復の術 野訓",
+      "走力特訓人数+1",
+      "ターンアップ1"
+     ],
+     "area": 0,
+     "before": [
+      "回復の術 野訓",
+      "走力特訓人数+1",
+      "ターンアップ1"
+     ],
+     "gained": [],
+     "lost": [],
+     "name": "野訓ノ書",
+     "rarity": "銀",
+     "result": "失敗"
+    }
+   ],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "天道あかね",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": true,
+     "name": "シュバリエ",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "野訓ノ書",
+     "rarity": "銀",
+     "skills": [
+      "回復の術 野訓",
+      "走力特訓人数+1",
+      "ターンアップ1"
+     ],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "尾根瑛人",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "伊貫大和",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    }
+   ]
+  },
+  {
+   "no": 311,
+   "date": "2026-11-22",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 0,
+    "2": 2,
+    "3": 3
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "西矢田来一",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "[野球マン3号]六道聖",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "早乙女乱馬",
+     "rarity": "金",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "[にゃんこです]ワーちゃん",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 3
+    }
+   ]
+  },
+  {
+   "no": 316,
+   "date": "2026-11-22",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 4,
+    "3": -1
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "[にゃんこです]ワーちゃん",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": true,
+     "name": "キリル・フォスター",
+     "rarity": "金",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "[大筒]冴木創",
+     "rarity": "銅",
+     "skills": [
+      "コーチ人数+3",
+      "ミート特訓1",
+      "上限突破1"
+     ],
+     "slot": 2
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "宇佐崎詠子",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "神成尊",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 4
+    }
+   ]
+  },
+  {
+   "no": 317,
+   "date": "2026-11-22",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 0,
+    "2": 1,
+    "3": -1
+   },
+   "prayers": [
+    {
+     "after": [
+      "コーチ人数+3",
+      "熟練の守備1",
+      "捕球特訓1"
+     ],
+     "area": 0,
+     "before": [
+      "コーチ人数+2",
+      "熟練の守備1",
+      "捕球特訓1"
+     ],
+     "gained": [
+      "コーチ人数+3"
+     ],
+     "lost": [
+      "コーチ人数+2"
+     ],
+     "name": "シャンプー",
+     "rarity": "金",
+     "result": "成功"
+    }
+   ],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "ササエル",
+     "rarity": "金",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "シャンプー",
+     "rarity": "金",
+     "skills": [
+      "コーチ人数+3",
+      "熟練の守備1",
+      "捕球特訓1"
+     ],
+     "slot": 1
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "竹内脅人",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 2
+    }
+   ]
+  },
+  {
+   "no": 318,
+   "date": "2026-11-22",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 2,
+    "3": 4
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "佐渡摩智",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "袋ノ書",
+     "rarity": "金",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "鹿莫翔太",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "[パワポケ]鋼毅",
+     "rarity": "銀",
+     "skills": [
+      "コーチ人数+3",
+      "総合練習1"
+     ],
+     "slot": 4
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "烏丸剛充",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "小平陽向",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    }
+   ]
+  },
+  {
+   "no": 319,
+   "date": "2026-11-22",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 0,
+    "2": 2,
+    "3": 4
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "ケヒャール",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "呼び寄せの香",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "パーちゃん",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "特能ノ書",
+     "rarity": "金",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "小平陽向",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    }
+   ]
+  },
+  {
+   "no": 320,
+   "date": "2026-11-22",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 0,
+    "2": 3,
+    "3": 8
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "高木幸子",
+     "rarity": "金",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "官堂伊春",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "神成尊",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "滝本太郎",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "宇渡幹久",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "猫神優",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 7
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "アフロ猪狩",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 8
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "[ムーンライト]橘みずき",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 9
+    }
+   ]
+  },
+  {
+   "no": 321,
+   "date": "2026-11-22",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 0,
+    "2": 3,
+    "3": -1
+   },
+   "prayers": [
+    {
+     "after": [
+      "コーチ人数+3",
+      "熟練の守備1",
+      "走力特訓2"
+     ],
+     "area": 0,
+     "before": [
+      "コーチ人数+3",
+      "熟練の守備1",
+      "走力特訓1"
+     ],
+     "gained": [
+      "走力特訓2"
+     ],
+     "lost": [
+      "走力特訓1"
+     ],
+     "name": "[再起の灯]戸内聖華",
+     "rarity": "銅",
+     "result": "成功"
+    }
+   ],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "シャンプー",
+     "rarity": "金",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "梶増人",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "梶杏嘉",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "早乙女乱馬",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "カイル・モラレス",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "[再起の灯]戸内聖華",
+     "rarity": "銅",
+     "skills": [
+      "コーチ人数+3",
+      "熟練の守備1",
+      "走力特訓2"
+     ],
+     "slot": 5
+    }
+   ]
+  },
+  {
+   "no": 322,
+   "date": "2026-11-22",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 4,
+    "3": 6
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "変化球の良い巻物",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": true,
+     "name": "空白ノ書",
+     "rarity": "金",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "天宮果也乃",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "戸草鏡",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "[秘密兵器]虹谷彩理",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "塚見リフター",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "[わんこだよ！]パーちゃん",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "神楽坂光彦",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 7
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "泊方明日音",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 8
+    }
+   ]
+  },
+  {
+   "no": 323,
+   "date": "2026-11-22",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 2,
+    "3": 5
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "巨大リュック+",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": true,
+     "name": "曙緋緒",
+     "rarity": "金",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "幸運の金丹",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "戸草鏡",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "敷上マニィ",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "[にゃんこです]ワーちゃん",
+     "rarity": "金",
+     "skills": [],
+     "slot": 5
+    }
+   ]
+  },
+  {
+   "no": 324,
+   "date": "2026-11-23",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 0,
+    "2": 1,
+    "3": 4
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "海野朋",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "ランスロット",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "小平陽向",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "尾根瑛人",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "異世界のカバン",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "泊方明日音",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "アラン・レイヴン",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    }
+   ]
+  },
+  {
+   "no": 325,
+   "date": "2026-11-23",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 2,
+    "3": 5
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "早乙女乱馬",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "神成尊",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "宇渡幹久",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "武秀英",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "[パワポケ]鋼毅",
+     "rarity": "銀",
+     "skills": [
+      "コーチ人数+3",
+      "上限突破1",
+      "球速特訓1"
+     ],
+     "slot": 5
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "[野球マン1号]早川あおい",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "佐奈あゆみ",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 7
+    }
+   ]
+  },
+  {
+   "no": 326,
+   "date": "2026-11-23",
+   "area": "3/3 むずクエ",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 4,
+    "3": 6
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "佐渡摩智",
+     "rarity": "金",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "武秀英",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "宇渡幹久",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "[秘密兵器]虹谷彩理",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "小平陽向",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "アフロ猪狩",
+     "rarity": "金",
+     "skills": [],
+     "slot": 6
     }
    ]
   }

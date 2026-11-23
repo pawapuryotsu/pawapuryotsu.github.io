@@ -1,5 +1,5 @@
 {
- "取得日": "2026-11-21",
+ "取得日": "2026-11-23",
  "元": "パワクエ周回カウンター",
  "クエスト": "⑲道中3",
  "記録対象外": [
@@ -2703,6 +2703,302 @@
      "boss": false,
      "name": "宇佐崎詠子",
      "rarity": "銅",
+     "skills": [],
+     "slot": 7
+    }
+   ]
+  },
+  {
+   "no": 312,
+   "date": "2026-11-22",
+   "area": "3/3 ⑲道中3",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 0,
+    "2": 3,
+    "3": -1
+   },
+   "prayers": [
+    {
+     "after": [
+      "コーチ人数+4",
+      "上限突破1"
+     ],
+     "area": 0,
+     "before": [
+      "コーチ人数+4"
+     ],
+     "gained": [
+      "上限突破1"
+     ],
+     "lost": [],
+     "name": "[白轟]北斗八雲",
+     "rarity": "銅",
+     "result": "成功"
+    }
+   ],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "幸運の金丹",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "金ノ書",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "鳴海悠斗",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "特能ノ書",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "[白轟]北斗八雲",
+     "rarity": "銅",
+     "skills": [
+      "コーチ人数+4",
+      "上限突破1"
+     ],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "紋別青葉",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "斬金半馬",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    }
+   ]
+  },
+  {
+   "no": 313,
+   "date": "2026-11-22",
+   "area": "3/3 ⑲道中3",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 1,
+    "2": 3,
+    "3": 6
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "空白ノ書",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": true,
+     "name": "呼応ノ書",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "鋼毅",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "特能ノ書",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "久里武尊",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "鈴本大輔",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "巨大リュック+",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "小平陽向",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 7
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "小平陽向",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 8
+    }
+   ]
+  },
+  {
+   "no": 315,
+   "date": "2026-11-22",
+   "area": "3/3 ⑲道中3",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 2,
+    "2": 3,
+    "3": -1
+   },
+   "prayers": [
+    {
+     "after": [
+      "回復の術 金",
+      "総合練マス強化2",
+      "特能進化+3"
+     ],
+     "area": 0,
+     "before": [
+      "回復の術 金",
+      "総合練マス強化2",
+      "特能進化+3"
+     ],
+     "gained": [],
+     "lost": [],
+     "name": "金ノ書",
+     "rarity": "銅",
+     "result": "失敗"
+    }
+   ],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "金ノ書",
+     "rarity": "銅",
+     "skills": [
+      "回復の術 金",
+      "総合練マス強化2",
+      "特能進化+3"
+     ],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "リュック+",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": true,
+     "name": "特能ノ書",
+     "rarity": "金",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "特能ノ書",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "ジャベリン五十嵐",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "大西=ハリソン=筋金",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "敷上マニィ",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "[ピクニック]高原曲",
+     "rarity": "金",
      "skills": [],
      "slot": 7
     }
