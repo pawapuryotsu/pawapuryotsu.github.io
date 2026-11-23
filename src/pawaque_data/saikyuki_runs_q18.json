@@ -1,5 +1,5 @@
 {
- "取得日": "2026-11-21",
+ "取得日": "2026-11-23",
  "元": "パワクエ周回カウンター",
  "クエスト": "⑱道中2",
  "記録対象外": [
@@ -2320,6 +2320,82 @@
      "rarity": "銀",
      "skills": [],
      "slot": 6
+    }
+   ]
+  },
+  {
+   "no": 314,
+   "date": "2026-11-22",
+   "area": "3/3 ⑱道中2",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 2,
+    "2": 6,
+    "3": 10
+   },
+   "prayers": [],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "呼び寄せの香",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "敷上マニィ",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "諏訪野聖人",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "滝本太郎",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "神楽坂光彦",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 7
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "久留米美加",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 8
+    },
+    {
+     "area": 3,
+     "boss": true,
+     "name": "ゼルヴィー・ハイゼンベルク",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 10
     }
    ]
   }
