@@ -336,8 +336,11 @@ _page_info = []   # (path, 名前, 更新日, 公開日, 種類, アイコン, �
 # そのページと子ページ（path がそのページの path で始まるページ。noindex は除く）の先頭の sk_updated のうち、いちばん新しい日
 _SK_UPDATED = {}
 for _m, _ in _parsed:
-    if _m.get("noindex") != "yes" and re.fullmatch(r"\d{4}-\d{2}-\d{2}", _m.get("sk_updated", "")):
-        _SK_UPDATED[_m["path"]] = _m["sk_updated"]
+    # 毎日14時の周回記録の自動更新の日（sk_runs_updated、2026-11-23〜）も「更新」として数える
+    _ds = [_m.get(k, "") for k in ("sk_updated", "sk_runs_updated")]
+    _ds = [d for d in _ds if re.fullmatch(r"\d{4}-\d{2}-\d{2}", d)]
+    if _m.get("noindex") != "yes" and _ds:
+        _SK_UPDATED[_m["path"]] = max(_ds)
 
 
 def sk_updated_of(path):
