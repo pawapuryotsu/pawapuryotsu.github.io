@@ -47,21 +47,31 @@ def memo(t):
 # このあと同じ形のページまとめ（カード型リンク欄）を作る時も、同じ仕組みを付ける。
 import datetime as _dt
 JST = _dt.timezone(_dt.timedelta(hours=9))
-UPD = {}
+# 周回記録の自動更新（毎日14時）は sk_updated ではなく「sk_runs_updated: 2026-11-23」を書く（2026-11-23 管理人「周回記録更新だけの欄を作る」）。
+# → トップの「周回記録更新」欄に出る（「最近の更新」には出さない）。カードの「※○/○更新!」は両方のうち新しい日。
+UPD, RUNUPD = {}, {}
 for _f in (here / "src/pages").glob("*.html"):
     _h = _f.read_text(encoding="utf-8")[:1500]
     _p = re.search(r"^path: *(\S+)", _h, re.M)
     _u = re.search(r"^sk_updated: *(\d{4}-\d{2}-\d{2})", _h, re.M)
+    _r = re.search(r"^sk_runs_updated: *(\d{4}-\d{2}-\d{2})", _h, re.M)
     if _p and _u:
         UPD[_p.group(1)] = _u.group(1)
+    if _p and _r:
+        RUNUPD[_p.group(1)] = _r.group(1)
+
+
+def _end(d):
+    """更新日 d の7日後の日本時間14時（この時刻に表示が自動で消える）"""
+    return _dt.datetime.combine(_dt.date.fromisoformat(d) + _dt.timedelta(days=7), _dt.time(14, 0), JST)
 
 
 def upd_tag(href):
-    d = UPD.get(href)
+    d = max([x for x in (UPD.get(href), RUNUPD.get(href)) if x], default=None)
     if not d:
         return ""
     day = _dt.date.fromisoformat(d)
-    end = _dt.datetime.combine(day + _dt.timedelta(days=7), _dt.time(14, 0), JST)
+    end = _end(d)
     if _dt.datetime.now(JST) >= end:   # もう期限が過ぎていれば最初から出さない
         return ""
     return f'<span class="sk-upd" data-end="{end.isoformat()}">※{day.month}/{day.day}更新!</span>'
@@ -174,7 +184,35 @@ def recent_updates(n=5):
     return ['  <h2 id="recent">最近の更新</h2>', '  <ul class="news recent sk-recent">', *["    " + x for x in li], '  </ul>', '']
 
 
-out = recent_updates() + ['  <section class="sk-nav" aria-label="西球記の関連ページ">',
+def run_updates():
+    """「周回記録更新」欄（2026-11-23 管理人「周回記録更新だけの欄を作ってしまいましょう」）。
+    毎日14時の自動更新で周回記録が増えたページ（先頭の sk_runs_updated）を新しい順に、「最近の更新」と同じ見た目で出す。日付の横に緑太字「※周回記録更新」。
+    7日間更新が無いページは、7日後の日本時間14時に自動で消える（ビルド時も期限切れなら出さない）。全部消えたら欄ごと消える。"""
+    global CUR
+    CUR = None
+    now = _dt.datetime.now(JST)
+    items = []
+    for i, c in enumerate(nav_cards()):
+        href = re.search(r'href="\{\{root\}\}([^"]+)"', c).group(1)
+        d = RUNUPD.get(href)
+        if not d or now >= _end(d):
+            continue
+        img = re.search(r'<img src="([^"]+)" alt="([^"]*)"', c)
+        label = html.unescape(re.sub(r"<[^>]+>", "", re.search(r'<span class="sk-l">(.*?)</span>(?=<span class="sk-(?:upd|s)")', c).group(1)))
+        items.append((d, -i, href, img.group(1), label))
+    if not items:
+        return []
+    items.sort(reverse=True)
+    li = [f'<li data-end="{_end(d).isoformat()}"><a href="{{{{root}}}}{h}"><img class="news-icon news-logo sk-rc-img" src="{im}" alt="" width="80" height="44" loading="lazy">'
+          f'<span><small class="rc-meta">{d.replace("-", "/")} <span class="sk-run-upd">※周回記録更新</span></small><b>{e(lb)}</b></span></a></li>'
+          for d, _, h, im, lb in items]
+    last = max(_end(d) for d, *_ in items).isoformat()
+    return [f'  <div class="sk-runs" data-end="{last}">', '  <h2 id="runs">周回記録更新</h2>', '  <ul class="news recent sk-recent">',
+            *["    " + x for x in li], '  </ul>', '  </div>',
+            "  <script>(function(){var n=Date.now();document.querySelectorAll('.sk-runs [data-end],.sk-runs[data-end]').forEach(function(e){if(n>=Date.parse(e.getAttribute('data-end'))&&e.parentNode)e.parentNode.removeChild(e)})})();</script>", '']
+
+
+out = recent_updates() + run_updates() + ['  <section class="sk-nav" aria-label="西球記の関連ページ">',
              ] + nav_sections(nav_cards()) + [UPD_JS,
        '  </section>', '',
        '  <h2 id="about">西球記とは</h2>',
