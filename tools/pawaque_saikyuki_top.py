@@ -16,7 +16,7 @@ M = json.loads((here / "src/pawaque_data/mission.json").read_text(encoding="utf-
 page = here / "src/pages/pawaque-saikyuki.html"
 
 # 中身ができたら True にする
-READY = {"drop": True, "contract": False, "q18": True, "q19": True}
+READY = {"drop": True, "contract": False, "q18": True, "q19": True, "q12": True}
 
 # 入力済みのクエスト（むずクエなどはタイトルが無いので、ボスドロップが入っていれば入力済みとみなす）
 done = [q for q in Q if q.get("タイトル") or q.get("ボスドロップ")]
@@ -105,7 +105,9 @@ def nav_cards():
             'クエスト<span class="cp-nw">一覧</span>', f"{qrange_nw}の<wbr>ドロップ・管理人メモ" if qrange else "準備中"),
        card("pawaque/saikyuki/drop/", "saikyuki_link_drop.jpg", "交渉の指輪", 311, 121,
             '重要<span class="cp-nw">アイテム一覧</span>', "", READY["drop"]),
-       # 並び（2026-11-19 管理人）：重要アイテム一覧の次に⑱⑲の周回ページ
+       # 並び（2026-11-19 管理人）：重要アイテム一覧の次に⑱⑲の周回ページ。⑫はクエスト番号順で⑱の前（2026-11-23）
+       card("pawaque/saikyuki/q12/", "saikyuki_link_q12.jpg", "クエスト一覧の⑫旅は続く", 374, 148,
+            '⑫旅は続く<span class="cp-nw">周回</span>', "", READY["q12"]),
        card("pawaque/saikyuki/q18/", "saikyuki_link_q18.jpg", "クエスト一覧の⑱道中2", 374, 148,
             '⑱道中2<span class="cp-nw">周回</span>', "", READY["q18"]),
        card("pawaque/saikyuki/q19/", "saikyuki_link_q19.jpg", "クエスト一覧の⑲道中3", 374, 148,
@@ -132,7 +134,7 @@ def nav_cards():
 
 
 # リンク欄は2段（2026-11-23 管理人）：1段目「西球記の攻略ページ」、2段目「西球記のクエスト・周回ページ」（クエスト一覧と各クエストの攻略・周回ページ）
-QUEST_PAGES = ("pawaque/saikyuki/quest/", "pawaque/saikyuki/q18/", "pawaque/saikyuki/q19/",
+QUEST_PAGES = ("pawaque/saikyuki/quest/", "pawaque/saikyuki/q12/", "pawaque/saikyuki/q18/", "pawaque/saikyuki/q19/",
                "pawaque/saikyuki/muzu/", "pawaque/saikyuki/mucha/")
 
 
