@@ -16,7 +16,7 @@ M = json.loads((here / "src/pawaque_data/mission.json").read_text(encoding="utf-
 page = here / "src/pages/pawaque-saikyuki.html"
 
 # 中身ができたら True にする
-READY = {"drop": True, "contract": False, "q18": True, "q19": True, "q12": False}
+READY = {"drop": True, "contract": False, "q18": True, "q19": True, "q12": True}
 
 # 入力済みのクエスト（むずクエなどはタイトルが無いので、ボスドロップが入っていれば入力済みとみなす）
 done = [q for q in Q if q.get("タイトル") or q.get("ボスドロップ")]
