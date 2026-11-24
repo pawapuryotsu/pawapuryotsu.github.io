@@ -44,7 +44,7 @@ UPD_JS = ("  <script>(function(){var n=Date.now();document.querySelectorAll('.sk
 
 
 def href_of(c):
-    if c.get("リンク"):   # 既にあるページへのリンク（例：有能キャラ予想 ranking/next_batter/、2026-11-22 管理人）
+    if c.get("リンク"):   # http で始まるものはサイトの外（例：ロマン開花のコスト計算ツール）   # 既にあるページへのリンク（例：有能キャラ予想 ranking/next_batter/、2026-11-22 管理人）
         return c["リンク"]
     if c["キー"] == "decks":
         return f"decks/{KEY}/"
@@ -70,6 +70,8 @@ def card(c):
     th += f'<span class="sk-l">{c.get("表示名") or e(c["名前"])}</span>{upd_tag(href)}<span class="sk-s">{c.get("説明", "")}</span>'
     if href == CUR:
         return f'    <span class="sk-c sk-cur" aria-current="page">{th}<span class="sk-now">表示中のページ</span></span>'
+    if href.startswith("http"):
+        return f'    <a class="sk-c" href="{e(href)}" target="_blank" rel="noopener">{th}</a>'
     return f'    <a class="sk-c" href="{{{{root}}}}{href}">{th}</a>'
 
 
@@ -107,5 +109,20 @@ for f in sorted((here / "src/pages").glob(f"success-{KEY}-*.html")):
     assert "<!-- SKNAV:START -->" in t, f"{f.name}: SKNAV の目印が見つからない"
     t = re.sub(r"(<!-- SKNAV:START -->).*?(<!-- SKNAV:END -->)", lambda m: m.group(1) + "\n" + nav(True) + "\n  " + m.group(2), t, flags=re.S)
     f.write_text(t, encoding="utf-8")
+# 既にある別の場所のページ（例：ロマン開花の decks/roman/・deckbuild/roman/）にも一番下のリンク欄を付ける。
+# json の「リンク欄を付けるページ」に src/pages のファイル名を書く。ページに <!-- SKNAV:START/END --> の目印を置いておく。
+for fn in C.get("リンク欄を付けるページ", []):
+    f = here / "src/pages" / fn
+    t = f.read_text(encoding="utf-8")
+    CUR = re.search(r"^path: *(\S+)", t, re.M).group(1)
+    assert "<!-- SKNAV:START -->" in t, f"{fn}: SKNAV の目印が見つからない"
+    t = re.sub(r"(<!-- SKNAV:START -->).*?(<!-- SKNAV:END -->)", lambda m: m.group(1) + "\n" + nav(True) + "\n  " + m.group(2), t, flags=re.S)
+    f.write_text(t, encoding="utf-8")
+    print("ok リンク欄", fn)
+# ランキングページ（charpages.py が ranking.json から作る）用は src/success_data/sknav_<ランキングのキー>.html に書き出し、charpages.py が一番下に付ける
+for rk in C.get("リンク欄を付けるランキング", []):
+    CUR = f"ranking/{rk}/"
+    (here / f"src/success_data/sknav_{rk}.html").write_text(nav(True) + "\n", encoding="utf-8")
+    print("ok ランキングのリンク欄", rk)
 CUR = None
 print("ok 子ページのリンク欄", len(list((here / "src/pages").glob(f"success-{KEY}-*.html"))), "ページ")
