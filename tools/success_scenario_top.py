@@ -158,14 +158,19 @@ def event_tables():
                     continue
                 body = "".join(f'<div class="se-ev"><b>{_deco(v["名前"])}</b>'
                                + "".join(f"<span>{_deco(x)}</span>" for x in v.get("詳細", [])) + "</div>" for v in evs)
-                cells.append(f'<td class="{cls}">{body}</td>')
+                cells.append(f'<td class="{cls}">{body}</td>' if _colored(evs) else f"<td>{body}</td>")
             out.append(f'    <tr><th class="se-w">{e(wk)}</th>{"".join(cells)}</tr>')
         out += ["  </tbody>", "  </table>"]
     return "\n".join(out)
 
 
+
+def _colored(evs):
+    """セルに色を付けるか。イベント名を () か （） で囲んだものは「空きイベント扱い」で色を付けない（2026-11-24 管理人）"""
+    return any(not re.match(r"^\s*[（(].*[）)]\s*$", str(v.get("名前", ""))) for v in (evs or []))
+
 def empty_counts():
-    """空きイベント数（前・後）。固有イベントの表で、イベントの無い週を前・後ごとに数える。「数えない週」は除く"""
+    """空きイベント数（前・後）。固有イベントの表で、色の付いていないセル（イベント無し、または名前を()で囲んだ空き扱いのイベント）を前・後ごとに数える。「数えない週」は除く"""
     V = C.get("固有イベント") or {}
     if not V.get("空きイベント数を数える"):
         return None
@@ -176,7 +181,7 @@ def empty_counts():
             if wk in skip.get(sec["名前"], []):
                 continue
             for side in n:
-                if not (W.get(wk) or {}).get(side):
+                if not _colored((W.get(wk) or {}).get(side)):  # 色の付いていないセルを数える
                     n[side] += 1
     return n
 
