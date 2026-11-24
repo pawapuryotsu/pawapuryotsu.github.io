@@ -154,8 +154,9 @@ def event_tables():
             cells = []
             for side, cls in (("前", "se-on-mae"), ("後", "se-on-ato")):
                 evs = (W.get(wk) or {}).get(side) or []
-                if not evs:
-                    cells.append("<td></td>")
+                if not evs:  # 「色を塗る空欄」に書いた所は、空でも背景色を付ける
+                    paint = side in V.get("色を塗る空欄", {}).get(sec["名前"], {}).get(wk, [])
+                    cells.append(f'<td class="{cls}"></td>' if paint else "<td></td>")
                     continue
                 body = "".join(f'<div class="se-ev"><b>{_deco(v["名前"])}</b>'
                                + "".join(f"<span>{_deco(x)}</span>" for x in v.get("詳細", [])) + "</div>" for v in evs)
