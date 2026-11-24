@@ -111,6 +111,9 @@ def about_table():
             return wait
         return '<span class="sa-list">' + "".join(f'<span class="sa-i">{e(str(x))}</span>' for x in v) + "</span>"
     mae, ato = val(A.get("空きイベント数_前", "")), val(A.get("空きイベント数_後", ""))
+    _n = empty_counts()
+    if _n is not None:
+        mae, ato = str(_n["前"]), str(_n["後"])
     rows = [
         ("実装日", val(A.get("実装日", ""))),
         ("空き<span class=\"cp-nw\">イベント数</span>", f'<span class="sa-ev"><span class="cp-nw sa-mae">前：<b>{mae}</b></span>'
@@ -161,6 +164,43 @@ def event_tables():
     return "\n".join(out)
 
 
+def empty_counts():
+    """空きイベント数（前・後）。固有イベントの表で、イベントの無い週を前・後ごとに数える。「数えない週」は除く"""
+    V = C.get("固有イベント") or {}
+    if not V.get("空きイベント数を数える"):
+        return None
+    W, skip = V.get("週", {}), V.get("数えない週", {})
+    n = {"前": 0, "後": 0}
+    for sec in V["セクション"]:
+        for wk in sec["週"]:
+            if wk in skip.get(sec["名前"], []):
+                continue
+            for side in n:
+                if not (W.get(wk) or {}).get(side):
+                    n[side] += 1
+    return n
+
+
+# ランダムイベント（2026-11-24 管理人「イベキャラのイベント表の形を流用」）。charpages.py の event_detail で作る。
+def random_events():
+    V = C.get("ランダムイベント")
+    if V is None:
+        return None
+    evs = V.get("イベント", [])
+    if not evs:
+        return '  <p class="muted">準備中です。</p>'
+    sys.path.insert(0, str(here))
+    import charpages as cp
+    cp._CTYPE[0] = {"投手": "投手用", "野手": "野手用"}.get(C.get("種別", ""))
+    ev = {}
+    for x in evs:
+        y = {k: v for k, v in x.items() if k not in ("名前", "行")}
+        if x.get("行"):
+            y["小イベント"] = [{"行": x["行"]}] + y.get("小イベント", [])
+        ev[x["名前"]] = y
+    return f'  <section class="cp-sec sc-rnd">{cp.event_detail(ev)}</section>'
+
+
 # トップ
 s = page.read_text(encoding="utf-8")
 assert "<!-- SCTOP:START -->" in s and "<!-- SCTOP:END -->" in s, "SCTOP の目印が見つからない"
@@ -173,6 +213,10 @@ _ev = event_tables()
 if _ev is not None:
     assert "<!-- SCEVENT:START -->" in s, "SCEVENT の目印が見つからない"
     s = re.sub(r"(<!-- SCEVENT:START -->).*?(<!-- SCEVENT:END -->)", lambda m: m.group(1) + "\n" + _ev + "\n  " + m.group(2), s, flags=re.S)
+_rn = random_events()
+if _rn is not None:
+    assert "<!-- SCRANDOM:START -->" in s, "SCRANDOM の目印が見つからない"
+    s = re.sub(r"(<!-- SCRANDOM:START -->).*?(<!-- SCRANDOM:END -->)", lambda m: m.group(1) + "\n" + _rn + "\n  " + m.group(2), s, flags=re.S)
 page.write_text(s, encoding="utf-8")
 print("ok トップ", NAME, sum(1 for c in C["子ページ"] if c.get("準備OK")), "枚")
 
