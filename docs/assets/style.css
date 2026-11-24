@@ -705,3 +705,15 @@ a.hg .scard:hover,.hg a.scard:hover{background:#f6f8fa}
 .sa-i{display:inline-block;margin:2px 6px 2px 0}
 .sa-i:not(:last-child)::after{content:"・";margin-left:6px;color:#5b6676}
 @media (max-width:400px){.sa-t{font-size:14px}.sa-t th{width:6.4em;font-size:13px;padding:7px 6px}.sa-t td{padding:7px 8px}}
+/* シナリオトップ「固有イベント」の表（tools/success_scenario_top.py、2026-11-24） */
+.se-h{font-family:var(--head);font-weight:900;font-size:16px;margin:20px 0 6px}.se-r{font-size:13px;font-weight:500;color:#5b6676;margin-left:4px}
+.se-t{width:100%;border-collapse:collapse;table-layout:auto;background:#fff;font-size:15px;line-height:1.5;margin:0 0 16px}
+.se-t th,.se-t td{white-space:normal;border:1px solid #c9d3c6;padding:5px 8px;vertical-align:middle;text-align:left;overflow-wrap:anywhere}
+.se-t thead th{text-align:center;font-weight:900;background:#fff}
+.se-t td,.se-t th.se-mae,.se-t th.se-ato{width:50%}
+.se-t th.se-w{width:1%;white-space:nowrap;text-align:right;background:#f2f4f1;font-weight:700;font-size:14px}
+.se-t thead th.se-w{background:#fff}
+.se-t th.se-mae{color:#e08a00}.se-t th.se-ato{color:#1565c0}
+.se-on-mae{background:#fff2cc}.se-on-ato{background:#dde8f5}
+.se-ev{display:flex;flex-direction:column}.se-ev+.se-ev{margin-top:6px}.se-ev b{font-weight:700}.se-ev span{font-weight:500}
+@media (max-width:400px){.se-t{font-size:14px}.se-t th.se-w{font-size:13px;padding:5px 5px}.se-t td{padding:5px 6px}}

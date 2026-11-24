@@ -128,6 +128,39 @@ def about_table():
     return "\n".join(out)
 
 
+# 固有イベントの表（2026-11-24 管理人の画像の形）。json の「固有イベント」から <!-- SCEVENT:START/END --> の間を作る。
+# セクションごとに「週・前・後」の表。イベントのある欄は 前＝薄い黄色・後＝薄い青の背景。詳細は {青:…}{緑:…}{赤:…} で色。
+_TXC = {"青": "tx-b", "緑": "tx-g", "赤": "tx-r"}
+def _deco(x):
+    x = e(str(x))
+    return re.sub(r"\{(青|緑|赤):(.*?)\}", lambda m: f'<span class="{_TXC[m.group(1)]}">{m.group(2)}</span>', x)
+
+def event_tables():
+    V = C.get("固有イベント")
+    if V is None:
+        return None
+    W = V.get("週", {})
+    out = []
+    for sec in V["セクション"]:
+        out.append(f'  <h3 class="se-h">{e(sec["名前"])}<span class="se-r">（{e(sec["週"][0])}〜{e(sec["週"][-1])}）</span></h3>')
+        out.append('  <table class="se-t">')
+        out.append('  <thead><tr><th class="se-w"></th><th class="se-mae">前</th><th class="se-ato">後</th></tr></thead>')
+        out.append("  <tbody>")
+        for wk in sec["週"]:
+            cells = []
+            for side, cls in (("前", "se-on-mae"), ("後", "se-on-ato")):
+                evs = (W.get(wk) or {}).get(side) or []
+                if not evs:
+                    cells.append("<td></td>")
+                    continue
+                body = "".join(f'<div class="se-ev"><b>{_deco(v["名前"])}</b>'
+                               + "".join(f"<span>{_deco(x)}</span>" for x in v.get("詳細", [])) + "</div>" for v in evs)
+                cells.append(f'<td class="{cls}">{body}</td>')
+            out.append(f'    <tr><th class="se-w">{e(wk)}</th>{"".join(cells)}</tr>')
+        out += ["  </tbody>", "  </table>"]
+    return "\n".join(out)
+
+
 # トップ
 s = page.read_text(encoding="utf-8")
 assert "<!-- SCTOP:START -->" in s and "<!-- SCTOP:END -->" in s, "SCTOP の目印が見つからない"
@@ -136,6 +169,10 @@ _ab = about_table()
 if _ab is not None:
     assert "<!-- SCABOUT:START -->" in s, "SCABOUT の目印が見つからない"
     s = re.sub(r"(<!-- SCABOUT:START -->).*?(<!-- SCABOUT:END -->)", lambda m: m.group(1) + "\n" + _ab + "\n  " + m.group(2), s, flags=re.S)
+_ev = event_tables()
+if _ev is not None:
+    assert "<!-- SCEVENT:START -->" in s, "SCEVENT の目印が見つからない"
+    s = re.sub(r"(<!-- SCEVENT:START -->).*?(<!-- SCEVENT:END -->)", lambda m: m.group(1) + "\n" + _ev + "\n  " + m.group(2), s, flags=re.S)
 page.write_text(s, encoding="utf-8")
 print("ok トップ", NAME, sum(1 for c in C["子ページ"] if c.get("準備OK")), "枚")
 
