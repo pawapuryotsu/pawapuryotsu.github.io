@@ -1,0 +1,65 @@
+{
+  "_説明": "ロマン開花學園のシナリオトップ（success/roman/）と子ページのリンク欄の設定。古書館高校（new_scenario.json）と同じ形（2026-11-24 管理人）。tools/success_scenario_top.py src/success_data/roman.json で作る。",
+  "キー": "roman",
+  "名前": "ロマン開花學園",
+  "読み": "",
+  "種別": "投手",
+  "配信日時": "",
+  "ロゴ画像": "",
+  "リンク欄を付けるページ": ["roman.html", "deckbuild-roman.html"],
+  "リンク欄を付けるランキング": ["roman"],
+  "子ページ": [
+    {
+      "キー": "gimmick",
+      "名前": "ギミック解説",
+      "説明": "",
+      "画像": "",
+      "準備OK": false,
+      "表示名": "ギミック<span class=\"cp-nw\">解説</span>",
+      "準備中で出す": true
+    },
+    {
+      "キー": "tachimawari",
+      "名前": "立ち回り解説",
+      "説明": "",
+      "画像": "",
+      "準備OK": false,
+      "表示名": "立ち回り<span class=\"cp-nw\">解説</span>",
+      "準備中で出す": true
+    },
+    {
+      "キー": "decks",
+      "名前": "おすすめデッキ",
+      "表示名": "おすすめ<span class=\"cp-nw\">デッキ</span>",
+      "説明": "",
+      "画像": "",
+      "準備OK": true
+    },
+    {
+      "キー": "ranking",
+      "名前": "イベキャラランキング",
+      "表示名": "イベキャラ<span class=\"cp-nw\">ランキング</span>",
+      "説明": "",
+      "画像": "",
+      "準備OK": true
+    },
+    {
+      "キー": "deckbuild",
+      "名前": "デッキの組み方",
+      "リンク": "deckbuild/roman/",
+      "表示名": "デッキの<span class=\"cp-nw\">組み方</span>",
+      "説明": "",
+      "画像": "",
+      "準備OK": true
+    },
+    {
+      "キー": "costchecker",
+      "名前": "コスト計算ツール",
+      "リンク": "https://pawapuryotsu.com/roman_costchecker/",
+      "表示名": "コスト<span class=\"cp-nw\">計算ツール</span>",
+      "説明": "",
+      "画像": "",
+      "準備OK": true
+    }
+  ]
+}

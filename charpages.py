@@ -1160,6 +1160,14 @@ def top_guide_html(r):
     return out
 
 
+def sknav_html(key):
+    """シナリオトップと同じ「〇〇の攻略ページ」リンク欄（tools/success_scenario_top.py が src/success_data/sknav_<キー>.html に書き出す）を一番下に付ける"""
+    f = Path(__file__).parent / "src/success_data" / f"sknav_{key}.html"
+    if not f.exists():
+        return ""
+    return '<div class="prose">' + f.read_text(encoding="utf-8").replace("{{root}}", "../../") + "</div>"
+
+
 def ranking_pages(items, config, chars, chars_path):
     """ランキングページ（/ranking/〇〇/）。Tier表（顔アイコン）と、キャラごとの解説。
     キャラページがまだ無いキャラも載せられる（アイコンはリンクなし。ページができたら自動でリンクされる）"""
@@ -1233,7 +1241,8 @@ def ranking_pages(items, config, chars, chars_path):
                 + top_guide_html(r)
                 + (f'<div class="tier-table">{rows}</div>' if n else '<p class="muted">準備中です。</p>')
                 + (bonus_table_html(r, chars, bt_icons) if r.get("ボーナス表") else "")
-                + guide_html(r))   # キャラごとの評価文章は、各キャラのページ（src/chars/texts/<名前>.json の「評価」）にだけ書く
+                + guide_html(r)
+                + sknav_html(key))   # キャラごとの評価文章は、各キャラのページ（src/chars/texts/<名前>.json の「評価」）にだけ書く
         # 「検索用タイトル」があれば <title> だけそれにする（見出し・パンくず・SNS画像は title のまま。2026-11-12 管理人OK）
         meta = "\n".join([f'title: {r.get("検索用タイトル") or r["title"]}｜パワプロアプリ攻略ベース', f'crumb: {r["title"]}', f'og_title: {r["title"]}',
                           f'description: パワプロアプリのイベキャラを、Tier表（{"・".join(t for t in TIERS if r["ランク"].get(t))}）でランク付けしました。{r["title"]}の評価基準と、各キャラのランクをまとめています。',
