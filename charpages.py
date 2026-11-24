@@ -1229,6 +1229,8 @@ def ranking_pages(items, config, chars, chars_path):
         h1_title = " ".join(f'<span class="cp-h1">{e(w)}</span>' for w in r["title"].split())  # 空白の所でだけ折り返す
         body = (f'<section class="phead"><p class="eyebrow">イベキャラランキング</p><h1>{h1_title}</h1>'
                 f'<p>{date_label(r)}</p></section>'
+                # 「サムネ」があれば見出しの下に動画サムネイル画像を出す（next_batter、2026-11-24 管理人）
+                + (f'<p class="rk-thumb"><img src="../../{e(r["サムネ"])}" alt="{e(r["title"])}" width="1280" height="720"></p>' if r.get("サムネ") else "")
                 + (f'<div class="rk-intro">{intro}</div>' if intro else "")
                 + top_guide_html(r)
                 + (f'<div class="tier-table">{rows}</div>' if n else '<p class="muted">準備中です。</p>')
