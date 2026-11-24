@@ -36,6 +36,7 @@ assert runs, f"「{quest}」の周が見つからない（クエスト名は帯�
 D = {"取得日": day, "元": "パワクエ周回カウンター", "クエスト": quest,
      "記録対象外": old.get("記録対象外", []),
      "期間の表示名": old.get("期間の表示名", {}),
+     **({"期間終了後の注意": old["期間終了後の注意"]} if old.get("期間終了後の注意") else {}),
      **({"コーチを先に": True} if old.get("コーチを先に") else {}),   # ページごとの表示設定も引き継ぐ
      "runs": runs}
 out.write_text(json.dumps(D, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
