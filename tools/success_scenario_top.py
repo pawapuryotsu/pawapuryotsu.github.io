@@ -133,10 +133,10 @@ def about_table():
 
 # 固有イベントの表（2026-11-24 管理人の画像の形）。json の「固有イベント」から <!-- SCEVENT:START/END --> の間を作る。
 # セクションごとに「週・前・後」の表。イベントのある欄は 前＝薄い黄色・後＝薄い青の背景。詳細は {青:…}{緑:…}{赤:…} で色。
-_TXC = {"青": "tx-b", "緑": "tx-g", "赤": "tx-r"}
+_TXC = {"青": "tx-b", "緑": "tx-g", "赤": "tx-r", "青太": "tx-b tx-bold", "緑太": "tx-g tx-bold", "赤太": "tx-r tx-bold", "太": "tx-bold"}
 def _deco(x):
     x = e(str(x))
-    return re.sub(r"\{(青|緑|赤):(.*?)\}", lambda m: f'<span class="{_TXC[m.group(1)]}">{m.group(2)}</span>', x)
+    return re.sub(r"[{｛](青太|緑太|赤太|青|緑|赤|太)[:：](.*?)[}｝]", lambda m: f'<span class="{_TXC[m.group(1)]}">{m.group(2)}</span>', x)
 
 def event_tables():
     V = C.get("固有イベント")
