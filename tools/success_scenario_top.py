@@ -6,6 +6,7 @@
 - おすすめデッキ（decks/<キー>/）とイベキャラランキング（ranking/<キー>/）は、ロマン開花・アンドロメダと同じ仕組みのページにリンクする。
 - ページの先頭に sk_updated: YYYY-MM-DD を書くと、カードに緑太字「※○/○更新!」が出て7日後14時に消える（西球記と同じ）。
 - カードの文字の途中で折り返したくない時は「表示名」に HTML（cp-nw の span）で書く。
+- json の「概要」（実装日・空きイベント数・金特・所持経験点上限・所属キャラ）から、トップの <!-- SCABOUT:START/END --> に概要の表を作る。空欄は「調査中」。
 - ページの <!-- SCTOP:START/END -->（トップ）と <!-- SKNAV:START/END -->（子ページ）の間を書き換える。"""
 import datetime as _dt, html, json, re, sys
 from pathlib import Path
@@ -95,10 +96,46 @@ def nav(bottom=False):
                       f'  <p class="sk-nav-h">{e(NAME)}の攻略ページ</p>'] + grid(cs) + [UPD_JS, '  </section>'])
 
 
+# シナリオの概要の表（2026-11-24 管理人のテンプレ）。json の「概要」から <!-- SCABOUT:START/END --> の間を作る。
+# 空欄は「調査中」。空きイベント数は 前＝黄色太字・後＝濃い青太字。金特は投手・野手で行を分ける。
+def about_table():
+    A = C.get("概要")
+    if A is None:
+        return None
+    wait = '<span class="sa-wait">調査中</span>'
+    def val(v):
+        return e(str(v)) if str(v).strip() else wait
+    def items(v):
+        v = [x for x in (v or []) if str(x).strip()]
+        if not v:
+            return wait
+        return '<span class="sa-list">' + "".join(f'<span class="sa-i">{e(str(x))}</span>' for x in v) + "</span>"
+    mae, ato = val(A.get("空きイベント数_前", "")), val(A.get("空きイベント数_後", ""))
+    rows = [
+        ("実装日", val(A.get("実装日", ""))),
+        ("空き<span class=\"cp-nw\">イベント数</span>", f'<span class="sa-ev"><span class="cp-nw">前：<b class="sa-mae">{mae}</b></span>'
+                           f'<span class="cp-nw">後：<b class="sa-ato">{ato}</b></span></span>'),
+    ]
+    out = ['  <table class="sa-t">', "  <tbody>"]
+    for th, td in rows:
+        out.append(f"    <tr><th>{th}</th><td>{td}</td></tr>")
+    out.append(f'    <tr><th rowspan="2">取得可能な<span class="cp-nw">金特</span></th>'
+               f'<td><span class="sa-pos">投手</span>{items(A.get("金特_投手"))}</td></tr>')
+    out.append(f'    <tr><td><span class="sa-pos">野手</span>{items(A.get("金特_野手"))}</td></tr>')
+    out.append(f'    <tr><th>所持経験点<span class="cp-nw">上限</span></th><td>{val(A.get("所持経験点上限", ""))}</td></tr>')
+    out.append(f'    <tr><th>シナリオ<span class="cp-nw">所属キャラ</span></th><td>{items(A.get("所属キャラ"))}</td></tr>')
+    out += ["  </tbody>", "  </table>"]
+    return "\n".join(out)
+
+
 # トップ
 s = page.read_text(encoding="utf-8")
 assert "<!-- SCTOP:START -->" in s and "<!-- SCTOP:END -->" in s, "SCTOP の目印が見つからない"
 s = re.sub(r"(<!-- SCTOP:START -->).*?(<!-- SCTOP:END -->)", lambda m: m.group(1) + "\n" + nav() + "\n  " + m.group(2), s, flags=re.S)
+_ab = about_table()
+if _ab is not None:
+    assert "<!-- SCABOUT:START -->" in s, "SCABOUT の目印が見つからない"
+    s = re.sub(r"(<!-- SCABOUT:START -->).*?(<!-- SCABOUT:END -->)", lambda m: m.group(1) + "\n" + _ab + "\n  " + m.group(2), s, flags=re.S)
 page.write_text(s, encoding="utf-8")
 print("ok トップ", NAME, sum(1 for c in C["子ページ"] if c.get("準備OK")), "枚")
 

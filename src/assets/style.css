@@ -689,3 +689,18 @@ a.hg .scard:hover,.hg a.scard:hover{background:#f6f8fa}
 @media (max-width:759px){.hg .scard{padding:10px 4px 12px}}
 /* 2列版（比較用） */
 @media (max-width:759px){.grid2.hg.hg2{grid-template-columns:1fr 1fr}.hg2 .scard{padding:12px 8px 14px}.hg2 .scard h3{font-size:14px}.hg2 .scard p{font-size:12px}}
+
+/* シナリオトップ「シナリオの概要」の表（tools/success_scenario_top.py、2026-11-24） */
+.sa-t{width:100%;border-collapse:collapse;margin:12px 0 18px;background:#fff;font-size:15px;line-height:1.5;table-layout:fixed}
+.sa-t th,.sa-t td{white-space:normal;border:1px solid #c9d3c6;padding:8px 10px;vertical-align:middle;text-align:left;word-break:normal;overflow-wrap:anywhere}
+.sa-t th{width:7.6em;background:#e1efe6;color:#14233a;font-weight:700;font-size:14px}
+.sa-wait{color:#5b6676}
+.sa-ev .sa-wait{font-weight:400;font-size:15px}
+.sa-ev{display:flex;flex-wrap:wrap;gap:2px 18px}
+.sa-mae{color:#e0a800;font-weight:900;font-size:17px}
+.sa-ato{color:#0b3d91;font-weight:900;font-size:17px}
+.sa-pos{display:inline-block;margin:0 8px 0 0;padding:1px 8px;border-radius:4px;font-size:12px;font-weight:700;color:#fff;background:#1d5e43;vertical-align:1px}
+.sa-list{display:inline}
+.sa-i{display:inline-block;margin:2px 6px 2px 0}
+.sa-i:not(:last-child)::after{content:"・";margin-left:6px;color:#5b6676}
+@media (max-width:400px){.sa-t{font-size:14px}.sa-t th{width:6.4em;font-size:13px;padding:7px 6px}.sa-t td{padding:7px 8px}}
