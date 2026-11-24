@@ -142,9 +142,10 @@ def event_tables():
     V = C.get("固有イベント")
     if V is None:
         return None
-    W = V.get("週", {})
+    WS = V.get("週", {})
     out = []
     for sec in V["セクション"]:
+        W = WS.get(sec["名前"], {})  # 週はセクションごと（8月1〜3週がセクション1と4にあるため）
         out.append(f'  <h3 class="se-h">{e(sec["名前"])}<span class="se-r">（{e(sec["週"][0])}〜{e(sec["週"][-1])}）</span></h3>')
         out.append('  <table class="se-t">')
         out.append('  <thead><tr><th class="se-w"></th><th class="se-mae">前</th><th class="se-ato">後</th></tr></thead>')
@@ -174,9 +175,10 @@ def empty_counts():
     V = C.get("固有イベント") or {}
     if not V.get("空きイベント数を数える"):
         return None
-    W, skip = V.get("週", {}), V.get("数えない週", {})
+    WS, skip = V.get("週", {}), V.get("数えない週", {})
     n = {"前": 0, "後": 0}
     for sec in V["セクション"]:
+        W = WS.get(sec["名前"], {})
         for wk in sec["週"]:
             if wk in skip.get(sec["名前"], []):
                 continue
