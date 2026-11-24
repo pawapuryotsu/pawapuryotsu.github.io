@@ -398,8 +398,6 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .rk-ic span{display:block;max-width:100%;overflow-wrap:anywhere}
 .rk-date{font-size:13px;font-weight:700;color:var(--muted)}
 .rk-intro{margin:10px 0}
-.rk-thumb{margin:10px 0}
-.rk-thumb img{display:block;width:100%;height:auto;border-radius:8px}
 .rk-note{margin:14px 0;padding-top:12px;border-top:1px solid var(--line)}
 .rk-note:first-of-type{border-top:0;padding-top:0}
 .rk-note h3,.rk-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
