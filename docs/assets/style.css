@@ -689,3 +689,8 @@ a.hg .scard:hover,.hg a.scard:hover{background:#f6f8fa}
 @media (max-width:759px){.hg .scard{padding:10px 4px 12px}}
 /* 2列版（比較用） */
 @media (max-width:759px){.grid2.hg.hg2{grid-template-columns:1fr 1fr}.hg2 .scard{padding:12px 8px 14px}.hg2 .scard h3{font-size:14px}.hg2 .scard p{font-size:12px}}
+
+/* ガチャカードのイベキャラアイコン（2026-11-24 管理人） */
+.gcard .gc-icons{display:flex;justify-content:center;gap:4px}
+.gcard .gc-icons img{display:block;width:48px;height:48px;border-radius:6px}
+@media (max-width:359px){.gcard .gc-icons img{width:40px;height:40px}}

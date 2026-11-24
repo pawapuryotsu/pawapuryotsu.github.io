@@ -273,7 +273,9 @@ def generate(src):
                 f"path: {path}\nnav: home\nscripts: gacha\ncrumb: {g['chara']}のガチャ\n"
                 f"og_title: {g['chara']}の{gw(g)}は引くべき？\nrecent_title: {g['chara']}の{gw(g)}は引くべき？\nog_icon: {(g.get('charas') or [g])[0]['icon']}\n")
         pages.append(f"<!--\n{meta}-->\n" + _body(g, "", src))
-        cards.append((g["id"], _ended(g), f'<a class="scard" href="{{{{root}}}}{path}"><span class="tag p">{e(g["chara"])}</span><h3><span class="cp-nw">{e(g["chara"])}の</span><span class="cp-nw">{gw(g)}は</span><span class="cp-nw">引くべき？</span></h3>'
+        # カードにイベキャラのアイコンを付ける（json の icon、2キャラのガチャは charas の icon を全員分。2026-11-24 管理人）
+        icons = "".join(f'<img src="{{{{root}}}}{e(ch["icon"])}" alt="" width="48" height="48" loading="lazy">' for ch in (g.get("charas") or [g]) if ch.get("icon"))
+        cards.append((g["id"], _ended(g), f'<a class="scard gcard" href="{{{{root}}}}{path}">' + (f'<span class="gc-icons">{icons}</span>' if icons else "") + f'<span class="tag p">{e(g["chara"])}</span><h3><span class="cp-nw">{e(g["chara"])}の</span><span class="cp-nw">{gw(g)}は</span><span class="cp-nw">引くべき？</span></h3>'
                                f'<p>SR Lv45・PSR Lv50の完成確率と<span class="cp-nw">シミュレータ。</span></p><span class="go" aria-hidden="true">→</span></a>'))
     cards.sort(key=lambda x: x[0], reverse=True)   # 新しいガチャを上に
     past = [c for _, ended, c in cards if ended]
