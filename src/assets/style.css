@@ -699,7 +699,7 @@ a.hg .scard:hover,.hg a.scard:hover{background:#f6f8fa}
 .sa-ev{display:flex;flex-wrap:wrap;gap:2px 18px}
 .sa-mae{color:#e0a800;font-weight:900}.sa-mae b,.sa-ato b{font-size:17px}
 .sa-ato{color:#0b3d91;font-weight:900}
-.sa-pos-p{background:#d6336c}
+.sa-pos.sa-pos-p{background:#d6336c}
 .sa-pos{display:inline-block;margin:0 8px 0 0;padding:1px 8px;border-radius:4px;font-size:12px;font-weight:700;color:#fff;background:#1d5e43;vertical-align:1px}
 .sa-list{display:inline}
 .sa-i{display:inline-block;margin:2px 6px 2px 0}
