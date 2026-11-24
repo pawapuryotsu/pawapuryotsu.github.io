@@ -107,7 +107,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--sub);font-weight:70
   <div class="row" id="rpolrow"><label>投手の育成方針</label><span id="rpol" class="tabs"></span><span class="note">（投手のランキングのときだけ使います）</span></div>
   <div class="row"><label>種類</label><select id="rk"></select><button class="primary" id="runrank">ランキングを作る</button><span id="rstatus" class="note"></span></div>
   <div class="row"><label><input type="checkbox" id="noEx"> 持っていないキャラも除外しない（理論値を検証する）</label></div>
-  <div class="row"><label><input type="checkbox" id="rNoLim"> 限定キャラを外す（ランキングの対象から）</label></div>
+  <div class="row"><label><input type="checkbox" id="rNoLim"> 限定契約書を外す（ランキングの対象から）</label></div>
   <p class="note">契約書の一覧に入っているキャラを、Lvは「限界Lv＋図鑑」のとおり、コーチ育成は最適で計算した査定の合計で並べます。</p>
 </div>
 <div id="rout"></div>
@@ -130,7 +130,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--sub);font-weight:70
 
 <section id="p6" style="display:none">
 <div class="card"><p class="note">シミュレータに入っているイベキャラの契約書です（<span id="clCount"></span>人）。コストは白袋の値です（銀袋＝×0.8、金袋＝×0.6、どちらも切り上げ）。ポジション名をタップすると開きます。</p>
-<div class="row"><label><input type="checkbox" id="clNoLim"> 限定キャラを非表示にする</label></div>
+<div class="row"><label><input type="checkbox" id="clNoLim"> 限定契約書を非表示にする</label></div>
 <div class="row"><label>並び順</label><select id="clSort"><option value="name">名前順</option><option value="cost">コストが高い順</option><option value="lv">限界Lvが高い順</option></select></div></div>
 <div id="clOut"></div>
 </section>
@@ -175,7 +175,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--sub);font-weight:70
 <li>これらの割合は、入れ替えと特殊能力獲得の実測にもとづきます。特能の割合は〇・△・×・なしの全段階を確認済みですが、基礎能力のサブ×は例が少なく、キャッチャー○を捕手以外で取る場合は、実測が計算より数点高い例があります。</li>
 </ul>
   <p class="note">あらかじめ計算した結果なので、すぐ表示されます。</p>
-  <div class="row"><label>種類</label><select id="trk"></select><label><input type="checkbox" id="trNoLim"> 限定キャラを外す</label><label id="trNoSubL"><input type="checkbox" id="trNoSub"> サブポジのキャラを外す</label><label>並び順</label><select id="trSort"><option value="total">査定の合計が高い順</option><option value="turns">特能全取得のターンが少ない順（同じなら合計順）</option></select></div>
+  <div class="row"><label>種類</label><select id="trk"></select><label><input type="checkbox" id="trNoLim"> 限定契約書を外す</label><label id="trNoSubL"><input type="checkbox" id="trNoSub"> サブポジのキャラを外す</label><label>並び順</label><select id="trSort"><option value="total">査定の合計が高い順</option><option value="turns">特能全取得のターンが少ない順（同じなら合計順）</option></select></div>
 </div>
 <div id="trout"></div>
 </section>
