@@ -113,14 +113,14 @@ def about_table():
     mae, ato = val(A.get("空きイベント数_前", "")), val(A.get("空きイベント数_後", ""))
     rows = [
         ("実装日", val(A.get("実装日", ""))),
-        ("空き<span class=\"cp-nw\">イベント数</span>", f'<span class="sa-ev"><span class="cp-nw">前：<b class="sa-mae">{mae}</b></span>'
-                           f'<span class="cp-nw">後：<b class="sa-ato">{ato}</b></span></span>'),
+        ("空き<span class=\"cp-nw\">イベント数</span>", f'<span class="sa-ev"><span class="cp-nw sa-mae">前：<b>{mae}</b></span>'
+                           f'<span class="cp-nw sa-ato">後：<b>{ato}</b></span></span>'),
     ]
     out = ['  <table class="sa-t">', "  <tbody>"]
     for th, td in rows:
         out.append(f"    <tr><th>{th}</th><td>{td}</td></tr>")
     out.append(f'    <tr><th rowspan="2">取得可能な<span class="cp-nw">金特</span></th>'
-               f'<td><span class="sa-pos">投手</span>{items(A.get("金特_投手"))}</td></tr>')
+               f'<td><span class="sa-pos sa-pos-p">投手</span>{items(A.get("金特_投手"))}</td></tr>')
     out.append(f'    <tr><td><span class="sa-pos">野手</span>{items(A.get("金特_野手"))}</td></tr>')
     out.append(f'    <tr><th>所持経験点<span class="cp-nw">上限</span></th><td>{val(A.get("所持経験点上限", ""))}</td></tr>')
     out.append(f'    <tr><th>シナリオ<span class="cp-nw">所属キャラ</span></th><td>{items(A.get("所属キャラ"))}</td></tr>')
