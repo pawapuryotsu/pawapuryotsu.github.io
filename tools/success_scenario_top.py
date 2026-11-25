@@ -149,6 +149,8 @@ def event_tables():
     V = C.get("固有イベント")
     if V is None:
         return None
+    if not V.get("セクション"):
+        return '  <p class="muted">準備中です。</p>'
     WS = V.get("週", {})
     out = []
     for sec in V["セクション"]:
@@ -182,7 +184,7 @@ def _colored(evs):
 def empty_counts():
     """空きイベント数（前・後）。固有イベントの表で、色の付いていないセル（イベント無し、または名前を()で囲んだ空き扱いのイベント）を前・後ごとに数える。「数えない週」は除く"""
     V = C.get("固有イベント") or {}
-    if not V.get("空きイベント数を数える"):
+    if not V.get("空きイベント数を数える") or not V.get("セクション"):
         return None
     WS, skip = V.get("週", {}), V.get("数えない週", {})
     n = {"前": 0, "後": 0}
@@ -249,6 +251,8 @@ def gold_table():
     V = C.get("金特取得条件")
     if V is None:
         return None
+    if not V.get("行"):
+        return '  <p class="muted">準備中です。</p>'
     out = ['  <table class="sg-t">', '  <thead><tr><th>入手条件</th><th>入手金特</th></tr></thead>', "  <tbody>"]
     for r in V.get("行", []):
         g = "".join(f'<span class="sg-g"><span class="sa-pos{" sa-pos-p" if k == "投手" else ""}">{k}</span>{e(r[k])}</span>'
@@ -265,6 +269,8 @@ def merit_html():
     V = C.get("シナリオキャラの恩恵")
     if V is None:
         return None
+    if not (V.get("メインデッキ") or V.get("サポートデッキ")):
+        return '  <p class="muted">準備中です。</p>'
     out = []
     for k in ("メインデッキ", "サポートデッキ"):
         if V.get(k):
