@@ -213,7 +213,7 @@ SECS = [
      f'<p>西球記の周回記録（{D["5の周回数"]}周分）でドロップした別バージョンの契約書のうち、4の表にいないキャラ（{len(B)}人）。</p>'
      + tables(B, "ドロップしたクエスト") + '<p class="tx-red c4-note"><b>※現在エリア最終ボスでしかドロップを確認できていないので注意</b></p>'
      + "".join(f'<p class="c4-note">{e(x["マーク"])} {rich(x["補足"])}</p>' for x in D["5のキャラ"] if x.get("補足"))
-     + f'<p class="c4-note">{rich(D["5の未登録"])}</p>'),
+     + (f'<p class="c4-note">{rich(D["5の未登録"])}</p>' if D.get("5の未登録") else "")),
 ]
 toc = ('  <nav class="toc" aria-label="このページの目次">\n  <b>もくじ</b>\n  <ol>\n'
        + "".join(f'    <li><a href="#{i}">{t}</a></li>\n' for i, t, _ in SECS) + "  </ol>\n  </nav>\n")

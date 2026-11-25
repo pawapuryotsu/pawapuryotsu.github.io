@@ -4,6 +4,7 @@
 そのクエストの周だけを書き出して上書きする。fp などの読み取り用データは入れない）。
 使い方： python3 tools/pawaque_run_stats.py q18 → python3 build.py
 ページの <!-- RUNS:START --> と <!-- RUNS:END --> の間を書き換える。数字は記録そのまま（推測で足さない）。"""
+import datetime
 import html, json, re, sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -236,6 +237,16 @@ def note_now(nb, ab=""):
 
 
 out = render(by[periods[-1]], note_now)
+# 期間が終わった後、新しい期間の周が入るまで周回記録の上に赤太字の注意（2026-11-25 管理人）。
+# json「期間終了後の注意」{期間名: {"開始": 日時, "文": 文}}。開始の日時になったらページ内スクリプトで表示する。
+# 新しい期間の周が入ると一番新しい期間が変わるので、次の自動更新で注意は出なくなる。
+_cau = (D.get("期間終了後の注意") or {}).get(periods[-1])
+if _cau:
+    _st = _cau["開始"]
+    _shown = datetime.datetime.now(datetime.timezone.utc) >= datetime.datetime.fromisoformat(_st)
+    out = [f'  <p class="rs-caution" data-start="{e(_st)}"{"" if _shown else " hidden"}><span class="em-red">{e(_cau["文"])}</span></p>',
+           "  <script>(function(){document.querySelectorAll('.rs-caution[data-start]').forEach(function(x){"
+           "if(Date.now()>=Date.parse(x.getAttribute('data-start')))x.hidden=false})})();</script>"] + out
 for k in reversed(periods[:-1]):
     nm = NAMES.get(k, k or "以前")
     rs = by[k]
