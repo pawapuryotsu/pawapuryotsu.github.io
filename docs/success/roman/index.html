@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light">
-<title>ロマン開花学園（學園）の攻略・固有イベント・金特まとめ｜パワプロアプリ攻略ベース</title>
-<meta name="description" content="パワプロアプリのサクセス「ロマン開花學園（ロマン開花学園）」の攻略ページです。入手できる金特・固有イベントと、おすすめデッキ・イベキャラランキング・デッキの組み方・コスト計算ツールへの入口をまとめます。">
+<title>ロマン開花学園（學園）の攻略・イベント一覧・金特まとめ｜パワプロアプリ攻略ベース</title>
+<meta name="description" content="パワプロアプリのサクセス「ロマン開花學園（ロマン開花学園）」の攻略ページです。取得できる金特・所持経験点上限・シナリオ所属キャラ、固定イベントとランダムイベントの一覧（選択肢と効果）をまとめています。おすすめデッキ・イベキャラランキング・デッキの組み方・コスト計算ツールへの入口もあります。">
 <link rel="canonical" href="https://pawapuryotsu.com/success/roman/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="パワプロアプリ攻略ベース">
-<meta property="og:title" content="ロマン開花学園（學園）の攻略・固有イベント・金特まとめ｜パワプロアプリ攻略ベース">
-<meta property="og:description" content="パワプロアプリのサクセス「ロマン開花學園（ロマン開花学園）」の攻略ページです。入手できる金特・固有イベントと、おすすめデッキ・イベキャラランキング・デッキの組み方・コスト計算ツールへの入口をまとめます。">
+<meta property="og:title" content="ロマン開花学園（學園）の攻略・イベント一覧・金特まとめ｜パワプロアプリ攻略ベース">
+<meta property="og:description" content="パワプロアプリのサクセス「ロマン開花學園（ロマン開花学園）」の攻略ページです。取得できる金特・所持経験点上限・シナリオ所属キャラ、固定イベントとランダムイベントの一覧（選択肢と効果）をまとめています。おすすめデッキ・イベキャラランキング・デッキの組み方・コスト計算ツールへの入口もあります。">
 <meta property="og:url" content="https://pawapuryotsu.com/success/roman/">
 <meta property="og:image" content="https://pawapuryotsu.com/img/og/success_roman.png">
 <meta property="og:image:width" content="1200">
@@ -19,12 +19,12 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@pawapuryotsu">
 <meta name="theme-color" content="#1d5e43">
-<meta name="robots" content="noindex">
+
 <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+1p:wght@900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Saira+Condensed:wght@600;700&display=swap">
-<link rel="stylesheet" href="../../assets/style.css?v=be10eafb">
+<link rel="stylesheet" href="../../assets/style.css?v=a6de5a6d">
 <meta name="google-adsense-account" content="ca-pub-8546020269968696">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8546020269968696" crossorigin="anonymous"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F98XGNW3LS"></script>
@@ -47,7 +47,7 @@
     </div>
   </div>
   <nav class="gnav" aria-label="サイト内">
-    <a href="../../decks/roman/" aria-current="page">ロマン開花<small>投手</small></a>
+    <a href="../../success/roman/" aria-current="page">ロマン開花<small>投手</small></a>
     <a href="../../decks/andromeda/">アンドロメダ<small>野手</small></a>
     <a href="../../pawaque/">パワクエ</a>
     <a href="../../success/koshokan/">古書館高校<small>野手</small></a>
@@ -58,7 +58,7 @@
 <nav class="crumbs" aria-label="パンくずリスト"><ol><li><a href="../../">トップ</a></li><li aria-current="page">ロマン開花學園</li></ol></nav>
 <!-- 2026-11-24 管理人「ロマン開花學園も、古書館と同様のページ形態にしたい」。古書館高校（success-koshokan.html）と同じ形。
      リンク欄は src/success_data/roman.json → python3 tools/success_scenario_top.py src/success_data/roman.json → build。
-     「シナリオの概要」「固有イベント」は管理人の原稿待ち（推測で書かない）。原稿が入ったら noindex: yes を消す。 -->
+     概要・固定イベント・ランダムイベントは src/success_data/roman.json に入れる（推測で書かない）。2026-11-25 公開（noindex を外した）。 -->
 <section class="phead"><p class="eyebrow">サクセス</p><h1><span class="mk"><i>ロマン開花學園の攻略</i></span></h1><p>サクセス「ロマン開花學園」の攻略を<span class="cp-nw">まとめるページです。</span></p></section>
 <div class="prose">
   <!-- SCTOP:START -->
@@ -82,15 +82,111 @@
   <b>もくじ</b>
   <ol>
     <li><a href="#about">シナリオの概要（入手できる金特）</a></li>
-    <li><a href="#event">固有イベント</a></li>
+    <li><a href="#event">固定イベント</a></li>
+    <li><a href="#random">ランダムイベント</a></li>
   </ol>
   </nav>
 
   <h2 id="about">シナリオの概要</h2>
-  <p class="muted">（原稿待ち：入手できる金特など）</p>
+  <!-- SCABOUT:START -->
+  <table class="sa-t">
+  <tbody>
+    <tr><th>実装日</th><td>2026/07/30</td></tr>
+    <tr><th>空き<span class="cp-nw">イベント数</span></th><td><span class="sa-ev"><span class="cp-nw sa-mae">前：<b>37</b></span><span class="cp-nw sa-ato">後：<b>42</b></span></span></td></tr>
+    <tr><th rowspan="2">取得可能な<span class="cp-nw">金特</span></th><td><span class="sa-pos sa-pos-p">投手</span><span class="sa-list"><span class="sa-i">内無双</span><span class="sa-i">鉄腕</span><span class="sa-i">強心臓</span><span class="sa-i">みなぎる活力</span><span class="sa-i">怪童</span><span class="sa-i">勝利の星【特定のイベキャラが必要】</span></span></td></tr>
+    <tr><td><span class="sa-pos">野手</span><span class="sa-list"><span class="sa-i">渾身の決勝打</span><span class="sa-i">大番狂わせ</span><span class="sa-i">勝負師</span><span class="sa-i">昇り龍</span><span class="sa-i">切磋琢磨</span><span class="sa-i">精神的支柱【特定のイベキャラが必要】</span></span></td></tr>
+    <tr><th>所持経験点<span class="cp-nw">上限</span></th><td>500000</td></tr>
+    <tr><th>シナリオ<span class="cp-nw">所属キャラ</span></th><td><span class="sa-list"><span class="sa-i">大桜剛</span><span class="sa-i">朝顔かえで</span><span class="sa-i">初白百合</span></span></td></tr>
+  </tbody>
+  </table>
+  <!-- SCABOUT:END -->
 
-  <h2 id="event">固有イベント</h2>
-  <p class="muted">（原稿待ち）</p>
+  <h2 id="event">固定イベント</h2>
+  <!-- SCEVENT:START -->
+  <h3 class="se-h">セクション1<span class="se-r">（8月1週〜10月4週）</span></h3>
+  <table class="se-t">
+  <thead><tr><th class="se-w"></th><th class="se-mae">前</th><th class="se-ato">後</th></tr></thead>
+  <tbody>
+    <tr><th class="se-w">8月1週</th><td class="se-on-mae"><div class="se-ev"><b>チームメイト自己紹介</b><span><span class="tx-g">ギミック開放</span></span></div></td><td></td></tr>
+    <tr><th class="se-w">8月2週</th><td class="se-on-mae"><div class="se-ev"><b>スカウト自己紹介</b><span>(イベキャラ自己紹介後発生)</span><span><span class="tx-b">やる気+</span></span></div></td><td></td></tr>
+    <tr><th class="se-w">8月3週</th><td></td><td></td></tr>
+    <tr><th class="se-w">8月4週</th><td></td><td></td></tr>
+    <tr><th class="se-w">9月1週</th><td class="se-on-mae"><div class="se-ev"><b>刃監督の実力</b></div></td><td></td></tr>
+    <tr><th class="se-w">9月2週</th><td></td><td></td></tr>
+    <tr><th class="se-w">9月3週</th><td></td><td></td></tr>
+    <tr><th class="se-w">9月4週</th><td></td><td></td></tr>
+    <tr><th class="se-w">10月1週</th><td></td><td class="se-on-ato"><div class="se-ev"><b>秋季大会敗退</b></div></td></tr>
+    <tr><th class="se-w">10月2週</th><td></td><td></td></tr>
+    <tr><th class="se-w">10月3週</th><td></td><td></td></tr>
+    <tr><th class="se-w">10月4週</th><td></td><td class="se-on-ato"><div class="se-ev"><b>大桜が大化け</b></div></td></tr>
+  </tbody>
+  </table>
+  <h3 class="se-h">セクション2<span class="se-r">（11月1週〜1月4週）</span></h3>
+  <table class="se-t">
+  <thead><tr><th class="se-w"></th><th class="se-mae">前</th><th class="se-ato">後</th></tr></thead>
+  <tbody>
+    <tr><th class="se-w">11月1週</th><td class="se-on-mae"><div class="se-ev"><b><span class="tx-g tx-bold">Aランク対戦校解放</span></b></div></td><td></td></tr>
+    <tr><th class="se-w">11月2週</th><td></td><td></td></tr>
+    <tr><th class="se-w">11月3週</th><td></td><td></td></tr>
+    <tr><th class="se-w">11月4週</th><td></td><td></td></tr>
+    <tr><th class="se-w">12月1週</th><td></td><td></td></tr>
+    <tr><th class="se-w">12月2週</th><td></td><td></td></tr>
+    <tr><th class="se-w">12月3週</th><td></td><td></td></tr>
+    <tr><th class="se-w">12月4週</th><td class="se-on-mae"><div class="se-ev"><b>クリスマス</b></div></td><td></td></tr>
+    <tr><th class="se-w">1月1週</th><td class="se-on-mae"><div class="se-ev"><b>初詣</b></div></td><td></td></tr>
+    <tr><th class="se-w">1月2週</th><td></td><td></td></tr>
+    <tr><th class="se-w">1月3週</th><td></td><td class="se-on-ato"><div class="se-ev"><b>初白が野球部を辞める?</b></div></td></tr>
+    <tr><th class="se-w">1月4週</th><td class="se-on-mae"><div class="se-ev"><b>先日の件をわびる監督</b></div></td><td></td></tr>
+  </tbody>
+  </table>
+  <h3 class="se-h">セクション3<span class="se-r">（2月1週〜4月4週）</span></h3>
+  <table class="se-t">
+  <thead><tr><th class="se-w"></th><th class="se-mae">前</th><th class="se-ato">後</th></tr></thead>
+  <tbody>
+    <tr><th class="se-w">2月1週</th><td class="se-on-mae"><div class="se-ev"><b><span class="tx-g tx-bold">Sランク対戦校解放</span></b></div></td><td></td></tr>
+    <tr><th class="se-w">2月2週</th><td class="se-on-mae"><div class="se-ev"><b>バレンタイン</b></div></td><td></td></tr>
+    <tr><th class="se-w">2月3週</th><td></td><td></td></tr>
+    <tr><th class="se-w">2月4週</th><td></td><td></td></tr>
+    <tr><th class="se-w">3月1週</th><td></td><td></td></tr>
+    <tr><th class="se-w">3月2週</th><td></td><td></td></tr>
+    <tr><th class="se-w">3月3週</th><td></td><td class="se-on-ato"><div class="se-ev"><b>春の甲子園大会開催</b></div></td></tr>
+    <tr><th class="se-w">3月4週</th><td></td><td></td></tr>
+    <tr><th class="se-w">4月1週</th><td class="se-on-mae"><div class="se-ev"><b>新入生加入</b></div></td><td></td></tr>
+    <tr><th class="se-w">4月2週</th><td></td><td></td></tr>
+    <tr><th class="se-w">4月3週</th><td></td><td></td></tr>
+    <tr><th class="se-w">4月4週</th><td></td><td class="se-on-ato"><div class="se-ev"><b>刃監督には弟がいた</b></div></td></tr>
+  </tbody>
+  </table>
+  <h3 class="se-h">セクション4<span class="se-r">（5月1週〜8月3週）</span></h3>
+  <table class="se-t">
+  <thead><tr><th class="se-w"></th><th class="se-mae">前</th><th class="se-ato">後</th></tr></thead>
+  <tbody>
+    <tr><th class="se-w">5月1週</th><td class="se-on-mae"><div class="se-ev"><b><span class="tx-g tx-bold">メインデッキにシナリオキャラを入れている場合のみ、ロマン開花學園が対戦リストに追加</span></b></div></td><td></td></tr>
+    <tr><th class="se-w">5月2週</th><td></td><td></td></tr>
+    <tr><th class="se-w">5月3週</th><td></td><td></td></tr>
+    <tr><th class="se-w">5月4週</th><td></td><td></td></tr>
+    <tr><th class="se-w">6月1週</th><td></td><td></td></tr>
+    <tr><th class="se-w">6月2週</th><td></td><td></td></tr>
+    <tr><th class="se-w">6月3週</th><td></td><td></td></tr>
+    <tr><th class="se-w">6月4週</th><td></td><td></td></tr>
+    <tr><th class="se-w">7月1週</th><td></td><td class="se-on-ato"><div class="se-ev"><b>地区大会が始まる・地区1回戦</b></div></td></tr>
+    <tr><th class="se-w">7月2週</th><td></td><td></td></tr>
+    <tr><th class="se-w">7月3週</th><td></td><td><div class="se-ev"><b>(地区大会決勝戦)</b></div></td></tr>
+    <tr><th class="se-w">7月4週</th><td></td><td></td></tr>
+    <tr><th class="se-w">8月1週</th><td class="se-on-mae"><div class="se-ev"><b>甲子園へ移動</b></div></td><td class="se-on-ato"><div class="se-ev"><b>甲子園1回戦</b></div></td></tr>
+    <tr><th class="se-w">8月2週</th><td class="se-on-mae"></td><td class="se-on-ato"><div class="se-ev"><b>甲子園2回戦</b></div></td></tr>
+    <tr><th class="se-w">8月3週</th><td class="se-on-mae"></td><td class="se-on-ato"><div class="se-ev"><b>甲子園決勝</b></div></td></tr>
+  </tbody>
+  </table>
+  <!-- SCEVENT:END -->
+
+  <h2 id="random">ランダムイベント</h2>
+  <!-- SCRANDOM:START -->
+  <h3 class="se-h se-h-mae">前イベント</h3>
+  <section class="cp-sec sc-rnd sc-rnd-mae"><h3 class="cp-ev">へえ、そうだったんですね・・・</h3><div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr><th></th><th>＋</th></tr></thead><tbody><tr><th class="">こんなふうになりたい</th><td><div><span class="tx-b">やる気+</span></div><div>筋力+10</div><div>精神+10</div></td></tr><tr><th class="">オレたちが上書きたい</th><td><div><span class="tx-b">体力+15</span></div></td></tr></tbody></table></div><h3 class="cp-ev">早く見えたのは・・・</h3><div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr><th></th><th>＋</th><th>その他</th></tr></thead><tbody><tr><th class="">大桜の送球</th><td><div>大桜評価+5</div></td><td><div class="cp-t-lab">【投手】</div><div class="cp-kotsu">牽制〇<wbr>コツLv1</div><div class="cp-t-lab">【野手】</div><div class="cp-kotsu">送球<wbr>コツLv1</div></td></tr><tr><th class="">初白の帰塁</th><td><div>初白評価+5</div></td><td><div class="cp-t-lab">【投手】</div><div class="cp-kotsu">クイック<wbr>コツLv1</div><div class="cp-t-lab">【野手】</div><div class="cp-kotsu">盗塁<wbr>コツLv1</div></td></tr></tbody></table></div><h3 class="cp-ev">どこに行きたいでやんす？</h3><div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr><th></th><th>＋</th></tr></thead><tbody><tr><th class="">公演</th><td><div>朝顔評価+5</div><div>精神+10</div></td></tr><tr><th class="">美術館</th><td><div>大桜評価+5</div><div>筋力+10</div></td></tr><tr><th class="">朗読会</th><td><div>初白評価+5</div><div>技術+10</div></td></tr></tbody></table></div><h3 class="cp-ev">どれにしたでやんす？</h3><div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr><th></th><th>＋</th></tr></thead><tbody><tr><th class="">食事マナー</th><td><div>筋力+10</div><div>敏捷(変化球)+10</div></td></tr><tr><th class="">ビジネスマナー</th><td><div>技術+10</div><div>敏捷(変化球)+10</div></td></tr><tr><th class="">冠婚葬祭マナー</th><td><div>技術+10</div><div>精神+10</div></td></tr></tbody></table></div></section>
+  <h3 class="se-h se-h-ato">後イベント</h3>
+  <section class="cp-sec sc-rnd sc-rnd-ato"><h3 class="cp-ev">ああ、何しろここって・・・</h3><div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr><th></th><th>＋</th></tr></thead><tbody><tr><th class="">広いよな</th><td><div>筋力+10</div><div>敏捷(変化球)+10</div><div>精神+10</div></td></tr><tr><th class="">オシャレだよな</th><td><div><span class="tx-b">体力+15</span></div><div><span class="tx-b">やる気+1</span></div></td></tr></tbody></table></div><h3 class="cp-ev">監督へ質問</h3><div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr><th></th><th>＋</th><th>その他</th></tr></thead><tbody><tr><th class="">いつから野球を？</th><td><div>技術+10</div><div>敏捷(変化球)+10</div><div>精神+10</div></td><td></td></tr><tr><th class="">どんな選手だった？</th><td></td><td><div class="cp-t-lab">【投手】</div><div class="cp-kotsu">投打躍動<wbr>コツLv1</div><div class="cp-t-lab">【野手】</div><div class="cp-kotsu">孤高<wbr>コツLv1</div></td></tr><tr><th class="">その帽子は？</th><td></td><td><div class="cp-t-lab">【投手】</div><div class="cp-kotsu">緩急〇<wbr>コツLv1</div><div class="cp-t-lab">【野手】</div><div class="cp-kotsu">意外性<wbr>コツLv1</div></td></tr></tbody></table></div><h3 class="cp-ev">選挙ポスター</h3><p>(選択肢無し・ランダム)</p><div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr><th></th><th>＋</th></tr></thead><tbody><tr><th class="">大桜</th><td><div>大桜評価+5</div><div>筋力+10</div></td></tr><tr><th class="">初白</th><td><div>初白評価+5</div><div>敏捷(変化球)+10</div></td></tr><tr><th class="">朝顔</th><td><div>朝顔評価+5</div><div>精神+10</div></td></tr></tbody></table></div><h3 class="cp-ev">マンツーマンの特訓を依頼</h3><div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr><th></th><th>＋</th></tr></thead><tbody><tr><th class="">なんで大桜に？</th><td><div>筋力+10</div><div>技術+10</div></td></tr><tr><th class="">大桜は大丈夫？</th><td><div>筋力+10</div><div>敏捷(変化球)+10</div></td></tr></tbody></table></div><h3 class="cp-ev">○○も一緒に来る？</h3><div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr><th></th><th>＋</th></tr></thead><tbody><tr><th class="">遠慮する</th><td><div>精神+20</div></td></tr><tr><th class="">一緒に行く</th><td><div>技術+10</div><div>敏捷(変化球)+10</div></td></tr></tbody></table></div></section>
+  <!-- SCRANDOM:END -->
 </div>
 
 </div></main>

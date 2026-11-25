@@ -690,6 +690,40 @@ a.hg .scard:hover,.hg a.scard:hover{background:#f6f8fa}
 /* 2列版（比較用） */
 @media (max-width:759px){.grid2.hg.hg2{grid-template-columns:1fr 1fr}.hg2 .scard{padding:12px 8px 14px}.hg2 .scard h3{font-size:14px}.hg2 .scard p{font-size:12px}}
 
+/* シナリオトップ「シナリオの概要」の表（tools/success_scenario_top.py、2026-11-24） */
+.sa-t{width:100%;border-collapse:collapse;margin:12px 0 18px;background:#fff;font-size:15px;line-height:1.5;table-layout:fixed}
+.sa-t th,.sa-t td{white-space:normal;border:1px solid #c9d3c6;padding:8px 10px;vertical-align:middle;text-align:left;word-break:normal;overflow-wrap:anywhere}
+.sa-t th{width:7.6em;background:#e1efe6;color:#14233a;font-weight:700;font-size:14px}
+.sa-wait{color:#5b6676}
+.sa-ev .sa-wait{font-weight:400;font-size:15px}
+.sa-ev{display:flex;flex-wrap:wrap;gap:2px 18px}
+.sa-mae{color:#e0a800;font-weight:900}.sa-mae b,.sa-ato b{font-size:17px}
+.sa-ato{color:#0b3d91;font-weight:900}
+.sa-pos.sa-pos-p{background:#d6336c}
+.sa-pos{display:inline-block;margin:0 8px 0 0;padding:1px 8px;border-radius:4px;font-size:12px;font-weight:700;color:#fff;background:#1d5e43;vertical-align:1px}
+.sa-list{display:inline}
+.sa-i{display:inline-block;margin:2px 6px 2px 0}
+.sa-i:not(:last-child)::after{content:"・";margin-left:6px;color:#5b6676}
+@media (max-width:400px){.sa-t{font-size:14px}.sa-t th{width:6.4em;font-size:13px;padding:7px 6px}.sa-t td{padding:7px 8px}}
+/* シナリオトップ「固有イベント」の表（tools/success_scenario_top.py、2026-11-24） */
+.se-h{font-family:var(--head);font-weight:900;font-size:16px;margin:20px 0 6px}.se-r{font-size:13px;font-weight:500;color:#5b6676;margin-left:4px}
+.se-t{width:100%;border-collapse:collapse;table-layout:auto;background:#fff;font-size:15px;line-height:1.5;margin:0 0 16px}
+.se-t th,.se-t td{white-space:normal;border:1px solid #c9d3c6;padding:5px 8px;vertical-align:middle;text-align:left;overflow-wrap:anywhere}
+.se-t thead th{text-align:center;font-weight:900;background:#fff}
+.se-t td,.se-t th.se-mae,.se-t th.se-ato{width:50%}
+.se-t th.se-w{width:1%;white-space:nowrap;text-align:right;background:#f2f4f1;font-weight:700;font-size:14px}
+.se-t thead th.se-w{background:#fff}
+.se-t th.se-mae{color:#e08a00}.se-t th.se-ato{color:#1565c0}
+.se-on-mae{background:#fff2cc}.se-on-ato{background:#dde8f5}
+.se-ev{display:flex;flex-direction:column}.se-ev+.se-ev{margin-top:6px}.se-ev b{font-weight:700}.se-ev span{font-weight:500}
+@media (max-width:400px){.se-t{font-size:14px}.se-t th.se-w{font-size:13px;padding:5px 5px}.se-t td{padding:5px 6px}}
+/* ランダムイベント：前は黄色系・後は青系（2026-11-25 管理人） */
+.se-h.se-h-mae,.se-h.se-h-ato{padding:6px 12px;border-radius:4px;border-left:6px solid}
+.se-h.se-h-mae{background:#fff2cc;border-left-color:#e0a800;color:#8a5a00}
+.se-h.se-h-ato{background:#dde8f5;border-left-color:#1565c0;color:#0b3d91}
+.cp-sec.sc-rnd-mae h3.cp-ev{background:#fff7dd;border-left-color:#e0a800}
+.cp-sec.sc-rnd-ato h3.cp-ev{background:#e8f0fa;border-left-color:#1565c0}
+.cp-sec.sc-rnd-mae{border-color:#f0d48a}.cp-sec.sc-rnd-ato{border-color:#a9c3e6}
 /* ガチャカードのイベキャラアイコン（2026-11-24 管理人） */
 .gcard .gc-icons{display:flex;justify-content:center;gap:4px}
 .gcard .gc-icons img{display:block;width:48px;height:48px;border-radius:6px}

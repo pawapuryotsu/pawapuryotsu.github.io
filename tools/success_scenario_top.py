@@ -6,6 +6,7 @@
 - おすすめデッキ（decks/<キー>/）とイベキャラランキング（ranking/<キー>/）は、ロマン開花・アンドロメダと同じ仕組みのページにリンクする。
 - ページの先頭に sk_updated: YYYY-MM-DD を書くと、カードに緑太字「※○/○更新!」が出て7日後14時に消える（西球記と同じ）。
 - カードの文字の途中で折り返したくない時は「表示名」に HTML（cp-nw の span）で書く。
+- json の「概要」（実装日・空きイベント数・金特・所持経験点上限・所属キャラ）から、トップの <!-- SCABOUT:START/END --> に概要の表を作る。空欄は「調査中」。
 - ページの <!-- SCTOP:START/END -->（トップ）と <!-- SKNAV:START/END -->（子ページ）の間を書き換える。"""
 import datetime as _dt, html, json, re, sys
 from pathlib import Path
@@ -95,10 +96,162 @@ def nav(bottom=False):
                       f'  <p class="sk-nav-h">{e(NAME)}の攻略ページ</p>'] + grid(cs) + [UPD_JS, '  </section>'])
 
 
+# シナリオの概要の表（2026-11-24 管理人のテンプレ）。json の「概要」から <!-- SCABOUT:START/END --> の間を作る。
+# 空欄は「調査中」。空きイベント数は 前＝黄色太字・後＝濃い青太字。金特は投手・野手で行を分ける。
+def about_table():
+    A = C.get("概要")
+    if A is None:
+        return None
+    wait = '<span class="sa-wait">調査中</span>'
+    def val(v):
+        return e(str(v)) if str(v).strip() else wait
+    def items(v):
+        v = [x for x in (v or []) if str(x).strip()]
+        if not v:
+            return wait
+        return '<span class="sa-list">' + "".join(f'<span class="sa-i">{e(str(x))}</span>' for x in v) + "</span>"
+    mae, ato = val(A.get("空きイベント数_前", "")), val(A.get("空きイベント数_後", ""))
+    _n = empty_counts()
+    if _n is not None:
+        mae, ato = str(_n["前"]), str(_n["後"])
+    rows = [
+        ("実装日", val(A.get("実装日", ""))),
+        ("空き<span class=\"cp-nw\">イベント数</span>", f'<span class="sa-ev"><span class="cp-nw sa-mae">前：<b>{mae}</b></span>'
+                           f'<span class="cp-nw sa-ato">後：<b>{ato}</b></span></span>'),
+    ]
+    out = ['  <table class="sa-t">', "  <tbody>"]
+    for th, td in rows:
+        out.append(f"    <tr><th>{th}</th><td>{td}</td></tr>")
+    out.append(f'    <tr><th rowspan="2">取得可能な<span class="cp-nw">金特</span></th>'
+               f'<td><span class="sa-pos sa-pos-p">投手</span>{items(A.get("金特_投手"))}</td></tr>')
+    out.append(f'    <tr><td><span class="sa-pos">野手</span>{items(A.get("金特_野手"))}</td></tr>')
+    out.append(f'    <tr><th>所持経験点<span class="cp-nw">上限</span></th><td>{val(A.get("所持経験点上限", ""))}</td></tr>')
+    out.append(f'    <tr><th>シナリオ<span class="cp-nw">所属キャラ</span></th><td>{items(A.get("所属キャラ"))}</td></tr>')
+    out += ["  </tbody>", "  </table>"]
+    return "\n".join(out)
+
+
+# 固有イベントの表（2026-11-24 管理人の画像の形）。json の「固有イベント」から <!-- SCEVENT:START/END --> の間を作る。
+# セクションごとに「週・前・後」の表。イベントのある欄は 前＝薄い黄色・後＝薄い青の背景。詳細は {青:…}{緑:…}{赤:…} で色。
+_TXC = {"青": "tx-b", "緑": "tx-g", "赤": "tx-r", "青太": "tx-b tx-bold", "緑太": "tx-g tx-bold", "赤太": "tx-r tx-bold", "太": "tx-bold"}
+def _deco(x):
+    x = e(str(x))
+    return re.sub(r"[{｛](青太|緑太|赤太|青|緑|赤|太)[:：](.*?)[}｝]", lambda m: f'<span class="{_TXC[m.group(1)]}">{m.group(2)}</span>', x)
+
+def event_tables():
+    V = C.get("固有イベント")
+    if V is None:
+        return None
+    WS = V.get("週", {})
+    out = []
+    for sec in V["セクション"]:
+        W = WS.get(sec["名前"], {})  # 週はセクションごと（8月1〜3週がセクション1と4にあるため）
+        out.append(f'  <h3 class="se-h">{e(sec["名前"])}<span class="se-r">（{e(sec["週"][0])}〜{e(sec["週"][-1])}）</span></h3>')
+        out.append('  <table class="se-t">')
+        out.append('  <thead><tr><th class="se-w"></th><th class="se-mae">前</th><th class="se-ato">後</th></tr></thead>')
+        out.append("  <tbody>")
+        for wk in sec["週"]:
+            cells = []
+            for side, cls in (("前", "se-on-mae"), ("後", "se-on-ato")):
+                evs = (W.get(wk) or {}).get(side) or []
+                if not evs:  # 「色を塗る空欄」に書いた所は、空でも背景色を付ける
+                    paint = side in V.get("色を塗る空欄", {}).get(sec["名前"], {}).get(wk, [])
+                    cells.append(f'<td class="{cls}"></td>' if paint else "<td></td>")
+                    continue
+                body = "".join(f'<div class="se-ev"><b>{_deco(v["名前"])}</b>'
+                               + "".join(f"<span>{_deco(x)}</span>" for x in v.get("詳細", [])) + "</div>" for v in evs)
+                cells.append(f'<td class="{cls}">{body}</td>' if _colored(evs) else f"<td>{body}</td>")
+            out.append(f'    <tr><th class="se-w">{e(wk)}</th>{"".join(cells)}</tr>')
+        out += ["  </tbody>", "  </table>"]
+    return "\n".join(out)
+
+
+
+def _colored(evs):
+    """セルに色を付けるか。イベント名を () か （） で囲んだものは「空きイベント扱い」で色を付けない（2026-11-24 管理人）"""
+    return any(not re.match(r"^\s*[（(].*[）)]\s*$", str(v.get("名前", ""))) for v in (evs or []))
+
+def empty_counts():
+    """空きイベント数（前・後）。固有イベントの表で、色の付いていないセル（イベント無し、または名前を()で囲んだ空き扱いのイベント）を前・後ごとに数える。「数えない週」は除く"""
+    V = C.get("固有イベント") or {}
+    if not V.get("空きイベント数を数える"):
+        return None
+    WS, skip = V.get("週", {}), V.get("数えない週", {})
+    n = {"前": 0, "後": 0}
+    for sec in V["セクション"]:
+        W = WS.get(sec["名前"], {})
+        for wk in sec["週"]:
+            if wk in skip.get(sec["名前"], []):
+                continue
+            for side in n:
+                if not _colored((W.get(wk) or {}).get(side)):  # 色の付いていないセルを数える
+                    n[side] += 1
+    return n
+
+
+# ランダムイベント（2026-11-24 管理人「イベキャラのイベント表の形を流用」）。charpages.py の event_detail で作る。
+# 「前」「後」に分けて出す。並びは _rank の順（同じ順位は書いた順、2026-11-25 管理人）。
+def _rows(x):
+    rows = list(x.get("行", []))
+    for s in x.get("小イベント", []):
+        rows += s.get("行", [])
+    return rows
+
+def _rank(x):
+    """並び順（2026-11-25 管理人）：1 体力+ → 2 体力最大値+ → 3 いいヤツ・世渡り上手・モテモテ → 4 やる気+ → 5 コツLv → 6 ○○評価+ → 7 なにもなし"""
+    items = [str(i) for r in _rows(x) for k, v in r.items() if isinstance(v, list) for i in v]
+    tests = (lambda i: re.match(r"^体力[+＋]", i),
+             lambda i: re.match(r"^体力最大値[+＋]", i),
+             lambda i: re.match(r"^(いいヤツ|世渡り上手|モテモテ)", i),
+             lambda i: re.match(r"^やる気[+＋]", i),
+             lambda i: "コツLv" in i,
+             lambda i: re.search(r"評価[+＋]", i))
+    for n, f in enumerate(tests):
+        if any(f(i) for i in items):
+            return n
+    return len(tests)
+
+
+def random_events():
+    V = C.get("ランダムイベント")
+    if V is None:
+        return None
+    sys.path.insert(0, str(here))
+    import charpages as cp
+    cp._CTYPE[0] = {"投手": "投手用", "野手": "野手用"}.get(C.get("種別", ""))
+    out = []
+    for side in ("前", "後"):
+        evs = sorted(V.get(side, []), key=_rank)
+        sc = "mae" if side == "前" else "ato"  # 前イベントは黄色系・後イベントは青系で統一（2026-11-25 管理人）
+        out.append(f'  <h3 class="se-h se-h-{sc}">{side}イベント</h3>')
+        if not evs:
+            out.append('  <p class="muted">準備中です。</p>')
+            continue
+        ev = {}
+        for x in evs:
+            y = {k: v for k, v in x.items() if k not in ("名前", "行")}
+            if x.get("行"):
+                y["小イベント"] = [{"行": x["行"]}] + y.get("小イベント", [])
+            ev[x["名前"]] = y
+        out.append(f'  <section class="cp-sec sc-rnd sc-rnd-{sc}">{cp.event_detail(ev)}</section>')
+    return "\n".join(out)
+
 # トップ
 s = page.read_text(encoding="utf-8")
 assert "<!-- SCTOP:START -->" in s and "<!-- SCTOP:END -->" in s, "SCTOP の目印が見つからない"
 s = re.sub(r"(<!-- SCTOP:START -->).*?(<!-- SCTOP:END -->)", lambda m: m.group(1) + "\n" + nav() + "\n  " + m.group(2), s, flags=re.S)
+_ab = about_table()
+if _ab is not None:
+    assert "<!-- SCABOUT:START -->" in s, "SCABOUT の目印が見つからない"
+    s = re.sub(r"(<!-- SCABOUT:START -->).*?(<!-- SCABOUT:END -->)", lambda m: m.group(1) + "\n" + _ab + "\n  " + m.group(2), s, flags=re.S)
+_ev = event_tables()
+if _ev is not None:
+    assert "<!-- SCEVENT:START -->" in s, "SCEVENT の目印が見つからない"
+    s = re.sub(r"(<!-- SCEVENT:START -->).*?(<!-- SCEVENT:END -->)", lambda m: m.group(1) + "\n" + _ev + "\n  " + m.group(2), s, flags=re.S)
+_rn = random_events()
+if _rn is not None:
+    assert "<!-- SCRANDOM:START -->" in s, "SCRANDOM の目印が見つからない"
+    s = re.sub(r"(<!-- SCRANDOM:START -->).*?(<!-- SCRANDOM:END -->)", lambda m: m.group(1) + "\n" + _rn + "\n  " + m.group(2), s, flags=re.S)
 page.write_text(s, encoding="utf-8")
 print("ok トップ", NAME, sum(1 for c in C["子ページ"] if c.get("準備OK")), "枚")
 
