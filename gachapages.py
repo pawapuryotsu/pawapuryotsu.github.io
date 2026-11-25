@@ -249,7 +249,7 @@ def _body(g, root_icon, src_dir):
 
 
 def generate(src):
-    pages, cards = [], []
+    pages, cards, past_rows = [], [], []
     for f in sorted((src / "gacha").glob("*.json")):
         if f.name.endswith(".tables.json"):
             continue
@@ -277,9 +277,11 @@ def generate(src):
         icons = "".join(f'<img src="{{{{root}}}}{e(ch["icon"])}" alt="" width="48" height="48" loading="lazy">' for ch in (g.get("charas") or [g]) if ch.get("icon"))
         cards.append((g["id"], _ended(g), f'<a class="scard gcard" href="{{{{root}}}}{path}">' + (f'<span class="gc-icons">{icons}</span>' if icons else "") + f'<span class="tag p">{e(g["chara"])}</span><h3><span class="cp-nw">{e(g["chara"])}の</span><span class="cp-nw">{gw(g)}は</span><span class="cp-nw">引くべき？</span></h3>'
                                f'<p>SR Lv45・PSR Lv50の完成確率と<span class="cp-nw">シミュレータ。</span></p><span class="go" aria-hidden="true">→</span></a>'))
+        if _ended(g):
+            past_rows.append((_end_dt(g), g, path))
     cards.sort(key=lambda x: x[0], reverse=True)   # 新しいガチャを上に
-    past = [c for _, ended, c in cards if ended]
-    pages.append(_past_page(past))
+    past_rows.sort(key=lambda x: (x[0] is not None, x[0] or 0, x[1]["id"]), reverse=True)   # 過去のガチャは終了日時が新しい順（2026-11-25 管理人）
+    pages.append(_past_page(past_rows))
     now = [c for _, ended, c in cards if not ended] + [PAST_CARD]
     return pages, "\n  ".join(now)
 
@@ -294,29 +296,86 @@ PAST_CARD = (f'<a class="scard" href="{{{{root}}}}{PAST_PATH}"><h3>過去のガ�
              f'<p>ガチャ期間が終了したガチャの<span class="cp-nw">記事をまとめています。</span></p><span class="go" aria-hidden="true">→</span></a>')
 
 
-def _ended(g, now=None):
+def _period_dt(g):
+    """period から（開始日時, 終了日時）を日本時間で取り出す。終了は 13:59 まで → 14:00 とする。読めなければ None"""
     import re
+    from datetime import datetime, timedelta, timezone
+    m = re.match(r"(\d+)年(\d+)月(\d+)日\(.\)(?:(\d+):(\d+))?[^〜]*〜(?:(\d+)年)?(\d+)月(\d+)日\(.\)(\d+):(\d+)", g.get("period", ""))
+    if not m:
+        return None
+    y0, m0, d0, h0, n0, y1, mo, d, hh, mm = m.groups()
+    y = int(y1) if y1 else int(y0) + (1 if int(mo) < int(m0) else 0)   # 終了日に年が無ければ開始の年（年をまたぐときは次の年）
+    jst = timezone(timedelta(hours=9))
+    start = datetime(int(y0), int(m0), int(d0), int(h0 or 0), int(n0 or 0), tzinfo=jst)   # 「メンテナンス終了後」など時刻が無いときは0時
+    end = datetime(y, int(mo), int(d), int(hh), int(mm), tzinfo=jst) + timedelta(minutes=1)
+    return start, end
+
+
+def _end_dt(g):
+    p = _period_dt(g)
+    return p[1] if p else None
+
+
+def _ended(g, now=None):
     from datetime import datetime, timedelta, timezone
     if "past" in g:
         return bool(g["past"])
-    m = re.match(r"(\d+)年(\d+)月\d+日.*?〜(?:(\d+)年)?(\d+)月(\d+)日\(.\)(\d+):(\d+)", g.get("period", ""))
-    if not m:
+    end = _end_dt(g)
+    if end is None:
         return False
-    y0, m0, y1, mo, d, hh, mm = m.groups()
-    y = int(y1) if y1 else int(y0) + (1 if int(mo) < int(m0) else 0)   # 終了日に年が無ければ開始の年（年をまたぐときは次の年）
-    jst = timezone(timedelta(hours=9))
-    end = datetime(y, int(mo), int(d), int(hh), int(mm), tzinfo=jst) + timedelta(minutes=1)   # 13:59 まで → 14:00 に終了
-    return (now or datetime.now(jst)) >= end
+    return (now or datetime.now(timezone(timedelta(hours=9)))) >= end
 
 
-def _past_page(cards):
+def _period_label(g):
+    """表の「ガチャ期間」。例 2026/11/16～12/4（年をまたぐときは終了側にも年を付ける）"""
+    p = _period_dt(g)
+    if not p:
+        return e(g.get("period", ""))
+    s, t = p
+    from datetime import timedelta
+    t = t - timedelta(minutes=1)   # 表示は最終日（13:59 の日）
+    end = f"{t.year}/{t.month}/{t.day}" if t.year != s.year else f"{t.month}/{t.day}"
+    return f'<span class="cp-nw">{s.year}/{s.month}/{s.day}～</span><span class="cp-nw">{end}</span>'
+
+
+def _name_html(name):
+    """[エアギター]志藤玲美 → 「[エアギター]」と「志藤玲美」の間でだけ折り返す"""
+    import re
+    m = re.match(r"(\[[^\]]*\])(.+)", name)
+    if not m:
+        return f'<span class="cp-nw">{e(name)}</span>'
+    return f'<span class="cp-nw">{e(m.group(1))}</span><wbr><span class="cp-nw">{e(m.group(2))}</span>'
+
+
+def _past_page(rows):
+    """rows＝［(終了日時, ガチャjson, 記事のパス)］終了日時が新しい順。
+    表は「イベキャラのアイコン | イベキャラ名 | ガチャ開始日～終了日 | 評価」（2026-11-25 管理人）。
+    評価はガチャ記事の「イベキャラとしての評価」と同じ、ランキングでのランク（build した時点のもの）"""
     meta = (f"title: 過去のガチャ（期間終了したガチャの記事まとめ）｜パワプロアプリ攻略ベース\n"
-            f"description: パワプロアプリのガチャのうち、ガチャ期間が終了したものの「引くべき？」記事をまとめています。\n"
+            f"description: パワプロアプリで2026年11月以降に追加されたガチャのうち、ガチャ期間が終了したものの「引くべき？」記事をまとめています。\n"
             f"path: {PAST_PATH}\nnav: home\ncrumb: 過去のガチャ\n" + ("noindex: yes\n" if PAST_NOINDEX else ""))
     body = ('<section class="phead"><p class="eyebrow">ガチャ</p><h1><span class="mk"><i>過去のガチャ</i></span></h1>'
-            '<p>ガチャ期間が終了したガチャの<span class="cp-nw">「引くべき？」記事を</span><span class="cp-nw">まとめています。</span></p></section>\n')
-    if cards:
-        body += '<div class="grid2">\n  ' + "\n  ".join(cards) + "\n</div>\n"
-    else:
-        body += '<div class="prose"><p>まだ期間が終了したガチャは<span class="cp-nw">ありません。</span></p></div>\n'
+            '<p><span class="cp-nw">2026年11月以降に</span><span class="cp-nw">追加されたガチャの、</span><span class="cp-nw">ガチャ期間が</span><span class="cp-nw">終了したガチャの</span>'
+            '<span class="cp-nw">「引くべき？」記事を</span><span class="cp-nw">まとめています。</span></p></section>\n')
+    if not rows:
+        return f"<!--\n{meta}-->\n" + body + '<div class="prose"><p>まだ期間が終了したガチャは<span class="cp-nw">ありません。</span></p></div>\n'
+    trs = []
+    for _, g, path in rows:
+        chs = g.get("charas") or [g]
+        icons = "".join(f'<img src="{{{{root}}}}{e(ch["icon"])}" alt="" width="44" height="44" loading="lazy">' for ch in chs if ch.get("icon"))
+        names = "".join(f'<span class="gp-nm">{_name_html(ch["chara"])}</span>' for ch in chs)
+        evals = ""
+        for ch in chs:
+            rk = "".join(f'<span class="gp-rk"><span class="tier tier-{t}">{t}</span><span class="gp-rn">{e(r["短い名前"])}</span></span>'
+                         for r, t, _ in charpages.rankings_of(ch["chara"]))
+            if len(chs) > 1 and rk:
+                rk = f'<span class="gp-who">{e(ch["chara"])}</span>' + rk
+            evals += rk
+        trs.append(f'<tr><td class="gp-ic"><a href="{{{{root}}}}{path}">{icons}</a></td>'
+                   f'<td class="gp-name"><a href="{{{{root}}}}{path}">{names}</a></td>'
+                   f'<td class="gp-pd">{_period_label(g)}</td>'
+                   f'<td class="gp-ev">{evals or "－"}</td></tr>')
+    body += ('<div class="prose"><div class="tablewrap"><table class="gpast"><thead><tr><th class="gp-ic" aria-label="アイコン"></th><th>イベキャラ</th><th>ガチャ期間</th><th>評価</th></tr></thead>\n<tbody>\n'
+             + "\n".join(trs) + '\n</tbody></table></div>\n'
+             '<p class="muted">イベキャラ名を押すと、そのガチャの「引くべき？」記事を開きます。評価はランキングでのランクです。</p></div>\n')
     return f"<!--\n{meta}-->\n" + body
