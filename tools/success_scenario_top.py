@@ -260,6 +260,22 @@ def gold_table():
     return "\n".join(out)
 
 
+# シナリオ所属キャラをデッキに入れた時の恩恵（2026-11-25 管理人）。json の「シナリオキャラの恩恵」から <!-- SCMERIT:START/END --> の間を作る。
+def merit_html():
+    V = C.get("シナリオキャラの恩恵")
+    if V is None:
+        return None
+    out = []
+    for k in ("メインデッキ", "サポートデッキ"):
+        if V.get(k):
+            out.append(f'  <h3 class="sm-h">{k}に入れた時</h3>')
+            out.append("  <ul class=\"sm-l\">" + "".join(f"<li>{e(x)}</li>" for x in V[k]) + "</ul>")
+            if k == "メインデッキ" and V.get("報酬の選択肢"):
+                out.append('  <table class="sg-t sm-t"><thead><tr><th>キャラ</th><th>増える選択肢</th></tr></thead><tbody>'
+                           + "".join(f"<tr><th>{e(a)}</th><td>{e(b)}</td></tr>" for a, b in V["報酬の選択肢"]) + "</tbody></table>")
+    return "\n".join(out)
+
+
 # トップ
 s = page.read_text(encoding="utf-8")
 assert "<!-- SCTOP:START -->" in s and "<!-- SCTOP:END -->" in s, "SCTOP の目印が見つからない"
@@ -280,6 +296,10 @@ _gd = gold_table()
 if _gd is not None:
     assert "<!-- SCGOLD:START -->" in s, "SCGOLD の目印が見つからない"
     s = re.sub(r"(<!-- SCGOLD:START -->).*?(<!-- SCGOLD:END -->)", lambda m: m.group(1) + "\n" + _gd + "\n  " + m.group(2), s, flags=re.S)
+_mr = merit_html()
+if _mr is not None:
+    assert "<!-- SCMERIT:START -->" in s, "SCMERIT の目印が見つからない"
+    s = re.sub(r"(<!-- SCMERIT:START -->).*?(<!-- SCMERIT:END -->)", lambda m: m.group(1) + "\n" + _mr + "\n  " + m.group(2), s, flags=re.S)
 page.write_text(s, encoding="utf-8")
 print("ok トップ", NAME, sum(1 for c in C["子ページ"] if c.get("準備OK")), "枚")
 

@@ -762,3 +762,7 @@ details.se-d>.se-t{margin-top:8px}
 @media (max-width:400px){.sg-t{font-size:14px}.sg-t th,.sg-t td{padding:7px 6px}.sg-t .sa-pos{margin-right:5px;padding:1px 6px}}
 .prose .sg-note,.sg-note{color:#c62828;font-weight:700;margin:-10px 0 18px;font-size:14px}
 .sg-t .sg-mark{color:#c62828;font-weight:700}
+/* シナリオ所属キャラの恩恵（2026-11-25） */
+.sm-h{font-family:var(--head);font-weight:900;font-size:16px;margin:16px 0 6px;padding:5px 10px;border-left:5px solid #1d5e43;background:#f2f4f1;border-radius:4px}
+.prose .sm-l{margin:6px 0 10px;padding-left:1.3em}.sm-l li+li{margin-top:4px}
+.sm-t tbody th{width:55%}
