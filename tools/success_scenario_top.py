@@ -190,7 +190,7 @@ def empty_counts():
 
 
 # ランダムイベント（2026-11-24 管理人「イベキャラのイベント表の形を流用」）。charpages.py の event_detail で作る。
-# 「前」「後」に分けて出す。並びは 体力+ → やる気+ → コツLv → それ以外（同じ順位は書いた順、2026-11-25 管理人）。
+# 「前」「後」に分けて出す。並びは _rank の順（同じ順位は書いた順、2026-11-25 管理人）。
 def _rows(x):
     rows = list(x.get("行", []))
     for s in x.get("小イベント", []):
@@ -198,16 +198,19 @@ def _rows(x):
     return rows
 
 def _rank(x):
-    rows = _rows(x)
-    effs = [str(i) for r in rows for i in r.get("効果", [])]
-    if any(re.match(r"^体力[+＋]", i) for i in effs):
-        return 0
-    if any(re.match(r"^やる気[+＋]", i) for i in effs):
-        return 1
-    items = [str(i) for r in rows for k, v in r.items() if isinstance(v, list) for i in v]
-    if any("コツLv" in i for i in items):
-        return 2
-    return 3
+    """並び順（2026-11-25 管理人）：1 体力+ → 2 体力最大値+ → 3 いいヤツ・世渡り上手・モテモテ → 4 やる気+ → 5 コツLv → 6 ○○評価+ → 7 なにもなし"""
+    items = [str(i) for r in _rows(x) for k, v in r.items() if isinstance(v, list) for i in v]
+    tests = (lambda i: re.match(r"^体力[+＋]", i),
+             lambda i: re.match(r"^体力最大値[+＋]", i),
+             lambda i: re.match(r"^(いいヤツ|世渡り上手|モテモテ)", i),
+             lambda i: re.match(r"^やる気[+＋]", i),
+             lambda i: "コツLv" in i,
+             lambda i: re.search(r"評価[+＋]", i))
+    for n, f in enumerate(tests):
+        if any(f(i) for i in items):
+            return n
+    return len(tests)
+
 
 def random_events():
     V = C.get("ランダムイベント")
