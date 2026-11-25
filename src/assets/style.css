@@ -746,3 +746,10 @@ table.gpast th{white-space:normal}
 table.gpast .gp-who{display:block;font-weight:700;margin-top:4px}
 @media (max-width:480px){table.gpast td{padding:7px 3px}table.gpast td.gp-ic{padding:7px 3px 7px 0}table.gpast td.gp-ic img{width:36px;height:36px}table.gpast td.gp-name{font-size:13px}table.gpast td.gp-pd{font-size:12px}table.gpast td.gp-ev{min-width:0;width:45%}table.gpast th{font-size:11px}table.gpast .gp-rn{font-size:11px}}
 @media (max-width:340px){table.gpast td.gp-ic img{width:30px;height:30px}table.gpast td{padding:6px 2px}table.gpast td.gp-ic{padding:6px 2px 6px 0}table.gpast td.gp-pd{font-size:11px}}
+/* 固定イベントのセクションはタップで開く（2026-11-25 管理人） */
+.prose details.se-d,details.se-d{margin:0 0 4px}
+details.se-d>summary{display:block;list-style:none;cursor:pointer;padding:11px 36px 11px 12px;position:relative;border:1px solid #c9d3c6;border-left:6px solid #1d5e43;border-radius:6px;background:#e1efe6;font-family:var(--head);font-weight:900;font-size:16px;line-height:1.4;color:#14233a}
+details.se-d>summary::-webkit-details-marker{display:none}
+details.se-d>summary::after{content:"▼";position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;color:#1d5e43}
+details.se-d[open]>summary::after{content:"▲"}
+details.se-d>.se-t{margin-top:8px}

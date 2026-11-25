@@ -146,7 +146,8 @@ def event_tables():
     out = []
     for sec in V["セクション"]:
         W = WS.get(sec["名前"], {})  # 週はセクションごと（8月1〜3週がセクション1と4にあるため）
-        out.append(f'  <h3 class="se-h">{e(sec["名前"])}<span class="se-r">（{e(sec["週"][0])}〜{e(sec["週"][-1])}）</span></h3>')
+        # セクションごとにタップで開く（2026-11-25 管理人「表の長さの割に内容が薄いので」）
+        out.append(f'  <details class="se-d"><summary>{e(sec["名前"])}<span class="se-r">（{e(sec["週"][0])}〜{e(sec["週"][-1])}）</span></summary>')
         out.append('  <table class="se-t">')
         out.append('  <thead><tr><th class="se-w"></th><th class="se-mae">前</th><th class="se-ato">後</th></tr></thead>')
         out.append("  <tbody>")
@@ -162,7 +163,7 @@ def event_tables():
                                + "".join(f"<span>{_deco(x)}</span>" for x in v.get("詳細", [])) + "</div>" for v in evs)
                 cells.append(f'<td class="{cls}">{body}</td>' if _colored(evs) else f"<td>{body}</td>")
             out.append(f'    <tr><th class="se-w">{e(wk)}</th>{"".join(cells)}</tr>')
-        out += ["  </tbody>", "  </table>"]
+        out += ["  </tbody>", "  </table>", "  </details>"]
     return "\n".join(out)
 
 
