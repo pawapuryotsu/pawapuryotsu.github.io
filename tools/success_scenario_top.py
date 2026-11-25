@@ -96,6 +96,11 @@ def nav(bottom=False):
                       f'  <p class="sk-nav-h">{e(NAME)}の攻略ページ</p>'] + grid(cs) + [UPD_JS, '  </section>'])
 
 
+def _POS_ORDER():
+    """投手シナリオは投手の金特を上、野手シナリオは野手を上（json の「種別」、2026-11-25 管理人）"""
+    return ("野手", "投手") if C.get("種別") == "野手" else ("投手", "野手")
+
+
 # シナリオの概要の表（2026-11-24 管理人のテンプレ）。json の「概要」から <!-- SCABOUT:START/END --> の間を作る。
 # 空欄は「調査中」。空きイベント数は 前＝黄色太字・後＝濃い青太字。金特は投手・野手で行を分ける。
 def about_table():
@@ -122,9 +127,11 @@ def about_table():
     out = ['  <table class="sa-t">', "  <tbody>"]
     for th, td in rows:
         out.append(f"    <tr><th>{th}</th><td>{td}</td></tr>")
+    p1, p2 = _POS_ORDER()
+    pc = lambda k: f'<span class="sa-pos{" sa-pos-p" if k == "投手" else ""}">{k}</span>'
     out.append(f'    <tr><th rowspan="2">取得可能な<span class="cp-nw">金特</span></th>'
-               f'<td><span class="sa-pos sa-pos-p">投手</span>{items(A.get("金特_投手"))}</td></tr>')
-    out.append(f'    <tr><td><span class="sa-pos">野手</span>{items(A.get("金特_野手"))}</td></tr>')
+               f'<td>{pc(p1)}{items(A.get("金特_" + p1))}</td></tr>')
+    out.append(f'    <tr><td>{pc(p2)}{items(A.get("金特_" + p2))}</td></tr>')
     out.append(f'    <tr><th>所持経験点<span class="cp-nw">上限</span></th><td>{val(A.get("所持経験点上限", ""))}</td></tr>')
     out.append(f'    <tr><th>シナリオ<span class="cp-nw">所属キャラ</span></th><td>{items(A.get("所属キャラ"))}</td></tr>')
     out += ["  </tbody>", "  </table>"]
@@ -146,7 +153,8 @@ def event_tables():
     out = []
     for sec in V["セクション"]:
         W = WS.get(sec["名前"], {})  # 週はセクションごと（8月1〜3週がセクション1と4にあるため）
-        out.append(f'  <h3 class="se-h">{e(sec["名前"])}<span class="se-r">（{e(sec["週"][0])}〜{e(sec["週"][-1])}）</span></h3>')
+        # セクションごとにタップで開く（2026-11-25 管理人「表の長さの割に内容が薄いので」）
+        out.append(f'  <details class="se-d"><summary>{e(sec["名前"])}<span class="se-r">（{e(sec["週"][0])}〜{e(sec["週"][-1])}）</span></summary>')
         out.append('  <table class="se-t">')
         out.append('  <thead><tr><th class="se-w"></th><th class="se-mae">前</th><th class="se-ato">後</th></tr></thead>')
         out.append("  <tbody>")
@@ -162,7 +170,7 @@ def event_tables():
                                + "".join(f"<span>{_deco(x)}</span>" for x in v.get("詳細", [])) + "</div>" for v in evs)
                 cells.append(f'<td class="{cls}">{body}</td>' if _colored(evs) else f"<td>{body}</td>")
             out.append(f'    <tr><th class="se-w">{e(wk)}</th>{"".join(cells)}</tr>')
-        out += ["  </tbody>", "  </table>"]
+        out += ["  </tbody>", "  </table>", "  </details>"]
     return "\n".join(out)
 
 
@@ -236,6 +244,38 @@ def random_events():
         out.append(f'  <section class="cp-sec sc-rnd sc-rnd-{sc}">{cp.event_detail(ev)}</section>')
     return "\n".join(out)
 
+# シナリオ金特取得条件の表（2026-11-25 管理人）。json の「金特取得条件」から <!-- SCGOLD:START/END --> の間を作る。
+def gold_table():
+    V = C.get("金特取得条件")
+    if V is None:
+        return None
+    out = ['  <table class="sg-t">', '  <thead><tr><th>入手条件</th><th>入手金特</th></tr></thead>', "  <tbody>"]
+    for r in V.get("行", []):
+        g = "".join(f'<span class="sg-g"><span class="sa-pos{" sa-pos-p" if k == "投手" else ""}">{k}</span>{e(r[k])}</span>'
+                    for k in _POS_ORDER() if r.get(k))
+        cond = e(r["条件"]).replace("※", '<span class="sg-mark">※</span>')  # 条件の※は赤字（注記と対応、2026-11-25 管理人）
+        out.append(f'    <tr><th>{cond}</th><td>{g}</td></tr>')
+    out += ["  </tbody>", "  </table>"]
+    out += [f'  <p class="sg-note">{e(x)}</p>' for x in V.get("注記", [])]  # 表の下の注記は赤文字（2026-11-25 管理人）
+    return "\n".join(out)
+
+
+# シナリオ所属キャラをデッキに入れた時の恩恵（2026-11-25 管理人）。json の「シナリオキャラの恩恵」から <!-- SCMERIT:START/END --> の間を作る。
+def merit_html():
+    V = C.get("シナリオキャラの恩恵")
+    if V is None:
+        return None
+    out = []
+    for k in ("メインデッキ", "サポートデッキ"):
+        if V.get(k):
+            out.append(f'  <h3 class="sm-h">{k}に入れた時</h3>')
+            out.append("  <ul class=\"sm-l\">" + "".join(f"<li>{_deco(x)}</li>" for x in V[k]) + "</ul>")
+            if k == "メインデッキ" and V.get("報酬の選択肢"):
+                out.append('  <table class="sg-t sm-t"><thead><tr><th>キャラ</th><th>増える選択肢</th></tr></thead><tbody>'
+                           + "".join(f"<tr><th>{e(a)}</th><td>{e(b)}</td></tr>" for a, b in V["報酬の選択肢"]) + "</tbody></table>")
+    return "\n".join(out)
+
+
 # トップ
 s = page.read_text(encoding="utf-8")
 assert "<!-- SCTOP:START -->" in s and "<!-- SCTOP:END -->" in s, "SCTOP の目印が見つからない"
@@ -252,6 +292,14 @@ _rn = random_events()
 if _rn is not None:
     assert "<!-- SCRANDOM:START -->" in s, "SCRANDOM の目印が見つからない"
     s = re.sub(r"(<!-- SCRANDOM:START -->).*?(<!-- SCRANDOM:END -->)", lambda m: m.group(1) + "\n" + _rn + "\n  " + m.group(2), s, flags=re.S)
+_gd = gold_table()
+if _gd is not None:
+    assert "<!-- SCGOLD:START -->" in s, "SCGOLD の目印が見つからない"
+    s = re.sub(r"(<!-- SCGOLD:START -->).*?(<!-- SCGOLD:END -->)", lambda m: m.group(1) + "\n" + _gd + "\n  " + m.group(2), s, flags=re.S)
+_mr = merit_html()
+if _mr is not None:
+    assert "<!-- SCMERIT:START -->" in s, "SCMERIT の目印が見つからない"
+    s = re.sub(r"(<!-- SCMERIT:START -->).*?(<!-- SCMERIT:END -->)", lambda m: m.group(1) + "\n" + _mr + "\n  " + m.group(2), s, flags=re.S)
 page.write_text(s, encoding="utf-8")
 print("ok トップ", NAME, sum(1 for c in C["子ページ"] if c.get("準備OK")), "枚")
 
