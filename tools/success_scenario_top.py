@@ -248,6 +248,7 @@ def gold_table():
                     for k in ("投手", "野手") if r.get(k))
         out.append(f'    <tr><th>{e(r["条件"])}</th><td>{g}</td></tr>')
     out += ["  </tbody>", "  </table>"]
+    out += [f'  <p class="sg-note">{e(x)}</p>' for x in V.get("注記", [])]  # 表の下の注記は赤文字（2026-11-25 管理人）
     return "\n".join(out)
 
 

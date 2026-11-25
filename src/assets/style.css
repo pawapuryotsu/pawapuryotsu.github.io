@@ -760,3 +760,4 @@ details.se-d>.se-t{margin-top:8px}
 .sg-t tbody th{width:45%;font-weight:700;background:#f7f9f6}
 .sg-g{display:block;white-space:nowrap}.sg-g+.sg-g{margin-top:4px}
 @media (max-width:400px){.sg-t{font-size:14px}.sg-t th,.sg-t td{padding:7px 6px}.sg-t .sa-pos{margin-right:5px;padding:1px 6px}}
+.prose .sg-note,.sg-note{color:#c62828;font-weight:700;margin:-10px 0 18px;font-size:14px}
