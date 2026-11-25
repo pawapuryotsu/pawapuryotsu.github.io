@@ -114,8 +114,6 @@ def nav_cards():
             '⑲道中3<span class="cp-nw">周回</span>', "", READY["q19"]),
        card("pawaque/saikyuki/muzu/", "saikyuki_link_muzu.jpg", "クエスト一覧のむずクエ", 374, 148,
             'むずクエ<span class="cp-nw">攻略＆周回</span>', 'エリアごとの<wbr><span class="cp-nw">ルートと仙術</span>'),
-       card("pawaque/saikyuki/mucha/", "saikyuki_link_mucha.jpg", "クエスト一覧のむちゃクエ", 374, 148,
-            'むちゃクエ<span class="cp-nw">攻略＆周回</span>', 'エリアごとの<wbr><span class="cp-nw">ルートと仙術</span>'),
        card("pawaque/saikyuki/shinzen/", "saikyuki_link_shinzen.jpg", "神前試合の画面", 660, 334,
             '神前試合<span class="cp-nw">まとめ</span>', f"{len(S)}校の進化対象・<wbr>スカウト候補"),
        card("pawaque/saikyuki/niji/", "saikyuki_link_niji.jpg", "真・精密機械", 151, 50,
@@ -125,6 +123,9 @@ def nav_cards():
             'おすすめ契約書&amp;<span class="cp-nw">コーチ+4厳選解説</span>', "狙い方と<wbr>おすすめ契約書"),
        card("pawaque/saikyuki/contract/", "saikyuki_link_contract.jpg", "［求道者］才賀 侑人の契約書", 320, 125,
             'ドロップ<span class="cp-nw">契約書まとめ</span>', "", READY["contract"]),
+       # 2026-11-25 管理人：むちゃクエは「むちゃクエ攻略・ベストチーム更新解説」に改名し、攻略ページ側のミッション報酬の左へ
+       card("pawaque/saikyuki/mucha/", "saikyuki_link_mucha.jpg", "クエスト一覧のむちゃクエ", 374, 148,
+            'むちゃクエ<span class="cp-nw">攻略・</span><wbr><span class="cp-nw">ベストチーム</span><wbr><span class="cp-nw">更新解説</span>', 'エリアごとの<wbr><span class="cp-nw">ルートと仙術</span>'),
        card("pawaque/mission/", "saikyuki_link_mission.jpg", "ミッションの画面", 232, 161,
             'ミッション<span class="cp-nw">報酬</span>', f"西球記の{mis}件を<wbr>掲載" if mis else ""),
        # 一番右下（最後）に契約書シミュレータ（2026-11-22 管理人）。画像は管理人から届いたら入れる
@@ -135,7 +136,7 @@ def nav_cards():
 
 # リンク欄は2段（2026-11-23 管理人）：1段目「西球記の攻略ページ」、2段目「西球記のクエスト・周回ページ」（クエスト一覧と各クエストの攻略・周回ページ）
 QUEST_PAGES = ("pawaque/saikyuki/quest/", "pawaque/saikyuki/q12/", "pawaque/saikyuki/q18/", "pawaque/saikyuki/q19/",
-               "pawaque/saikyuki/muzu/", "pawaque/saikyuki/mucha/")
+               "pawaque/saikyuki/muzu/")
 
 
 def _is_quest(c):
