@@ -253,7 +253,8 @@ def gold_table():
     for r in V.get("行", []):
         g = "".join(f'<span class="sg-g"><span class="sa-pos{" sa-pos-p" if k == "投手" else ""}">{k}</span>{e(r[k])}</span>'
                     for k in _POS_ORDER() if r.get(k))
-        out.append(f'    <tr><th>{e(r["条件"])}</th><td>{g}</td></tr>')
+        cond = e(r["条件"]).replace("※", '<span class="sg-mark">※</span>')  # 条件の※は赤字（注記と対応、2026-11-25 管理人）
+        out.append(f'    <tr><th>{cond}</th><td>{g}</td></tr>')
     out += ["  </tbody>", "  </table>"]
     out += [f'  <p class="sg-note">{e(x)}</p>' for x in V.get("注記", [])]  # 表の下の注記は赤文字（2026-11-25 管理人）
     return "\n".join(out)
