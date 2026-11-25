@@ -717,3 +717,10 @@ a.hg .scard:hover,.hg a.scard:hover{background:#f6f8fa}
 .se-on-mae{background:#fff2cc}.se-on-ato{background:#dde8f5}
 .se-ev{display:flex;flex-direction:column}.se-ev+.se-ev{margin-top:6px}.se-ev b{font-weight:700}.se-ev span{font-weight:500}
 @media (max-width:400px){.se-t{font-size:14px}.se-t th.se-w{font-size:13px;padding:5px 5px}.se-t td{padding:5px 6px}}
+/* ランダムイベント：前は黄色系・後は青系（2026-11-25 管理人） */
+.se-h.se-h-mae,.se-h.se-h-ato{padding:6px 12px;border-radius:4px;border-left:6px solid}
+.se-h.se-h-mae{background:#fff2cc;border-left-color:#e0a800;color:#8a5a00}
+.se-h.se-h-ato{background:#dde8f5;border-left-color:#1565c0;color:#0b3d91}
+.cp-sec.sc-rnd-mae h3.cp-ev{background:#fff7dd;border-left-color:#e0a800}
+.cp-sec.sc-rnd-ato h3.cp-ev{background:#e8f0fa;border-left-color:#1565c0}
+.cp-sec.sc-rnd-mae{border-color:#f0d48a}.cp-sec.sc-rnd-ato{border-color:#a9c3e6}

@@ -222,7 +222,8 @@ def random_events():
     out = []
     for side in ("前", "後"):
         evs = sorted(V.get(side, []), key=_rank)
-        out.append(f'  <h3 class="se-h">{side}イベント</h3>')
+        sc = "mae" if side == "前" else "ato"  # 前イベントは黄色系・後イベントは青系で統一（2026-11-25 管理人）
+        out.append(f'  <h3 class="se-h se-h-{sc}">{side}イベント</h3>')
         if not evs:
             out.append('  <p class="muted">準備中です。</p>')
             continue
@@ -232,7 +233,7 @@ def random_events():
             if x.get("行"):
                 y["小イベント"] = [{"行": x["行"]}] + y.get("小イベント", [])
             ev[x["名前"]] = y
-        out.append(f'  <section class="cp-sec sc-rnd">{cp.event_detail(ev)}</section>')
+        out.append(f'  <section class="cp-sec sc-rnd sc-rnd-{sc}">{cp.event_detail(ev)}</section>')
     return "\n".join(out)
 
 # トップ
