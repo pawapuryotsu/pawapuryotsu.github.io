@@ -1,5 +1,5 @@
 {
- "取得日": "2026-11-24",
+ "取得日": "2026-11-25",
  "元": "パワクエ周回カウンター",
  "クエスト": "⑲道中3",
  "記録対象外": [
@@ -3411,6 +3411,121 @@
     }
    ],
    "endArea": 2
+  },
+  {
+   "no": 402,
+   "date": "2026-11-24",
+   "area": "3/3 ⑲道中3",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 2,
+    "2": 4,
+    "3": -1
+   },
+   "prayers": [
+    {
+     "after": [
+      "回復の術 金",
+      "野手特訓マス強化2",
+      "特能進化+2"
+     ],
+     "area": 0,
+     "before": [
+      "回復の術 金",
+      "野手特訓マス強化2",
+      "特能進化+2"
+     ],
+     "gained": [],
+     "lost": [],
+     "name": "金ノ書",
+     "rarity": "金",
+     "result": "失敗"
+    }
+   ],
+   "drops": [
+    {
+     "area": 1,
+     "boss": false,
+     "name": "金ノ書",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "納見新造",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 1
+    },
+    {
+     "area": 1,
+     "boss": true,
+     "name": "特能ノ書",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 2
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "納見新造",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 3
+    },
+    {
+     "area": 2,
+     "boss": true,
+     "name": "金ノ書",
+     "rarity": "金",
+     "skills": [
+      "回復の術 金",
+      "野手特訓マス強化2",
+      "特能進化+2"
+     ],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "[ライダー]梶増人",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "[ライダー]梶増人",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "[野球マン5号]小山雅",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 8
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "中之島幸宏",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 9
+    }
+   ]
   }
  ]
 }
