@@ -269,7 +269,7 @@ def merit_html():
     for k in ("メインデッキ", "サポートデッキ"):
         if V.get(k):
             out.append(f'  <h3 class="sm-h">{k}に入れた時</h3>')
-            out.append("  <ul class=\"sm-l\">" + "".join(f"<li>{e(x)}</li>" for x in V[k]) + "</ul>")
+            out.append("  <ul class=\"sm-l\">" + "".join(f"<li>{_deco(x)}</li>" for x in V[k]) + "</ul>")
             if k == "メインデッキ" and V.get("報酬の選択肢"):
                 out.append('  <table class="sg-t sm-t"><thead><tr><th>キャラ</th><th>増える選択肢</th></tr></thead><tbody>'
                            + "".join(f"<tr><th>{e(a)}</th><td>{e(b)}</td></tr>" for a, b in V["報酬の選択肢"]) + "</tbody></table>")
