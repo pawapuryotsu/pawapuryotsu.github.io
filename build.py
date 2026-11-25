@@ -310,6 +310,9 @@ try:
         _CHAR_PAGES.add(f"chars/{_pid}/")
         if ((_cj.get(_nm) or {}).get("実装日") or "") < _CHAR_FROM:
             HOME_SKIP.add(f"chars/{_pid}/")
+    for _pid, _st in _cfg.get("準備中のキャラ", {}).items():   # 公開日時のある準備中キャラも、公開後は新イベキャラとして2週間出す（noindex の間は出ない）
+        if _st.get("公開日時"):
+            _CHAR_PAGES.add(f"chars/{_pid}/")
 except Exception as _ex:
     print("警告: 最近の更新のイベキャラ判定に失敗", _ex)
 # ランキングと次期シナリオ予想は期限なしで出す（2026-11-17 管理人）
@@ -327,7 +330,7 @@ for _gf in sorted((src / "gacha").glob("*.json")):
         HOME_UNTIL[f"gacha/{_gf.stem}/"] = f"{_y:04d}-{int(_m.group(2)):02d}-{int(_m.group(3)):02d}T14:00"
     except Exception as _ex:
         print("警告: ガチャ期間が読めません", _gf.name, _ex)
-_NOW_JST = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%dT%H:%M")
+_NOW_JST = __import__("os").environ.get("BUILD_NOW_JST") or datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%dT%H:%M")   # BUILD_NOW_JST=2026-11-26T14:00 で時刻を指定して試せる
 _RECENT_JS = ("<script>(function(){var d=new Date(Date.now()+9*36e5).toISOString().slice(0,16),n=0;"
               "document.querySelectorAll('.news.recent li').forEach(function(li){var u=li.getAttribute('data-until');"
               f"if((u&&u<=d)||n>={HOME_N})li.remove();else n++;}});}})();</script>")
@@ -387,7 +390,8 @@ for meta, body in _parsed:
     cur = ' aria-current="page"'
     nav = "\n".join(f'    <a href="{root}{p}"{cur if k == meta.get("nav") else ""}>{label}</a>' for k, p, label in NAV)
     scripts = "\n".join(f'<script src="{root}assets/{s}.js"></script>' for s in meta.get("scripts", "").split())
-    noindex = meta.get("noindex") == "yes"
+    # noindex_until: 2026-11-26T14:00（日本時間）と書くと、その時刻より前のビルドだけ noindex（2026-11-25 管理人「noindexは自動で外れるようにして」）
+    noindex = meta.get("noindex") == "yes" or (bool(meta.get("noindex_until")) and _NOW_JST < meta["noindex_until"])
     rep = {"title": meta["title"], "description": meta["description"], "canonical": f"{SITE_URL}/{path}",
            "robots": '<meta name="robots" content="noindex">' if noindex else "", "adsense_head": adsense_head(),
            "analytics_note": analytics_note(), "head_extra": ga_head() + '<meta name="google-site-verification" content="ZgxID967oum-2Mm1F5BCX9gvQE_vNl2ZDbXXWfyYP10" />', "nav": nav, "scripts": scripts, "operator": OPERATOR, "operator_intro": OPERATOR_INTRO,
@@ -433,7 +437,7 @@ for meta, body in _parsed:
         if _dd and (not _lm or _dd > _lm):
             _lm = _dd
         urls.append((_u, _lm))
-        _pub = first_published(path)   # 「最近の更新」で更新日が同じページは公開日が新しい順
+        _pub = meta.get("published") or first_published(path)   # 「最近の更新」で更新日が同じページは公開日が新しい順。published: 2026-11-26 で公開日を指定できる（noindex を日時で外すページ用）
         if _lm:
             _icon = meta.get("og_icon") or (f"img/chars/{path.split('/')[1]}.png" if re.fullmatch(r"chars/\d{4}/", path) else None)
             # 新イベキャラは公開日から2週間、新シナリオのトップ（ページ先頭 recent_scenario: yes）は公開日から3週間（2026-11-17 管理人）

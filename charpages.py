@@ -3,6 +3,13 @@
 # ボーナスの『上に出す／タブに隠す』と並び順は src/chars/config.json で一括管理。
 import html as _h, json, re
 from pathlib import Path
+from datetime import datetime, timedelta, timezone
+
+
+def _now_jst():
+    """いまの日本時間 \"YYYY-MM-DDTHH:MM\"（公開日時との比較用）"""
+    import os
+    return os.environ.get("BUILD_NOW_JST") or datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%dT%H:%M")
 
 e = _h.escape
 
@@ -920,12 +927,16 @@ def generate(chars_path, src, decks, noindex=True):
         if not re.fullmatch(r"\d{4}", pid) or pid in config["公開するキャラ"]:
             raise SystemExit(f"準備中のキャラの番号が不正か重複しています: {pid}")
         full = f'{st.get("二つ名") and "[" + st["二つ名"] + "]" or ""}{st["苗字"]}{st.get("名前") or ""}'
-        c = {"二つ名": st.get("二つ名") or "", "苗字": st["苗字"], "名前": st.get("名前") or "", "読み": st.get("読み"), "二つ名読み": st.get("二つ名読み") or "", "実装日": st.get("実装日"), "_準備中": True}
+        # 「公開日時」（日本時間 "2026-11-26T14:00"）を書くと、その時刻より後のビルドで noindex が外れ、イベキャラ一覧にも出る（2026-11-25 管理人「noindexは自動で外れるようにして」）
+        public = bool(st.get("公開日時")) and _now_jst() >= st["公開日時"]
+        c = {"二つ名": st.get("二つ名") or "", "苗字": st["苗字"], "名前": st.get("名前") or "", "読み": st.get("読み"), "二つ名読み": st.get("二つ名読み") or "", "実装日": st.get("実装日"),
+             "得意練習": st.get("得意練習") or [], "_準備中": True, "_公開": public}
         c["_icon"] = find_icon(chars_path, c, pid)
         items.append((pid, c, full))
         meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
                 f"description: パワプロアプリのイベキャラ {full}{yomi_paren(c)} のページです。データは準備中です。\n"
-                f"path: chars/{pid}/\nnav: none\ncrumb: {full}\n" + "noindex: yes\n")   # データ未入力（準備中だけ）のページは検索に出さない
+                + (f"recent_title: {full}のデータ\npublished: {st['公開日時'][:10]}\n" if public else "")
+                + f"path: chars/{pid}/\nnav: none\ncrumb: {full}\n" + ("" if public else "noindex: yes\n"))   # データ未入力（準備中だけ）のページは、公開日時までは検索に出さない
         body = (head_html(full, c, pid)
                 + stub_body(full, st, *stub_char(chars, st, kinds)))
         pages.append(f"<!--\n{meta}-->\n{body}")
@@ -933,7 +944,7 @@ def generate(chars_path, src, decks, noindex=True):
     pages += ranking_pages(items, config, chars, chars_path)
     if _COMBOS:
         pages.append(combo_page())
-    pages.append(index_page([t for t in items if t[0] not in unlisted and not t[1].get("_準備中")], config, False))
+    pages.append(index_page([t for t in items if t[0] not in unlisted and (not t[1].get("_準備中") or t[1].get("_公開"))], config, False))
     return pages
 
 
@@ -1028,7 +1039,7 @@ def index_page(items, config, noindex):
     items = sorted(items, key=lambda t: (t[1].get("実装日") or "", t[0]), reverse=True)
     items = [t for t in items if t[1].get("実装日")] + [t for t in items if not t[1].get("実装日")]
     for pid, c, full in items:
-        kind = "準備中" if c.get("_準備中") else char_type(c, config["種別の判定"])
+        kind = "準備中" if c.get("_準備中") and not (c.get("_公開") and c.get("得意練習")) else char_type(c, config["種別の判定"])
         yomi = c.get("二つ名読み") or ""
         yomi = " ".join(yomi) if isinstance(yomi, list) else yomi
         key = " ".join(x for x in (full, c.get("読み"), yomi, c.get("苗字"), c.get("名前")) if x)
@@ -1036,7 +1047,7 @@ def index_page(items, config, noindex):
                    + (f'<img class="cl-icon" src="../img/chars/{pid}.png" alt="" width="52" height="52" loading="lazy">' if c.get("_icon") else '<span class="cl-icon"></span>')
                    + f'<span class="cl-name"><span class="cl-nick">{e(c["二つ名"] or "")}</span><b>{e(c["苗字"])}{e(c["名前"] or "")}</b></span>'
                    f'<span class="cl-tag">{e(kind)}</span></a></li>')
-    kinds_ = sorted({char_type(c, config["種別の判定"]) for _, c, _ in items if not c.get("_準備中")}) if items else []
+    kinds_ = sorted({char_type(c, config["種別の判定"]) for _, c, _ in items if not c.get("_準備中") or (c.get("_公開") and c.get("得意練習"))}) if items else []
     chips = "".join(f'<button type="button" class="cl-chip" data-t="{e(k)}">{e(k)}</button>' for k in kinds_)
     meta = ("title: イベキャラ一覧（評価・イベント・金特）｜パワプロアプリ攻略ベース\ncrumb: イベキャラ一覧\n"
             "description: パワプロアプリのイベキャラのボーナス・金特・イベントをまとめたページの一覧です。名前や読みで検索できます。\n"
