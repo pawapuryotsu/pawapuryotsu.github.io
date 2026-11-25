@@ -96,6 +96,11 @@ def nav(bottom=False):
                       f'  <p class="sk-nav-h">{e(NAME)}の攻略ページ</p>'] + grid(cs) + [UPD_JS, '  </section>'])
 
 
+def _POS_ORDER():
+    """投手シナリオは投手の金特を上、野手シナリオは野手を上（json の「種別」、2026-11-25 管理人）"""
+    return ("野手", "投手") if C.get("種別") == "野手" else ("投手", "野手")
+
+
 # シナリオの概要の表（2026-11-24 管理人のテンプレ）。json の「概要」から <!-- SCABOUT:START/END --> の間を作る。
 # 空欄は「調査中」。空きイベント数は 前＝黄色太字・後＝濃い青太字。金特は投手・野手で行を分ける。
 def about_table():
@@ -122,9 +127,11 @@ def about_table():
     out = ['  <table class="sa-t">', "  <tbody>"]
     for th, td in rows:
         out.append(f"    <tr><th>{th}</th><td>{td}</td></tr>")
+    p1, p2 = _POS_ORDER()
+    pc = lambda k: f'<span class="sa-pos{" sa-pos-p" if k == "投手" else ""}">{k}</span>'
     out.append(f'    <tr><th rowspan="2">取得可能な<span class="cp-nw">金特</span></th>'
-               f'<td><span class="sa-pos sa-pos-p">投手</span>{items(A.get("金特_投手"))}</td></tr>')
-    out.append(f'    <tr><td><span class="sa-pos">野手</span>{items(A.get("金特_野手"))}</td></tr>')
+               f'<td>{pc(p1)}{items(A.get("金特_" + p1))}</td></tr>')
+    out.append(f'    <tr><td>{pc(p2)}{items(A.get("金特_" + p2))}</td></tr>')
     out.append(f'    <tr><th>所持経験点<span class="cp-nw">上限</span></th><td>{val(A.get("所持経験点上限", ""))}</td></tr>')
     out.append(f'    <tr><th>シナリオ<span class="cp-nw">所属キャラ</span></th><td>{items(A.get("所属キャラ"))}</td></tr>')
     out += ["  </tbody>", "  </table>"]
@@ -245,7 +252,7 @@ def gold_table():
     out = ['  <table class="sg-t">', '  <thead><tr><th>入手条件</th><th>入手金特</th></tr></thead>', "  <tbody>"]
     for r in V.get("行", []):
         g = "".join(f'<span class="sg-g"><span class="sa-pos{" sa-pos-p" if k == "投手" else ""}">{k}</span>{e(r[k])}</span>'
-                    for k in ("投手", "野手") if r.get(k))
+                    for k in _POS_ORDER() if r.get(k))
         out.append(f'    <tr><th>{e(r["条件"])}</th><td>{g}</td></tr>')
     out += ["  </tbody>", "  </table>"]
     out += [f'  <p class="sg-note">{e(x)}</p>' for x in V.get("注記", [])]  # 表の下の注記は赤文字（2026-11-25 管理人）
