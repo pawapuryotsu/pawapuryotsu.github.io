@@ -861,6 +861,11 @@ def head_html(full, c, pid=None, evaluated=False):
 
 def generate(chars_path, src, decks, noindex=True):
     config = json.loads((src / "chars" / "config.json").read_text(encoding="utf-8"))
+    # 「重要ボーナスの予約」：日時（日本時間）を過ぎたビルドから、書いた種別の重要ボーナス・タップ欄の並びに切り替える（2026-11-25 管理人「11/26 14時に自動で変更」）
+    for r in config.get("重要ボーナスの予約", []):
+        if _now_jst() >= r["日時"]:
+            for k in ("重要ボーナス", "タップ欄のボーナス"):
+                config[k].update(r.get(k, {}))
     kinds = json.loads((src / "chars" / "skill_kinds.json").read_text(encoding="utf-8"))  # 特殊能力の種類（青・金・赤・緑・虹）。pawa-data の skills.json から作る
     chars = {c["name"]: c for c in json.loads(Path(chars_path).read_text(encoding="utf-8"))}
     global _RANKING
