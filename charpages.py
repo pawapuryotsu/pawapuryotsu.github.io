@@ -955,6 +955,9 @@ def stub_char(chars, st, kinds):
     name = (f'[{st["二つ名"]}]' if st.get("二つ名") else "") + st["苗字"] + (st.get("名前") or "")
     c = chars.get(name)
     if not c or not (c.get("プロフィール") or {}).get("野手能力") and not (c.get("プロフィール") or {}).get("投手能力"):
+        # 能力画面はまだでも、キャラ画面の選手能力・ポジションだけ分かっていれば、その分だけ出す（2026-11-25 管理人「画像から読み取れる情報は入れておきたい」）
+        if c and ((c.get("プロフィール") or {}).get("選手能力") is not None or c.get("ポジション")):
+            return ({**c, "_能力一部": True}, kinds)
         return (None, None)
     _CTYPE[0] = None
     return (c, kinds)
@@ -986,7 +989,8 @@ def ability_html(c, kinds):
 def stub_body(full, st, c=None, kinds=None):
     """データ未入力キャラのページ本文。分かっている項目だけ出し、不明な所は「準備中」"""
     def pats(lst):
-        return "<br>".join(f"パターン{i + 1}：{e(x)}" for i, x in enumerate(lst)) if lst else "準備中"
+        # 長いパターンは、通常ページと同じく「＋」の後ろで改行する（スマホ幅で横にはみ出さないように）
+        return "<br>".join(f"パターン{i + 1}：" + (e(x).replace("＋", "＋<br>") if len(x) > 12 else e(x)) for i, x in enumerate(lst)) if lst else "準備中"
     rows = [("得意練習", e(" / ".join(st["得意練習"])) if st.get("得意練習") else "準備中"),
             ("イベント前後", e(st.get("前後イベ") or "準備中")),
             ("野手金特", pats(st.get("金特野手"))),
@@ -1003,7 +1007,18 @@ def stub_body(full, st, c=None, kinds=None):
             + section(f"{full}の共通イベント", "")
             + section(f"{full}の自己紹介", "")
             + section(f"{full}の評価", "")
-            + section(f"{full}の選手能力", ability_html(c, kinds) if c else ""))
+            + section(f"{full}の選手能力", (ability_part_html(c) if c.get("_能力一部") else ability_html(c, kinds)) if c else ""))
+
+
+def ability_part_html(c):
+    """準備中キャラで、選手ランク・メインポジションだけ分かっている時の選手能力欄。分からない所は「準備中」"""
+    p = c.get("プロフィール", {})
+    rank = player_rank_html(p["選手能力"]) if p.get("選手能力") is not None else "準備中"
+    return (f'<table class="cp-basic"><tbody><tr><th>選手ランク</th><td>{rank}</td></tr>'
+            f'<tr><th>メインポジション</th><td>{e(c.get("ポジション") or "準備中")}</td></tr>'
+            f'<tr><th>サブポジション</th><td>準備中</td></tr>'
+            f'<tr><th>利き腕</th><td>準備中</td></tr></tbody></table>'
+            '<p class="cp-note">※ 能力・特殊能力は準備中です。</p>')
 
 
 def index_page(items, config, noindex):
