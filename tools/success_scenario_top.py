@@ -237,6 +237,20 @@ def random_events():
         out.append(f'  <section class="cp-sec sc-rnd sc-rnd-{sc}">{cp.event_detail(ev)}</section>')
     return "\n".join(out)
 
+# シナリオ金特取得条件の表（2026-11-25 管理人）。json の「金特取得条件」から <!-- SCGOLD:START/END --> の間を作る。
+def gold_table():
+    V = C.get("金特取得条件")
+    if V is None:
+        return None
+    out = ['  <table class="sg-t">', '  <thead><tr><th>入手条件</th><th>入手金特</th></tr></thead>', "  <tbody>"]
+    for r in V.get("行", []):
+        g = "".join(f'<span class="sg-g"><span class="sa-pos{" sa-pos-p" if k == "投手" else ""}">{k}</span>{e(r[k])}</span>'
+                    for k in ("投手", "野手") if r.get(k))
+        out.append(f'    <tr><th>{e(r["条件"])}</th><td>{g}</td></tr>')
+    out += ["  </tbody>", "  </table>"]
+    return "\n".join(out)
+
+
 # トップ
 s = page.read_text(encoding="utf-8")
 assert "<!-- SCTOP:START -->" in s and "<!-- SCTOP:END -->" in s, "SCTOP の目印が見つからない"
@@ -253,6 +267,10 @@ _rn = random_events()
 if _rn is not None:
     assert "<!-- SCRANDOM:START -->" in s, "SCRANDOM の目印が見つからない"
     s = re.sub(r"(<!-- SCRANDOM:START -->).*?(<!-- SCRANDOM:END -->)", lambda m: m.group(1) + "\n" + _rn + "\n  " + m.group(2), s, flags=re.S)
+_gd = gold_table()
+if _gd is not None:
+    assert "<!-- SCGOLD:START -->" in s, "SCGOLD の目印が見つからない"
+    s = re.sub(r"(<!-- SCGOLD:START -->).*?(<!-- SCGOLD:END -->)", lambda m: m.group(1) + "\n" + _gd + "\n  " + m.group(2), s, flags=re.S)
 page.write_text(s, encoding="utf-8")
 print("ok トップ", NAME, sum(1 for c in C["子ページ"] if c.get("準備OK")), "枚")
 
