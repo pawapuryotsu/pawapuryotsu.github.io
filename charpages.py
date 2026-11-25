@@ -3,6 +3,13 @@
 # ボーナスの『上に出す／タブに隠す』と並び順は src/chars/config.json で一括管理。
 import html as _h, json, re
 from pathlib import Path
+from datetime import datetime, timedelta, timezone
+
+
+def _now_jst():
+    """いまの日本時間 \"YYYY-MM-DDTHH:MM\"（公開日時との比較用）"""
+    import os
+    return os.environ.get("BUILD_NOW_JST") or datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%dT%H:%M")
 
 e = _h.escape
 
@@ -920,12 +927,16 @@ def generate(chars_path, src, decks, noindex=True):
         if not re.fullmatch(r"\d{4}", pid) or pid in config["公開するキャラ"]:
             raise SystemExit(f"準備中のキャラの番号が不正か重複しています: {pid}")
         full = f'{st.get("二つ名") and "[" + st["二つ名"] + "]" or ""}{st["苗字"]}{st.get("名前") or ""}'
-        c = {"二つ名": st.get("二つ名") or "", "苗字": st["苗字"], "名前": st.get("名前") or "", "読み": st.get("読み"), "二つ名読み": st.get("二つ名読み") or "", "実装日": st.get("実装日"), "_準備中": True}
+        # 「公開日時」（日本時間 "2026-11-26T14:00"）を書くと、その時刻より後のビルドで noindex が外れ、イベキャラ一覧にも出る（2026-11-25 管理人「noindexは自動で外れるようにして」）
+        public = bool(st.get("公開日時")) and _now_jst() >= st["公開日時"]
+        c = {"二つ名": st.get("二つ名") or "", "苗字": st["苗字"], "名前": st.get("名前") or "", "読み": st.get("読み"), "二つ名読み": st.get("二つ名読み") or "", "実装日": st.get("実装日"),
+             "得意練習": st.get("得意練習") or [], "_準備中": True, "_公開": public}
         c["_icon"] = find_icon(chars_path, c, pid)
         items.append((pid, c, full))
         meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
                 f"description: パワプロアプリのイベキャラ {full}{yomi_paren(c)} のページです。データは準備中です。\n"
-                f"path: chars/{pid}/\nnav: none\ncrumb: {full}\n" + "noindex: yes\n")   # データ未入力（準備中だけ）のページは検索に出さない
+                + (f"recent_title: {full}のデータ\npublished: {st['公開日時'][:10]}\n" if public else "")
+                + f"path: chars/{pid}/\nnav: none\ncrumb: {full}\n" + ("" if public else "noindex: yes\n"))   # データ未入力（準備中だけ）のページは、公開日時までは検索に出さない
         body = (head_html(full, c, pid)
                 + stub_body(full, st, *stub_char(chars, st, kinds)))
         pages.append(f"<!--\n{meta}-->\n{body}")
@@ -933,7 +944,7 @@ def generate(chars_path, src, decks, noindex=True):
     pages += ranking_pages(items, config, chars, chars_path)
     if _COMBOS:
         pages.append(combo_page())
-    pages.append(index_page([t for t in items if t[0] not in unlisted and not t[1].get("_準備中")], config, False))
+    pages.append(index_page([t for t in items if t[0] not in unlisted and (not t[1].get("_準備中") or t[1].get("_公開"))], config, False))
     return pages
 
 
@@ -955,6 +966,9 @@ def stub_char(chars, st, kinds):
     name = (f'[{st["二つ名"]}]' if st.get("二つ名") else "") + st["苗字"] + (st.get("名前") or "")
     c = chars.get(name)
     if not c or not (c.get("プロフィール") or {}).get("野手能力") and not (c.get("プロフィール") or {}).get("投手能力"):
+        # 能力画面はまだでも、キャラ画面の選手能力・ポジションだけ分かっていれば、その分だけ出す（2026-11-25 管理人「画像から読み取れる情報は入れておきたい」）
+        if c and ((c.get("プロフィール") or {}).get("選手能力") is not None or c.get("ポジション")):
+            return ({**c, "_能力一部": True}, kinds)
         return (None, None)
     _CTYPE[0] = None
     return (c, kinds)
@@ -986,7 +1000,8 @@ def ability_html(c, kinds):
 def stub_body(full, st, c=None, kinds=None):
     """データ未入力キャラのページ本文。分かっている項目だけ出し、不明な所は「準備中」"""
     def pats(lst):
-        return "<br>".join(f"パターン{i + 1}：{e(x)}" for i, x in enumerate(lst)) if lst else "準備中"
+        # 長いパターンは、通常ページと同じく「＋」の後ろで改行する（スマホ幅で横にはみ出さないように）
+        return "<br>".join(f"パターン{i + 1}：" + (e(x).replace("＋", "＋<br>") if len(x) > 12 else e(x)) for i, x in enumerate(lst)) if lst else "準備中"
     rows = [("得意練習", e(" / ".join(st["得意練習"])) if st.get("得意練習") else "準備中"),
             ("イベント前後", e(st.get("前後イベ") or "準備中")),
             ("野手金特", pats(st.get("金特野手"))),
@@ -1003,7 +1018,18 @@ def stub_body(full, st, c=None, kinds=None):
             + section(f"{full}の共通イベント", "")
             + section(f"{full}の自己紹介", "")
             + section(f"{full}の評価", "")
-            + section(f"{full}の選手能力", ability_html(c, kinds) if c else ""))
+            + section(f"{full}の選手能力", (ability_part_html(c) if c.get("_能力一部") else ability_html(c, kinds)) if c else ""))
+
+
+def ability_part_html(c):
+    """準備中キャラで、選手ランク・メインポジションだけ分かっている時の選手能力欄。分からない所は「準備中」"""
+    p = c.get("プロフィール", {})
+    rank = player_rank_html(p["選手能力"]) if p.get("選手能力") is not None else "準備中"
+    return (f'<table class="cp-basic"><tbody><tr><th>選手ランク</th><td>{rank}</td></tr>'
+            f'<tr><th>メインポジション</th><td>{e(c.get("ポジション") or "準備中")}</td></tr>'
+            f'<tr><th>サブポジション</th><td>準備中</td></tr>'
+            f'<tr><th>利き腕</th><td>準備中</td></tr></tbody></table>'
+            '<p class="cp-note">※ 能力・特殊能力は準備中です。</p>')
 
 
 def index_page(items, config, noindex):
@@ -1013,7 +1039,7 @@ def index_page(items, config, noindex):
     items = sorted(items, key=lambda t: (t[1].get("実装日") or "", t[0]), reverse=True)
     items = [t for t in items if t[1].get("実装日")] + [t for t in items if not t[1].get("実装日")]
     for pid, c, full in items:
-        kind = "準備中" if c.get("_準備中") else char_type(c, config["種別の判定"])
+        kind = "準備中" if c.get("_準備中") and not (c.get("_公開") and c.get("得意練習")) else char_type(c, config["種別の判定"])
         yomi = c.get("二つ名読み") or ""
         yomi = " ".join(yomi) if isinstance(yomi, list) else yomi
         key = " ".join(x for x in (full, c.get("読み"), yomi, c.get("苗字"), c.get("名前")) if x)
@@ -1021,7 +1047,7 @@ def index_page(items, config, noindex):
                    + (f'<img class="cl-icon" src="../img/chars/{pid}.png" alt="" width="52" height="52" loading="lazy">' if c.get("_icon") else '<span class="cl-icon"></span>')
                    + f'<span class="cl-name"><span class="cl-nick">{e(c["二つ名"] or "")}</span><b>{e(c["苗字"])}{e(c["名前"] or "")}</b></span>'
                    f'<span class="cl-tag">{e(kind)}</span></a></li>')
-    kinds_ = sorted({char_type(c, config["種別の判定"]) for _, c, _ in items if not c.get("_準備中")}) if items else []
+    kinds_ = sorted({char_type(c, config["種別の判定"]) for _, c, _ in items if not c.get("_準備中") or (c.get("_公開") and c.get("得意練習"))}) if items else []
     chips = "".join(f'<button type="button" class="cl-chip" data-t="{e(k)}">{e(k)}</button>' for k in kinds_)
     meta = ("title: イベキャラ一覧（評価・イベント・金特）｜パワプロアプリ攻略ベース\ncrumb: イベキャラ一覧\n"
             "description: パワプロアプリのイベキャラのボーナス・金特・イベントをまとめたページの一覧です。名前や読みで検索できます。\n"
