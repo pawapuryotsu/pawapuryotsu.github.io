@@ -375,7 +375,7 @@ def _past_page(rows):
                    f'<td class="gp-name"><a href="{{{{root}}}}{path}">{names}</a></td>'
                    f'<td class="gp-pd">{_period_label(g)}</td>'
                    f'<td class="gp-ev">{evals or "－"}</td></tr>')
-    body += ('<div class="prose"><div class="tablewrap"><table class="gpast"><thead><tr><th>アイコン</th><th>イベキャラ</th><th>ガチャ期間</th><th>評価</th></tr></thead>\n<tbody>\n'
+    body += ('<div class="prose"><div class="tablewrap"><table class="gpast"><thead><tr><th class="gp-ic" aria-label="アイコン"></th><th>イベキャラ</th><th>ガチャ期間</th><th>評価</th></tr></thead>\n<tbody>\n'
              + "\n".join(trs) + '\n</tbody></table></div>\n'
              '<p class="muted">イベキャラ名を押すと、そのガチャの「引くべき？」記事を開きます。評価はランキングでのランクです。</p></div>\n')
     return f"<!--\n{meta}-->\n" + body
