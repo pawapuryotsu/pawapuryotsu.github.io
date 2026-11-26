@@ -195,14 +195,19 @@ def awake_head(entry, head):
     return (head, "(SR覚醒含む)") if sr else (head, "")
 
 
-def bonus_table(rows, extra=""):
+# 重要ボーナス表の行の背景：野手でだけ重要な項目＝薄い緑、投手でだけ重要な項目＝薄い赤（2026-11-26 管理人）
+_BONUS_ROW_CLS = {**{n: "bn-bat" for n in ("筋力ボーナス", "敏捷ボーナス", "技術ボーナス", "変化球ボーナス", "精神ボーナス", "コツイベントボーナス")},
+                  **{n: "bn-pit" for n in ("練習効果アップ", "スペシャルタッグボーナス")}}
+
+
+def bonus_table(rows, extra="", color=False):
     out = ['<table class="cp-bonus"><tbody>']
     for name, entry in rows:
         r = bonus_lines(entry)
         alpha = entry.get("固有文字") == "α"   # 得意練習率アップの固有はゲーム内で値を測れないので「+α(固有)」と書く（管理人指示 2026-11-07）
         if not r and entry.get("固有文字"):  # 固有の値がゲーム内で分からない項目は文字のまま出す（αは「+α(固有)」、ほかは「あり(固有)」など）
             txt = "+α" if alpha else entry["固有文字"]
-            out.append(f'<tr><th>{e(name)}</th><td><b>{e(txt)}</b>(固有)</td></tr>')
+            out.append(f'<tr{_row_cls(name, color)}><th>{e(name)}</th><td><b>{e(txt)}</b>(固有)</td></tr>')
             continue
         if not r:
             continue
@@ -213,10 +218,15 @@ def bonus_table(rows, extra=""):
             steps = [(v + "+α", l) for v, l in steps]
         cell = f'<b>{e(h)}</b>' + (f'<span class="awk">{e(am)}</span>' if am else "") + (lambda m: f'<span class="awk">{e(m)}</span>' if m else "")("(固有)" if alpha else unique_mark(entry)) + "".join(
             f'<span class="step">⇒{e(v)}<small>({e(l)})</small></span>' for v, l in steps)
-        out.append(f"<tr><th>{e(name)}</th><td>{cell}</td></tr>")
+        out.append(f"<tr{_row_cls(name, color)}><th>{e(name)}</th><td>{cell}</td></tr>")
     out.append(extra)
     out.append("</tbody></table>")
     return "".join(out)
+
+
+def _row_cls(name, color):
+    cls = _BONUS_ROW_CLS.get(name) if color else None
+    return f' class="{cls}"' if cls else ""
 
 
 def join_patterns(pats):
@@ -798,7 +808,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     # 重要ボーナスの一番下に、追加枠「○○」／キャラ持参アイテム「○○」を出す（管理人指示 2026-11-10）。データに無いキャラは出さない
     item_rows = "".join(f'<tr><th>{e(it.get("種類") or "アイテム")}</th><td><b>{e(it["名前"])}</b></td></tr>'
                         for it in c.get("アイテム") or [] if it.get("名前"))
-    imp = bonus_table(important, item_rows) + (
+    imp = bonus_table(important, item_rows, color=True) + (
         f'<details class="cp-more"><summary>その他ボーナスはこちらをタップ</summary>{bonus_table(others)}</details>' if others else "")
     ability = ability_html(c, kinds)
     name = c["name"]
