@@ -18,7 +18,7 @@ sk_updated: 2026-11-26
   <div class="kc-box">
   <p><b class="em-blue">※カードゲーム風に例えて<span class="cp-nw">解説します</span></b></p>
   <ul class="sm-l kc-terms"><li><b>書庫</b>…自分の山札です。</li><li><b>課題図書</b>…自分の山札から2枚カードを引いた状態です。</li><li><b>自由図書</b>…場にある別の山札から1枚カードを引いた状態です。練習場所によって異なります。</li><li><b>ポスト</b>…墓地です。</li></ul>
-  <style>.prose .kc-box{border:2px solid #1a5fd0;border-radius:8px;padding:10px 12px 4px;margin:8px 0 14px;background:#fff}.prose .kc-box>p:first-child{margin-top:0}@media (max-width:360px){.prose .kc-box{padding:8px 8px 2px}}.prose .kc-fig{margin:8px auto 12px;max-width:400px;padding:8px;background:#fff;border:1px solid #d8ded5;border-radius:8px}.prose .kc-fig svg{display:block;width:100%;height:auto}.prose .kc-shot{margin:8px auto 12px;max-width:456px}.prose .kc-shot img{display:block;width:100%;height:auto;border-radius:6px}.kc-lab{display:flex;gap:4px;margin-top:4px;font-weight:700;font-size:14px;text-align:center}.kc-lab span{padding:3px 0;border-radius:4px;color:#fff}.kc-lab .kc-k{flex:0 0 64%;background:#1d5e43}.kc-lab .kc-j{flex:1;background:#a8572c}</style>
+  <style>.prose .kc-box{border:2px solid #1a5fd0;border-radius:8px;padding:10px 12px 4px;margin:8px 0 14px;background:#fff}.prose .kc-box>p:first-child{margin-top:0}@media (max-width:360px){.prose .kc-box{padding:8px 8px 2px}}.kc-eff th{white-space:nowrap}.kc-eff td{max-width:none}.prose .kc-fig{margin:8px auto 12px;max-width:400px;padding:8px;background:#fff;border:1px solid #d8ded5;border-radius:8px}.prose .kc-fig svg{display:block;width:100%;height:auto}.prose .kc-shot{margin:8px auto 12px;max-width:456px}.prose .kc-shot img{display:block;width:100%;height:auto;border-radius:6px}.kc-lab{display:flex;gap:4px;margin-top:4px;font-weight:700;font-size:14px;text-align:center}.kc-lab span{padding:3px 0;border-radius:4px;color:#fff}.kc-lab .kc-k{flex:0 0 64%;background:#1d5e43}.kc-lab .kc-j{flex:1;background:#a8572c}</style>
   <figure class="kc-shot"><img src="{{root}}img/success/koshokan_kadai_jiyu.jpg" width="456" height="192" alt="練習場所に並ぶ3冊の画面。左2冊が課題図書、右1冊が自由図書" loading="lazy"><figcaption class="kc-lab"><span class="kc-k">課題図書</span><span class="kc-j">自由図書</span></figcaption></figure>
   <figure class="kc-fig">
   <svg viewBox="0 0 340 425" role="img" aria-label="カードゲームに例えた図：書庫（自分の山札）から課題図書を2枚、場にある別の山札から自由図書を1枚引き、練習するとポスト（墓地）へ送られる。書庫がなくなったらポストのカードが全て書庫へ戻る。" font-family="'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif">
@@ -62,20 +62,47 @@ sk_updated: 2026-11-26
   <p>書庫がなくなったら、ポストから書庫へ本が全て戻ります。</p>
   <p>自由図書として出てくる本は、ゲーム内では「出現本」で確認できます。</p>
   <img class="pq-img sk-howto" src="{{root}}img/success/koshokan_shutsugenbon.jpg" width="630" height="780" alt="ゲーム内の「出現本」の画面。現在の知恵レベルで出現する指南書を確認できる" loading="lazy">
-  <h3 class="sm-h">課題図書と自由図書</h3>
-  <ul class="sm-l"><li>練習場所に並ぶ3冊のうち、左の2冊が「課題図書」です。手持ちの本から選ばれ、どの練習場所でも同じ本が並びます。</li><li>右の1冊が「自由図書」です。練習場所ごとに違う本が並び、練習すると手持ちに加わります。</li></ul>
-  <img class="pq-img sk-howto" src="{{root}}img/success/koshokan_howto2.jpg" width="630" height="808" alt="ゲーム内の遊び方「スキルアップ練習」「課題図書と自由図書の違い」「知恵」の画面" loading="lazy">
-  <h3 class="sm-h">書庫とポスト</h3>
-  <ul class="sm-l"><li>課題図書は「書庫」から選ばれ、読んだ本は「ポスト」に返されます。書庫の本が少なくなると、ポストの本が書庫に戻ります。本は書庫とポストを行き来するので、同じ本を何度も読めます。</li><li>最初の書庫には、メインデッキのイベキャラが1人1冊ずつ本を持ち込みます。持ち込む本は役割で決まり、ガードは筋力、レンジャーは敏捷（投手は変化球）、バウンサーは技術、スナイパーは精神の経験点が増える本、選手以外のキャラは体力回復の本です。</li></ul>
+  <ul class="sm-l"><li>課題図書は書庫の本から選ばれ、どの練習場所でも同じ本が並びます。</li><li>自由図書は練習すると手持ちに加わり、その後は書庫とポストを行き来して、くり返し読めます。</li></ul>
+  <!-- 2026-11-26 2〜6は Claude の下書き（公式「育成のコツ」「指南書の効果詳細」・ゲーム内の遊び方より）。管理人が手直し予定 -->
+  <h3 class="sm-h">2.最初の書庫</h3>
+  <p>サクセス開始時の書庫は、メインデッキのイベキャラが1人1冊ずつ持ち込む本と、固定の2冊でできています。持ち込む本はイベキャラの役割で決まります。</p>
+  <div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr><th>役割</th><th>持ち込む本</th></tr></thead><tbody><tr><th>ガード</th><td>筋トレ大全（筋力）</td></tr><tr><th>レンジャー</th><td>野手：タカの一日（敏捷）<br>投手：手品師ジャン（変化球）</td></tr><tr><th>バウンサー</th><td>町工場物語（技術）</td></tr><tr><th>スナイパー</th><td>ワンニャン辞典（精神）</td></tr><tr><th>選手以外</th><td>スイーツ紀行（体力回復）</td></tr></tbody></table></div>
+  <ul class="sm-l"><li>メインデッキが6人に満たない場合、足りない分はランダムで決まります。</li><li>シナリオ所属キャラ（本谷静人・立野創史・柳瀬カリカ・都書やどり）をメインデッキに入れると、そのキャラが持ち込む本の指南書レベルが最初から上がっています。</li></ul>
   <img class="pq-img sk-howto" src="{{root}}img/success/koshokan_howto3.jpg" width="630" height="808" alt="ゲーム内の遊び方「書庫とポスト」の画面" loading="lazy">
-  <h3 class="sm-h">知恵レベル</h3>
-  <ul class="sm-l"><li>知恵は「指南書を読み解くチカラ」です。</li><li>練習や休むなど、ターンが進むコマンドや読書計画イベントで「知恵」がたまり、知恵レベル（1〜9）が上がります。</li><li>知恵レベルが高いほど、並ぶ自由図書の種類が増え、効果も強くなります。今の知恵レベルで出てくる自由図書は、指南書コマンドで確認できます。</li></ul>
-  <h3 class="sm-h">経験点を増やすコツ</h3>
+
+  <h3 class="sm-h">3.指南書の見方と効果一覧</h3>
+  <ul class="sm-l"><li>指南書1冊には、効果が1〜2個付いています。</li><li>同じ本をくり返し読むと指南書レベルが上がり、効果も高くなります。</li></ul>
+  <!-- 本の左上の数字・アイコン下の数字の意味は、公式の説明が見つからないため未記載（管理人に確認） -->
+  <p>効果の内容は次のとおりです。</p>
+  <div class="cp-tbl-wrap"><table class="cp-tbl kc-eff"><thead><tr><th>効果</th><th>内容</th></tr></thead><tbody>
+  <tr><th>経験点アップ</th><td>対応する経験点がもらえます。<br>「全経験点アップ」は、野手は変化球、投手は敏捷以外の経験点が全て上がります。<br>「本の総数経験点アップ」は、その練習場所で元からもらえる種類の経験点が全て上がります。</td></tr>
+  <tr><th>本の総数経験点</th><td>書庫とポストにある本の総数が多いほど、経験点が増えます。</td></tr>
+  <tr><th>知恵アップ</th><td>知恵のゲージが上がります。</td></tr>
+  <tr><th>体力回復</th><td>練習後イベントで体力が回復します。</td></tr>
+  <tr><th>コツ</th><td>育成ポジションに合った特殊能力のコツを、効果の数だけ取得します（Lv1）。</td></tr>
+  <tr><th>弾道</th><td>弾道が上がります。</td></tr>
+  <tr><th>基本能力アップ</th><td>書庫とポストにある効果の数に応じて、エピローグで主人公の基本能力が全て上がります（育成ポジションに応じた基本能力）。</td></tr>
+  <tr><th>強化</th><td>手元の指南書のうち、一番レベルが低い1冊のレベルを上げます（同じレベルが複数ある時はランダム）。<br>※レベル9の本、『なまけ』『犠牲』は対象外です。</td></tr>
+  <tr><th>補充</th><td>書庫の指南書が手元に補充されます。<br>※書庫に本が無い時は、ポストの本が自動で書庫に戻ってから補充されます。<br>※補充で手元に来た本の「交換」は発動しません。</td></tr>
+  <tr><th>返却</th><td>練習の時に手元にある本のうち、一番レベルが低い1冊をポストに移します（同じレベルが複数ある時はランダム、『なまけ』が優先）。<br>※返却がいくつあっても、手元に1冊は残ります。</td></tr>
+  <tr><th>交換</th><td>「補充」と「返却」が両方発動します。<br>※交換で手元に来た本の「交換」は発動しません。</td></tr>
+  <tr><th>除外</th><td>手元の指南書のうち、一番レベルが低い1冊を除外します（同じレベルが複数ある時はランダム、『なまけ』が優先）。<br>※ポストには戻らず、完全になくなります。<br>※除外がいくつあっても、手元に1冊は残ります。</td></tr>
+  <tr><th>自己除外</th><td>練習後イベントで、この本自身が除外されます（ほかの効果が発動してから除外）。</td></tr>
+  <tr><th>なまけ追加</th><td>効果が何もない指南書『なまけ』がポストに1冊加わります。</td></tr>
+  <tr><th>犠牲追加</th><td>自己除外だけが付いた指南書『犠牲』がポストに1冊加わります。</td></tr>
+  <tr><th>効果なし</th><td>何も起きません。</td></tr>
+  <tr><th>練習効果アップ<br>得意練習率アップ<br>ケガ率ダウン</th><td>取得した次のターンから、決まったターン数のあいだ効果が続きます。<br>※ターン数が減るのは練習した時だけです。<br>※同じ効果が発動中の時はターン数が足されます（効果の強さは変わりません）。</td></tr>
+  </tbody></table></div>
+
+  <h3 class="sm-h">4.知恵レベルと出現本</h3>
+  <ul class="sm-l"><li>知恵は「指南書を読み解くチカラ」です。</li><li>練習や休むなど、ターンが進むコマンドを実行するたびに知恵がたまります。読書計画イベントや、「知恵アップ」の効果がある本でも上がります。</li><li>知恵が一定までたまると、知恵レベルが1上がります（1〜9）。</li><li>知恵レベルが高いほど、自由図書に並ぶ本の種類が増え、指南書レベルの高い効果の強い本が並びます。</li><li>今の知恵レベルで出てくる自由図書は、指南書コマンドの「出現本」で確認できます。指南書コマンドでは、手持ちの本（書庫とポストにある本）も確認できます。</li></ul>
+  <img class="pq-img sk-howto" src="{{root}}img/success/koshokan_howto2.jpg" width="630" height="808" alt="ゲーム内の遊び方「スキルアップ練習」「課題図書と自由図書の違い」「知恵」の画面" loading="lazy">
+
+  <h3 class="sm-h">5.経験点を増やすコツ</h3>
   <ul class="sm-l"><li>本の経験点の種類と、その練習場所で元からもらえる経験点の種類が同じだと、獲得量が増えます。</li><li>メインデッキの基礎ボーナス・コツイベントボーナスの平均と、練習場所の基礎ボーナス・コツイベントボーナスの合計が高いほど、経験点が増えます。</li><li>SPタッグが起きている練習場所で練習すると、自由図書の指南書レベルが上がります。レベルの高い本を増やしたい時はSPタッグをねらいましょう。</li><li>書庫とポストの本が増えるほど、経験点も少しずつ増えます。</li></ul>
-  <h3 class="sm-h">読書計画イベント</h3>
-  <ul class="sm-l"><li>一定の時期から毎月1回起き、手持ちの本を整えるか、知恵を上げて強い自由図書をねらうかを選べます（3年目7月1週まで）。</li><li>選べるのは「指南書強化」「指南書除外」「知恵アップ」の3つから1つです。</li></ul>
-  <h3 class="sm-h">指南書コマンド</h3>
-  <ul class="sm-l"><li>手持ちの指南書（書庫とポストにある本）と、自由図書として出てくる本の種類を確認できます。</li></ul>
+
+  <h3 class="sm-h">6.読書計画イベント</h3>
+  <ul class="sm-l"><li>一定の時期から毎月1回起きる、古書館高校だけのイベントです（3年目7月1週まで）。</li><li>「指南書強化」「指南書除外」「知恵アップ」の3つから1つを選べます。</li><li>手持ちの本を整えるか、知恵を上げて強い自由図書をねらうかを選びましょう。</li></ul>
   <img class="pq-img sk-howto" src="{{root}}img/success/koshokan_howto4.jpg" width="630" height="808" alt="ゲーム内の遊び方「SPタッグの効果」「読書計画イベント」「指南書コマンド」の画面" loading="lazy">
 
   <!-- SKNAV:START -->
