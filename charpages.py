@@ -269,12 +269,12 @@ def friend_text(c):
     return "<br>".join(e(p) for p in parts) if parts else "なし"
 
 
-_RICH = {"青": "tx-b", "赤": "tx-r", "太": "tx-bold", "青太": "tx-b tx-bold", "赤太": "tx-r tx-bold"}
+_RICH = {"青": "tx-b", "赤": "tx-r", "太": "tx-bold", "青太": "tx-b tx-bold", "赤太": "tx-r tx-bold", "続": "cp-nw"}
 
 
 def rich(t):
-    """文字の色・太さの指示。{青:…} {赤:…} {太:…} {青太:…} {赤太:…} を色・太字にする（それ以外は普通の文字）"""
-    return re.sub(r"[{｛](青太|赤太|青|赤|太)[:：]([^{}｛｝]*)[}｝]",
+    """文字の色・太さの指示。{青:…} {赤:…} {太:…} {青太:…} {赤太:…} を色・太字にする（それ以外は普通の文字）。{続:…} はその中で改行しない（スマホで意味の切れ目で折り返すため）"""
+    return re.sub(r"[{｛](青太|赤太|青|赤|太|続)[:：]([^{}｛｝]*)[}｝]",
                   lambda m: f'<span class="{_RICH[m.group(1)]}">{m.group(2)}</span>', e(t))
 
 
@@ -934,6 +934,7 @@ def generate(chars_path, src, decks, noindex=True):
     # ＋イベント内容が1つも書かれていないキャラは検索に出さない（ボーナスや評価が入っていても）。イベント内容を書けば自動で外れる
     #   （2026-11-17 管理人「イベント内容が記載されてないものはnoindexを付ける。記載されているならnoindexを外す」）
     hide = set(config.get("検索に出さないページ", []))
+    keep = set(config.get("イベント未記入でも検索に出すキャラ", []))   # 管理人が指定した番号だけ、イベントが無くても noindex にしない（2026-11-26）
     # 先に、検索に出さないキャラ（指定したもの＋イベント内容が無いもの）を調べておく（関連ページから外すため）
     _HIDDEN_NAMES.clear()
     for pid, name in config["公開するキャラ"].items():
@@ -941,7 +942,7 @@ def generate(chars_path, src, decks, noindex=True):
         if not c:
             continue
         tf = next((f for f in (src / "chars" / "texts").glob("*.json") if json.loads(f.read_text(encoding="utf-8")).get("name") == name), None)
-        if pid in hide or has_no_events(c, json.loads(tf.read_text(encoding="utf-8")) if tf else {}, config):
+        if pid in hide or (pid not in keep and has_no_events(c, json.loads(tf.read_text(encoding="utf-8")) if tf else {}, config)):
             _HIDDEN_NAMES.add(name)
     for pid, name in config["公開するキャラ"].items():
         if not re.fullmatch(r"\d{4}", pid):
@@ -969,7 +970,12 @@ def generate(chars_path, src, decks, noindex=True):
         meta += f"recent_title: {full}のイベント{'・評価' if has_eval(c, text) else ''}\n"
         body = (head_html(full, c, pid, has_eval(c, text))   # 評価があるキャラは大見出しも「評価・イベントまとめ」（2026-11-12 管理人 案A）
                 + build_page(c, text, config, decks, kinds))
-        hidden = pid in hide or events_wip(body)
+        hidden = pid in hide or (pid not in keep and events_wip(body))
+        if pid in keep and events_wip(body):   # イベント未記入で検索に出すキャラ：名前は「○○のデータ」、公開日は実装日（2026-11-26）
+            c["_rt"] = f"{full}のデータ"
+            meta = re.sub(r"recent_title: .*\n", f"recent_title: {full}のデータ\n", meta)
+            if c.get("実装日"):
+                meta += f"published: {c['実装日'].replace('/', '-')}\n"
         if hidden:
             unlisted.add(pid)   # 検索に出さないキャラはイベキャラ一覧にも出さない（2026-11-17 管理人。イベントを書けば自動で戻る）
         meta += f"path: {path}\nnav: none\ncrumb: {full}\n" + ("noindex: yes\n" if hidden else "")
@@ -1286,6 +1292,14 @@ def _autolink(h):
     return re.sub(r"https?://[^\s<>\"]+", lambda m: f'<a href="{m.group(0)}" target="_blank" rel="noopener">{m.group(0)}</a>', h)
 
 
+def notice_html(r):
+    """ページ上部の赤枠のお知らせ（「お知らせ」：1行ずつの文章のリスト。神前試合まとめ・コーチ+4記事の赤枠と同じ dr-update の形）"""
+    lines = r.get("お知らせ", [])
+    if not lines:
+        return ""
+    return '<div class="dr-update">' + "".join(f"<p>{rich(x)}</p>" for x in lines) + "</div>"
+
+
 def top_guide_html(r):
     """Tier表の上に出す解説（「上の解説欄」。見出し・文章・箇条書き）。書き方は「解説欄」と同じ"""
     out, need_x = "", False
@@ -1390,6 +1404,7 @@ def ranking_pages(items, config, chars, chars_path):
         h1_title = " ".join(f'<span class="cp-h1">{e(w)}</span>' for w in r["title"].split())  # 空白の所でだけ折り返す
         body = (f'<section class="phead"><p class="eyebrow">イベキャラランキング</p><h1>{h1_title}</h1>'
                 f'<p>{date_label(r)}</p></section>'
+                + notice_html(r)
                 + (f'<div class="rk-intro">{intro}</div>' if intro else "")
                 + top_guide_html(r)
                 + (f'<div class="tier-table">{rows}</div>' if n else '<p class="muted">準備中です。</p>')
