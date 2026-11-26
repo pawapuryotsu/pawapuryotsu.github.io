@@ -377,15 +377,15 @@ def _item(i):
 
 
 def _choice_name(t):
-    """選択肢の名前。（イベント継続）（成功）は青、（イベント終了）（失敗）は赤で、改行して出す。
+    """選択肢の名前。（イベント継続）（成功）（彼女になる）は青、（イベント終了）（失敗）は赤で、改行して出す。
     成功・失敗の表記は「（成功）」「（失敗）」に統一（「成功時」「失敗時」と書いても同じ表示）"""
-    m = re.match(r"^(.*?)\s*[（(](イベント継続|イベント終了|成功時|失敗時|成功|失敗)[）)]$", t, re.S)
+    m = re.match(r"^(.*?)\s*[（(](イベント継続|イベント終了|彼女になる|彼女にならない|成功時|失敗時|成功|失敗)[）)]$", t, re.S)
     if not m and t.strip() in ("成功時", "失敗時", "成功", "失敗"):
         m = re.match(r"^()(.+)$", t.strip())
     if not m:
         return e(t).replace("\n", "<br>")
     lab = m.group(2).rstrip("時")
-    cls = "cp-cont" if lab in ("イベント継続", "成功") else "cp-end"
+    cls = "cp-cont" if lab in ("イベント継続", "成功", "彼女になる") else "cp-end"   # 告白の（彼女になる）は青・（彼女にならない）は赤（2026-11-26 管理人）
     return (f'{e(m.group(1))}<br>' if m.group(1) else "") + f'<span class="{cls}">（{lab}）</span>'
 
 
