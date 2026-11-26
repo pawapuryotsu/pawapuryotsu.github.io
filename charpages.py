@@ -184,15 +184,21 @@ def reform_text(c):
 
 
 def awake_head(entry, head):
-    """覚醒で伸びた値の表記（管理人指示 2026-11-07）。表示の値は覚醒込みなので、そのことを基準値のあとに書く。
-    SR覚醒（覚醒）→『150%(SR覚醒含む)』、PSR覚醒（覚醒PSR）→『10(PSR覚醒含む)』。値がSRとPSRで違う形（○○(SR) △△(PSR)）のPSR覚醒は『△△(PSR覚醒含む)』。
+    """SR覚醒で伸びた値の表記（管理人指示 2026-11-07）。表示の値はSR覚醒込みなので『150%(SR覚醒含む)』と書く。
+    PSR覚醒は別に『+○○(PSR覚醒)』と書くので、ここでは扱わない（psr_awake_split を参照）。
     （表示, 折り返さない注記）を返す。注記は途中で折り返さない（320pxで「む」だけ次の行にならないように）"""
-    sr, psr = entry.get("覚醒"), entry.get("覚醒PSR")
-    if psr and not sr:
-        return (head[:-len("(PSR)")], "(PSR覚醒含む)") if head.endswith("(PSR)") else (head, "(PSR覚醒含む)")
-    if sr and psr:
-        return head, "(SR・PSR覚醒含む)"
-    return (head, "(SR覚醒含む)") if sr else (head, "")
+    return (head, "(SR覚醒含む)") if entry.get("覚醒") else (head, "")
+
+
+def psr_awake_split(entry):
+    """PSR覚醒の表記（2026-11-26 管理人）：PSRの値からPSR覚醒の分を引いた形で表を作り、最後に『+○○(PSR覚醒)』を濃い青で足す。
+    （PSR覚醒を引いた entry, PSR覚醒の値）を返す。PSR覚醒が無ければ (entry, None)"""
+    a = entry.get("覚醒PSR")
+    if not a:
+        return entry, None
+    shown = dict(entry.get("表示") or {})
+    shown["PSR"] = {lv: v - a for lv, v in (shown.get("PSR") or {}).items()}
+    return {**entry, "表示": shown}, a
 
 
 # 重要ボーナス表の行の背景：野手でだけ重要な項目＝薄い緑、投手でだけ重要な項目＝薄い赤（2026-11-26 管理人）
@@ -203,7 +209,8 @@ _BONUS_ROW_CLS = {**{n: "bn-bat" for n in ("筋力ボーナス", "敏捷ボー�
 def bonus_table(rows, extra="", color=False):
     out = ['<table class="cp-bonus"><tbody>']
     for name, entry in rows:
-        r = bonus_lines(entry)
+        base_entry, psr_aw = psr_awake_split(entry)
+        r = bonus_lines(base_entry)
         alpha = entry.get("固有文字") == "α"   # 得意練習率アップの固有はゲーム内で値を測れないので「+α(固有)」と書く（管理人指示 2026-11-07）
         if not r and entry.get("固有文字"):  # 固有の値がゲーム内で分からない項目は文字のまま出す（αは「+α(固有)」、ほかは「あり(固有)」など）
             txt = "+α" if alpha else entry["固有文字"]
@@ -216,8 +223,13 @@ def bonus_table(rows, extra="", color=False):
         if alpha:   # 0%+α は「+α」。Lvで伸びた値にも固有のαは付いたままなので「+α」を付ける
             h = "+α" if h in ("0", "0%") else h + "+α"
             steps = [(v + "+α", l) for v, l in steps]
+        unit = entry.get("単位") or ""
+        if psr_aw and not steps and not am and h in ("0", "0%"):   # 元々0で、PSR覚醒だけで付くボーナスは「+」を付けずに『10(PSR覚醒)』
+            out.append(f'<tr{_row_cls(name, color)}><th>{e(name)}</th><td><b class="psr-awk">{e(fmt(psr_aw) + unit)}<span class="awk">(PSR覚醒)</span></b></td></tr>')
+            continue
         cell = f'<b>{e(h)}</b>' + (f'<span class="awk">{e(am)}</span>' if am else "") + (lambda m: f'<span class="awk">{e(m)}</span>' if m else "")("(固有)" if alpha else unique_mark(entry)) + "".join(
-            f'<span class="step">⇒{e(v)}<small>({e(l)})</small></span>' for v, l in steps)
+            f'<span class="step">⇒{e(v)}<small>({e(l)})</small></span>' for v, l in steps) + (
+            f'<span class="step psr-awk">+{e(fmt(psr_aw) + unit)}<small>(PSR覚醒)</small></span>' if psr_aw else "")
         out.append(f"<tr{_row_cls(name, color)}><th>{e(name)}</th><td>{cell}</td></tr>")
     out.append(extra)
     out.append("</tbody></table>")
