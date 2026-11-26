@@ -955,6 +955,7 @@ def generate(chars_path, src, decks, noindex=True):
         path = f"chars/{pid}/"
         full = f'{c["二つ名"] and "[" + c["二つ名"] + "]" or ""}{c["苗字"]}{c["名前"] or ""}'
         c = dict(c, _icon=find_icon(chars_path, c, pid))
+        c["_rt"] = f"{full}のイベント{'・評価' if has_eval(c, text) else ''}"   # 一覧上部「新キャラクター」欄での名前（トップ「最近の更新」と同じ）
         items.append((pid, c, full))
         # 評価が書いてあるキャラは title に「評価」を入れる（検索で多い「キャラ名 評価」に合わせる。2026-11-12 管理人OK）
         if has_eval(c, text):
@@ -983,6 +984,7 @@ def generate(chars_path, src, decks, noindex=True):
         c = {"二つ名": st.get("二つ名") or "", "苗字": st["苗字"], "名前": st.get("名前") or "", "読み": st.get("読み"), "二つ名読み": st.get("二つ名読み") or "", "実装日": st.get("実装日"),
              "得意練習": st.get("得意練習") or [], "_準備中": True, "_公開": public}
         c["_icon"] = find_icon(chars_path, c, pid)
+        c["_rt"] = f"{full}のデータ"
         items.append((pid, c, full))
         meta = (f"title: {full}のデータ・イベントまとめ｜パワプロアプリ攻略ベース\n"
                 f"description: パワプロアプリのイベキャラ {full}{yomi_paren(c)} のページです。データは準備中です。\n"
@@ -1117,6 +1119,41 @@ def ability_part_html(c):
             '<p class="cp-note">※ 能力・特殊能力は準備中です。</p>')
 
 
+NEW_CHAR_DAYS = 21   # イベキャラ一覧の上に出す期間：初登場日（実装日）から3週間（2026-11-26 管理人）
+
+
+def _nice_name(name):
+    """「…のイベント・評価」「…のデータ」の後ろ半分は途中で折り返さない（トップ「最近の更新」と同じ）"""
+    import re as _re
+    m = _re.match(r"(.*)(の(?:イベント・評価|イベント|データ))$", name)
+    return f'{e(m.group(1))}<wbr><span class="cp-nw">{e(m.group(2))}</span>' if m else e(name)
+
+
+def new_chars_html(items):
+    """イベキャラ一覧の上の「新キャラクター」欄（2026-11-26 管理人）。見た目はトップの「最近の更新」と同じ。
+    初登場日（実装日）から3週間の日の14時（日本時間）に外す。サイトを更新しない日でも消えるように、ページの中でも日時を見て消す"""
+    now, rows = _now_jst(), []
+    for pid, c, full in sorted(items, key=lambda t: (t[1].get("実装日") or "", t[0]), reverse=True):
+        d = c.get("実装日") or ""
+        try:
+            start = datetime.strptime(d, "%Y/%m/%d")
+        except ValueError:
+            continue
+        until = (start + timedelta(days=NEW_CHAR_DAYS)).strftime("%Y-%m-%dT14:00")
+        if until <= now or start.strftime("%Y-%m-%d") > now[:10]:
+            continue
+        img = f'<img class="news-icon" src="../img/chars/{pid}.png" alt="" width="44" height="44" loading="lazy">' if c.get("_icon") else ""
+        rows.append(f'<li{"" if img else " class=rc-noimg"} data-until="{until}"><a href="{pid}/">{img}<span><small class="rc-meta">{e(d)} 初登場</small>'
+                    f'<b>{_nice_name(c.get("_rt") or full)}</b></span></a></li>')
+    if not rows:
+        return ""
+    return ('<div class="cl-new"><h2 class="sec"><span class="mk red"><i>新キャラクター</i></span></h2>'
+            '<ul class="news recent">' + "".join(rows) + "</ul></div>"
+            "<script>(function(){var d=new Date(Date.now()+9*36e5).toISOString().slice(0,16),w=document.querySelector('.cl-new');"
+            "w.querySelectorAll('li').forEach(function(li){if(li.getAttribute('data-until')<=d)li.remove();});"
+            "if(!w.querySelector('li'))w.remove();})();</script>")
+
+
 def index_page(items, config, noindex):
     """イベキャラ一覧（/chars/）。検索つき。本文は静的HTML（検索は表示を絞るだけ）"""
     lis = []
@@ -1134,10 +1171,12 @@ def index_page(items, config, noindex):
                    f'<span class="cl-tag">{e(kind)}</span></a></li>')
     kinds_ = sorted({char_type(c, config["種別の判定"]) for _, c, _ in items if not c.get("_準備中") or (c.get("_公開") and c.get("得意練習"))}) if items else []
     chips = "".join(f'<button type="button" class="cl-chip" data-t="{e(k)}">{e(k)}</button>' for k in kinds_)
+    new_html = new_chars_html(items)
     meta = ("title: イベキャラ一覧（評価・イベント・金特）｜パワプロアプリ攻略ベース\ncrumb: イベキャラ一覧\n"
             "description: パワプロアプリのイベキャラのボーナス・金特・イベントをまとめたページの一覧です。名前や読みで検索できます。\n"
             "path: chars/\nnav: none\n" + ("noindex: yes\n" if noindex else ""))
     body = (f'''<section class="phead"><p class="eyebrow">イベキャラ</p><h1>イベキャラ一覧</h1></section>
+{new_html}
 <div class="cl">
 <input type="search" id="cl-q" class="cl-q" placeholder="名前・読み・二つ名で検索" aria-label="イベキャラを検索">
 <div class="cl-chips">{chips}</div>
