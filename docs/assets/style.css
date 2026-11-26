@@ -648,6 +648,7 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .sk-grid.sk-sp3{grid-template-columns:repeat(3,1fr)}
 @media (min-width:760px){.sk-grid.sk-sp3{grid-template-columns:repeat(4,1fr)}}
 @media (min-width:760px){.sk-grid.sk-sp3.sk-k3{grid-template-columns:repeat(3,1fr)}}  /* 古書館高校の所属キャラなど、PCでも3列にしたい欄（2026-11-26 管理人） */
+.sk-th.sk-ic{aspect-ratio:1/1;max-width:96px;border:none}.sk-th.sk-ic img{object-fit:contain}  /* カードの画像にイベキャラのアイコン（正方形）を使う時 */
 @media (max-width:759px){.sk-sp3 .sk-c{padding:8px 4px 10px;font-size:13px;gap:4px}.sk-sp3 .sk-th{font-size:10px}.sk-sp3 .sk-now{font-size:10px}.sk-sp3 .sk-upd{white-space:nowrap;font-size:12px}}
 @media (max-width:359px){.sk-sp3 .sk-c{font-size:12px}.sk-sp3 .sk-s{font-size:11px}.sk-sp3 .sk-upd{font-size:11px}}
 @media (min-width:760px){.sk-fill-pc{display:block}.sk-fill-sp{display:none}}
