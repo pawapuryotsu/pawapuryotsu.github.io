@@ -401,9 +401,9 @@ def _eff(i):
 
 
 def _eff_order(effs):
-    """効果の並び順。体力（体力最大値も）を一番上、やる気を2番目に出し、ほかは書いた順のまま（全ページ共通。2026-11-26 管理人「重要なのはこの2つなので上に」）"""
+    """効果の並び順。体力最大値 → 体力 → やる気 → その他（書いた順のまま）。全ページ共通（2026-11-26 管理人）"""
     def key(i):
-        return 0 if i.startswith("体力") else 1 if i.startswith("やる気") else 2
+        return 0 if i.startswith("体力最大値") else 1 if i.startswith("体力") else 2 if i.startswith("やる気") else 3
     return sorted(effs, key=key)
 
 
