@@ -18,7 +18,7 @@ sk_updated: 2026-11-26
   <div class="kc-box">
   <p><b class="em-blue">※カードゲーム風に例えて<span class="cp-nw">解説します</span></b></p>
   <ul class="sm-l kc-terms"><li><b>書庫</b>…自分の山札です。</li><li><b>課題図書</b>…自分の山札から2枚カードを引いた状態です。</li><li><b>自由図書</b>…場にある別の山札から1枚カードを引いた状態です。練習場所によって異なります。</li><li><b>ポスト</b>…墓地です。</li></ul>
-  <style>.prose .kc-box{border:2px solid #1a5fd0;border-radius:8px;padding:10px 12px 4px;margin:8px 0 14px;background:#fff}.prose .kc-box>p:first-child{margin-top:0}@media (max-width:360px){.prose .kc-box{padding:8px 8px 2px}}.kr-g>*{background:#effaf2}.kr-g th{color:#17703a}.kr-r>*{background:#f6f0fd}.kr-r th{color:#5b2ca0}.kr-b>*{background:#eef4fe}.kr-b th{color:#1c4fa3}.kr-s>*{background:#fdf0f0}.kr-s th{color:#a61b1b}.kr-y>*{background:#fff8d6}.kr-y th{color:#8a6a00}.prose .kc-wide{max-width:min(100%,560px);margin:8px auto 12px;display:block;height:auto}.kc-eff th{white-space:nowrap}.kc-ics{display:flex;flex-wrap:wrap;gap:3px;max-width:99px;margin-bottom:3px}.kc-ics img{width:30px;height:30px;border-radius:5px;display:block}.kc-eff td{max-width:none}.prose .kc-fig{margin:8px auto 12px;max-width:400px;padding:8px;background:#fff;border:1px solid #d8ded5;border-radius:8px}.prose .kc-fig svg{display:block;width:100%;height:auto}.prose .kc-shot{margin:8px auto 12px;max-width:456px}.prose .kc-shot img{display:block;width:100%;height:auto;border-radius:6px}.kc-lab{display:flex;gap:4px;margin-top:4px;font-weight:700;font-size:14px;text-align:center}.kc-lab span{padding:3px 0;border-radius:4px;color:#fff}.kc-lab .kc-k{flex:0 0 64%;background:#1d5e43}.kc-lab .kc-j{flex:1;background:#a8572c}</style>
+  <style>.prose .kc-box{border:2px solid #1a5fd0;border-radius:8px;padding:10px 12px 4px;margin:8px 0 14px;background:#fff}.prose .kc-box>p:first-child{margin-top:0}@media (max-width:360px){.prose .kc-box{padding:8px 8px 2px}}.kr-g>*{background:#effaf2}.kr-g th{color:#17703a}.kr-r>*{background:#f6f0fd}.kr-r th{color:#5b2ca0}.kr-b>*{background:#eef4fe}.kr-b th{color:#1c4fa3}.kr-s>*{background:#fdf0f0}.kr-s th{color:#a61b1b}.kr-y>*{background:#fff8d6}.kr-y th{color:#8a6a00}.prose .kc-wide{max-width:min(100%,560px);margin:8px auto 12px;display:block;height:auto}.kc-lvh{margin:12px 0 6px}.kc-lv{margin:0 0 14px}.kc-lv details>*:not(summary){margin:8px auto}.kc-wait{text-align:center;color:#5b6676;padding:8px 0}.kc-eff th{white-space:nowrap}.kc-ics{display:flex;flex-wrap:wrap;gap:3px;max-width:99px;margin-bottom:3px}.kc-ics img{width:30px;height:30px;border-radius:5px;display:block}.kc-eff td{max-width:none}.prose .kc-fig{margin:8px auto 12px;max-width:400px;padding:8px;background:#fff;border:1px solid #d8ded5;border-radius:8px}.prose .kc-fig svg{display:block;width:100%;height:auto}.prose .kc-shot{margin:8px auto 12px;max-width:456px}.prose .kc-shot img{display:block;width:100%;height:auto;border-radius:6px}.kc-lab{display:flex;gap:4px;margin-top:4px;font-weight:700;font-size:14px;text-align:center}.kc-lab span{padding:3px 0;border-radius:4px;color:#fff}.kc-lab .kc-k{flex:0 0 64%;background:#1d5e43}.kc-lab .kc-j{flex:1;background:#a8572c}</style>
   <figure class="kc-shot"><img src="{{root}}img/success/koshokan_kadai_jiyu.jpg" width="456" height="192" alt="練習場所に並ぶ3冊の画面。左2冊が課題図書、右1冊が自由図書" loading="lazy"><figcaption class="kc-lab"><span class="kc-k">課題図書</span><span class="kc-j">自由図書</span></figcaption></figure>
   <figure class="kc-fig">
   <svg viewBox="0 0 340 425" role="img" aria-label="カードゲームに例えた図：書庫（自分の山札）から課題図書を2枚、場にある別の山札から自由図書を1枚引き、練習するとポスト（墓地）へ送られる。書庫がなくなったらポストのカードが全て書庫へ戻る。" font-family="'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',sans-serif">
@@ -98,6 +98,18 @@ sk_updated: 2026-11-26
 
   <h3 class="sm-h">4.知恵レベルと出現本</h3>
   <ul class="sm-l"><li>練習や休むなど、ターンが進むコマンドを実行するたびに知恵がたまります。読書計画イベントや、「知恵アップ」の効果がある本でも上がります。</li><li>知恵が一定までたまると、知恵レベルが1上がります（1〜9）。</li><li>知恵レベルが高いほど、自由図書に並ぶ本の種類が増え、指南書レベルの高い効果の強い本が並びます。</li><li>今の知恵レベルで出てくる自由図書は、指南書コマンドの「出現本」で確認できます。指南書コマンドでは、手持ちの本（書庫とポストにある本）も確認できます。</li></ul>
+  <p class="kc-lvh"><b>知恵レベル毎の出現本一覧はコチラ</b></p>
+  <div class="kc-lv">
+  <details class="se-d"><summary>知恵Lv1</summary><p class="kc-wait">画像準備中</p></details>
+  <details class="se-d"><summary>知恵Lv2</summary><img class="pq-img sk-howto" src="{{root}}img/success/koshokan_shutsugenbon.jpg" width="630" height="780" alt="知恵Lv.2の出現本の画面" loading="lazy"></details>
+  <details class="se-d"><summary>知恵Lv3</summary><p class="kc-wait">画像準備中</p></details>
+  <details class="se-d"><summary>知恵Lv4</summary><p class="kc-wait">画像準備中</p></details>
+  <details class="se-d"><summary>知恵Lv5</summary><p class="kc-wait">画像準備中</p></details>
+  <details class="se-d"><summary>知恵Lv6</summary><p class="kc-wait">画像準備中</p></details>
+  <details class="se-d"><summary>知恵Lv7</summary><p class="kc-wait">画像準備中</p></details>
+  <details class="se-d"><summary>知恵Lv8</summary><p class="kc-wait">画像準備中</p></details>
+  <details class="se-d"><summary>知恵Lv9</summary><p class="kc-wait">画像準備中</p></details>
+  </div>
   <img class="pq-img sk-howto" src="{{root}}img/success/koshokan_howto2.jpg" width="630" height="808" alt="ゲーム内の遊び方「スキルアップ練習」「課題図書と自由図書の違い」「知恵」の画面" loading="lazy">
 
   <h3 class="sm-h">5.経験点を増やすコツ</h3>
