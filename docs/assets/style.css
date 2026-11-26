@@ -777,3 +777,5 @@ details.se-d>.se-t{margin-top:8px}
 .cp-ptag{display:inline-block;padding:1px 9px;margin:1px 2px 1px 0;border-radius:6px;font-size:14px;font-weight:700;line-height:1.6;white-space:nowrap}
 .pt-bat{background:#dcf3e1;color:#17703a}
 .pt-pit{background:#ffe0ec;color:#a3164f}
+/* 至高の○○・球界の頭脳（特別な金特）を目立たせる（2026-11-26 管理人） */
+.cp-gold-sp{font-weight:700;color:#7a1fa2;background:linear-gradient(transparent 55%,#f1dcfa 55%);padding:0 1px}

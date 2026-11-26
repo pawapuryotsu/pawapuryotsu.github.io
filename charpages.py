@@ -233,7 +233,12 @@ def gold_text(c, kind):
     def brk(p):
         # 長いパターン（スマホ幅375pxで1行に収まらないもの）だけ、「＋」の後ろで改行する
         return e(p).replace("＋", "＋<br>") if len(p) > 18 else e(p)
-    return "<br>".join(brk(p) for p in pats) if pats else "なし"
+    return special_gold("<br>".join(brk(p) for p in pats)) if pats else "なし"
+
+
+def special_gold(html):
+    """至高の○○・球界の頭脳は特別な金特なので、色を変えて目立たせる（2026-11-26 管理人）"""
+    return re.sub(r"(至高の[^＋<\s]+|球界の頭脳)", r'<span class="cp-gold-sp">\1</span>', html)
 
 
 def friend_text(c):
