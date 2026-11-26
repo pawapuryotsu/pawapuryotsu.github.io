@@ -64,7 +64,9 @@
 <div class="prose">
   <!-- 2026-11-26 管理人：ページ上部に動画を埋め込む -->
   <p class="sc-yt-note"><span class="tx-g tx-bold">※11/26 超基本解説動画アップしました</span></p>
-  <div class="ytframe sc-yt"><iframe src="https://www.youtube-nocookie.com/embed/zhCclEL0-5s" title="古書館高校の動画" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
+  <!-- スマホ：タップで YouTube アプリが開く普通のリンク。PC：クリックでその場で再生（デッキページと同じ仕組み） -->
+  <a class="yt sc-yt" href="https://www.youtube.com/watch?v=zhCclEL0-5s" data-id="zhCclEL0-5s" aria-label="動画を再生"><img src="https://i.ytimg.com/vi/zhCclEL0-5s/hqdefault.jpg" alt="古書館高校の超基本解説動画のサムネイル"><span class="play">▶</span></a>
+  <script>(function(){var a=document.querySelector('a.sc-yt[data-id]');if(!a||matchMedia('(hover: none) and (pointer: coarse)').matches)return;a.target='_blank';a.rel='noopener';a.addEventListener('click',function(e){e.preventDefault();var d=document.createElement('div');d.className='ytframe sc-yt';d.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+a.getAttribute('data-id')+'?autoplay=1" title="古書館高校の超基本解説動画" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';a.replaceWith(d)})})();</script>
   <!-- SCTOP:START -->
   <section class="sk-nav" aria-label="古書館高校の関連ページ">
   <p class="sk-nav-h">古書館高校の攻略ページ</p>
