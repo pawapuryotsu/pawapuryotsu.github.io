@@ -805,3 +805,4 @@ details.se-d>.se-t{margin-top:8px}
 /* PSR覚醒で付く分：『+○○(PSR覚醒)』を濃い青（2026-11-26 管理人） */
 .cp-bonus .psr-awk{color:#1a3d8f;font-weight:700}
 .cp-bonus .step.psr-awk small{font-size:12px}
+.prose .sk-howto{max-width:min(100%,360px);margin:8px auto 14px}
