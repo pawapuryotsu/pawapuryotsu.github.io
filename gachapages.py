@@ -40,7 +40,7 @@ def _rate_table(g):
     share = "・".join(f'<span class="cp-nw">{r} {_pct(g["share"][r])}</span>' for r in RS if r in g["share"])
     return ('<div class="bt-wrap"><table class="bt g-t"><thead><tr><th scope="col">枠</th>' + "".join(f'<th scope="col">{r}</th>' for r in RS)
             + "</tr></thead><tbody>" + "".join(rows) + "</tbody></table></div>"
-            + (f'<p>{e(g["chara"])}のみの枠以外で、そのレアリティが出たときに{e(g["chara"])}のどちらかになる割合（{len(g["charas"])}人合計。1人あたりはこの{len(g["charas"])}分の1）：{share}</p>'
+            + (f'<p>{e(g["chara"])}のみの枠以外で、そのレアリティが出たときに{e(g["chara"])}の{"どちらか" if len(g["charas"]) == 2 else "いずれか"}になる割合（{len(g["charas"])}人合計。1人あたりはこの{len(g["charas"])}分の1）：{share}</p>'
                if g.get("charas") else f'<p>{e(g["chara"])}のみの枠以外で、そのレアリティが出たときに{e(g["chara"])}になる割合：{share}</p>'))
 
 
@@ -156,7 +156,7 @@ def _body(g, root_icon, src_dir):
     ch_btns = ('<div class="g-goal g-chs" role="group" aria-label="キャラ">'
                + "".join(f'<button type="button" data-chb="{ch["key"]}">{e(ch.get("label", ch["chara"]))}</button>' for ch in views)
                + '</div><p class="muted">キャラを切り替えると、下の確率とシミュレータが切り替わります。</p>') if multi else ""
-    metas = "".join(f'<p class="g-meta"><img src="{{{{root}}}}{e(ch["icon"])}" alt="" width="44" height="44"><span>'
+    metas = "".join(f'<p class="g-meta">' + (f'<img src="{{{{root}}}}{e(ch["icon"])}" alt="" width="44" height="44">' if ch.get("icon") else "") + '<span>'
                     + (f'開催期間：{_period(g["period"])}<br>' if not multi else "")
                     + f'<a href="{{{{root}}}}{e(ch["char_page"])}">{e(ch["chara"])}の<span class="cp-nw">データ・イベントはこちら</span></a></span></p>' for ch in chs)
     if multi:
@@ -178,7 +178,7 @@ def _body(g, root_icon, src_dir):
     more_notes = "".join("\n    <li>" + x + "</li>" for x in [
         pick_note,
         f'出現率アップの割合は{e(g["chara"])}の{len(chs)}人合計なので、1人あたりはその{len(chs)}分の1で計算しています（公式の「各レアリティ内の各イベキャラの出現割合は均一」による）。「{e(g["chara"]).replace("・", "」または「")}」の確定枠も{len(chs)}人で等分です。' if multi else "",
-        "キャラごとの確率は、手持ちを全部そのキャラに使った場合の確率です。2人とも育てる場合は、選択ガチャ券を分けるぶん確率が下がります" + ("（「2人とも」を選ぶと、2人とも完成する確率を表示します）。" if both else "。") if multi and picks else "",
+        "キャラごとの確率は、手持ちを全部そのキャラに使った場合の確率です。" + ("2人とも" if len(chs) == 2 else "2人以上") + "育てる場合は、選択ガチャ券を分けるぶん確率が下がります" + ("（「2人とも」を選ぶと、2人とも完成する確率を表示します）。" if both else "。") if multi and picks else "",
         ("「2人とも」の確率は、1人ずつのときと計算のしかたが違います：" + "".join(both_notes)) if both else ""] + g.get("notes", []) if x)   # notes：そのガチャだけの注意（json に書く）
     loop_note = (f'1周＝{"〜".join([g["steps"][0]["name"], g["steps"][-1]["name"]])}'
                  f'（{sum(s["pulls"] for s in g["steps"])}連・<span class="cp-nw">パワストーン{sum(s["cost"] for s in g["steps"])}個</span>）。<br>') if g.get("loop") else ""
@@ -271,7 +271,7 @@ def generate(src):
         meta = (f'title: {g["chara"]}の{gw(g)}は引くべき？何周で完成するか計算（SR Lv45・PSR Lv50）｜パワプロアプリ攻略ベース\n'
                 f'description: {g["chara"]}の{gw(g)}は引くべき？{g["title"]}で{g["chara"]}のSR Lv45・PSR Lv50を作るのに何周必要かを計算。SR・PSRが引ける確率、Lv40に届く確率、ダイジョーブ博士像を使う場合の確率と、実際に引いて試せるシミュレータつき。\n'
                 f"path: {path}\nnav: home\nscripts: gacha\ncrumb: {g['chara']}のガチャ\n"
-                f"og_title: {g['chara']}の{gw(g)}は引くべき？\nrecent_title: {g['chara']}の{gw(g)}は引くべき？\nog_icon: {(g.get('charas') or [g])[0]['icon']}\n")
+                f"og_title: {g['chara']}の{gw(g)}は引くべき？\nrecent_title: {g['chara']}の{gw(g)}は引くべき？\nog_icon: {(g.get('charas') or [g])[0].get('icon', '')}\n")
         pages.append(f"<!--\n{meta}-->\n" + _body(g, "", src))
         # カードにイベキャラのアイコンを付ける（json の icon、2キャラのガチャは charas の icon を全員分。2026-11-24 管理人）
         icons = "".join(f'<img src="{{{{root}}}}{e(ch["icon"])}" alt="" width="48" height="48" loading="lazy">' for ch in (g.get("charas") or [g]) if ch.get("icon"))
