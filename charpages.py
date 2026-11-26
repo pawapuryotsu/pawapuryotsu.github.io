@@ -400,6 +400,13 @@ def _eff(i):
     return f'<span class="{"tx-b" if m.group(2)[0] in "+＋" else "tx-r"}">{e(i)}</span>'
 
 
+def _eff_order(effs):
+    """効果の並び順。体力（体力最大値も）を一番上、やる気を2番目に出し、ほかは書いた順のまま（全ページ共通。2026-11-26 管理人「重要なのはこの2つなので上に」）"""
+    def key(i):
+        return 0 if i.startswith("体力") else 1 if i.startswith("やる気") else 2
+    return sorted(effs, key=key)
+
+
 def sub_table(rows):
     """イベントの表。選択肢ごとに1行。左＝選択肢名、中＝効果（＋）、右＝投手／野手などその他。選択肢が無いイベントは左の列を出さない"""
     has_name = any(r.get("選択肢") for r in rows)
@@ -408,7 +415,7 @@ def sub_table(rows):
     body = ""
     for r in rows:
         name = f'<th class="{"ok" if r.get("正解") else ""}">{"◎ " if r.get("正解") else ""}{_choice_name(r.get("選択肢", ""))}</th>' if has_name else ""
-        eff = "".join(f'<div{" class=cp-note" if i.startswith("※") else ""}>{_eff(i)}</div>' for i in r.get("効果", []))
+        eff = "".join(f'<div{" class=cp-note" if i.startswith("※") else ""}>{_eff(i)}</div>' for i in _eff_order(r.get("効果", [])))
         body += f"<tr>{name}<td>{eff}</td>" + (f"<td>{_cell(r)}</td>" if has_other else "") + "</tr>"
     return f'<div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>'
 
