@@ -19,7 +19,8 @@ POLICY_DATE = "2026年10月"                    # プライバシーポリシー
 # 2026-11-26 古書館高校の配信で「アンドロメダ 野手」を外し、「古書館高校 野手」を一番左に（2026-11-22 管理人の指示。11/26 管理人の依頼で14時より前倒し）
 NAV = [("koshokan", "success/koshokan/", "古書館高校<small>野手</small>"),
        ("roman", "success/roman/", "ロマン開花<small>投手</small>"),   # 2026-11-25 管理人：シナリオトップへ
-       ("pawaque", "pawaque/", "パワクエ")]
+       ("saikyuki", "pawaque/saikyuki/", "西球記"),   # 2026-11-26 管理人：「パワクエ」を「西球記」に改名し、リンクを西球記トップへ
+       ("chars", "chars/", "イベキャラ")]            # 2026-11-26 管理人：西球記の横にイベキャラ一覧を追加
 
 here = pathlib.Path(__file__).parent
 src, out = here / "src", here / "docs"
@@ -122,7 +123,7 @@ if (src / "pawaque").exists():
             _lay = (src / "layout.html").read_text(encoding="utf-8")
             _css = (src / "assets" / "style.css").read_text(encoding="utf-8")
             _root = "../../"
-            _nav = "\n".join(f'    <a href="{_root}{p}"{' aria-current="page"' if k == "pawaque" else ""}>{label}</a>' for k, p, label in NAV)
+            _nav = "\n".join(f'    <a href="{_root}{p}"{' aria-current="page"' if k == "saikyuki" else ""}>{label}</a>' for k, p, label in NAV)
             _top = _lay[_lay.index('<svg width="0"'):_lay.index("</div></header>") + len("</div></header>")].replace("{{nav}}", _nav).replace("{{root}}", _root)
             _foot = _lay[_lay.index('<footer class="site">'):_lay.index("</footer>") + len("</footer>")].replace("{{root}}", _root)
             _vars = re.search(r":root\{.*?\}", _css, re.S).group(0)
@@ -389,7 +390,9 @@ for meta, body in _parsed:
         body = crumb_html(_chain) + body
     root = "/" if path == "404.html" else ("../" * path.count("/") or "./")
     cur = ' aria-current="page"'
-    nav = "\n".join(f'    <a href="{root}{p}"{cur if k == meta.get("nav") else ""}>{label}</a>' for k, p, label in NAV)
+    # 今いるページのタブ：西球記のページ（pawaque/saikyuki/ の下）は「西球記」、イベキャラのページ（chars/ の下）は「イベキャラ」（2026-11-26）
+    _navk = "saikyuki" if path.startswith("pawaque/saikyuki/") else ("chars" if path.startswith("chars/") else meta.get("nav"))
+    nav = "\n".join(f'    <a href="{root}{p}"{cur if k == _navk else ""}>{label}</a>' for k, p, label in NAV)
     scripts = "\n".join(f'<script src="{root}assets/{s}.js"></script>' for s in meta.get("scripts", "").split())
     # noindex_until: 2026-11-26T14:00（日本時間）と書くと、その時刻より前のビルドだけ noindex（2026-11-25 管理人「noindexは自動で外れるようにして」）
     noindex = meta.get("noindex") == "yes" or (bool(meta.get("noindex_until")) and _NOW_JST < meta["noindex_until"])
