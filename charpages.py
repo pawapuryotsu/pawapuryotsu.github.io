@@ -982,7 +982,8 @@ def generate(chars_path, src, decks, noindex=True):
         # 「公開日時」（日本時間 "2026-11-26T14:00"）を書くと、その時刻より後のビルドで noindex が外れ、イベキャラ一覧にも出る（2026-11-25 管理人「noindexは自動で外れるようにして」）
         public = bool(st.get("公開日時")) and _now_jst() >= st["公開日時"]
         c = {"二つ名": st.get("二つ名") or "", "苗字": st["苗字"], "名前": st.get("名前") or "", "読み": st.get("読み"), "二つ名読み": st.get("二つ名読み") or "", "実装日": st.get("実装日"),
-             "得意練習": st.get("得意練習") or [], "_準備中": True, "_公開": public}
+             "得意練習": st.get("得意練習") or [], "_準備中": True, "_公開": public,
+             "プロフィール": {"役割": st.get("役割"), "前後イベ": st.get("前後イベ")}}
         c["_icon"] = find_icon(chars_path, c, pid)
         c["_rt"] = f"{full}のデータ"
         items.append((pid, c, full))
@@ -1168,7 +1169,7 @@ def index_page(items, config, noindex):
         lis.append(f'<li class="cl-item" data-k="{e(key)}" data-t="{e(kind)}"><a href="{pid}/">'
                    + (f'<img class="cl-icon" src="../img/chars/{pid}.png" alt="" width="52" height="52" loading="lazy">' if c.get("_icon") else '<span class="cl-icon"></span>')
                    + f'<span class="cl-name"><span class="cl-nick">{e(c["二つ名"] or "")}</span><b>{e(c["苗字"])}{e(c["名前"] or "")}</b></span>'
-                   f'<span class="cl-tag">{e(kind)}</span></a></li>')
+                   '</a></li>')   # 野手用・投手用・兼用は絞り込み用のデータ（data-t）だけで、カードには出さない（2026-11-26 管理人）
     kinds_ = sorted({char_type(c, config["種別の判定"]) for _, c, _ in items if not c.get("_準備中") or (c.get("_公開") and c.get("得意練習"))}) if items else []
     chips = "".join(f'<button type="button" class="cl-chip" data-t="{e(k)}">{e(k)}</button>' for k in kinds_)
     new_html = new_chars_html(items)
