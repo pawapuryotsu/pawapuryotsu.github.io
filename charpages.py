@@ -269,12 +269,12 @@ def friend_text(c):
     return "<br>".join(e(p) for p in parts) if parts else "なし"
 
 
-_RICH = {"青": "tx-b", "赤": "tx-r", "太": "tx-bold", "青太": "tx-b tx-bold", "赤太": "tx-r tx-bold"}
+_RICH = {"青": "tx-b", "赤": "tx-r", "太": "tx-bold", "青太": "tx-b tx-bold", "赤太": "tx-r tx-bold", "続": "cp-nw"}
 
 
 def rich(t):
-    """文字の色・太さの指示。{青:…} {赤:…} {太:…} {青太:…} {赤太:…} を色・太字にする（それ以外は普通の文字）"""
-    return re.sub(r"[{｛](青太|赤太|青|赤|太)[:：]([^{}｛｝]*)[}｝]",
+    """文字の色・太さの指示。{青:…} {赤:…} {太:…} {青太:…} {赤太:…} を色・太字にする（それ以外は普通の文字）。{続:…} はその中で改行しない（スマホで意味の切れ目で折り返すため）"""
+    return re.sub(r"[{｛](青太|赤太|青|赤|太|続)[:：]([^{}｛｝]*)[}｝]",
                   lambda m: f'<span class="{_RICH[m.group(1)]}">{m.group(2)}</span>', e(t))
 
 
@@ -1292,6 +1292,14 @@ def _autolink(h):
     return re.sub(r"https?://[^\s<>\"]+", lambda m: f'<a href="{m.group(0)}" target="_blank" rel="noopener">{m.group(0)}</a>', h)
 
 
+def notice_html(r):
+    """ページ上部の赤枠のお知らせ（「お知らせ」：1行ずつの文章のリスト。神前試合まとめ・コーチ+4記事の赤枠と同じ dr-update の形）"""
+    lines = r.get("お知らせ", [])
+    if not lines:
+        return ""
+    return '<div class="dr-update">' + "".join(f"<p>{rich(x)}</p>" for x in lines) + "</div>"
+
+
 def top_guide_html(r):
     """Tier表の上に出す解説（「上の解説欄」。見出し・文章・箇条書き）。書き方は「解説欄」と同じ"""
     out, need_x = "", False
@@ -1396,6 +1404,7 @@ def ranking_pages(items, config, chars, chars_path):
         h1_title = " ".join(f'<span class="cp-h1">{e(w)}</span>' for w in r["title"].split())  # 空白の所でだけ折り返す
         body = (f'<section class="phead"><p class="eyebrow">イベキャラランキング</p><h1>{h1_title}</h1>'
                 f'<p>{date_label(r)}</p></section>'
+                + notice_html(r)
                 + (f'<div class="rk-intro">{intro}</div>' if intro else "")
                 + top_guide_html(r)
                 + (f'<div class="tier-table">{rows}</div>' if n else '<p class="muted">準備中です。</p>')
