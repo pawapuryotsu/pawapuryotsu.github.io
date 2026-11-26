@@ -544,11 +544,17 @@ def events_wip(body):
     return not re.sub(r"<[^>]+>|\s", "", rest)
 
 
-def section(title, inner, empty="準備中です。"):
+def section(title, inner, empty="準備中です。", sid=None):
     # 見出しの最後の「の○○」（の評価・の基本情報…）は折り返さない（「価」だけ次の行になる等を防ぐ）
     head, sep, tail = title.rpartition("の")
     h = f'{e(head)}<span class="cp-tail">{e(sep + tail)}</span>' if head else e(title)
-    return f'<section class="cp-sec"><h2>{h}</h2>{inner or f"<p class=muted>{e(empty)}</p>"}</section>'
+    return f'<section class="cp-sec"{f' id="{sid}"' if sid else ""}><h2>{h}</h2>{inner or f"<p class=muted>{e(empty)}</p>"}</section>'
+
+
+# ページトップの目次（2026-11-26 管理人）。項目は (表示名, id)。無い欄（使用デッキ例など）は出さない
+def toc_html(items):
+    return ('<nav class="cp-toc" aria-label="このページの目次"><b>もくじ</b><ul>'
+            + "".join(f'<li><a href="#{i}">{e(t)}</a></li>' for t, i in items) + "</ul></nav>")
 
 
 # 緑と赤が半々のボックスで出す特殊能力（管理人指定。データ上は青特で入っている）
@@ -816,29 +822,32 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     has_friend = bool(c["金特"].get("友情", {}).get("野手") or c["金特"].get("友情", {}).get("投手"))
     ev = events_of(text, event_kinds(c, config, text, has_friend))
     move_epilogue(ev)
+    toc = [("基本情報", "basic"), ("重要ボーナス", "bonus"), ("イベント", "event"), ("評価", "eval")]
     parts = [
-        section(f"{name}の基本情報", basic),
-        section(f"{name}の重要ボーナス", imp),
-        section(f"{name}のイベント詳細", event_detail(ev)),
+        section(f"{name}の基本情報", basic, sid="basic"),
+        section(f"{name}の重要ボーナス", imp, sid="bonus"),
+        section(f"{name}のイベント詳細", event_detail(ev), sid="event"),
     ]
     cbs = combos_of(c)
     if cbs:
         parts.append(section(f"{name}のコンボイベント", "".join(combo_html(x, root, alias_names(c)) for x in cbs)))
     parts += [
-        section(f"{name}の評価", ranking_eval_html(c["name"], root)
+        section(f"{name}の評価", sid="eval", inner=ranking_eval_html(c["name"], root)
                 + eval_html(text.get("評価", []))
                 + (f'<p class="cp-evdate"><span class="rk-date">【記入日{e(text["評価記入日"])}】</span></p>' if text.get("評価") and text.get("評価記入日") else "")),   # 評価文を書いた日。評価文の一番下に出す（管理人指示 2026-11-11）
     ]
     # 使用デッキ例は、そのキャラを使ったデッキがある時だけ出す（無い時は欄ごと出さない。2026-11-17 管理人、今後の全イベキャラに適用）
     dex = deck_examples(c["name"], decks, root)
     if dex:
-        parts.append(section(f"{name}の使用デッキ例", dex))
+        parts.append(section(f"{name}の使用デッキ例", dex, sid="deck"))
+        toc.append(("使用デッキ例", "deck"))
+    toc.append(("選手能力", "ability"))
     parts += [
-        section(f"{name}の選手能力", ability),
+        section(f"{name}の選手能力", ability, sid="ability"),
         section("関連ページ", related_html(c["name"], root)),
     ]
     # 『【名前】』の見出しの前に『名前』だけ（二つ名を除く）の表記もタイトルに入れる
-    return "\n".join(parts)
+    return toc_html(toc) + "\n" + "\n".join(parts)
 
 
 ICON_COPIES = []   # (元のファイル, 出力先 img/chars/番号.png)。build.py がコピーする

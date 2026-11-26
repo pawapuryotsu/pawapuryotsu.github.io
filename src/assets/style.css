@@ -790,3 +790,11 @@ details.se-d>.se-t{margin-top:8px}
 .cp-bonus tr.bn-pit>th,.cp-bonus tr.bn-pit>td{background:#fdecec}
 .cp-bonus th{padding-left:8px}
 @media (max-width:340px){.cp-bonus th{padding-left:2px}}
+/* イベキャラページ上部の目次（2026-11-26 管理人）：スマホ3列・PC6列 */
+.cp-toc{border:1px solid var(--line);border-radius:6px;padding:8px 10px 10px;margin:0 0 14px;background:#fff}
+.cp-toc b{display:block;font-size:13px;margin:0 0 6px}
+.cp-toc ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.cp-toc a{display:block;text-align:center;padding:6px 2px;border:1px solid #b9c6d6;border-radius:4px;background:#f3f7fc;font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap}
+@media (min-width:720px){.cp-toc ul{grid-template-columns:repeat(6,1fr)}}
+@media (max-width:340px){.cp-toc a{font-size:13px}}
+.cp-sec[id]{scroll-margin-top:108px}
