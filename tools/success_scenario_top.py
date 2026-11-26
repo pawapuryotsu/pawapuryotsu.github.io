@@ -265,6 +265,26 @@ def gold_table():
 
 
 # シナリオ所属キャラをデッキに入れた時の恩恵（2026-11-25 管理人）。json の「シナリオキャラの恩恵」から <!-- SCMERIT:START/END --> の間を作る。
+def _merit_li(x):
+    """恩恵の1行。{"文": "…", "画像": "img/…", "alt": "…"} と書くと、文の下に画像を出す（2026-11-26 管理人）"""
+    if isinstance(x, dict):
+        img = f'<img class="pq-img sk-howto" src="{{{{root}}}}{e(x["画像"])}" alt="{e(x.get("alt", ""))}" loading="lazy">' if x.get("画像") else ""
+        note = "".join(f'<br><span class="sm-note">{_deco(n)}</span>' for n in x.get("注", []))
+        ev = ""
+        if x.get("イベント"):  # イベキャラのイベント表と同じ形（ランダムイベントと同じ書き方）
+            sys.path.insert(0, str(here))
+            import charpages as cp
+            cp._CTYPE[0] = {"投手": "投手用", "野手": "野手用"}.get(C.get("種別", ""))
+            evs = {}
+            for y in x["イベント"]:
+                z = {k: v for k, v in y.items() if k not in ("名前", "行")}
+                if y.get("行"):
+                    z["小イベント"] = [{"行": y["行"]}] + z.get("小イベント", [])
+                evs[y["名前"]] = z
+            ev = f'<section class="cp-sec sc-rnd sm-ev">{cp.event_detail(evs).replace(chr(60)+'h3 class="cp-ev">'+chr(60)+'/h3>', '')}</section>'  # 名前が空なら見出しを出さない
+        return f"<li>{_deco(x['文'])}{note}{img}{ev}</li>"
+    return f"<li>{_deco(x)}</li>"
+
 def merit_html():
     V = C.get("シナリオキャラの恩恵")
     if V is None:
@@ -275,7 +295,7 @@ def merit_html():
     for k in ("メインデッキ", "サポートデッキ"):
         if V.get(k):
             out.append(f'  <h3 class="sm-h">{k}に入れた時</h3>')
-            out.append("  <ul class=\"sm-l\">" + "".join(f"<li>{_deco(x)}</li>" for x in V[k]) + "</ul>")
+            out.append("  <ul class=\"sm-l\">" + "".join(_merit_li(x) for x in V[k]) + "</ul>")
             if k == "メインデッキ" and V.get("報酬の選択肢"):
                 out.append('  <table class="sg-t sm-t"><thead><tr><th>キャラ</th><th>増える選択肢</th></tr></thead><tbody>'
                            + "".join(f"<tr><th>{e(a)}</th><td>{e(b)}</td></tr>" for a, b in V["報酬の選択肢"]) + "</tbody></table>")
