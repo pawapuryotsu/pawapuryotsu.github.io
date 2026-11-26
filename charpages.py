@@ -786,6 +786,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
              f'<tr><th>初登場日</th><td>{e(c.get("実装日") or "不明")}{"<small class=cp-src>(イベント報酬)</small>" if c.get("入手方法") == "イベント報酬" else ""}</td></tr>'
              f'<tr><th>得意練習</th><td>{practice_tags(c["得意練習"])}</td></tr>'
              f'<tr><th>イベント前後</th><td>{ev_badge(ev)}</td></tr>'
+             f'<tr><th>役割</th><td>{role_tag(p.get("役割"))}</td></tr>'
              + "".join(f'<tr><th>{k}金特</th><td>{gold_text(c, k)}</td></tr>' for k in (("投手", "野手") if order_type == "投手用" else ("野手", "投手"))) +
              f'<tr><th>基礎上限{"<sup>※</sup>" if awake_cap else ""}</th><td>{cap_txt}</td></tr>'   # 金特の下（2026-11-26 管理人）
              f'<tr><th>友情特殊能力</th><td>{friend_text(c)}</td></tr>'
@@ -1033,6 +1034,15 @@ def gray_none(html):
     return html.replace("<td>なし</td>", '<td><span class="cp-none">なし</span></td>')
 
 
+_ROLE_CLS = {"ガード": "rl-guard", "レンジャー": "rl-ranger", "バウンサー": "rl-bouncer", "スナイパー": "rl-sniper"}
+
+
+def role_tag(role):
+    """基本情報の「役割」。ガード＝緑、レンジャー＝紫、バウンサー＝青、スナイパー＝赤の枠で出す（2026-11-26 管理人）。データが無ければ 不明"""
+    cls = _ROLE_CLS.get(role or "")
+    return f'<span class="cp-role {cls}">{e(role)}</span>' if cls else e(role or "不明")
+
+
 def ev_badge(ev):
     """基本情報の「イベント前後」。前＝濃い黄色、後＝濃い青の札で出す（2026-11-26 管理人）。それ以外（不明・準備中）は文字のまま"""
     cls = {"前": "cp-ev-pre", "後": "cp-ev-post"}.get(ev)
@@ -1047,6 +1057,7 @@ def stub_body(full, st, c=None, kinds=None):
     rows = [("初登場日", e(st.get("実装日") or "準備中")),
             ("得意練習", practice_tags(st["得意練習"]) if st.get("得意練習") else "準備中"),
             ("イベント前後", ev_badge(st.get("前後イベ") or "準備中")),
+            ("役割", role_tag(st.get("役割")) if st.get("役割") else "準備中"),
             ("野手金特", pats(st.get("金特野手"))),
             ("投手金特", pats(st.get("金特投手")))]
     basic = '<table class="cp-basic"><tbody>' + "".join(f"<tr><th>{k}</th><td>{v}</td></tr>" for k, v in rows) + "</tbody></table>"
