@@ -336,6 +336,11 @@ table.slots th:not(:first-child):not(:last-child),table.slots td:not(.name):not(
 .cl-name{display:flex;flex-direction:column;gap:2px;min-width:0}
 .cl-nick{font-size:12px;color:var(--muted,#777)}
 .cl-tag{position:absolute;right:10px;top:10px;font-size:12px;color:var(--muted,#777)}
+/* イベキャラ一覧のカード：得意練習・役割・イベント前後の□（2026-11-26 管理人。色はキャラページの pt-bat・pt-pit・rl-・cp-ev- と同じ） */
+.cl-bxs{flex:none;margin-left:auto;display:grid;grid-template-columns:repeat(2,28px);grid-auto-rows:28px;gap:4px}
+.cl-bx{border:1.5px solid currentColor;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0;box-sizing:border-box;border-radius:4px;font-size:13px;font-weight:700;line-height:1;white-space:nowrap}
+.cl-bx.cl-bx-role{border-width:2px}
+.cl-bx.cp-ev-pre{border-color:#b98500}.cl-bx.cp-ev-post{border-color:#16397a}
 
 .cp-eff{margin:2px 0 4px;font-size:14px;font-weight:700}
 .cp-choices{margin:4px 0 8px;padding-left:18px}
