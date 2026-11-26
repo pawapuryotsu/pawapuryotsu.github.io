@@ -771,3 +771,17 @@ details.se-d>.se-t{margin-top:8px}
 .cp-evtag{display:inline-block;min-width:2.2em;text-align:center;padding:1px 10px;border-radius:999px;font-weight:700;line-height:1.5}
 .cp-ev-pre{background:#e6a700;color:#2b1f00}
 .cp-ev-post{background:#1d4fa8;color:#fff}
+/* 基本情報：「なし」は薄い灰色、初登場日の(イベント報酬)、得意練習の札（お試し）（2026-11-26 管理人） */
+.cp-none{color:#a3a8b0}
+.cp-src{margin-left:6px;font-size:13px;color:var(--muted,#6b7280)}
+.cp-ptag{display:inline-block;padding:1px 9px;margin:1px 2px 1px 0;border-radius:6px;font-size:14px;font-weight:700;line-height:1.6;white-space:nowrap}
+.pt-bat{background:#fde2e2;color:#a61b1b}
+.pt-pow{background:#fde8d4;color:#9a4a0b}
+.pt-run{background:#dcf3e1;color:#17703a}
+.pt-arm{background:#ece1fb;color:#5b2ca0}
+.pt-def{background:#d9f1f3;color:#0f6670}
+.pt-spd{background:#ffe0ec;color:#a3164f}
+.pt-con{background:#dde8fb;color:#1c4fa3}
+.pt-sta{background:#fff1c9;color:#8a5a00}
+.pt-brk{background:#f3e0f5;color:#86207f}
+.pt-men{background:#e4e7ec;color:#3b4250}
