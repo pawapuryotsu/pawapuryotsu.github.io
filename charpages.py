@@ -1171,6 +1171,8 @@ def index_page(items, config, noindex):
                    + f'<span class="cl-name"><span class="cl-nick">{e(c["二つ名"] or "")}</span><b>{e(c["苗字"])}{e(c["名前"] or "")}</b></span>'
                    '</a></li>')   # 野手用・投手用・兼用は絞り込み用のデータ（data-t）だけで、カードには出さない（2026-11-26 管理人）
     kinds_ = sorted({char_type(c, config["種別の判定"]) for _, c, _ in items if not c.get("_準備中") or (c.get("_公開") and c.get("得意練習"))}) if items else []
+    # 「兼用」の絞り込みボタンは出さず、兼用のキャラは投手用・野手用のどちらで絞っても出す（2026-11-26 管理人）
+    kinds_ = [k for k in kinds_ if k != "兼用"]
     chips = "".join(f'<button type="button" class="cl-chip" data-t="{e(k)}">{e(k)}</button>' for k in kinds_)
     new_html = new_chars_html(items)
     meta = ("title: イベキャラ一覧（評価・イベント・金特）｜パワプロアプリ攻略ベース\ncrumb: イベキャラ一覧\n"
@@ -1189,7 +1191,7 @@ def index_page(items, config, noindex):
 var q=document.getElementById("cl-q"),items=[].slice.call(document.querySelectorAll(".cl-item")),n=document.getElementById("cl-n"),t="";
 function hira(s){{return s.replace(/[ァ-ヶ]/g,function(c){{return String.fromCharCode(c.charCodeAt(0)-96)}}).toLowerCase()}}
 function run(){{var w=hira(q.value).split(/\\s+/).filter(Boolean),c=0;
-items.forEach(function(li){{var k=hira(li.dataset.k),ok=(!t||li.dataset.t===t)&&w.every(function(x){{return k.indexOf(x)>=0}});li.hidden=!ok;if(ok)c++}});
+items.forEach(function(li){{var k=hira(li.dataset.k),ok=(!t||li.dataset.t===t||li.dataset.t==="兼用")&&w.every(function(x){{return k.indexOf(x)>=0}});li.hidden=!ok;if(ok)c++}});
 n.textContent=c+"人"}}
 q.addEventListener("input",run);
 [].forEach.call(document.querySelectorAll(".cl-chip"),function(b){{b.addEventListener("click",function(){{var on=b.classList.contains("on");[].forEach.call(document.querySelectorAll(".cl-chip"),function(x){{x.classList.remove("on")}});t=on?"":b.dataset.t;if(!on)b.classList.add("on");run()}})}});
