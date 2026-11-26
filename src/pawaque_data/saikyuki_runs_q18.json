@@ -1,5 +1,5 @@
 {
- "取得日": "2026-11-25",
+ "取得日": "2026-11-26",
  "元": "パワクエ周回カウンター",
  "クエスト": "⑱道中2",
  "記録対象外": [
@@ -6020,6 +6020,121 @@
     }
    ],
    "endArea": 1
+  },
+  {
+   "no": 430,
+   "date": "2026-11-25",
+   "area": "3/3 ⑱道中2",
+   "result": "クリア",
+   "period": "らんま1/2コラボ期間(11/4 14時~ 11/26 9時)",
+   "areaNums": [
+    1,
+    2,
+    3
+   ],
+   "boss": {
+    "1": 0,
+    "2": 3,
+    "3": -1
+   },
+   "prayers": [
+    {
+     "after": [
+      "コーチ人数+3",
+      "熟練の打撃1"
+     ],
+     "area": 0,
+     "before": [
+      "コーチ人数+3"
+     ],
+     "gained": [
+      "熟練の打撃1"
+     ],
+     "lost": [],
+     "name": "[求道者]才賀侑人",
+     "rarity": "銅",
+     "result": "成功"
+    }
+   ],
+   "drops": [
+    {
+     "area": 1,
+     "boss": true,
+     "name": "呼び寄せの香",
+     "rarity": "銀",
+     "skills": [],
+     "slot": 0
+    },
+    {
+     "area": 1,
+     "boss": false,
+     "name": "[求道者]才賀侑人",
+     "rarity": "銅",
+     "skills": [
+      "コーチ人数+3",
+      "熟練の打撃1"
+     ],
+     "slot": 1
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "太刀川広巳",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 4
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "館橋水奈都",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 5
+    },
+    {
+     "area": 2,
+     "boss": false,
+     "name": "沖野海里",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 6
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "天道あかね",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 7
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "古羽流登",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 8
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "[挑戦！]泡瀬満里南",
+     "rarity": "銅",
+     "skills": [
+      "コーチ人数+3"
+     ],
+     "slot": 9
+    },
+    {
+     "area": 3,
+     "boss": false,
+     "name": "梶杏嘉",
+     "rarity": "銅",
+     "skills": [],
+     "slot": 10
+    }
+   ]
   }
  ]
 }
