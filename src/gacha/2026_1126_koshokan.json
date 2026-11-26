@@ -1,0 +1,60 @@
+{
+  "id": "2026_1126_koshokan",
+  "title": "ループガチャ 古書館高校デビュー",
+  "chara": "本谷静人・立野創史・柳瀬カリカ",
+  "charas": [
+    {"key": "motoya", "chara": "本谷静人", "short": "本谷", "char_page": "chars/0043/", "icon": "img/chars/0043.png", "extra": []},
+    {"key": "tateno", "chara": "立野創史", "short": "立野", "char_page": "chars/0045/", "icon": "img/chars/0045.png", "extra": []},
+    {"key": "yanase", "chara": "柳瀬カリカ", "short": "柳瀬", "char_page": "chars/0044/", "icon": "img/chars/0044.png", "extra": []}
+  ],
+  "period": "2026年11月26日(木)メンテナンス終了後〜2月1日(月)8:59",
+  "checked": "2026-11-26",
+  "sources": [
+    {"label": "ガチャのお知らせ", "url": "https://asc.s.konaminet.jp/asc/pawasma/webpage/news/event_gacha/2026_1126_Gacha_f9a8MpD-R.php?set_user_id=0"},
+    {"label": "提供割合", "url": "https://asc.s.konaminet.jp/asc/pawasma/webpage/news/gacha_probs/event_6598_nPwi5Msf.php?set_user_id=0"}
+  ],
+  "loop": true,
+  "share": {"PSR": 31.03, "SR": 31.03, "PR": 21.26, "R": 24.24},
+  "steps": [
+    {"name": "ステップ1", "pulls": 6, "cost": 25, "slots": [
+      {"n": 1, "label": "「PR」以上の「本谷静人」「立野創史」「柳瀬カリカ」からいずれか1枚確定枠", "rarity": {"PSR": 0.5, "SR": 3, "PR": 96.5}, "target": "only"},
+      {"n": 5, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ2", "pulls": 10, "cost": 40, "slots": [
+      {"n": 1, "label": "「SR」以上1枚確定枠", "rarity": {"PSR": 0.5, "SR": 99.5}, "target": "share"},
+      {"n": 9, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ3", "pulls": 10, "cost": 50, "slots": [
+      {"n": 1, "label": "「SR」以上の「本谷静人」「立野創史」「柳瀬カリカ」からいずれか1枚確定枠", "rarity": {"PSR": 0.5, "SR": 99.5}, "target": "only"},
+      {"n": 9, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ4", "pulls": 10, "cost": 50, "slots": [
+      {"n": 10, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"},
+      {"n": 1, "label": "おまけ：「古書館高校配信記念SR選択ガチャ券」", "rarity": {"SR": 100}, "target": "pick"}
+    ]},
+    {"name": "ステップ5", "pulls": 10, "cost": 50, "slots": [
+      {"n": 1, "label": "「SR」以上の「本谷静人」「立野創史」「柳瀬カリカ」からいずれか1枚確定枠", "rarity": {"PSR": 0.5, "SR": 99.5}, "target": "only"},
+      {"n": 9, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ6", "pulls": 10, "cost": 50, "slots": [
+      {"n": 1, "label": "「SR」以上の「本谷静人」「立野創史」「柳瀬カリカ」からいずれか1枚確定枠", "rarity": {"PSR": 0.5, "SR": 99.5}, "target": "only"},
+      {"n": 9, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ7", "pulls": 10, "cost": 50, "slots": [
+      {"n": 10, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"},
+      {"n": 1, "label": "おまけ：「古書館高校配信記念PSR選択ガチャ券」", "rarity": {"PSR": 100}, "target": "pick"}
+    ]},
+    {"name": "ステップ8", "pulls": 10, "cost": 50, "slots": [
+      {"n": 1, "label": "「PSR」の「本谷静人」「立野創史」「柳瀬カリカ」からいずれか1枚確定枠", "rarity": {"PSR": 100}, "target": "only"},
+      {"n": 9, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]}
+  ],
+  "comment": [
+    "{太:結論：27日から開催される最強決定戦で上位を狙うなら必須になります。常設キャラなので、まったりプレイする人は焦らなくてもOKです。}",
+    "新シナリオの古書館高校のシナリオ所属キャラクターであり、{青太:メインデッキに1人でもセットすれば金特獲得時の経験点が上がったり、矢部の特別なイベントが発生する}といったアドバンテージがあります。",
+    "そのため、現段階では誰かしら1人はメインデッキに入れる必要があり、27日からの最強決定戦で上位を狙うなら必須になる見込みです。",
+    "ただし、{赤太:ガチャ自体は3キャラピックアップという事もあって上限開放がしにくい}ため深追いは厳禁です。",
+    "また常設キャラクター扱いなのでいずれ他のガチャやガチャ券で入手できる事を考えると、マイペースでプレイする人は焦ってガチャしなくてもいいかもしれません。"
+  ],
+  "comment_date": "2026/11/26"
+}
