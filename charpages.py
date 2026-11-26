@@ -778,8 +778,9 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     awake_cap = any(b.get("覚醒") or b.get("覚醒PSR") for _, b in caps)  # 基礎上限に覚醒で付く分があるキャラだけ ※ を出す
     ev = {"後": "後", "前": "前"}.get(p.get("前後イベ"), p.get("前後イベ") or "不明")
     basic = (f'<table class="cp-basic"><tbody>'
+             f'<tr><th>初登場日</th><td>{e(c.get("実装日") or "不明")}</td></tr>'
              f'<tr><th>得意練習</th><td>{e(" / ".join(c["得意練習"]) or "なし")}</td></tr>'
-             f'<tr><th>イベント前後</th><td>{e(ev)}</td></tr>'
+             f'<tr><th>イベント前後</th><td>{ev_badge(ev)}</td></tr>'
              f'<tr><th>基礎上限{"<sup>※</sup>" if awake_cap else ""}</th><td>{cap_txt}</td></tr>'
              + "".join(f'<tr><th>{k}金特</th><td>{gold_text(c, k)}</td></tr>' for k in (("投手", "野手") if order_type == "投手用" else ("野手", "投手"))) +
              f'<tr><th>友情特殊能力</th><td>{friend_text(c)}</td></tr>'
@@ -1009,13 +1010,20 @@ def ability_html(c, kinds):
     return ability
 
 
+def ev_badge(ev):
+    """基本情報の「イベント前後」。前＝濃い黄色、後＝濃い青の札で出す（2026-11-26 管理人）。それ以外（不明・準備中）は文字のまま"""
+    cls = {"前": "cp-ev-pre", "後": "cp-ev-post"}.get(ev)
+    return f'<span class="cp-evtag {cls}">{e(ev)}</span>' if cls else e(ev)
+
+
 def stub_body(full, st, c=None, kinds=None):
     """データ未入力キャラのページ本文。分かっている項目だけ出し、不明な所は「準備中」"""
     def pats(lst):
         # 長いパターンは、通常ページと同じく「＋」の後ろで改行する（スマホ幅で横にはみ出さないように）
         return "<br>".join(f"パターン{i + 1}：" + (e(x).replace("＋", "＋<br>") if len(x) > 12 else e(x)) for i, x in enumerate(lst)) if lst else "準備中"
-    rows = [("得意練習", e(" / ".join(st["得意練習"])) if st.get("得意練習") else "準備中"),
-            ("イベント前後", e(st.get("前後イベ") or "準備中")),
+    rows = [("初登場日", e(st.get("実装日") or "準備中")),
+            ("得意練習", e(" / ".join(st["得意練習"])) if st.get("得意練習") else "準備中"),
+            ("イベント前後", ev_badge(st.get("前後イベ") or "準備中")),
             ("野手金特", pats(st.get("金特野手"))),
             ("投手金特", pats(st.get("金特投手")))]
     basic = '<table class="cp-basic"><tbody>' + "".join(f"<tr><th>{k}</th><td>{v}</td></tr>" for k, v in rows) + "</tbody></table>"
