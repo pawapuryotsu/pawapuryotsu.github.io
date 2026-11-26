@@ -195,14 +195,19 @@ def awake_head(entry, head):
     return (head, "(SR覚醒含む)") if sr else (head, "")
 
 
-def bonus_table(rows, extra=""):
+# 重要ボーナス表の行の背景：野手でだけ重要な項目＝薄い緑、投手でだけ重要な項目＝薄い赤（2026-11-26 管理人）
+_BONUS_ROW_CLS = {**{n: "bn-bat" for n in ("筋力ボーナス", "敏捷ボーナス", "技術ボーナス", "変化球ボーナス", "精神ボーナス", "コツイベントボーナス")},
+                  **{n: "bn-pit" for n in ("練習効果アップ", "スペシャルタッグボーナス")}}
+
+
+def bonus_table(rows, extra="", color=False):
     out = ['<table class="cp-bonus"><tbody>']
     for name, entry in rows:
         r = bonus_lines(entry)
         alpha = entry.get("固有文字") == "α"   # 得意練習率アップの固有はゲーム内で値を測れないので「+α(固有)」と書く（管理人指示 2026-11-07）
         if not r and entry.get("固有文字"):  # 固有の値がゲーム内で分からない項目は文字のまま出す（αは「+α(固有)」、ほかは「あり(固有)」など）
             txt = "+α" if alpha else entry["固有文字"]
-            out.append(f'<tr><th>{e(name)}</th><td><b>{e(txt)}</b>(固有)</td></tr>')
+            out.append(f'<tr{_row_cls(name, color)}><th>{e(name)}</th><td><b>{e(txt)}</b>(固有)</td></tr>')
             continue
         if not r:
             continue
@@ -213,10 +218,15 @@ def bonus_table(rows, extra=""):
             steps = [(v + "+α", l) for v, l in steps]
         cell = f'<b>{e(h)}</b>' + (f'<span class="awk">{e(am)}</span>' if am else "") + (lambda m: f'<span class="awk">{e(m)}</span>' if m else "")("(固有)" if alpha else unique_mark(entry)) + "".join(
             f'<span class="step">⇒{e(v)}<small>({e(l)})</small></span>' for v, l in steps)
-        out.append(f"<tr><th>{e(name)}</th><td>{cell}</td></tr>")
+        out.append(f"<tr{_row_cls(name, color)}><th>{e(name)}</th><td>{cell}</td></tr>")
     out.append(extra)
     out.append("</tbody></table>")
     return "".join(out)
+
+
+def _row_cls(name, color):
+    cls = _BONUS_ROW_CLS.get(name) if color else None
+    return f' class="{cls}"' if cls else ""
 
 
 def join_patterns(pats):
@@ -786,6 +796,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
              f'<tr><th>初登場日</th><td>{e(c.get("実装日") or "不明")}{"<small class=cp-src>(イベント報酬)</small>" if c.get("入手方法") == "イベント報酬" else ""}</td></tr>'
              f'<tr><th>得意練習</th><td>{practice_tags(c["得意練習"])}</td></tr>'
              f'<tr><th>イベント前後</th><td>{ev_badge(ev)}</td></tr>'
+             f'<tr><th>役割</th><td>{role_tag(p.get("役割"))}</td></tr>'
              + "".join(f'<tr><th>{k}金特</th><td>{gold_text(c, k)}</td></tr>' for k in (("投手", "野手") if order_type == "投手用" else ("野手", "投手"))) +
              f'<tr><th>基礎上限{"<sup>※</sup>" if awake_cap else ""}</th><td>{cap_txt}</td></tr>'   # 金特の下（2026-11-26 管理人）
              f'<tr><th>友情特殊能力</th><td>{friend_text(c)}</td></tr>'
@@ -797,7 +808,7 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     # 重要ボーナスの一番下に、追加枠「○○」／キャラ持参アイテム「○○」を出す（管理人指示 2026-11-10）。データに無いキャラは出さない
     item_rows = "".join(f'<tr><th>{e(it.get("種類") or "アイテム")}</th><td><b>{e(it["名前"])}</b></td></tr>'
                         for it in c.get("アイテム") or [] if it.get("名前"))
-    imp = bonus_table(important, item_rows) + (
+    imp = bonus_table(important, item_rows, color=True) + (
         f'<details class="cp-more"><summary>その他ボーナスはこちらをタップ</summary>{bonus_table(others)}</details>' if others else "")
     ability = ability_html(c, kinds)
     name = c["name"]
@@ -1033,6 +1044,15 @@ def gray_none(html):
     return html.replace("<td>なし</td>", '<td><span class="cp-none">なし</span></td>')
 
 
+_ROLE_CLS = {"ガード": "rl-guard", "レンジャー": "rl-ranger", "バウンサー": "rl-bouncer", "スナイパー": "rl-sniper"}
+
+
+def role_tag(role):
+    """基本情報の「役割」。ガード＝緑、レンジャー＝紫、バウンサー＝青、スナイパー＝赤の枠で出す（2026-11-26 管理人）。データが無ければ 不明"""
+    cls = _ROLE_CLS.get(role or "")
+    return f'<span class="cp-role {cls}">{e(role)}</span>' if cls else e(role or "不明")
+
+
 def ev_badge(ev):
     """基本情報の「イベント前後」。前＝濃い黄色、後＝濃い青の札で出す（2026-11-26 管理人）。それ以外（不明・準備中）は文字のまま"""
     cls = {"前": "cp-ev-pre", "後": "cp-ev-post"}.get(ev)
@@ -1047,6 +1067,7 @@ def stub_body(full, st, c=None, kinds=None):
     rows = [("初登場日", e(st.get("実装日") or "準備中")),
             ("得意練習", practice_tags(st["得意練習"]) if st.get("得意練習") else "準備中"),
             ("イベント前後", ev_badge(st.get("前後イベ") or "準備中")),
+            ("役割", role_tag(st.get("役割")) if st.get("役割") else "準備中"),
             ("野手金特", pats(st.get("金特野手"))),
             ("投手金特", pats(st.get("金特投手")))]
     basic = '<table class="cp-basic"><tbody>' + "".join(f"<tr><th>{k}</th><td>{v}</td></tr>" for k, v in rows) + "</tbody></table>"

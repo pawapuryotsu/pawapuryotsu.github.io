@@ -779,3 +779,14 @@ details.se-d>.se-t{margin-top:8px}
 .pt-pit{background:#ffe0ec;color:#a3164f}
 /* 至高の○○・球界の頭脳（特別な金特）を目立たせる（2026-11-26 管理人） */
 .cp-gold-sp{font-weight:700;color:#9a6a00;background:linear-gradient(transparent 55%,#ffe9a8 55%);padding:0 1px}
+/* 基本情報「役割」の枠：ガード＝緑、レンジャー＝紫、バウンサー＝青、スナイパー＝赤（2026-11-26 管理人） */
+.cp-role{display:inline-block;padding:0 10px;border:2px solid;border-radius:6px;font-weight:700;line-height:1.6;white-space:nowrap}
+.rl-guard{border-color:#2e9e52;color:#17703a;background:#effaf2}
+.rl-ranger{border-color:#8b4fd0;color:#5b2ca0;background:#f6f0fd}
+.rl-bouncer{border-color:#2f6fd6;color:#1c4fa3;background:#eef4fe}
+.rl-sniper{border-color:#d64545;color:#a61b1b;background:#fdf0f0}
+/* 重要ボーナス表：野手でだけ重要な項目＝薄い緑、投手でだけ重要な項目＝薄い赤（2026-11-26 管理人） */
+.cp-bonus tr.bn-bat>th,.cp-bonus tr.bn-bat>td{background:#eaf7ee}
+.cp-bonus tr.bn-pit>th,.cp-bonus tr.bn-pit>td{background:#fdecec}
+.cp-bonus th{padding-left:8px}
+@media (max-width:340px){.cp-bonus th{padding-left:2px}}
