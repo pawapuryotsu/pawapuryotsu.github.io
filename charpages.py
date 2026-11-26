@@ -341,8 +341,8 @@ def _item(i):
         t = t.replace(k, v)
     if re.match(r"^オリジナル(ストレート|変化球)", i) and i.endswith("取得"):  # オリジナルストレート取得・オリジナル変化球(○○方向)取得は青字（管理人指示 2026-11-07）
         return f'<div class="tx-b tx-bold">{t.replace("(", "<wbr>(")}</div>'
-    m = re.match(r"^(.+?)(?:取得|になる)$", i)
-    if m and _kind_of(m.group(1)) in ("赤特", "緑特"):  # 「○○取得」「○○になる」は、赤特は赤文字、緑特は緑文字
+    m = re.match(r"^(.+?)(?:取得|になる)(?:[(（][^)）]*[)）])?$", i)
+    if m and _kind_of(m.group(1)) in ("赤特", "緑特"):  # 「○○取得」「○○になる」は、赤特は赤文字、緑特は緑文字。後ろに「(ランダム)」などが付いていても同じ（[凛々]猪狩進で発生）
         return f'<div class="{"tx-r" if _kind_of(m.group(1)) == "赤特" else "tx-g"}">{t}</div>'
     is_friend = any(i.startswith(n + "コツ") for n in _FRIEND[0])
     cls = "cp-kotsu cp-kotsu-gold" if (_is_gold_kotsu(i) or is_friend) else ("cp-kotsu" if "コツLv" in i else "")
