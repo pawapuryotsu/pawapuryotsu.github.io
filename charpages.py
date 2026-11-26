@@ -1011,16 +1011,16 @@ def ability_html(c, kinds):
     return ability
 
 
-# 得意練習の札の色（お試し 2026-11-26）。背景は薄め・文字は濃いめで読みやすく
-_PRACTICE_CLS = {"打撃": "pt-bat", "筋力": "pt-pow", "走塁": "pt-run", "肩力": "pt-arm", "守備(野手)": "pt-def", "守備(投手)": "pt-def",
-                 "球速": "pt-spd", "コントロール": "pt-con", "スタミナ": "pt-sta", "変化球": "pt-brk", "メンタル(野手)": "pt-men", "メンタル(投手)": "pt-men"}
+# 得意練習の札の色：野手の練習は緑、投手の練習は赤系で統一（2026-11-26 管理人）。どちらの練習かは config「種別の判定」と同じ分け方
+_PITCH_PRACTICE = ("球速", "コントロール", "スタミナ", "変化球", "守備(投手)", "メンタル(投手)")
+_BAT_PRACTICE = ("打撃", "筋力", "走塁", "肩力", "守備(野手)", "メンタル(野手)")
 
 
 def practice_tags(lst):
     """基本情報の得意練習。練習ごとの色の札で並べる。無ければ なし"""
     if not lst:
         return "なし"
-    return " ".join(f'<span class="cp-ptag {_PRACTICE_CLS.get(t, "")}">{e(t)}</span>' for t in lst)
+    return " ".join(f'<span class="cp-ptag {"pt-pit" if t in _PITCH_PRACTICE else "pt-bat" if t in _BAT_PRACTICE else ""}">{e(t)}</span>' for t in lst)
 
 
 def gray_none(html):
