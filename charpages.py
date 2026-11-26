@@ -1155,26 +1155,6 @@ def new_chars_html(items):
             "if(!w.querySelector('li'))w.remove();})();</script>")
 
 
-# イベキャラ一覧のカードの得意練習の略字（2026-11-26 管理人）。守備・メンタルは投手／野手どちらも同じ字で、色だけ変える
-_PRACTICE_SHORT = {"球速": "球", "コントロール": "ｺﾝ", "スタミナ": "ｽﾀ", "変化球": "変", "守備(投手)": "守", "メンタル(投手)": "ﾒﾝ",
-                   "打撃": "打", "筋力": "筋", "走塁": "走", "肩力": "肩", "守備(野手)": "守", "メンタル(野手)": "ﾒﾝ"}
-
-
-def card_badges(c):
-    """イベキャラ一覧のカードの右側に□を2×2で並べる（2026-11-26 管理人）。上の段＝得意練習（投手練習＝赤ピンク、野手練習＝緑）、
-    下の段＝役割の頭文字・イベント前後。色はキャラページと同じ。データが無い所は空ける"""
-    top = [f'<span class="cl-bx {"pt-pit" if t in _PITCH_PRACTICE else "pt-bat"}" title="{e(t)}">{_PRACTICE_SHORT[t]}</span>'
-           for t in (c.get("得意練習") or []) if t in _PRACTICE_SHORT][:2]
-    p = c.get("プロフィール") or {}
-    role, ev = p.get("役割") or "", p.get("前後イベ")
-    bottom = [f'<span class="cl-bx cl-bx-role {_ROLE_CLS[role]}" title="{e(role)}">{e(role[0])}</span>' if role in _ROLE_CLS else "",
-              f'<span class="cl-bx {"cp-ev-pre" if ev == "前" else "cp-ev-post"}" title="イベント{ev}">{ev}</span>' if ev in ("前", "後") else ""]
-    if not top and not any(bottom):
-        return ""
-    cells = (top + [""] * 2)[:2] + bottom
-    return '<span class="cl-bxs">' + "".join(x or '<span class="cl-bx-empty"></span>' for x in cells) + "</span>"
-
-
 def index_page(items, config, noindex):
     """イベキャラ一覧（/chars/）。検索つき。本文は静的HTML（検索は表示を絞るだけ）"""
     lis = []
@@ -1189,7 +1169,7 @@ def index_page(items, config, noindex):
         lis.append(f'<li class="cl-item" data-k="{e(key)}" data-t="{e(kind)}"><a href="{pid}/">'
                    + (f'<img class="cl-icon" src="../img/chars/{pid}.png" alt="" width="52" height="52" loading="lazy">' if c.get("_icon") else '<span class="cl-icon"></span>')
                    + f'<span class="cl-name"><span class="cl-nick">{e(c["二つ名"] or "")}</span><b>{e(c["苗字"])}{e(c["名前"] or "")}</b></span>'
-                   + card_badges(c) + '</a></li>')
+                   '</a></li>')   # 野手用・投手用・兼用は絞り込み用のデータ（data-t）だけで、カードには出さない（2026-11-26 管理人）
     kinds_ = sorted({char_type(c, config["種別の判定"]) for _, c, _ in items if not c.get("_準備中") or (c.get("_公開") and c.get("得意練習"))}) if items else []
     chips = "".join(f'<button type="button" class="cl-chip" data-t="{e(k)}">{e(k)}</button>' for k in kinds_)
     new_html = new_chars_html(items)
