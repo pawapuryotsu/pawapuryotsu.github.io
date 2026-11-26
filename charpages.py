@@ -233,7 +233,12 @@ def gold_text(c, kind):
     def brk(p):
         # 長いパターン（スマホ幅375pxで1行に収まらないもの）だけ、「＋」の後ろで改行する
         return e(p).replace("＋", "＋<br>") if len(p) > 18 else e(p)
-    return "<br>".join(brk(p) for p in pats) if pats else "なし"
+    return special_gold("<br>".join(brk(p) for p in pats)) if pats else "なし"
+
+
+def special_gold(html):
+    """至高の○○・球界の頭脳は特別な金特なので、色を変えて目立たせる（2026-11-26 管理人）"""
+    return re.sub(r"(至高の[^＋<\s]+|球界の頭脳)", r'<span class="cp-gold-sp">\1</span>', html)
 
 
 def friend_text(c):
@@ -507,7 +512,7 @@ def combo_html(x, root, me=None):
         return f'<span class="cp-nw">{t}</span>'
     basic = ('<table class="cp-basic"><tbody>'
              f'<tr><th>コンボキャラ</th><td>{"、<wbr>".join(who(n) for n in x["キャラ"])}</td></tr>'
-             f'<tr><th>イベント前後</th><td>{e(x.get("前後") or "不明")}</td></tr></tbody></table>')
+             f'<tr><th>イベント前後</th><td>{ev_badge(x.get("前後") or "不明")}</td></tr></tbody></table>')
     subs = ""
     for sub in x.get("小イベント", []):
         if sub.get("名前"):
@@ -778,15 +783,17 @@ def build_page(c, text, config, decks, kinds, root="../../"):
     awake_cap = any(b.get("覚醒") or b.get("覚醒PSR") for _, b in caps)  # 基礎上限に覚醒で付く分があるキャラだけ ※ を出す
     ev = {"後": "後", "前": "前"}.get(p.get("前後イベ"), p.get("前後イベ") or "不明")
     basic = (f'<table class="cp-basic"><tbody>'
-             f'<tr><th>得意練習</th><td>{e(" / ".join(c["得意練習"]) or "なし")}</td></tr>'
-             f'<tr><th>イベント前後</th><td>{e(ev)}</td></tr>'
-             f'<tr><th>基礎上限{"<sup>※</sup>" if awake_cap else ""}</th><td>{cap_txt}</td></tr>'
+             f'<tr><th>初登場日</th><td>{e(c.get("実装日") or "不明")}{"<small class=cp-src>(イベント報酬)</small>" if c.get("入手方法") == "イベント報酬" else ""}</td></tr>'
+             f'<tr><th>得意練習</th><td>{practice_tags(c["得意練習"])}</td></tr>'
+             f'<tr><th>イベント前後</th><td>{ev_badge(ev)}</td></tr>'
              + "".join(f'<tr><th>{k}金特</th><td>{gold_text(c, k)}</td></tr>' for k in (("投手", "野手") if order_type == "投手用" else ("野手", "投手"))) +
+             f'<tr><th>基礎上限{"<sup>※</sup>" if awake_cap else ""}</th><td>{cap_txt}</td></tr>'   # 金特の下（2026-11-26 管理人）
              f'<tr><th>友情特殊能力</th><td>{friend_text(c)}</td></tr>'
              f'<tr><th>練習改革</th><td>{reform_text(c)}</td></tr>'
              f'<tr><th>アイテム追加枠</th><td>{item_text(c)}</td></tr>'
              f'</tbody></table>'
              + ('<p class="cp-note">※ 覚醒で付く分も表記</p>' if awake_cap else ""))
+    basic = gray_none(basic)
     # 重要ボーナスの一番下に、追加枠「○○」／キャラ持参アイテム「○○」を出す（管理人指示 2026-11-10）。データに無いキャラは出さない
     item_rows = "".join(f'<tr><th>{e(it.get("種類") or "アイテム")}</th><td><b>{e(it["名前"])}</b></td></tr>'
                         for it in c.get("アイテム") or [] if it.get("名前"))
@@ -1009,13 +1016,37 @@ def ability_html(c, kinds):
     return ability
 
 
+# 得意練習の札の色：野手の練習は緑、投手の練習は赤系で統一（2026-11-26 管理人）。どちらの練習かは config「種別の判定」と同じ分け方
+_PITCH_PRACTICE = ("球速", "コントロール", "スタミナ", "変化球", "守備(投手)", "メンタル(投手)")
+_BAT_PRACTICE = ("打撃", "筋力", "走塁", "肩力", "守備(野手)", "メンタル(野手)")
+
+
+def practice_tags(lst):
+    """基本情報の得意練習。練習ごとの色の札で並べる。無ければ なし"""
+    if not lst:
+        return "なし"
+    return " ".join(f'<span class="cp-ptag {"pt-pit" if t in _PITCH_PRACTICE else "pt-bat" if t in _BAT_PRACTICE else ""}">{e(t)}</span>' for t in lst)
+
+
+def gray_none(html):
+    """基本情報の表で、中身が「なし」だけの欄を薄い灰色にする（ある項目を目立たせるため。2026-11-26 管理人）"""
+    return html.replace("<td>なし</td>", '<td><span class="cp-none">なし</span></td>')
+
+
+def ev_badge(ev):
+    """基本情報の「イベント前後」。前＝濃い黄色、後＝濃い青の札で出す（2026-11-26 管理人）。それ以外（不明・準備中）は文字のまま"""
+    cls = {"前": "cp-ev-pre", "後": "cp-ev-post"}.get(ev)
+    return f'<span class="cp-evtag {cls}">{e(ev)}</span>' if cls else e(ev)
+
+
 def stub_body(full, st, c=None, kinds=None):
     """データ未入力キャラのページ本文。分かっている項目だけ出し、不明な所は「準備中」"""
     def pats(lst):
         # 長いパターンは、通常ページと同じく「＋」の後ろで改行する（スマホ幅で横にはみ出さないように）
         return "<br>".join(f"パターン{i + 1}：" + (e(x).replace("＋", "＋<br>") if len(x) > 12 else e(x)) for i, x in enumerate(lst)) if lst else "準備中"
-    rows = [("得意練習", e(" / ".join(st["得意練習"])) if st.get("得意練習") else "準備中"),
-            ("イベント前後", e(st.get("前後イベ") or "準備中")),
+    rows = [("初登場日", e(st.get("実装日") or "準備中")),
+            ("得意練習", practice_tags(st["得意練習"]) if st.get("得意練習") else "準備中"),
+            ("イベント前後", ev_badge(st.get("前後イベ") or "準備中")),
             ("野手金特", pats(st.get("金特野手"))),
             ("投手金特", pats(st.get("金特投手")))]
     basic = '<table class="cp-basic"><tbody>' + "".join(f"<tr><th>{k}</th><td>{v}</td></tr>" for k, v in rows) + "</tbody></table>"

@@ -766,3 +766,16 @@ details.se-d>.se-t{margin-top:8px}
 .sm-h{font-family:var(--head);font-weight:900;font-size:16px;margin:16px 0 6px;padding:5px 10px;border-left:5px solid #1d5e43;background:#f2f4f1;border-radius:4px}
 .prose .sm-l{margin:6px 0 10px;padding-left:1.3em}.sm-l li+li{margin-top:4px}
 .sm-t tbody th{width:55%}
+
+/* 基本情報「イベント前後」の札：前＝濃い黄色、後＝濃い青（2026-11-26 管理人） */
+.cp-evtag{display:inline-block;min-width:2.2em;text-align:center;padding:1px 10px;border-radius:999px;font-weight:700;line-height:1.5}
+.cp-ev-pre{background:#e6a700;color:#2b1f00}
+.cp-ev-post{background:#1d4fa8;color:#fff}
+/* 基本情報：「なし」は薄い灰色、初登場日の(イベント報酬)、得意練習の札（お試し）（2026-11-26 管理人） */
+.cp-none{color:#a3a8b0}
+.cp-src{display:inline-block;white-space:nowrap;margin-left:6px;font-size:13px;color:var(--muted,#6b7280)}
+.cp-ptag{display:inline-block;padding:1px 9px;margin:1px 2px 1px 0;border-radius:6px;font-size:14px;font-weight:700;line-height:1.6;white-space:nowrap}
+.pt-bat{background:#dcf3e1;color:#17703a}
+.pt-pit{background:#ffe0ec;color:#a3164f}
+/* 至高の○○・球界の頭脳（特別な金特）を目立たせる（2026-11-26 管理人） */
+.cp-gold-sp{font-weight:700;color:#9a6a00;background:linear-gradient(transparent 55%,#ffe9a8 55%);padding:0 1px}
