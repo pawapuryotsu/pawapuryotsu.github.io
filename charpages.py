@@ -934,6 +934,7 @@ def generate(chars_path, src, decks, noindex=True):
     # ＋イベント内容が1つも書かれていないキャラは検索に出さない（ボーナスや評価が入っていても）。イベント内容を書けば自動で外れる
     #   （2026-11-17 管理人「イベント内容が記載されてないものはnoindexを付ける。記載されているならnoindexを外す」）
     hide = set(config.get("検索に出さないページ", []))
+    keep = set(config.get("イベント未記入でも検索に出すキャラ", []))   # 管理人が指定した番号だけ、イベントが無くても noindex にしない（2026-11-26）
     # 先に、検索に出さないキャラ（指定したもの＋イベント内容が無いもの）を調べておく（関連ページから外すため）
     _HIDDEN_NAMES.clear()
     for pid, name in config["公開するキャラ"].items():
@@ -941,7 +942,7 @@ def generate(chars_path, src, decks, noindex=True):
         if not c:
             continue
         tf = next((f for f in (src / "chars" / "texts").glob("*.json") if json.loads(f.read_text(encoding="utf-8")).get("name") == name), None)
-        if pid in hide or has_no_events(c, json.loads(tf.read_text(encoding="utf-8")) if tf else {}, config):
+        if pid in hide or (pid not in keep and has_no_events(c, json.loads(tf.read_text(encoding="utf-8")) if tf else {}, config)):
             _HIDDEN_NAMES.add(name)
     for pid, name in config["公開するキャラ"].items():
         if not re.fullmatch(r"\d{4}", pid):
@@ -969,7 +970,12 @@ def generate(chars_path, src, decks, noindex=True):
         meta += f"recent_title: {full}のイベント{'・評価' if has_eval(c, text) else ''}\n"
         body = (head_html(full, c, pid, has_eval(c, text))   # 評価があるキャラは大見出しも「評価・イベントまとめ」（2026-11-12 管理人 案A）
                 + build_page(c, text, config, decks, kinds))
-        hidden = pid in hide or events_wip(body)
+        hidden = pid in hide or (pid not in keep and events_wip(body))
+        if pid in keep and events_wip(body):   # イベント未記入で検索に出すキャラ：名前は「○○のデータ」、公開日は実装日（2026-11-26）
+            c["_rt"] = f"{full}のデータ"
+            meta = re.sub(r"recent_title: .*\n", f"recent_title: {full}のデータ\n", meta)
+            if c.get("実装日"):
+                meta += f"published: {c['実装日'].replace('/', '-')}\n"
         if hidden:
             unlisted.add(pid)   # 検索に出さないキャラはイベキャラ一覧にも出さない（2026-11-17 管理人。イベントを書けば自動で戻る）
         meta += f"path: {path}\nnav: none\ncrumb: {full}\n" + ("noindex: yes\n" if hidden else "")
