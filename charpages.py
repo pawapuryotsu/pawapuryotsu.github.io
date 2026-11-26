@@ -331,7 +331,7 @@ def _kind_of(name):
 
 
 # 長くて途中で折り返せない能力名の、折り返してよい位置（375px前後で表がはみ出すのを防ぐ。[超攻型]大西で発生）
-_ITEM_BREAK = {"ハイスピンジャイロ": "ハイスピン<wbr>ジャイロ"}
+_ITEM_BREAK = {"ハイスピンジャイロ": "ハイスピン<wbr>ジャイロ", "トリックスター": "トリック<wbr>スター", "カモフラー": "カモ<wbr>フラー"}  # トリックスター・カモフラージュは[超銀河☆ブルーム]上下沙優で発生
 
 
 def _item(i):
@@ -400,6 +400,13 @@ def _eff(i):
     return f'<span class="{"tx-b" if m.group(2)[0] in "+＋" else "tx-r"}">{e(i)}</span>'
 
 
+def _eff_order(effs):
+    """効果の並び順。体力最大値 → 体力 → やる気 → その他（書いた順のまま）。全ページ共通（2026-11-26 管理人）"""
+    def key(i):
+        return 0 if i.startswith("体力最大値") else 1 if i.startswith("体力") else 2 if i.startswith("やる気") else 3
+    return sorted(effs, key=key)
+
+
 def sub_table(rows):
     """イベントの表。選択肢ごとに1行。左＝選択肢名、中＝効果（＋）、右＝投手／野手などその他。選択肢が無いイベントは左の列を出さない"""
     has_name = any(r.get("選択肢") for r in rows)
@@ -408,7 +415,7 @@ def sub_table(rows):
     body = ""
     for r in rows:
         name = f'<th class="{"ok" if r.get("正解") else ""}">{"◎ " if r.get("正解") else ""}{_choice_name(r.get("選択肢", ""))}</th>' if has_name else ""
-        eff = "".join(f'<div{" class=cp-note" if i.startswith("※") else ""}>{_eff(i)}</div>' for i in r.get("効果", []))
+        eff = "".join(f'<div{" class=cp-note" if i.startswith("※") else ""}>{_eff(i)}</div>' for i in _eff_order(r.get("効果", [])))
         body += f"<tr>{name}<td>{eff}</td>" + (f"<td>{_cell(r)}</td>" if has_other else "") + "</tr>"
     return f'<div class="cp-tbl-wrap"><table class="cp-tbl"><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>'
 
