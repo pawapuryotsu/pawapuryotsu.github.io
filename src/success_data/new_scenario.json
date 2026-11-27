@@ -54,6 +54,14 @@
       "準備中で出す": true
     },
     {
+      "キー": "shinansho",
+      "名前": "指南書の効果一覧",
+      "説明": "",
+      "画像": "img/success/koshokan_book/tataki.jpg",
+      "準備OK": true,
+      "表示名": "指南書の<span class=\"cp-nw\">効果一覧</span>"
+    },
+    {
       "キー": "tachimawari",
       "名前": "立ち回り解説",
       "説明": "",
