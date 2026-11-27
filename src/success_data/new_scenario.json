@@ -54,6 +54,14 @@
       "準備中で出す": true
     },
     {
+      "キー": "gimmick_detail",
+      "名前": "ギミック詳細検証",
+      "説明": "",
+      "画像": "img/success/koshokan_book/tataki.jpg",
+      "準備OK": true,
+      "表示名": "ギミック<span class=\"cp-nw\">詳細検証</span>"
+    },
+    {
       "キー": "tachimawari",
       "名前": "立ち回り解説",
       "説明": "",
