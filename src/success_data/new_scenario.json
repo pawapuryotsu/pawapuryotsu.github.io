@@ -54,12 +54,12 @@
       "準備中で出す": true
     },
     {
-      "キー": "gimmick_detail",
-      "名前": "ギミック詳細検証",
+      "キー": "shinansho",
+      "名前": "指南書の効果一覧",
       "説明": "",
       "画像": "img/success/koshokan_book/tataki.jpg",
       "準備OK": true,
-      "表示名": "ギミック<span class=\"cp-nw\">詳細検証</span>"
+      "表示名": "指南書の<span class=\"cp-nw\">効果一覧</span>"
     },
     {
       "キー": "tachimawari",
