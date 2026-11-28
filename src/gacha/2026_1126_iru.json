@@ -1,0 +1,30 @@
+{
+  "id": "2026_1126_iru",
+  "title": "ループガチャ イル（復刻）",
+  "chara": "イル",
+  "period": "2026年11月26日(木)メンテナンス終了後〜12月4日(金)13:59",
+  "checked": "2026-11-28",
+  "sources": [
+    {"label": "ガチャのお知らせ", "url": "https://asc.s.konaminet.jp/asc/pawasma/webpage/news/event_gacha/2026_1126_Gacha_Wum-gjZa4.php?set_user_id=0"},
+    {"label": "提供割合", "url": "https://asc.s.konaminet.jp/asc/pawasma/webpage/news/gacha_probs/event_6623_HZh2n8e7.php?set_user_id=0"}
+  ],
+  "loop": true,
+  "revival": true,
+  "share": {"PSR": 23.27, "SR": 23.27, "PR": 16.04, "R": 18.16},
+  "steps": [
+    {"name": "ステップ1", "pulls": 6, "cost": 25, "slots": [
+      {"n": 1, "label": "「SR」以上1枚確定枠", "rarity": {"PSR": 0.5, "SR": 99.5}, "target": "share"},
+      {"n": 5, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ2", "pulls": 10, "cost": 40, "slots": [
+      {"n": 1, "label": "「PR」以上の「イル」1枚確定枠", "rarity": {"PSR": 0.5, "SR": 3, "PR": 96.5}, "target": "only"},
+      {"n": 9, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]},
+    {"name": "ステップ3", "pulls": 10, "cost": 50, "slots": [
+      {"n": 1, "label": "「SR」以上の「イル」1枚確定枠", "rarity": {"PSR": 20, "SR": 80}, "target": "only"},
+      {"n": 9, "label": "上記以外", "rarity": {"PSR": 1, "SR": 6, "PR": 20.95, "R": 72.05}, "target": "share"}
+    ]}
+  ],
+  "comment": [],
+  "comment_date": ""
+}
