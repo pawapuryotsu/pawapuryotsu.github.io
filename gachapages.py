@@ -71,7 +71,7 @@ def _eval_html(g, src_dir):
         out += f'<p class="cp-evdate"><span class="rk-date">【記入日{e(g["comment_date"])}】</span></p>'
     if chara_eval:
         out += f'<h3>イベキャラとしての評価</h3>{chara_eval}' + "".join(
-            f'<p><a href="{{{{root}}}}{e(ch["char_page"])}">{e(ch["chara"])}の<span class="cp-nw">ページを見る</span></a></p>' for ch in chs)
+            f'<p><a href="{{{{root}}}}{e(ch["char_page"])}">{e(ch["chara"])}の<span class="cp-nw">ページを見る</span></a></p>' for ch in chs if ch.get("char_page"))
     return out
 
 
@@ -79,7 +79,7 @@ def _chars(g):
     """目当てキャラの一覧。出現率アップキャラが複数のガチャ（json の "charas"）は、キャラごとに表を作ってページで切り替える"""
     if g.get("charas"):
         return g["charas"]
-    return [{"key": "", "chara": g["chara"], "char_page": g["char_page"], "icon": g["icon"], "extra": g.get("extra", []), "tables": g["tables"]}]
+    return [{"key": "", "chara": g["chara"], "char_page": g.get("char_page", ""), "icon": g.get("icon", ""), "extra": g.get("extra", []), "tables": g["tables"]}]
 
 
 def _body(g, root_icon, src_dir):
@@ -158,7 +158,7 @@ def _body(g, root_icon, src_dir):
                + '</div><p class="muted">キャラを切り替えると、下の確率とシミュレータが切り替わります。</p>') if multi else ""
     metas = "".join(f'<p class="g-meta">' + (f'<img src="{{{{root}}}}{e(ch["icon"])}" alt="" width="44" height="44">' if ch.get("icon") else "") + '<span>'
                     + (f'開催期間：{_period(g["period"])}<br>' if not multi else "")
-                    + f'<a href="{{{{root}}}}{e(ch["char_page"])}">{e(ch["chara"])}の<span class="cp-nw">データ・イベントはこちら</span></a></span></p>' for ch in chs)
+                    + (f'<a href="{{{{root}}}}{e(ch["char_page"])}">{e(ch["chara"])}の<span class="cp-nw">データ・イベントはこちら</span></a>' if ch.get("char_page") else "") + '</span></p>' for ch in chs)
     if multi:
         metas = f'<p>開催期間：{_period(g["period"])}</p>' + metas
     # 見出し：キャラ名の途中で改行しないように、名前ごとに区切る
@@ -180,7 +180,7 @@ def _body(g, root_icon, src_dir):
         f'出現率アップの割合は{e(g["chara"])}の{len(chs)}人合計なので、1人あたりはその{len(chs)}分の1で計算しています（公式の「各レアリティ内の各イベキャラの出現割合は均一」による）。「{e(g["chara"]).replace("・", "」または「")}」の確定枠も{len(chs)}人で等分です。' if multi else "",
         "キャラごとの確率は、手持ちを全部そのキャラに使った場合の確率です。" + ("2人とも" if len(chs) == 2 else "2人以上") + "育てる場合は、選択ガチャ券を分けるぶん確率が下がります" + ("（「2人とも」を選ぶと、2人とも完成する確率を表示します）。" if both else "。") if multi and picks else "",
         ("「2人とも」の確率は、1人ずつのときと計算のしかたが違います：" + "".join(both_notes)) if both else ""] + g.get("notes", []) if x)   # notes：そのガチャだけの注意（json に書く）
-    loop_note = (f'1周＝{"〜".join([g["steps"][0]["name"], g["steps"][-1]["name"]])}'
+    loop_note = (f'1周＝{"〜".join(dict.fromkeys([g["steps"][0]["name"], g["steps"][-1]["name"]]))}'
                  f'（{sum(s["pulls"] for s in g["steps"])}連・<span class="cp-nw">パワストーン{sum(s["cost"] for s in g["steps"])}個</span>）。<br>') if g.get("loop") else ""
     comment = _eval_html(g, src_dir)
     kmax = {"PSR": g["tables"]["KS"], "SR": g["tables"]["KS"], "PR": g["tables"]["KL"], "R": g["tables"]["KL"]}
